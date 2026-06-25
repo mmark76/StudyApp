@@ -1,7 +1,7 @@
 export const studyConfig = {
   appName: "Study App",
   subjectName: "",
-  unitLabel: "Unit",
-  unitsLabel: "Units",
-  description: "A local-first study application for any subject.",
+  unitLabel: "Topic",
+  unitsLabel: "Topics",
+  description: "A private study space for any subject.",
 } as const;
