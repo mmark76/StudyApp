@@ -21,24 +21,24 @@ export function ContentImportPage() {
   const { units, flashcards, importedUnits, importedFlashcards } = useStudyContent();
   const [message, setMessage] = useState("");
 
-  async function importUnits(event: ChangeEvent<HTMLInputElement>) {
+  async function importTopics(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
 
     try {
-      const spreadsheetUnits = parseUnitsSpreadsheet(await readFile(file)).map((unit) => {
-        const existing = units.find((candidate) => candidate.number === unit.number);
-        return existing ? { ...unit, id: existing.id } : unit;
+      const spreadsheetTopics = parseUnitsSpreadsheet(await readFile(file)).map((topic) => {
+        const existing = units.find((candidate) => candidate.number === topic.number);
+        return existing ? { ...topic, id: existing.id } : topic;
       });
       const byNumber = new Map<number, StudyUnit>(
-        importedUnits.map((unit) => [unit.number, unit] as const),
+        importedUnits.map((topic) => [topic.number, topic] as const),
       );
-      for (const unit of spreadsheetUnits) byNumber.set(unit.number, unit);
-      const nextUnits = [...byNumber.values()].sort((first, second) => first.number - second.number);
-      await studyDatabase.settings.put({ key: IMPORTED_UNITS_SETTING_KEY, value: nextUnits });
-      setMessage(`${spreadsheetUnits.length} unit${spreadsheetUnits.length === 1 ? "" : "s"} added or updated successfully.`);
+      for (const topic of spreadsheetTopics) byNumber.set(topic.number, topic);
+      const nextTopics = [...byNumber.values()].sort((first, second) => first.number - second.number);
+      await studyDatabase.settings.put({ key: IMPORTED_UNITS_SETTING_KEY, value: nextTopics });
+      setMessage(`${spreadsheetTopics.length} topic${spreadsheetTopics.length === 1 ? "" : "s"} added or updated successfully.`);
     } catch {
-      setMessage("We could not read the units file. Download a fresh template and keep the column headings unchanged.");
+      setMessage("We could not read the topics file. Download a fresh template and keep the column headings unchanged.");
     } finally {
       event.target.value = "";
     }
@@ -58,14 +58,14 @@ export function ContentImportPage() {
       await studyDatabase.settings.put({ key: IMPORTED_FLASHCARDS_SETTING_KEY, value: nextFlashcards });
       setMessage(`${spreadsheetFlashcards.length} flashcard${spreadsheetFlashcards.length === 1 ? "" : "s"} added or updated successfully.`);
     } catch {
-      setMessage("We could not read the flashcards file. Make sure its unit numbers match units already added to the app.");
+      setMessage("We could not read the flashcards file. Make sure its topic numbers match topics already added to the app.");
     } finally {
       event.target.value = "";
     }
   }
 
   async function clearImportedContent() {
-    if (!window.confirm("Remove all units and flashcards that you added?")) return;
+    if (!window.confirm("Remove all topics and flashcards that you added?")) return;
     await studyDatabase.transaction("rw", studyDatabase.settings, studyDatabase.cardProgress, async () => {
       await studyDatabase.settings.delete(IMPORTED_UNITS_SETTING_KEY);
       await studyDatabase.settings.delete(IMPORTED_FLASHCARDS_SETTING_KEY);
@@ -79,23 +79,23 @@ export function ContentImportPage() {
       <header className="page-heading">
         <p className="eyebrow">Your content</p>
         <h2>Add study content</h2>
-        <p>Create units and flashcards directly in the app, or add many at once with familiar spreadsheet files.</p>
+        <p>Create topics and flashcards directly in the app, or add many at once with familiar spreadsheet files.</p>
       </header>
 
       <section className="stats-grid" aria-label="Your added content">
-        <article className="stat-card"><strong>{importedUnits.length}</strong><span>Units added</span></article>
+        <article className="stat-card"><strong>{importedUnits.length}</strong><span>Topics added</span></article>
         <article className="stat-card"><strong>{importedFlashcards.length}</strong><span>Flashcards added</span></article>
       </section>
 
       <section className="content-panel">
-        <h3>Add one unit</h3>
-        <p>Complete the fields below. Numbering is handled automatically.</p>
+        <h3>Add one topic</h3>
+        <p>Give the topic a title and add the main learning points. Numbering is handled automatically.</p>
         <UnitForm existingUnits={units} importedUnits={importedUnits} onMessage={setMessage} />
       </section>
 
       <section className="content-panel">
         <h3>Add one flashcard</h3>
-        <p>Choose its unit, then enter the question and answer.</p>
+        <p>Choose its topic, then enter the question and answer.</p>
         <FlashcardForm
           units={units}
           existingFlashcards={flashcards}
@@ -113,9 +113,9 @@ export function ContentImportPage() {
         </ol>
         <div className="template-grid">
           <div className="template-card">
-            <h4>Units</h4>
-            <a className="button secondary" download="units-template.csv" href={`${import.meta.env.BASE_URL}templates/units-spreadsheet.csv`}>Download units spreadsheet</a>
-            <label className="button primary file-button">Choose completed units file<input accept=".csv,text/csv" type="file" onChange={(event) => void importUnits(event)} /></label>
+            <h4>Topics</h4>
+            <a className="button secondary" download="topics-template.csv" href={`${import.meta.env.BASE_URL}templates/units-spreadsheet.csv`}>Download topics spreadsheet</a>
+            <label className="button primary file-button">Choose completed topics file<input accept=".csv,text/csv" type="file" onChange={(event) => void importTopics(event)} /></label>
           </div>
           <div className="template-card">
             <h4>Flashcards</h4>
