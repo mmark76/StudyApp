@@ -27,7 +27,7 @@ export function FlashcardForm({
     event.preventDefault();
     const selectedUnit = units.find((unit) => unit.id === unitId);
     if (!selectedUnit) {
-      onMessage("Choose a unit first.");
+      onMessage("Choose a topic first.");
       return;
     }
 
@@ -55,12 +55,12 @@ export function FlashcardForm({
   }
 
   if (units.length === 0) {
-    return <p>Add a unit before creating flashcards.</p>;
+    return <p>Add a topic before creating flashcards.</p>;
   }
 
   return (
     <form className="material-form" onSubmit={(event) => void submit(event)}>
-      <label className="field-label">Unit<select required value={unitId} onChange={(event) => setUnitId(event.target.value)}><option value="">Choose a unit</option>{units.map((unit) => <option key={unit.id} value={unit.id}>{unit.number}. {unit.title}</option>)}</select></label>
+      <label className="field-label">Topic<select required value={unitId} onChange={(event) => setUnitId(event.target.value)}><option value="">Choose a topic</option>{units.map((unit) => <option key={unit.id} value={unit.id}>{unit.number}. {unit.title}</option>)}</select></label>
       <label className="field-label">Question<textarea required rows={3} value={question} onChange={(event) => setQuestion(event.target.value)} /></label>
       <label className="field-label">Answer<textarea required rows={4} value={answer} onChange={(event) => setAnswer(event.target.value)} /></label>
       <label className="field-label">Keywords (optional)<input value={tags} onChange={(event) => setTags(event.target.value)} placeholder="Separate keywords with commas" /></label>
