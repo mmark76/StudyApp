@@ -1,0 +1,25 @@
+{
+  "flashcards": [
+    {
+      "id": "card-1",
+      "unitId": "unit-1",
+      "number": 1,
+      "question": "Write the question here.",
+      "answer": "Write the answer here.",
+      "tags": [
+        "topic",
+        "keyword"
+      ]
+    },
+    {
+      "id": "card-2",
+      "unitId": "unit-1",
+      "number": 2,
+      "question": "Write another question here.",
+      "answer": "Write another answer here.",
+      "tags": [
+        "topic"
+      ]
+    }
+  ]
+}
