@@ -1,0 +1,21 @@
+{
+  "units": [
+    {
+      "id": "unit-1",
+      "number": 1,
+      "title": "Unit title",
+      "objectives": [
+        "First learning objective",
+        "Second learning objective"
+      ],
+      "summary": [
+        "First summary point",
+        "Second summary point"
+      ],
+      "keyTerms": [
+        "key term one",
+        "key term two"
+      ]
+    }
+  ]
+}
