@@ -30,17 +30,17 @@ export function ReviewPage() {
     }
   }
 
-  if (!card) return <section className="empty-state"><h2>Δεν υπάρχουν κάρτες για επανάληψη</h2><p>Οι κάρτες εμφανίζονται εδώ όταν λήξει το διάστημα επανάληψής τους.</p></section>;
+  if (!card) return <section className="empty-state"><h2>There are no cards due for review</h2><p>Cards appear here when their review interval expires.</p></section>;
 
   return (
     <div className="study-panel">
       <div className="session-progress"><span>{index + 1} / {dueCards.length}</span><progress max={dueCards.length} value={index + 1} /></div>
-      <article className="flashcard"><p className="eyebrow">Επανάληψη</p><h2>{revealed ? card.answer : card.question}</h2></article>
-      {!revealed ? <button className="button primary" onClick={() => setRevealed(true)}>Εμφάνιση απάντησης</button> : (
+      <article className="flashcard"><p className="eyebrow">Review</p><h2>{revealed ? card.answer : card.question}</h2></article>
+      {!revealed ? <button className="button primary" onClick={() => setRevealed(true)}>Show answer</button> : (
         <div className="rating-grid">
-          <button className="button danger" onClick={() => void rate(0)}>0 · Ξανά</button>
-          <button className="button secondary" onClick={() => void rate(1)}>1 · Δύσκολο</button>
-          <button className="button primary" onClick={() => void rate(2)}>2 · Γνωστό</button>
+          <button className="button danger" onClick={() => void rate(0)}>0 · Again</button>
+          <button className="button secondary" onClick={() => void rate(1)}>1 · Difficult</button>
+          <button className="button primary" onClick={() => void rate(2)}>2 · Known</button>
         </div>
       )}
     </div>
