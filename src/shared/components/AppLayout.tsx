@@ -2,13 +2,13 @@ import { NavLink, Outlet } from "react-router-dom";
 import { studyConfig } from "../../app/studyConfig";
 
 const navigation = [
-  ["/", "Αρχική"],
+  ["/", "Home"],
   ["/units", studyConfig.unitsLabel],
   ["/flashcards", "Flashcards"],
-  ["/review", "Επανάληψη"],
+  ["/review", "Review"],
   ["/quiz", "Quiz"],
-  ["/progress", "Πρόοδος"],
-  ["/study-materials", "Υλικό μελέτης"]
+  ["/progress", "Progress"],
+  ["/study-materials", "Study materials"]
 ] as const;
 
 const footerNavigation = [
@@ -27,7 +27,7 @@ export function AppLayout() {
           <h1>{studyConfig.appName}</h1>
           {studyConfig.subjectName ? <p>{studyConfig.subjectName}</p> : null}
         </div>
-        <nav className="main-nav" aria-label="Κύρια πλοήγηση">
+        <nav className="main-nav" aria-label="Main navigation">
           {navigation.map(([to, label]) => (
             <NavLink end={to === "/"} key={to} to={to}>{label}</NavLink>
           ))}
