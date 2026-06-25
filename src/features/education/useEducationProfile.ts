@@ -8,10 +8,11 @@ import {
 
 export function useEducationProfile() {
   const setting = useLiveQuery(
-    () => studyDatabase.settings.get(EDUCATION_LEVEL_SETTING_KEY),
+    async () => (await studyDatabase.settings.get(EDUCATION_LEVEL_SETTING_KEY)) ?? null,
     [],
   );
-  const profile = getEducationProfile(setting?.value);
+  const isLoading = setting === undefined;
+  const profile = setting ? getEducationProfile(setting.value) : null;
 
   async function selectEducationLevel(level: EducationLevel) {
     await studyDatabase.settings.put({ key: EDUCATION_LEVEL_SETTING_KEY, value: level });
@@ -21,5 +22,5 @@ export function useEducationProfile() {
     await studyDatabase.settings.delete(EDUCATION_LEVEL_SETTING_KEY);
   }
 
-  return { profile, selectEducationLevel, clearEducationLevel };
+  return { profile, isLoading, selectEducationLevel, clearEducationLevel };
 }
