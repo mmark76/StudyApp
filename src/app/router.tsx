@@ -1,4 +1,5 @@
 import { createHashRouter } from "react-router-dom";
+import { ContentImportPage } from "../features/content-import/ContentImportPage";
 import { FlashcardsPage } from "../features/flashcards/FlashcardsPage";
 import { HomePage } from "../features/home/HomePage";
 import { LegalPage } from "../features/legal/LegalPage";
@@ -21,6 +22,7 @@ export const router = createHashRouter([
       { path: "review", element: <ReviewPage /> },
       { path: "quiz", element: <QuizPage /> },
       { path: "progress", element: <ProgressPage /> },
+      { path: "import", element: <ContentImportPage /> },
       { path: "study-materials", element: <StudyMaterialsPage /> },
       { path: "legal/license", element: <LegalPage content={legalPages.license} /> },
       { path: "legal/privacy", element: <LegalPage content={legalPages.privacy} /> },
