@@ -73,6 +73,12 @@ export function AppLayout() {
           {footerNavigation.map(([to, label]) => <NavLink key={to} to={to}>{label}</NavLink>)}
         </nav>
       </footer>
+      <small
+        className="build-version"
+        title="Version · Cyprus build date and local time · commit reference"
+      >
+        {__APP_BUILD_ID__}
+      </small>
     </div>
   );
 }
