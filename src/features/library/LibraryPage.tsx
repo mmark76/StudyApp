@@ -48,11 +48,11 @@ export function LibraryPage() {
 
       <section className="content-panel library-guidance">
         <div>
-          <p className="eyebrow">Keep it organised</p>
-          <h3>Add or import content</h3>
-          <p>Create topics and flashcards directly, or import them from a spreadsheet.</p>
+          <p className="eyebrow">Your source collection</p>
+          <h3>Manage study materials</h3>
+          <p>Add cloud links or keep private PDF study files on this device.</p>
         </div>
-        <Link className="button primary" to="/import">Add content</Link>
+        <Link className="button primary" to="/study-materials">Manage study materials</Link>
       </section>
     </div>
   );

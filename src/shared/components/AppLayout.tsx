@@ -10,12 +10,6 @@ const primaryNavigation = [
   ["/library", "Library"],
 ] as const;
 
-const utilityNavigation = [
-  ["/import", "Add & import content"],
-  ["/progress", "Progress & statistics"],
-  ["/study-materials", "Manage study materials"],
-] as const;
-
 const footerNavigation = [
   ["/legal/license", "License"],
   ["/legal/privacy", "Privacy"],
@@ -47,9 +41,6 @@ export function AppLayout() {
             <details className="utility-menu">
               <summary>More</summary>
               <div className="utility-menu-panel">
-                {utilityNavigation.map(([to, label]) => (
-                  <NavLink key={to} to={to}>{label}</NavLink>
-                ))}
                 <button type="button" onClick={() => void clearEducationLevel()}>
                   Change education level
                 </button>

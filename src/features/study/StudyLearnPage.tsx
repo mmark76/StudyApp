@@ -53,6 +53,16 @@ export function StudyLearnPage() {
         ))}
       </section>
 
+      <section className="content-panel">
+        <p className="eyebrow">Your learning tools</p>
+        <h3>Content and progress</h3>
+        <p>Add or import study content, then follow your progress and statistics as you learn.</p>
+        <div className="button-row">
+          <Link className="button secondary" to="/import">Add &amp; import content</Link>
+          <Link className="button secondary" to="/progress">Progress &amp; statistics</Link>
+        </div>
+      </section>
+
       <section className="content-panel review-callout">
         <div>
           <p className="eyebrow">Memory over time</p>
