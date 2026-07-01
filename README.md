@@ -14,6 +14,16 @@ The project keeps the learning workflow of the original study app while starting
 - validated JSON backup and restore;
 - offline-ready PWA without accounts or backend.
 
+## Application structure
+
+The primary navigation is intentionally limited to three areas:
+
+- **Home** — today's recommended action, due reviews, recent activity and a concise progress overview;
+- **Study & Learn** — a cognitive learning cycle built around Focus, Understand, Recall, Apply and Reflect;
+- **Library** — learning resources organised as Books, Articles, Papers and Notes.
+
+Content import, detailed progress, study-material management and education-level controls remain available through the auxiliary **More** menu.
+
 ## Add a subject
 
 1. Edit `src/app/studyConfig.ts` for the application and subject names.
