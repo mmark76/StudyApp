@@ -46,15 +46,6 @@ export function LearnPage() {
           </article>
         ))}
       </section>
-
-      <section className="content-panel review-callout">
-        <div>
-          <p className="eyebrow">Learning loop</p>
-          <h3>Study first, then learn by retrieval</h3>
-          <p>Use Study for theory and source structure. Use Learn when you want exercises, quizzes and repetition.</p>
-        </div>
-        <Link className="button primary" to="/study/theory">Go to Study</Link>
-      </section>
     </div>
   );
 }
