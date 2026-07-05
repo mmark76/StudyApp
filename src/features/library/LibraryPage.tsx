@@ -46,11 +46,21 @@ export function LibraryPage() {
         ))}
       </section>
 
+      <section className="content-panel">
+        <p className="eyebrow">Quick add</p>
+        <h3>Add study materials</h3>
+        <p>Add a cloud link for material stored online, or keep a private PDF inside this browser on this device.</p>
+        <div className="button-row">
+          <Link className="button secondary" to="/study-materials?add=link">Add a cloud link</Link>
+          <Link className="button secondary" to="/study-materials?add=pdf">Add a PDF from this device</Link>
+        </div>
+      </section>
+
       <section className="content-panel library-guidance">
         <div>
           <p className="eyebrow">Your source collection</p>
           <h3>Manage study materials</h3>
-          <p>Add cloud links or keep private PDF study files on this device.</p>
+          <p>View, open or remove your saved cloud links and local PDFs.</p>
         </div>
         <Link className="button primary" to="/study-materials">Manage study materials</Link>
       </section>

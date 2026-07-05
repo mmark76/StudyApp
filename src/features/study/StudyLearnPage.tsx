@@ -55,10 +55,10 @@ export function StudyLearnPage() {
 
       <section className="content-panel">
         <p className="eyebrow">Your learning tools</p>
-        <h3>Content and progress</h3>
-        <p>Add or import study content, then follow your progress and statistics as you learn.</p>
+        <h3>Learning setup and progress</h3>
+        <p>Import units and flashcards for active study, then follow your progress and statistics.</p>
         <div className="button-row">
-          <Link className="button secondary" to="/import">Add &amp; import content</Link>
+          <Link className="button secondary" to="/import">Import units &amp; flashcards</Link>
           <Link className="button secondary" to="/progress">Progress &amp; statistics</Link>
         </div>
       </section>
