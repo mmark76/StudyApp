@@ -20,7 +20,9 @@ export function AppLayout() {
           <h1>{studyConfig.appName}</h1>
         </div>
         <div className="navigation-row">
-          <div />
+          <nav className="main-nav" aria-label="Home navigation">
+            <NavLink end to="/">Home</NavLink>
+          </nav>
           <div className="utility-actions" aria-label="Study settings">
             <NavLink to="/appearance">Settings</NavLink>
           </div>
