@@ -1,31 +1,41 @@
 import { Link } from "react-router-dom";
-import { studyConfig } from "../../app/studyConfig";
+
+const homeSpaces = [
+  {
+    eyebrow: "Study",
+    title: "Your study space",
+    description: "Read, structure and understand your theory.",
+    action: "Open Study",
+    to: "/study/theory",
+  },
+  {
+    eyebrow: "Learn",
+    title: "Your learning space",
+    description: "Practise with flashcards, review, quizzes and progress.",
+    action: "Open Learn",
+    to: "/learn",
+  },
+  {
+    eyebrow: "Library",
+    title: "Your library space",
+    description: "Store books, articles, papers, notes, links and files.",
+    action: "Open Library",
+    to: "/library",
+  },
+] as const;
 
 export function HomePage() {
   return (
     <div className="stack-lg">
-      <section className="hero-panel simple-home-hero">
-        <p className="eyebrow">Welcome</p>
-        <h2>{studyConfig.subjectName || "Your study space"}</h2>
-        <p>{studyConfig.description}</p>
-        <p className="muted">Start with one step. You can add material, study, review or adjust your settings whenever you are ready.</p>
-        <div className="button-row">
-          <Link className="button primary" to="/study">Start studying</Link>
-          <Link className="button secondary" to="/library">Open library</Link>
-        </div>
-      </section>
-
-      <section className="content-panel simple-home-panel">
-        <div>
-          <p className="eyebrow">Choose what you need</p>
-          <h3>Choose your next step</h3>
-          <p>Start with one action. You can add content, review cards, or check progress whenever you are ready.</p>
-        </div>
-        <div className="button-row">
-          <Link className="button secondary" to="/import">Add content</Link>
-          <Link className="button secondary" to="/review">Review cards</Link>
-          <Link className="button secondary" to="/progress">Progress</Link>
-        </div>
+      <section className="learning-stage-grid" aria-label="Home study spaces">
+        {homeSpaces.map((space) => (
+          <article className="learning-stage-card" key={space.title}>
+            <p className="eyebrow">{space.eyebrow}</p>
+            <h2>{space.title}</h2>
+            <p>{space.description}</p>
+            <Link className="button primary" to={space.to}>{space.action}</Link>
+          </article>
+        ))}
       </section>
     </div>
   );
