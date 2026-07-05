@@ -38,7 +38,7 @@ export function UnitForm({
     };
 
     if (!nextUnit.title) {
-      onMessage("Enter a title for the topic.");
+      onMessage("Enter a title for the chapter.");
       return;
     }
 
@@ -47,16 +47,16 @@ export function UnitForm({
     setObjectives("");
     setSummary("");
     setKeyTerms("");
-    onMessage("The topic was added.");
+    onMessage("The chapter was added.");
   }
 
   return (
     <form className="material-form" onSubmit={(event) => void submit(event)}>
-      <label className="field-label">Topic title<input required value={title} onChange={(event) => setTitle(event.target.value)} /></label>
+      <label className="field-label">Chapter title<input required value={title} onChange={(event) => setTitle(event.target.value)} /></label>
       <label className="field-label">What should you learn?<textarea rows={4} value={objectives} onChange={(event) => setObjectives(event.target.value)} placeholder="Write one learning goal per line" /></label>
       <label className="field-label">Key points<textarea rows={5} value={summary} onChange={(event) => setSummary(event.target.value)} placeholder="Write one key point per line" /></label>
       <label className="field-label">Important terms<input value={keyTerms} onChange={(event) => setKeyTerms(event.target.value)} placeholder="Separate terms with commas" /></label>
-      <button className="button primary" type="submit">Add topic</button>
+      <button className="button primary" type="submit">Add chapter</button>
     </form>
   );
 }
