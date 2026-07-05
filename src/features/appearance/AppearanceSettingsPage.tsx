@@ -29,7 +29,7 @@ export function AppearanceSettingsPage() {
       </header>
 
       <section className="content-panel">
-        <div className="settings-grid">
+        <div className="settings-grid appearance-settings-grid">
           <label className="field-label">
             Accent colour
             <select
