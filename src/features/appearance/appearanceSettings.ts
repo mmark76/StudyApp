@@ -1,12 +1,14 @@
 export const APPEARANCE_SETTINGS_KEY = "appearance-settings";
 
-export type ColorScheme = "blue" | "emerald" | "purple" | "amber" | "slate";
+export type ColorScheme = "amber" | "blue" | "emerald" | "purple" | "slate";
+export type BackgroundTone = "warm" | "paper" | "sand" | "rose" | "sky";
 export type FontChoice = "system" | "serif" | "rounded" | "mono";
 export type TextSize = "compact" | "comfortable" | "large" | "extra-large";
 export type UiDensity = "compact" | "comfortable" | "spacious";
 
 export interface AppearanceSettings {
   colorScheme: ColorScheme;
+  backgroundTone: BackgroundTone;
   fontChoice: FontChoice;
   textSize: TextSize;
   uiDensity: UiDensity;
@@ -19,12 +21,20 @@ export interface AppearanceOption<T extends string> {
 }
 
 export const colorSchemeOptions = [
-  { value: "blue", label: "Blue", description: "The calm default study theme." },
-  { value: "emerald", label: "Emerald", description: "A fresh green theme for long study sessions." },
+  { value: "amber", label: "Amber", description: "The default warm accent theme for reading and revision." },
+  { value: "blue", label: "Blue", description: "A calm classic study accent theme." },
+  { value: "emerald", label: "Emerald", description: "A fresh green accent theme for long study sessions." },
   { value: "purple", label: "Purple", description: "A deeper focus theme with violet accents." },
-  { value: "amber", label: "Amber", description: "A warmer theme for reading and revision." },
-  { value: "slate", label: "Slate", description: "A quiet neutral theme with minimal colour." },
+  { value: "slate", label: "Slate", description: "A quiet neutral accent theme with minimal colour." },
 ] as const satisfies readonly AppearanceOption<ColorScheme>[];
+
+export const backgroundToneOptions = [
+  { value: "warm", label: "Warm cream", description: "The default warm background for comfortable reading." },
+  { value: "paper", label: "Paper white", description: "A clean white workspace with subtle blue light." },
+  { value: "sand", label: "Sand", description: "A soft beige background for a book-like feel." },
+  { value: "rose", label: "Soft rose", description: "A gentle rose-tinted background for relaxed review." },
+  { value: "sky", label: "Sky", description: "A light blue background for a cooler study space." },
+] as const satisfies readonly AppearanceOption<BackgroundTone>[];
 
 export const fontChoiceOptions = [
   { value: "system", label: "System sans", description: "Uses the default clean interface font." },
@@ -47,7 +57,8 @@ export const uiDensityOptions = [
 ] as const satisfies readonly AppearanceOption<UiDensity>[];
 
 export const defaultAppearanceSettings: AppearanceSettings = {
-  colorScheme: "blue",
+  colorScheme: "amber",
+  backgroundTone: "warm",
   fontChoice: "system",
   textSize: "comfortable",
   uiDensity: "comfortable",
@@ -72,6 +83,7 @@ export function parseAppearanceSettings(value: unknown): AppearanceSettings {
 
   return {
     colorScheme: readOption(value.colorScheme, colorSchemeOptions, defaultAppearanceSettings.colorScheme),
+    backgroundTone: readOption(value.backgroundTone, backgroundToneOptions, defaultAppearanceSettings.backgroundTone),
     fontChoice: readOption(value.fontChoice, fontChoiceOptions, defaultAppearanceSettings.fontChoice),
     textSize: readOption(value.textSize, textSizeOptions, defaultAppearanceSettings.textSize),
     uiDensity: readOption(value.uiDensity, uiDensityOptions, defaultAppearanceSettings.uiDensity),
@@ -83,6 +95,7 @@ export function applyAppearanceSettings(
   root: HTMLElement = document.documentElement,
 ): void {
   root.dataset.colorScheme = settings.colorScheme;
+  root.dataset.backgroundTone = settings.backgroundTone;
   root.dataset.fontChoice = settings.fontChoice;
   root.dataset.textSize = settings.textSize;
   root.dataset.uiDensity = settings.uiDensity;

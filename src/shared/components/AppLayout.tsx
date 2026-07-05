@@ -36,15 +36,12 @@ export function AppLayout() {
                 <NavLink end={to === "/"} key={to} to={to}>{label}</NavLink>
               ))}
             </nav>
-            <details className="utility-menu">
-              <summary>More</summary>
-              <div className="utility-menu-panel">
-                <NavLink to="/appearance">Appearance settings</NavLink>
-                <button type="button" onClick={() => void clearEducationLevel()}>
-                  Change education level
-                </button>
-              </div>
-            </details>
+            <div className="utility-actions" aria-label="Study settings">
+              <NavLink to="/appearance">Settings</NavLink>
+              <button type="button" onClick={() => void clearEducationLevel()}>
+                Choose Education Level
+              </button>
+            </div>
           </div>
         ) : null}
       </header>
