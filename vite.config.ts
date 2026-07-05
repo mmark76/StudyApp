@@ -18,7 +18,7 @@ function getBuildIdentifier(): string {
     hour12: false,
   }).formatToParts(now);
   const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
-  const date = `${values.day}${values.month}${values.year}`;
+  const date = `${values.year}${values.month}${values.day}`;
   const time = `${values.hour}${values.minute}`;
   const version = process.env.npm_package_version ?? "0.0.0";
   const commit = (process.env.GITHUB_SHA ?? process.env.VITE_COMMIT_REF ?? "local").slice(0, 7);
