@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { useStudyContent } from "../content-import/useStudyContent";
 
 const sourceStructure = [
   {
@@ -29,8 +28,6 @@ const sourceStructure = [
 ] as const;
 
 export function StudyTheoryPage() {
-  const { units } = useStudyContent();
-
   return (
     <div className="stack-lg">
       <header className="page-heading">
@@ -61,21 +58,6 @@ export function StudyTheoryPage() {
             <Link className="button secondary" to="/import">Import</Link>
           </article>
         ))}
-      </section>
-
-      <section className="content-panel">
-        <p className="eyebrow">Current theory units</p>
-        <h3>Topics and notes</h3>
-        {units.length === 0 ? (
-          <p>No theory topics exist yet. Add content first, then use Learn for flashcards and exercises.</p>
-        ) : (
-          <p>You currently have {units.length} topic{units.length === 1 ? "" : "s"} available for theory study.</p>
-        )}
-        <div className="button-row">
-          <Link className="button secondary" to="/units">View topics</Link>
-          <Link className="button secondary" to="/import">Add theory content</Link>
-          <Link className="button secondary" to="/learn">Go to Learn</Link>
-        </div>
       </section>
     </div>
   );
