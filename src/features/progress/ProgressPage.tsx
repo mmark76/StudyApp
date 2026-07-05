@@ -16,7 +16,7 @@ export function ProgressPage() {
     anchor.download = `study-progress-${new Date().toISOString().slice(0, 10)}.json`;
     anchor.click();
     URL.revokeObjectURL(url);
-    setMessage("A copy of your progress was saved to your device.");
+    setMessage("A copy of your progress was saved to your device. Local file blobs are not included.");
   }
 
   async function restoreProgress(event: ChangeEvent<HTMLInputElement>) {
@@ -52,6 +52,7 @@ export function ProgressPage() {
       <section className="content-panel">
         <h3>Keep your progress safe</h3>
         <p>Save a copy to your device so you can restore it later or move it to another device.</p>
+        <p className="muted">This backup includes progress, sessions and settings. It does not include local files stored in the Library.</p>
         <div className="button-row">
           <button className="button primary" onClick={() => void downloadProgressCopy()}>Save a copy of my progress</button>
           <label className="button secondary file-button">Restore saved progress<input accept="application/json" type="file" onChange={(event) => void restoreProgress(event)} /></label>

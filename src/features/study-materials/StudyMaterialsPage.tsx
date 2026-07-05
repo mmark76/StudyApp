@@ -4,8 +4,9 @@ import { useSearchParams } from "react-router-dom";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import { CloudLinkForm } from "./CloudLinkForm";
 import {
+  formatFileKind,
   formatFileSize,
-  openLocalPdf,
+  openLocalFile,
 } from "./localStudyFiles";
 import { LocalPdfForm } from "./LocalPdfForm";
 import {
@@ -18,7 +19,7 @@ export function StudyMaterialsPage() {
   const [searchParams] = useSearchParams();
   const addMode = searchParams.get("add");
   const cloudLinkSectionRef = useRef<HTMLElement>(null);
-  const localPdfSectionRef = useRef<HTMLElement>(null);
+  const localFileSectionRef = useRef<HTMLElement>(null);
   const setting = useLiveQuery(
     () => studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY),
     [],
@@ -37,8 +38,8 @@ export function StudyMaterialsPage() {
   useEffect(() => {
     const target = addMode === "link"
       ? cloudLinkSectionRef.current
-      : addMode === "pdf"
-        ? localPdfSectionRef.current
+      : addMode === "file" || addMode === "pdf"
+        ? localFileSectionRef.current
         : null;
 
     if (!target) return;
@@ -55,9 +56,9 @@ export function StudyMaterialsPage() {
     setMessage("The cloud link was removed.");
   }
 
-  async function removePdf(id: string) {
+  async function removeFile(id: string) {
     await studyDatabase.studyFiles.delete(id);
-    setMessage("The PDF was removed from this device.");
+    setMessage("The file was removed from this device.");
   }
 
   return (
@@ -65,7 +66,7 @@ export function StudyMaterialsPage() {
       <header className="page-heading">
         <p className="eyebrow">Books, notes and theory</p>
         <h2>Study materials</h2>
-        <p>Keep your course books, notes, articles and PDFs together with your study content.</p>
+        <p>Keep your course books, notes, articles, papers and files together with your study content.</p>
       </header>
 
       <section className="content-panel">
@@ -91,20 +92,20 @@ export function StudyMaterialsPage() {
       </section>
 
       <section className="content-panel">
-        <h3>PDFs on this device</h3>
+        <h3>Files on this device</h3>
         {localFiles.length === 0 ? (
-          <p>No PDFs have been added to this device yet.</p>
+          <p>No local files have been added to this device yet.</p>
         ) : (
           <ul className="local-file-list">
             {localFiles.map((file) => (
               <li className="local-file-row" key={file.id}>
                 <div>
                   <strong>{file.title}</strong>
-                  <span>{file.fileName} - {formatFileSize(file.size)}</span>
+                  <span>{formatFileKind(file.fileKind)} · {file.fileName} - {formatFileSize(file.size)}</span>
                 </div>
                 <div className="button-row">
-                  <button className="button secondary compact" onClick={() => openLocalPdf(file)}>Open PDF</button>
-                  <button className="button danger compact" onClick={() => void removePdf(file.id)}>Remove</button>
+                  <button className="button secondary compact" onClick={() => openLocalFile(file)}>Open file</button>
+                  <button className="button danger compact" onClick={() => void removeFile(file.id)}>Remove</button>
                 </div>
               </li>
             ))}
@@ -118,7 +119,7 @@ export function StudyMaterialsPage() {
           <h3>Add a cloud link</h3>
           <p>Use this option for large files or materials you want to access from different devices.</p>
           <ol className="friendly-steps">
-            <li>Upload the book or notes to a cloud service.</li>
+            <li>Upload the book, notes, paper or source file to a cloud service.</li>
             <li>Choose the sharing access that is appropriate for you.</li>
             <li>Copy the shared link and paste it below.</li>
           </ol>
@@ -126,14 +127,15 @@ export function StudyMaterialsPage() {
         <CloudLinkForm savedLinks={savedLinks} existingLinks={links} onMessage={setMessage} />
       </section>
 
-      <section className="content-panel material-option-panel" ref={localPdfSectionRef} tabIndex={-1}>
+      <section className="content-panel material-option-panel" ref={localFileSectionRef} tabIndex={-1}>
         <div>
           <p className="eyebrow">Option 2</p>
-          <h3>Add a PDF from this device</h3>
+          <h3>Add a file from this device</h3>
           <div className="privacy-notice">
             <strong>Private and local</strong>
-            <p>The PDF stays only inside this browser on this device.</p>
-            <p>Maximum size: 20 MB per PDF. Local PDFs are not included when you save a copy of your study progress.</p>
+            <p>The file stays only inside this browser on this device.</p>
+            <p>Supported examples: PDF, Word documents, text files, CSV files and images.</p>
+            <p>Maximum size: 20 MB per file. Local files are not included when you save a copy of your study progress.</p>
           </div>
         </div>
         <LocalPdfForm files={localFiles} onMessage={setMessage} />

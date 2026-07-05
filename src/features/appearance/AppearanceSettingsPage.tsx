@@ -105,27 +105,6 @@ export function AppearanceSettingsPage() {
           {isLoading ? "Loading appearance settings…" : "Changes are saved automatically on this device."}
         </p>
       </section>
-
-      <section className="content-panel appearance-preview-panel" aria-label="Appearance preview">
-        <div>
-          <p className="eyebrow">Preview</p>
-          <h3>Active recall should feel clear and comfortable</h3>
-          <p>
-            This preview uses your current settings. Use warm backgrounds for long reading sessions,
-            larger text for visibility, or compact spacing for small screens.
-          </p>
-          <div className="appearance-swatch-row" aria-hidden="true">
-            <span className="appearance-swatch appearance-swatch-strong" />
-            <span className="appearance-swatch appearance-swatch-soft" />
-            <span className="appearance-swatch appearance-swatch-page" />
-            <span className="appearance-swatch appearance-swatch-surface" />
-          </div>
-          <div className="button-row">
-            <button className="button primary" type="button">Primary action</button>
-            <button className="button secondary" type="button">Secondary action</button>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
