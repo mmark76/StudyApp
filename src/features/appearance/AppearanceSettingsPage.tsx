@@ -1,4 +1,5 @@
 import {
+  backgroundToneOptions,
   colorSchemeOptions,
   fontChoiceOptions,
   textSizeOptions,
@@ -23,14 +24,14 @@ export function AppearanceSettingsPage() {
     <div className="stack-lg">
       <header className="page-heading">
         <p className="eyebrow">Display</p>
-        <h2>Appearance settings</h2>
-        <p>Adjust the colours, font, text size and spacing used across your study workspace.</p>
+        <h2>Settings</h2>
+        <p>Adjust the accent colours, background colours, font, text size and spacing used across your study workspace.</p>
       </header>
 
       <section className="content-panel">
         <div className="settings-grid">
           <label className="field-label">
-            Colour theme
+            Accent colour
             <select
               value={settings.colorScheme}
               onChange={(event) => update("colorScheme", event.target.value as AppearanceSettings["colorScheme"])}
@@ -40,6 +41,19 @@ export function AppearanceSettingsPage() {
               ))}
             </select>
             <span className="field-help">{colorSchemeOptions.find((option) => option.value === settings.colorScheme)?.description}</span>
+          </label>
+
+          <label className="field-label">
+            Background colour
+            <select
+              value={settings.backgroundTone}
+              onChange={(event) => update("backgroundTone", event.target.value as AppearanceSettings["backgroundTone"])}
+            >
+              {backgroundToneOptions.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+            <span className="field-help">{backgroundToneOptions.find((option) => option.value === settings.backgroundTone)?.description}</span>
           </label>
 
           <label className="field-label">
@@ -97,12 +111,13 @@ export function AppearanceSettingsPage() {
           <p className="eyebrow">Preview</p>
           <h3>Active recall should feel clear and comfortable</h3>
           <p>
-            This preview uses your current settings. Use larger text for long reading sessions,
-            compact spacing for small screens, or a warmer colour theme when reviewing at night.
+            This preview uses your current settings. Use warm backgrounds for long reading sessions,
+            larger text for visibility, or compact spacing for small screens.
           </p>
           <div className="appearance-swatch-row" aria-hidden="true">
             <span className="appearance-swatch appearance-swatch-strong" />
             <span className="appearance-swatch appearance-swatch-soft" />
+            <span className="appearance-swatch appearance-swatch-page" />
             <span className="appearance-swatch appearance-swatch-surface" />
           </div>
           <div className="button-row">
