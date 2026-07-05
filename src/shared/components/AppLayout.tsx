@@ -31,11 +31,8 @@ export function AppLayout() {
           <p className="eyebrow">Your private study space</p>
           <h1>{studyConfig.appName}</h1>
         </div>
-        <div
-          className="navigation-row"
-          style={{ alignItems: "center", flexDirection: "row", flexWrap: "nowrap" }}
-        >
-          <nav className="main-nav" style={{ alignItems: "center", flexWrap: "nowrap" }} aria-label="Main navigation">
+        <div className="navigation-row">
+          <nav className="main-nav" aria-label="Main navigation">
             {mainNavigation.map((item) => {
               const isActive = isActiveMainArea(location.pathname, item.matches);
               return (
@@ -50,7 +47,7 @@ export function AppLayout() {
               );
             })}
           </nav>
-          <div className="utility-actions" style={{ alignItems: "center", flexWrap: "nowrap" }} aria-label="Study settings">
+          <div className="utility-actions" aria-label="Study settings">
             <NavLink to="/appearance">Settings</NavLink>
           </div>
         </div>
