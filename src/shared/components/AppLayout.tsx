@@ -4,9 +4,9 @@ import { useAppearanceSettings } from "../../features/appearance/useAppearanceSe
 
 const mainNavigation = [
   { to: "/", label: "Home", matches: ["/"] },
+  { to: "/library", label: "Library", matches: ["/library", "/study-materials"] },
   { to: "/study/theory", label: "Study", matches: ["/study", "/study/theory", "/units", "/import"] },
   { to: "/learn", label: "Learn", matches: ["/learn", "/flashcards", "/review", "/quiz", "/progress"] },
-  { to: "/library", label: "Library", matches: ["/library", "/study-materials"] },
 ] as const;
 
 const footerNavigation = [
