@@ -7,7 +7,15 @@ import "./styles/onboarding.css";
 import "./styles/studyMaterials.css";
 import "./styles/buildVersion.css";
 
-registerSW({ immediate: true });
+const updateServiceWorker = registerSW({
+  immediate: true,
+  onNeedRefresh() {
+    void updateServiceWorker(true);
+  },
+  onRegisteredSW(_scriptUrl, registration) {
+    void registration?.update();
+  },
+});
 
 const root = document.getElementById("root");
 if (!root) throw new Error("Application root was not found");
