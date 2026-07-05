@@ -19,8 +19,18 @@ The project keeps the learning workflow of the original study app while starting
 The primary navigation is intentionally limited to three areas:
 
 - **Home** — today's recommended action, due reviews, recent activity and a concise progress overview;
-- **Study & Learn** — a cognitive learning cycle built around Focus, Understand, Recall, Apply and Reflect;
-- **Library** — learning resources organised as Books, Articles, Papers and Notes.
+- **Study & Learn** — the learning workspace, split into **Study** for theory and **Learn** for exercises;
+- **Library** — source materials organised as Books, Articles, Papers and Notes.
+
+## Library
+
+The Library stores source material. It supports cloud links and local files kept inside the browser on the current device. Local files can include PDFs, Word documents, text files, CSV files and images, subject to the configured size limit.
+
+## Study and Learn
+
+**Study** is for theory: selecting sources, organising contents, chapters, paragraphs, bibliography, images, diagrams, tables, notes and summaries.
+
+**Learn** is for exercises: flashcards, due review, quizzes, practice and progress tracking.
 
 Content import, detailed progress, study-material management and education-level controls remain available through the auxiliary **More** menu.
 
@@ -45,7 +55,7 @@ npm run build
 
 ## Data and privacy
 
-Study progress and user-added links remain in the browser's IndexedDB unless the user exports a backup.
+Study progress, user-added links and local files remain in the browser's IndexedDB unless the user exports a backup. Progress backups include progress, sessions and settings, but they do not include local file blobs.
 
 ## Licence
 
