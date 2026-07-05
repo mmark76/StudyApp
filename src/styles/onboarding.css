@@ -1,53 +1,6 @@
-.header-top-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1.5rem;
-}
-
 .education-context {
   margin: 0.35rem 0 0;
   color: var(--slate-500);
-}
-
-.translation-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  min-height: 2.5rem;
-  padding: 0.45rem 0.7rem;
-  border: 1px solid var(--slate-300);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--slate-600);
-  font-size: 0.9rem;
-}
-
-.translation-bar > span {
-  font-weight: 750;
-}
-
-.translation-bar .goog-te-gadget {
-  font-family: inherit;
-  color: var(--slate-600);
-}
-
-.translation-bar .goog-te-combo {
-  max-width: 190px;
-  margin: 0;
-  border: 1px solid var(--slate-300);
-  border-radius: 0.45rem;
-  padding: 0.35rem 0.45rem;
-  background: white;
-}
-
-.goog-te-banner-frame,
-.goog-te-banner-frame.skiptranslate {
-  display: none !important;
-}
-
-body {
-  top: 0 !important;
 }
 
 .education-choice {
@@ -116,15 +69,4 @@ body {
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 0.2em;
-}
-
-@media (max-width: 720px) {
-  .header-top-row {
-    flex-direction: column;
-  }
-
-  .translation-bar {
-    width: 100%;
-    justify-content: space-between;
-  }
 }

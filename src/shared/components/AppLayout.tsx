@@ -2,7 +2,6 @@ import { NavLink, Outlet } from "react-router-dom";
 import { studyConfig } from "../../app/studyConfig";
 import { EducationLevelSelector } from "../../features/education/EducationLevelSelector";
 import { useEducationProfile } from "../../features/education/useEducationProfile";
-import { GoogleTranslateBar } from "./GoogleTranslateBar";
 
 const primaryNavigation = [
   ["/", "Home"],
@@ -23,13 +22,10 @@ export function AppLayout() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <div className="header-top-row">
-          <div>
-            <p className="eyebrow">Your private study space</p>
-            <h1>{studyConfig.appName}</h1>
-            {profile ? <p className="education-context">{profile.title} · {profile.studyLabel}</p> : null}
-          </div>
-          <GoogleTranslateBar />
+        <div>
+          <p className="eyebrow">Your private study space</p>
+          <h1>{studyConfig.appName}</h1>
+          {profile ? <p className="education-context">{profile.title} · {profile.studyLabel}</p> : null}
         </div>
         {profile ? (
           <div className="navigation-row">

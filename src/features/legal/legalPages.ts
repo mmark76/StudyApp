@@ -18,12 +18,11 @@ export const legalPages = {
   privacy: {
     title: "Privacy",
     summary: "The application is designed as a local-first study tool.",
-    lastUpdated: "25 June 2026",
+    lastUpdated: "1 July 2026",
     sections: [
       { heading: "Local data", paragraphs: ["Study progress, preferences, user-added content, and saved links are stored locally in the browser. The application does not require an account."] },
       { heading: "PDFs from your device", paragraphs: ["PDFs added from your device stay inside this browser on this device. The application does not upload or sync them.", "Local PDFs are not included when you save a copy of your study progress. Clearing browser data may permanently remove them."] },
       { heading: "Cloud links", paragraphs: ["Cloud files remain with the service chosen by the user, such as Google Drive, OneDrive, or Dropbox. Access and sharing permissions are controlled through that service."] },
-      { heading: "Language translation", paragraphs: ["The optional language bar uses Google Translate. Using it may send page content and technical request information to Google under Google's own policies."] },
       { heading: "Hosting", paragraphs: ["GitHub Pages and network providers may process technical request information under their own policies."] }
     ]
   },
