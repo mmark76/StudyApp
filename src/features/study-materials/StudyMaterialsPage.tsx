@@ -113,23 +113,9 @@ export function StudyMaterialsPage() {
         )}
       </section>
 
-      <section className="content-panel material-option-panel" ref={cloudLinkSectionRef} tabIndex={-1}>
-        <div>
-          <p className="eyebrow">Option 1</p>
-          <h3>Add a cloud link</h3>
-          <p>Use this option for large files or materials you want to access from different devices.</p>
-          <ol className="friendly-steps">
-            <li>Upload the book, notes, paper or source file to a cloud service.</li>
-            <li>Choose the sharing access that is appropriate for you.</li>
-            <li>Copy the shared link and paste it below.</li>
-          </ol>
-        </div>
-        <CloudLinkForm savedLinks={savedLinks} existingLinks={links} onMessage={setMessage} />
-      </section>
-
       <section className="content-panel material-option-panel" ref={localFileSectionRef} tabIndex={-1}>
         <div>
-          <p className="eyebrow">Option 2</p>
+          <p className="eyebrow">Option 1</p>
           <h3>Add a file from this device</h3>
           <div className="privacy-notice">
             <strong>Private and local</strong>
@@ -139,6 +125,20 @@ export function StudyMaterialsPage() {
           </div>
         </div>
         <LocalPdfForm files={localFiles} onMessage={setMessage} />
+      </section>
+
+      <section className="content-panel material-option-panel" ref={cloudLinkSectionRef} tabIndex={-1}>
+        <div>
+          <p className="eyebrow">Option 2</p>
+          <h3>Add a cloud link</h3>
+          <p>Use this option for large files or materials you want to access from different devices.</p>
+          <ol className="friendly-steps">
+            <li>Upload the book, notes, paper or source file to a cloud service.</li>
+            <li>Choose the sharing access that is appropriate for you.</li>
+            <li>Copy the shared link and paste it below.</li>
+          </ol>
+        </div>
+        <CloudLinkForm savedLinks={savedLinks} existingLinks={links} onMessage={setMessage} />
       </section>
 
       <p className="inline-message status-banner" role="status" aria-live="polite">{message}</p>
