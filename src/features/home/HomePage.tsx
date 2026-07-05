@@ -18,8 +18,8 @@ export function HomePage() {
       <section className="content-panel simple-home-panel">
         <div>
           <p className="eyebrow">Choose what you need</p>
-          <h3>No dashboard overload</h3>
-          <p>Use the top navigation when you want more detail. The home screen stays light so you can decide your next action calmly.</p>
+          <h3>Choose your next step</h3>
+          <p>Start with one action. You can add content, review cards, or check progress whenever you are ready.</p>
         </div>
         <div className="button-row">
           <Link className="button secondary" to="/import">Add content</Link>
