@@ -1,35 +1,21 @@
 import { Link } from "react-router-dom";
 
-const learningStages = [
+const studyLearnAreas = [
   {
-    title: "Focus",
-    description: "Choose what matters now and begin with a clear learning goal.",
-    action: "Set today's direction",
-    to: "/",
+    title: "Study",
+    label: "Theory",
+    description: "Read, structure and understand books, PDFs, articles, papers and notes.",
+    examples: ["Contents", "Chapters", "Paragraphs", "Bibliography", "Images", "Diagrams"],
+    action: "Open Study",
+    to: "/study/theory",
   },
   {
-    title: "Understand",
-    description: "Work through topics, key ideas and explanations before testing yourself.",
-    action: "Explore topics",
-    to: "/units",
-  },
-  {
-    title: "Recall",
-    description: "Bring knowledge back from memory with flashcards and active retrieval.",
-    action: "Start recall",
-    to: "/flashcards",
-  },
-  {
-    title: "Apply",
-    description: "Use what you know in questions, comparisons and new situations.",
-    action: "Start a quiz",
-    to: "/quiz",
-  },
-  {
-    title: "Reflect",
-    description: "Review performance, identify weak areas and decide what to study next.",
-    action: "View progress",
-    to: "/progress",
+    title: "Learn",
+    label: "Exercises",
+    description: "Practice active recall with flashcards, due review, quizzes and progress tracking.",
+    examples: ["Flashcards", "Review", "Quiz", "Practice", "Weak points", "Progress"],
+    action: "Open Learn",
+    to: "/learn",
   },
 ] as const;
 
@@ -37,39 +23,33 @@ export function StudyLearnPage() {
   return (
     <div className="stack-lg">
       <header className="page-heading">
-        <p className="eyebrow">The learning cycle</p>
+        <p className="eyebrow">Theory and practice</p>
         <h2>Study &amp; Learn</h2>
-        <p>Move from focused attention to understanding, retrieval, application and reflection.</p>
+        <p>Use Study to understand theory. Use Learn to practise, recall and test what you know.</p>
       </header>
 
-      <section className="learning-stage-grid" aria-label="Learning stages">
-        {learningStages.map((stage, index) => (
-          <article className="learning-stage-card" key={stage.title}>
+      <section className="learning-stage-grid" aria-label="Study and Learn areas">
+        {studyLearnAreas.map((area, index) => (
+          <article className="learning-stage-card" key={area.title}>
             <span className="stage-number" aria-hidden="true">{index + 1}</span>
-            <h3>{stage.title}</h3>
-            <p>{stage.description}</p>
-            <Link className="button secondary" to={stage.to}>{stage.action}</Link>
+            <p className="eyebrow">{area.label}</p>
+            <h3>{area.title}</h3>
+            <p>{area.description}</p>
+            <div className="tag-row">
+              {area.examples.map((example) => <span className="tag" key={example}>{example}</span>)}
+            </div>
+            <Link className="button primary" to={area.to}>{area.action}</Link>
           </article>
         ))}
       </section>
 
-      <section className="content-panel">
-        <p className="eyebrow">Your learning tools</p>
-        <h3>Learning setup and progress</h3>
-        <p>Import units and flashcards for active study, then follow your progress and statistics.</p>
-        <div className="button-row">
-          <Link className="button secondary" to="/import">Import units &amp; flashcards</Link>
-          <Link className="button secondary" to="/progress">Progress &amp; statistics</Link>
-        </div>
-      </section>
-
       <section className="content-panel review-callout">
         <div>
-          <p className="eyebrow">Memory over time</p>
-          <h3>Spaced review</h3>
-          <p>Return to knowledge when it is due, rather than rereading everything from the beginning.</p>
+          <p className="eyebrow">Learning flow</p>
+          <h3>Library → Study → Learn</h3>
+          <p>Keep your sources in the Library, break them into theory inside Study, then turn that theory into exercises in Learn.</p>
         </div>
-        <Link className="button primary" to="/review">Review due cards</Link>
+        <Link className="button secondary" to="/library">Open Library</Link>
       </section>
     </div>
   );
