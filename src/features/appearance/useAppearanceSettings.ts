@@ -11,7 +11,7 @@ import {
 
 export function useAppearanceSettings() {
   const setting = useLiveQuery(
-    () => studyDatabase.settings.get(APPEARANCE_SETTINGS_KEY),
+    async () => (await studyDatabase.settings.get(APPEARANCE_SETTINGS_KEY)) ?? null,
     [],
   );
   const settings = useMemo(
