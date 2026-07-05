@@ -55,15 +55,15 @@ function requireText(value: string, label: string): string {
 
 export function parseUnitsSpreadsheet(text: string): StudyUnit[] {
   const rows = parseDelimitedText(text);
-  if (rows.length < 2) throw new Error("The file contains no units");
+  if (rows.length < 2) throw new Error("The file contains no chapters");
 
   const units = rows.slice(1).map((row) => {
     const [numberValue = "", title = "", objectives = "", summary = "", keyTerms = ""] = row;
-    const number = readNumber(numberValue, "Unit number");
+    const number = readNumber(numberValue, "Chapter number");
     return {
       id: `unit-${number}`,
       number,
-      title: requireText(title, "Unit title"),
+      title: requireText(title, "Chapter title"),
       objectives: splitList(objectives),
       summary: splitList(summary),
       keyTerms: splitList(keyTerms),
@@ -71,7 +71,7 @@ export function parseUnitsSpreadsheet(text: string): StudyUnit[] {
   });
 
   if (new Set(units.map((unit) => unit.number)).size !== units.length) {
-    throw new Error("Each unit number must be unique");
+    throw new Error("Each chapter number must be unique");
   }
 
   return units;
@@ -88,9 +88,9 @@ export function parseFlashcardsSpreadsheet(text: string, units: readonly StudyUn
 
   return rows.slice(1).map((row, rowIndex) => {
     const [unitNumberValue = "", question = "", answer = "", tags = ""] = row;
-    const unitNumber = readNumber(unitNumberValue, "Unit number");
+    const unitNumber = readNumber(unitNumberValue, "Chapter number");
     const unit = unitsByNumber.get(unitNumber);
-    if (!unit) throw new Error(`Unit ${unitNumber} has not been added yet`);
+    if (!unit) throw new Error(`Chapter ${unitNumber} has not been added yet`);
 
     const number = (counters.get(unitNumber) ?? 0) + 1;
     counters.set(unitNumber, number);
