@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { studyConfig } from "../../app/studyConfig";
+import { useAppearanceSettings } from "../../features/appearance/useAppearanceSettings";
 import { EducationLevelSelector } from "../../features/education/EducationLevelSelector";
 import { useEducationProfile } from "../../features/education/useEducationProfile";
 
@@ -17,6 +18,7 @@ const footerNavigation = [
 ] as const;
 
 export function AppLayout() {
+  useAppearanceSettings();
   const { profile, isLoading, selectEducationLevel, clearEducationLevel } = useEducationProfile();
 
   return (
@@ -37,6 +39,7 @@ export function AppLayout() {
             <details className="utility-menu">
               <summary>More</summary>
               <div className="utility-menu-panel">
+                <NavLink to="/appearance">Appearance settings</NavLink>
                 <button type="button" onClick={() => void clearEducationLevel()}>
                   Change education level
                 </button>
@@ -62,7 +65,7 @@ export function AppLayout() {
       </footer>
       <small
         className="build-version"
-        title="Version · Cyprus build date and local time · commit reference"
+        title="Version · Cyprus build date (YYYYMMDD) and local time · commit reference"
       >
         {__APP_BUILD_ID__}
       </small>
