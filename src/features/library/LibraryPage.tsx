@@ -6,25 +6,21 @@ const libraryTabs = [
     id: "books",
     title: "Books",
     description: "Textbooks, manuals, chapters and longer reference works.",
-    examples: ["Textbook", "Manual", "Chapter", "Reference"],
   },
   {
     id: "articles",
     title: "Articles",
     description: "Web articles, magazine pieces and focused explanatory resources.",
-    examples: ["Web article", "Essay", "Commentary", "Guide"],
   },
   {
     id: "papers",
     title: "Papers",
     description: "Research papers, reports and other evidence-based material.",
-    examples: ["Research paper", "Report", "Study", "Standard"],
   },
   {
     id: "notes",
     title: "Notes",
     description: "Your structured summaries, key ideas and topic-level learning notes.",
-    examples: ["Summary", "Key terms", "Personal notes", "Study outline"],
   },
 ] as const;
 
@@ -62,11 +58,7 @@ export function LibraryPage() {
       </section>
 
       <section className="content-panel" role="tabpanel">
-        <p className="eyebrow">{selectedTab.title}</p>
         <h3>{selectedTab.description}</h3>
-        <div className="tag-row">
-          {selectedTab.examples.map((example) => <span className="tag" key={example}>{example}</span>)}
-        </div>
         <div className="button-row">
           <Link className="button secondary" to="/study-materials?add=link">Add a cloud link</Link>
           <Link className="button secondary" to="/study-materials?add=file">Add a file from this device</Link>
