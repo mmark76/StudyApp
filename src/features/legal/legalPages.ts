@@ -18,10 +18,10 @@ export const legalPages = {
   privacy: {
     title: "Privacy",
     summary: "The application is designed as a local-first study tool.",
-    lastUpdated: "1 July 2026",
+    lastUpdated: "5 July 2026",
     sections: [
-      { heading: "Local data", paragraphs: ["Study progress, preferences, user-added content, and saved links are stored locally in the browser. The application does not require an account."] },
-      { heading: "PDFs from your device", paragraphs: ["PDFs added from your device stay inside this browser on this device. The application does not upload or sync them.", "Local PDFs are not included when you save a copy of your study progress. Clearing browser data may permanently remove them."] },
+      { heading: "Local data", paragraphs: ["Study progress, preferences, user-added content, saved links, and local study files are stored locally in the browser. The application does not require an account."] },
+      { heading: "Files from your device", paragraphs: ["Files added from your device stay inside this browser on this device. The application does not upload or sync them.", "Local files are not included when you save a copy of your study progress. Clearing browser data may permanently remove them."] },
       { heading: "Cloud links", paragraphs: ["Cloud files remain with the service chosen by the user, such as Google Drive, OneDrive, or Dropbox. Access and sharing permissions are controlled through that service."] },
       { heading: "Hosting", paragraphs: ["GitHub Pages and network providers may process technical request information under their own policies."] }
     ]
@@ -38,7 +38,7 @@ export const legalPages = {
     lastUpdated: "25 June 2026",
     sections: [
       { heading: "Protected material", paragraphs: ["The original source code, interface, documentation, and educational content are protected. Public visibility is not permission for reuse."] },
-      { heading: "User-added material", paragraphs: ["Books, notes, PDFs, links, and other materials added by a user remain subject to their original copyright and licence terms. Users are responsible for having permission to use them."] }
+      { heading: "User-added material", paragraphs: ["Books, notes, PDFs, documents, links, images, and other materials added by a user remain subject to their original copyright and licence terms. Users are responsible for having permission to use them."] }
     ]
   }
 } as const satisfies Record<string, LegalPageContent>;
