@@ -30,12 +30,12 @@ export function StudyLearnPage() {
 
       <section className="learning-stage-grid" aria-label="Study and Learn areas">
         {studyLearnAreas.map((area, index) => (
-          <article className="learning-stage-card" key={area.title}>
+          <article className="learning-stage-card study-learn-area-card" key={area.title}>
             <span className="stage-number" aria-hidden="true">{index + 1}</span>
             <p className="eyebrow">{area.label}</p>
             <h3>{area.title}</h3>
-            <p>{area.description}</p>
-            <div className="tag-row">
+            <p className="study-learn-area-description">{area.description}</p>
+            <div className="tag-row study-learn-area-tags">
               {area.examples.map((example) => <span className="tag" key={example}>{example}</span>)}
             </div>
             <Link className="button primary" to={area.to}>{area.action}</Link>
