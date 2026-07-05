@@ -65,15 +65,6 @@ export function LibraryPage() {
           <Link className="button primary" to="/study-materials">Manage sources</Link>
         </div>
       </section>
-
-      <section className="content-panel review-callout">
-        <div>
-          <p className="eyebrow">From storage to understanding</p>
-          <h3>Send sources to Study</h3>
-          <p>After you add a source, use Study to break it into contents, chapters, paragraphs, bibliography, images and diagrams.</p>
-        </div>
-        <Link className="button primary" to="/study/theory">Open Study</Link>
-      </section>
     </div>
   );
 }
