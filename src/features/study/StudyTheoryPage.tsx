@@ -48,7 +48,11 @@ export function StudyTheoryPage() {
         <Link className="button primary" to="/library">Open Library</Link>
       </section>
 
-      <section className="learning-stage-grid" aria-label="Study source structure">
+      <section
+        className="learning-stage-grid"
+        style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}
+        aria-label="Study source structure"
+      >
         {sourceStructure.map((item, index) => (
           <article className="learning-stage-card" key={item.title}>
             <span className="stage-number" aria-hidden="true">{index + 1}</span>
