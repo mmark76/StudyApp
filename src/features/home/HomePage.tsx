@@ -2,6 +2,13 @@ import { Link } from "react-router-dom";
 
 const homeSpaces = [
   {
+    eyebrow: "Library",
+    title: "Your library space",
+    description: "Store books, articles, papers, notes, links and files.",
+    action: "Open Library",
+    to: "/library",
+  },
+  {
     eyebrow: "Study",
     title: "Your study space",
     description: "Read, structure and understand your theory.",
@@ -14,13 +21,6 @@ const homeSpaces = [
     description: "Practise with flashcards, review, quizzes and progress.",
     action: "Open Learn",
     to: "/learn",
-  },
-  {
-    eyebrow: "Library",
-    title: "Your library space",
-    description: "Store books, articles, papers, notes, links and files.",
-    action: "Open Library",
-    to: "/library",
   },
 ] as const;
 
