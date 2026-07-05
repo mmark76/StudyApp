@@ -46,7 +46,10 @@ export function StudyTheoryPage() {
             <span className="stage-number" aria-hidden="true">{index + 1}</span>
             <h3>{item.title}</h3>
             <p>{item.description}</p>
-            <Link className="button secondary" to="/import">Import</Link>
+            <div className="button-row">
+              <Link className="button secondary compact" to="/study-materials?add=file">From disk</Link>
+              <Link className="button secondary compact" to="/study-materials?add=link">From cloud</Link>
+            </div>
           </article>
         ))}
       </section>
