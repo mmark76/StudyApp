@@ -7,12 +7,12 @@ export function UnitsPage() {
   return (
     <div className="stack-lg">
       <header className="page-heading">
-        <p className="eyebrow">Study topics</p>
+        <p className="eyebrow">Subject chapters</p>
         <h2>{studyConfig.unitsLabel}</h2>
-        <p>Learning objectives, summaries, and key terms for each topic.</p>
+        <p>Learning objectives, summaries, and key terms for each chapter.</p>
       </header>
       {units.length === 0 ? (
-        <section className="empty-state"><h3>No topics yet</h3><p>Use <strong>Add content</strong> to create your first topic.</p></section>
+        <section className="empty-state"><h3>No chapters yet</h3><p>Use <strong>Add content</strong> to create your first chapter.</p></section>
       ) : (
         <div className="card-grid">
           {units.map((unit) => (
