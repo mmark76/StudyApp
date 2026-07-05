@@ -36,15 +36,6 @@ export function StudyTheoryPage() {
         <p>Read, structure and understand your sources before turning them into exercises.</p>
       </header>
 
-      <section className="content-panel review-callout">
-        <div>
-          <p className="eyebrow">Source to knowledge</p>
-          <h3>Start from a Library source</h3>
-          <p>Choose a book, article, paper, note or local file, then break it into meaningful learning parts.</p>
-        </div>
-        <Link className="button primary" to="/library">Open Library</Link>
-      </section>
-
       <section
         className="learning-stage-grid"
         style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}
