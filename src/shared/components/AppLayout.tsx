@@ -2,6 +2,13 @@ import { NavLink, Outlet } from "react-router-dom";
 import { studyConfig } from "../../app/studyConfig";
 import { useAppearanceSettings } from "../../features/appearance/useAppearanceSettings";
 
+const mainNavigation = [
+  ["/", "Home", true],
+  ["/study/theory", "Study", false],
+  ["/learn", "Learn", false],
+  ["/library", "Library", false],
+] as const;
+
 const footerNavigation = [
   ["/legal/license", "License"],
   ["/legal/privacy", "Privacy"],
@@ -23,8 +30,8 @@ export function AppLayout() {
           className="navigation-row"
           style={{ alignItems: "center", flexDirection: "row", flexWrap: "nowrap" }}
         >
-          <nav className="main-nav" style={{ alignItems: "center", flexWrap: "nowrap" }} aria-label="Home navigation">
-            <NavLink end to="/">Home</NavLink>
+          <nav className="main-nav" style={{ alignItems: "center", flexWrap: "nowrap" }} aria-label="Main navigation">
+            {mainNavigation.map(([to, label, end]) => <NavLink end={end} key={to} to={to}>{label}</NavLink>)}
           </nav>
           <div className="utility-actions" style={{ alignItems: "center", flexWrap: "nowrap" }} aria-label="Study settings">
             <NavLink to="/appearance">Settings</NavLink>
