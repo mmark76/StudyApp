@@ -1,12 +1,12 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { studyConfig } from "../../app/studyConfig";
 import { useAppearanceSettings } from "../../features/appearance/useAppearanceSettings";
 
 const mainNavigation = [
-  ["/", "Home", true],
-  ["/study/theory", "Study", false],
-  ["/learn", "Learn", false],
-  ["/library", "Library", false],
+  { to: "/", label: "Home", matches: ["/"] },
+  { to: "/study/theory", label: "Study", matches: ["/study", "/study/theory", "/units", "/import"] },
+  { to: "/learn", label: "Learn", matches: ["/learn", "/flashcards", "/review", "/quiz", "/progress"] },
+  { to: "/library", label: "Library", matches: ["/library", "/study-materials"] },
 ] as const;
 
 const footerNavigation = [
@@ -16,8 +16,13 @@ const footerNavigation = [
   ["/legal/copyright", "Copyright protected"]
 ] as const;
 
+function isActiveMainArea(pathname: string, matches: readonly string[]): boolean {
+  return matches.some((match) => pathname === match || (match !== "/" && pathname.startsWith(`${match}/`)));
+}
+
 export function AppLayout() {
   useAppearanceSettings();
+  const location = useLocation();
 
   return (
     <div className="app-shell">
@@ -31,7 +36,19 @@ export function AppLayout() {
           style={{ alignItems: "center", flexDirection: "row", flexWrap: "nowrap" }}
         >
           <nav className="main-nav" style={{ alignItems: "center", flexWrap: "nowrap" }} aria-label="Main navigation">
-            {mainNavigation.map(([to, label, end]) => <NavLink end={end} key={to} to={to}>{label}</NavLink>)}
+            {mainNavigation.map((item) => {
+              const isActive = isActiveMainArea(location.pathname, item.matches);
+              return (
+                <Link
+                  aria-current={isActive ? "page" : undefined}
+                  className={isActive ? "active" : undefined}
+                  key={item.to}
+                  to={item.to}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
           <div className="utility-actions" style={{ alignItems: "center", flexWrap: "nowrap" }} aria-label="Study settings">
             <NavLink to="/appearance">Settings</NavLink>
