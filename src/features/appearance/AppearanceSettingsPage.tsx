@@ -16,7 +16,7 @@ export function AppearanceSettingsPage() {
   } = useAppearanceSettings();
 
   function update<K extends keyof AppearanceSettings>(key: K, value: AppearanceSettings[K]) {
-    void updateAppearanceSettings({ [key]: value });
+    void updateAppearanceSettings({ [key]: value } as Partial<AppearanceSettings>);
   }
 
   return (
