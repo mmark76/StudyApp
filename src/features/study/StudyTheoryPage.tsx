@@ -2,26 +2,32 @@ import { Link } from "react-router-dom";
 
 const sourceStructure = [
   {
+    id: "contents",
     title: "Contents",
     description: "Start with the table of contents and the high-level map of the material.",
   },
   {
+    id: "chapters",
     title: "Chapters",
     description: "Break a book, paper or PDF into major learning blocks.",
   },
   {
+    id: "sections-paragraphs",
     title: "Sections / Paragraphs",
     description: "Split each chapter into sections and paragraphs that are easier to study and review.",
   },
   {
+    id: "key-concepts",
     title: "Key Concepts",
     description: "Extract the key ideas, definitions and principles that need to be understood and remembered.",
   },
   {
+    id: "bibliography-references",
     title: "Bibliography / References",
     description: "Keep references and source trails connected to the material they support.",
   },
   {
+    id: "images-diagrams",
     title: "Images / Diagrams",
     description: "Identify visual evidence, figures, conceptual diagrams, processes and relationships worth remembering.",
   },
@@ -60,7 +66,7 @@ export function StudyTheoryPage() {
         <p>Open the study category you want to work with.</p>
         <div className="button-row">
           {sourceStructure.map((item) => (
-            <Link className="button secondary compact" key={item.title} to="/study-materials">
+            <Link className="button secondary compact" key={item.title} to={`/study-materials#${item.id}`}>
               View {item.title}
             </Link>
           ))}
