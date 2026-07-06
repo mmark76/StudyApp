@@ -25,11 +25,11 @@ export function LibraryPage() {
       <header className="page-heading">
         <p className="eyebrow">Learning resources</p>
         <h2>Library</h2>
-        <p>Add source material here. Local files stay in this browser on this device; cloud sources are saved as links.</p>
+        <p>Add study material here. Local files stay in this browser on this device; cloud materials are saved as links.</p>
       </header>
 
       <section className="content-panel">
-        <p className="eyebrow">Source categories</p>
+        <p className="eyebrow">Material categories</p>
         <h3>What can you add here?</h3>
         <ul>
           {libraryCategories.map((category) => (
@@ -52,12 +52,12 @@ export function LibraryPage() {
       </section>
 
       <section className="content-panel">
-        <h3>Add or manage your sources</h3>
-        <p>Use the same source manager for books, articles, papers and notes.</p>
+        <h3>Add or manage your materials</h3>
+        <p>Use the same material manager for books, articles, papers and notes.</p>
         <div className="button-row">
           <Link className="button secondary" to="/study-materials?add=file">Add a file from this device</Link>
           <Link className="button secondary" to="/study-materials?add=link">Add a cloud link</Link>
-          <Link className="button primary" to="/study-materials">View saved sources</Link>
+          <Link className="button primary" to="/study-materials">View saved materials</Link>
         </div>
       </section>
     </div>
