@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useRef, useState } from "react";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { Rating } from "../../shared/types/models";
@@ -36,7 +37,14 @@ export function FlashcardsPage() {
     }
   }
 
-  if (!card) return <section className="empty-state"><h2>There are no flashcards</h2><p>Import a flashcards JSON file from the <strong>Import</strong> page.</p></section>;
+  if (!card) {
+    return (
+      <section className="empty-state">
+        <h2>There are no flashcards</h2>
+        <p>Add flashcards from the <Link className="text-link" to="/import">Import</Link> page. You can add one manually or use the spreadsheet template.</p>
+      </section>
+    );
+  }
 
   return (
     <div className="study-panel">
