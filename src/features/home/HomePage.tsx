@@ -27,30 +27,13 @@ const homeSpaces = [
 export function HomePage() {
   return (
     <div className="stack-lg">
-      <section
-        className="learning-stage-grid"
-        style={{ gap: "1.5rem" }}
-        aria-label="Home study spaces"
-      >
+      <section className="learning-stage-grid" aria-label="Home study spaces">
         {homeSpaces.map((space) => (
-          <article
-            className="learning-stage-card"
-            key={space.title}
-            style={{
-              minHeight: "300px",
-              padding: "clamp(1.5rem, 2.5vw, 2rem)",
-            }}
-          >
+          <article className="learning-stage-card" key={space.title}>
             <p className="eyebrow">{space.eyebrow}</p>
-            <h2 style={{ fontSize: "clamp(1.7rem, 2.2vw, 2.2rem)" }}>{space.title}</h2>
-            <p style={{ fontSize: "1.05rem" }}>{space.description}</p>
-            <Link
-              className="button primary"
-              style={{ fontSize: "1rem", padding: "0.85rem 1.15rem" }}
-              to={space.to}
-            >
-              {space.action}
-            </Link>
+            <h2>{space.title}</h2>
+            <p>{space.description}</p>
+            <Link className="button primary" to={space.to}>{space.action}</Link>
           </article>
         ))}
       </section>
