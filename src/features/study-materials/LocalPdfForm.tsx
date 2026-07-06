@@ -38,7 +38,7 @@ export function LocalPdfForm({
       return;
     }
     if (file.size > MAX_LOCAL_FILE_SIZE) {
-      onMessage("The file is larger than 20 MB. Use a cloud link for larger files.");
+      onMessage("The file is larger than 50 MB. Use a cloud link for larger files.");
       return;
     }
     if (!rightsConfirmed) {
