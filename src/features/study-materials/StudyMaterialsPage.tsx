@@ -136,7 +136,7 @@ export function StudyMaterialsPage() {
       <section className="content-panel">
         <p className="eyebrow">Add</p>
         <h3>Add study materials</h3>
-        <p>Choose whether you want to add a local file or a cloud link.</p>
+        <p>Choose whether you want to add material from this device or from a cloud link.</p>
 
         <div className="library-grid">
           <section
@@ -147,7 +147,7 @@ export function StudyMaterialsPage() {
           >
             <div>
               <p className="eyebrow">Option 1</p>
-              <h4>Add a file from this device</h4>
+              <h4>Add material from this device</h4>
             </div>
             <div className="privacy-notice">
               <strong>Stored in this browser on this device</strong>
@@ -168,7 +168,7 @@ export function StudyMaterialsPage() {
           >
             <div>
               <p className="eyebrow">Option 2</p>
-              <h4>Add a cloud link</h4>
+              <h4>Add material from a cloud link</h4>
               <p>Use this option for large files or materials you want to access from different devices.</p>
             </div>
             <ol className="friendly-steps">
