@@ -121,7 +121,7 @@ export function StudyMaterialsPage() {
             <strong>Private and local</strong>
             <p>The file stays only inside this browser on this device.</p>
             <p>Supported examples: PDF, Word documents, text files, CSV files and images.</p>
-            <p>Maximum size: 20 MB per file. Local files are not included when you save a copy of your study progress.</p>
+            <p>Maximum size: 50 MB per file. Local files are not included when you save a copy of your study progress.</p>
           </div>
         </div>
         <LocalPdfForm files={localFiles} onMessage={setMessage} />
