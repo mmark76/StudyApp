@@ -96,7 +96,7 @@ export function AppearanceSettingsPage() {
           </label>
         </div>
 
-        <div className="button-row appearance-actions">
+        <div className="button-row appearance-actions" style={{ marginTop: "1.5rem" }}>
           <button className="button secondary" type="button" onClick={() => void resetAppearanceSettings()}>
             Reset appearance
           </button>
