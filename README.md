@@ -2,6 +2,23 @@
 
 A local-first, subject-neutral study application template.
 
+## Vision and goal
+
+The long-term goal of this project is documented in [`VISION.md`](VISION.md).
+
+In short, StudyApp is intended to become a **local-first personal knowledge and learning system**: a private workspace where the user can collect study material, understand it at multiple depths, transform it into active learning, and retrieve knowledge through meaningful filters.
+
+The app should not be understood only as a flashcards app. Flashcards, quizzes, review queues and spaced repetition are learning tools inside a broader system for organising, understanding, remembering and recalling knowledge.
+
+The intended user workflow is:
+
+1. import or save study material such as PDFs, Word documents, links, images, diagrams, charts, notes, bibliography and references;
+2. read and structure that material at multiple depths, from overview and table of contents to chapters, headings, paragraphs, concepts, images and references;
+3. classify the same material through different perspectives, such as historical, scientific, theoretical, practical, philosophical, technical or methodological views;
+4. convert knowledge into active learning through repetition, flashcards, quizzes and due reviews;
+5. support cognitive functions such as attention, comprehension, association, classification, visual learning, active recall and metacognitive review;
+6. store and retrieve information through filters such as source, chapter, section, concept, material type, perspective, difficulty, due status, review history, bibliography or reference.
+
 The project keeps the learning workflow of the original study app while starting with no subject content:
 
 - empty chapters;

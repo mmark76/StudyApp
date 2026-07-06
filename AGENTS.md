@@ -20,6 +20,23 @@ Markellos Study App is a local-first, offline-ready study application built with
 
 The application has no account system or backend. User-created study content, progress, settings, links, and local PDF files are stored in the browser.
 
+## Product vision and owner intent
+
+Before making product, architecture, data-model, or UX decisions, read [`VISION.md`](VISION.md).
+
+The owner intent is to build a **local-first personal knowledge and learning system**, not only a flashcards app. The app should help the user collect study material, understand it at multiple depths, transform it into active learning, and retrieve knowledge through meaningful filters.
+
+Future changes should preserve and support these long-term capabilities:
+
+- importing or saving useful study material such as PDFs, Word documents, links, images, diagrams, charts, notes, bibliography and references;
+- reading and structuring material at multiple depths: overview, table of contents, chapter, heading, subheading, paragraph, concept, image, diagram, chart, bibliography and reference;
+- classifying the same source through different perspectives, such as historical, scientific, theoretical, practical, philosophical, technical or methodological layers;
+- converting knowledge into active learning through repetition, flashcards, quizzes, due reviews, self-testing and recall from memory;
+- supporting cognitive functions such as attention, perception, comprehension, memory encoding, active recall, classification, comparison, visual learning, metacognition and application;
+- retrieving information through filters such as source, book, chapter, section, concept, perspective, material type, difficulty, due status, review history, bibliography and reference.
+
+Do not treat uploaded material as dead file storage. Do not optimise only for flashcard quantity if that weakens source structure, concept understanding, traceability, retrieval or long-term learning.
+
 ## Repository structure
 
 - `src/app/` — application configuration, root component, and routing
