@@ -57,14 +57,13 @@ export function StudyTheoryPage() {
       <section className="content-panel">
         <p className="eyebrow">View</p>
         <h3>View structured material</h3>
-        <p>Open the saved material or view the study category you want to work with.</p>
+        <p>Open the study category you want to work with.</p>
         <div className="button-row">
           {sourceStructure.map((item) => (
             <Link className="button secondary compact" key={item.title} to="/study-materials">
               View {item.title}
             </Link>
           ))}
-          <Link className="button primary compact" to="/study-materials">View Material</Link>
         </div>
       </section>
     </div>
