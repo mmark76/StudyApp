@@ -47,13 +47,25 @@ export function StudyTheoryPage() {
             <h3>{item.title}</h3>
             <p>{item.description}</p>
             <div className="button-row">
-              <Link className="button secondary compact" to="/study-materials?add=file">Import from Local Disk</Link>
-              <Link className="button secondary compact" to="/study-materials?add=link">Import from Cloud</Link>
-              <Link className="button primary compact" to="/study-materials">View {item.title}</Link>
-              <Link className="button secondary compact" to="/study-materials">View Material</Link>
+              <Link className="button secondary compact" to="/study-materials?add=file">Add material from Local Disk</Link>
+              <Link className="button secondary compact" to="/study-materials?add=link">Add material from Cloud</Link>
             </div>
           </article>
         ))}
+      </section>
+
+      <section className="content-panel">
+        <p className="eyebrow">View</p>
+        <h3>View structured material</h3>
+        <p>Open the saved material or view the study category you want to work with.</p>
+        <div className="button-row">
+          {sourceStructure.map((item) => (
+            <Link className="button secondary compact" key={item.title} to="/study-materials">
+              View {item.title}
+            </Link>
+          ))}
+          <Link className="button primary compact" to="/study-materials">View Material</Link>
+        </div>
       </section>
     </div>
   );
