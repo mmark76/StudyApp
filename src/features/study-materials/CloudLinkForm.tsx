@@ -54,6 +54,16 @@ export function CloudLinkForm({
   return (
     <form className="material-form" onSubmit={(event) => void submit(event)}>
       <label className="field-label">
+        Shared link
+        <input
+          required
+          type="url"
+          value={url}
+          onChange={(event) => setUrl(event.target.value)}
+          placeholder="https://..."
+        />
+      </label>
+      <label className="field-label">
         Name
         <input
           required
@@ -62,16 +72,6 @@ export function CloudLinkForm({
           value={title}
           onChange={(event) => setTitle(event.target.value)}
           placeholder="Example: Cognitive Psychology textbook"
-        />
-      </label>
-      <label className="field-label">
-        Shared link
-        <input
-          required
-          type="url"
-          value={url}
-          onChange={(event) => setUrl(event.target.value)}
-          placeholder="https://..."
         />
       </label>
       <button className="button primary" type="submit">Add material from this cloud link</button>
