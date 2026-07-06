@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import { CloudLinkForm } from "./CloudLinkForm";
 import {
@@ -15,8 +15,42 @@ import {
   STUDY_MATERIALS_SETTING_KEY,
 } from "./studyMaterials";
 
+const studyMaterialCategories = [
+  {
+    id: "contents",
+    title: "Contents",
+    description: "Table of contents and the high-level map of the material.",
+  },
+  {
+    id: "chapters",
+    title: "Chapters",
+    description: "Major learning blocks inside a book, paper, PDF or course material.",
+  },
+  {
+    id: "sections-paragraphs",
+    title: "Sections / Paragraphs",
+    description: "Smaller parts inside chapters for focused study and review.",
+  },
+  {
+    id: "key-concepts",
+    title: "Key Concepts",
+    description: "Important ideas, definitions and principles that need to be understood and remembered.",
+  },
+  {
+    id: "bibliography-references",
+    title: "Bibliography / References",
+    description: "References and source trails connected to the study material.",
+  },
+  {
+    id: "images-diagrams",
+    title: "Images / Diagrams",
+    description: "Figures, diagrams, visual evidence, processes and relationships worth remembering.",
+  },
+] as const;
+
 export function StudyMaterialsPage() {
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const addMode = searchParams.get("add");
   const cloudLinkSectionRef = useRef<HTMLElement>(null);
   const localFileSectionRef = useRef<HTMLElement>(null);
@@ -48,6 +82,16 @@ export function StudyMaterialsPage() {
     target.focus({ preventScroll: true });
   }, [addMode]);
 
+  useEffect(() => {
+    if (!location.hash) return;
+
+    const target = document.getElementById(location.hash.slice(1));
+    if (!target) return;
+
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    target.focus({ preventScroll: true });
+  }, [location.hash]);
+
   async function removeLink(id: string) {
     await studyDatabase.settings.put({
       key: STUDY_MATERIALS_SETTING_KEY,
@@ -68,6 +112,20 @@ export function StudyMaterialsPage() {
         <h2>Study materials</h2>
         <p>Add local files or cloud links for your course books, notes, articles and papers.</p>
       </header>
+
+      <section className="content-panel">
+        <p className="eyebrow">View</p>
+        <h3>Study material categories</h3>
+        <p>Use these sections to jump to the part of the material you want to structure.</p>
+        <div className="card-grid">
+          {studyMaterialCategories.map((category) => (
+            <article className="template-card" id={category.id} key={category.id} tabIndex={-1}>
+              <h4>{category.title}</h4>
+              <p>{category.description}</p>
+            </article>
+          ))}
+        </div>
+      </section>
 
       <section className="content-panel">
         <p className="eyebrow">Storage clarification</p>
