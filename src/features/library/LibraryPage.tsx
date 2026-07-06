@@ -3,19 +3,19 @@ import { Link } from "react-router-dom";
 const libraryCategories = [
   {
     title: "Books",
-    description: "Textbooks, manuals, chapters and longer reference works.",
+    description: "textbooks, manuals, chapters and longer reference works.",
   },
   {
     title: "Articles",
-    description: "Web articles, magazine pieces and focused explanatory resources.",
+    description: "web articles, magazine pieces and focused explanatory resources.",
   },
   {
     title: "Papers",
-    description: "Research papers, reports and other evidence-based material.",
+    description: "research papers, reports and other evidence-based material.",
   },
   {
     title: "Notes",
-    description: "Your structured summaries, key ideas and topic-level learning notes.",
+    description: "your structured summaries, key ideas and topic-level learning notes.",
   },
 ] as const;
 
@@ -30,15 +30,14 @@ export function LibraryPage() {
 
       <section className="content-panel">
         <p className="eyebrow">Source categories</p>
-        <h3>What can you store here?</h3>
-        <div className="library-grid" aria-label="Library source examples">
+        <h3>What can you add here?</h3>
+        <ul>
           {libraryCategories.map((category) => (
-            <article className="library-card" key={category.title}>
-              <h4>{category.title}</h4>
-              <p>{category.description}</p>
-            </article>
+            <li key={category.title}>
+              <strong>{category.title}:</strong> {category.description}
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
       <section className="content-panel">
