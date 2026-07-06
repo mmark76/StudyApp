@@ -79,7 +79,7 @@ export function LocalPdfForm({
   return (
     <form className="material-form" onSubmit={(event) => void submit(event)}>
       <label className="field-label">
-        File from this device
+        Material from this device
         <input
           required
           accept=".pdf,.doc,.docx,.txt,.md,.csv,.jpg,.jpeg,.png,.gif,.webp,application/pdf,text/*,image/*"
@@ -107,7 +107,7 @@ export function LocalPdfForm({
         />
         <span>I have permission to use this file for my studies.</span>
       </label>
-      <button className="button primary" type="submit">Add file from this device</button>
+      <button className="button primary" type="submit">Add material from this device</button>
     </form>
   );
 }
