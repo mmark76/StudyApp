@@ -98,16 +98,25 @@ export function StudyMaterialsPage() {
       <section className="content-panel">
         <p className="eyebrow">View</p>
         <h3>Study material categories</h3>
-        <p>Use these sections to jump to the part of the material you want to structure.</p>
+        <p>Jump to the part of the material you want to structure.</p>
         <div className="learning-stage-grid">
           {studyMaterialCategories.map((category) => (
-            <article className="learning-stage-card" id={category.id} key={category.id} tabIndex={-1}>
-              <h4>{category.title}</h4>
-              <p>{category.description}</p>
-              <p className="field-help">
-                Saved cloud links: {links.length} · Files on this device: {localFiles.length}
+            <article
+              className="learning-stage-card"
+              id={category.id}
+              key={category.id}
+              tabIndex={-1}
+              style={{ minHeight: "220px", gap: "0.5rem" }}
+            >
+              <h4 style={{ marginBottom: "0.25rem" }}>{category.title}</h4>
+              <p style={{ margin: 0 }}>{category.description}</p>
+              <div className="tag-row" style={{ marginTop: "auto" }}>
+                <span className="tag">Cloud links: {links.length}</span>
+                <span className="tag">Files on this device: {localFiles.length}</span>
+              </div>
+              <p className="field-help" style={{ marginTop: "0.15rem" }}>
+                Materials for this category appear here.
               </p>
-              <p className="field-help">The materials for this category will appear here.</p>
             </article>
           ))}
         </div>
