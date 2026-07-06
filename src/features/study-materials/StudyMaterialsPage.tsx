@@ -3,11 +3,6 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import { CloudLinkForm } from "./CloudLinkForm";
-import {
-  formatFileKind,
-  formatFileSize,
-  openLocalFile,
-} from "./localStudyFiles";
 import { LocalPdfForm } from "./LocalPdfForm";
 import {
   builtInStudyMaterials,
@@ -92,19 +87,6 @@ export function StudyMaterialsPage() {
     target.focus({ preventScroll: true });
   }, [location.hash]);
 
-  async function removeLink(id: string) {
-    await studyDatabase.settings.put({
-      key: STUDY_MATERIALS_SETTING_KEY,
-      value: savedLinks.filter((item) => item.id !== id),
-    });
-    setMessage("The cloud link was removed.");
-  }
-
-  async function removeFile(id: string) {
-    await studyDatabase.studyFiles.delete(id);
-    setMessage("The file was removed from this device.");
-  }
-
   return (
     <div className="stack-lg">
       <header className="page-heading">
@@ -122,6 +104,10 @@ export function StudyMaterialsPage() {
             <article className="learning-stage-card" id={category.id} key={category.id} tabIndex={-1}>
               <h4>{category.title}</h4>
               <p>{category.description}</p>
+              <p className="field-help">
+                Saved cloud links: {links.length} · Files on this device: {localFiles.length}
+              </p>
+              <p className="field-help">The materials for this category will appear here.</p>
             </article>
           ))}
         </div>
@@ -136,50 +122,6 @@ export function StudyMaterialsPage() {
           <li><strong>Storage is local:</strong> files may be lost if browser/site data is cleared, if private browsing is used, or if the browser removes storage because of low disk space.</li>
           <li><strong>Backups:</strong> local files are not included in study progress backups. Keep the original files in a safe place.</li>
         </ul>
-      </section>
-
-      <section className="content-panel">
-        <h3>Your cloud links</h3>
-        {links.length === 0 ? (
-          <p>No cloud links have been added yet.</p>
-        ) : (
-          <ul className="material-link-list">
-            {links.map((material) => (
-              <li className="material-link-row" key={material.id}>
-                <a className="text-link" href={material.url} target="_blank" rel="noopener noreferrer">
-                  {material.title} - open
-                </a>
-                {savedLinks.some((item) => item.id === material.id) ? (
-                  <button className="button danger compact" onClick={() => void removeLink(material.id)}>
-                    Remove
-                  </button>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <section className="content-panel">
-        <h3>Files on this device</h3>
-        {localFiles.length === 0 ? (
-          <p>No local files have been added to this device yet.</p>
-        ) : (
-          <ul className="local-file-list">
-            {localFiles.map((file) => (
-              <li className="local-file-row" key={file.id}>
-                <div>
-                  <strong>{file.title}</strong>
-                  <span>{formatFileKind(file.fileKind)} · {file.fileName} - {formatFileSize(file.size)}</span>
-                </div>
-                <div className="button-row">
-                  <button className="button secondary compact" onClick={() => openLocalFile(file)}>Open file</button>
-                  <button className="button danger compact" onClick={() => void removeFile(file.id)}>Remove</button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
       </section>
 
       <section className="content-panel material-option-panel" ref={localFileSectionRef} tabIndex={-1}>
