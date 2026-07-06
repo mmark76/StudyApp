@@ -145,17 +145,19 @@ export function StudyMaterialsPage() {
             tabIndex={-1}
             style={{ display: "grid", gap: "1rem", alignContent: "start", height: "100%" }}
           >
-            <div>
-              <p className="eyebrow">Option 1</p>
-              <h4>Add material from this device</h4>
-            </div>
-            <div className="privacy-notice">
-              <strong>Stored in this browser on this device</strong>
-              <p>The file is private and local. It is not uploaded to a server and it is not synced to another device.</p>
-              <p>Supported examples: PDF, Word documents, text files, CSV files and images.</p>
-              <p>Maximum size: 50 MB per file.</p>
-              <p>Local files are not included when you save a copy of your study progress. Keep the original file somewhere safe.</p>
-              <p>The file may be lost if browser/site data is cleared, if you use private browsing, or if the browser removes storage because of low disk space.</p>
+            <div style={{ display: "grid", gap: "1rem", minHeight: "26rem", alignContent: "start" }}>
+              <div>
+                <p className="eyebrow">Option 1</p>
+                <h4>Add material from this device</h4>
+              </div>
+              <div className="privacy-notice">
+                <strong>Stored in this browser on this device</strong>
+                <p>The file is private and local. It is not uploaded to a server and it is not synced to another device.</p>
+                <p>Supported examples: PDF, Word documents, text files, CSV files and images.</p>
+                <p>Maximum size: 50 MB per file.</p>
+                <p>Local files are not included when you save a copy of your study progress. Keep the original file somewhere safe.</p>
+                <p>The file may be lost if browser/site data is cleared, if you use private browsing, or if the browser removes storage because of low disk space.</p>
+              </div>
             </div>
             <LocalPdfForm files={localFiles} onMessage={setMessage} />
           </section>
@@ -166,17 +168,19 @@ export function StudyMaterialsPage() {
             tabIndex={-1}
             style={{ display: "grid", gap: "1rem", alignContent: "start", height: "100%" }}
           >
-            <div>
-              <p className="eyebrow">Option 2</p>
-              <h4>Add material from a cloud link</h4>
-              <p>Use this option for large files or materials you want to access from different devices.</p>
+            <div style={{ display: "grid", gap: "1rem", minHeight: "26rem", alignContent: "start" }}>
+              <div>
+                <p className="eyebrow">Option 2</p>
+                <h4>Add material from a cloud link</h4>
+                <p>Use this option for large files or materials you want to access from different devices.</p>
+              </div>
+              <ol className="friendly-steps">
+                <li>Upload the book, notes, paper or source file to your cloud service.</li>
+                <li>Choose the sharing access that is appropriate for you.</li>
+                <li>Copy the shared link and paste it below.</li>
+              </ol>
+              <p>Only the title and link are saved in this app. The actual file remains in your cloud service.</p>
             </div>
-            <ol className="friendly-steps">
-              <li>Upload the book, notes, paper or source file to your cloud service.</li>
-              <li>Choose the sharing access that is appropriate for you.</li>
-              <li>Copy the shared link and paste it below.</li>
-            </ol>
-            <p>Only the title and link are saved in this app. The actual file remains in your cloud service.</p>
             <CloudLinkForm savedLinks={savedLinks} existingLinks={links} onMessage={setMessage} />
           </section>
         </div>
