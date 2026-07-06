@@ -14,8 +14,8 @@ const libraryCategories = [
     description: "research papers, reports and other evidence-based material.",
   },
   {
-    title: "Notes",
-    description: "your structured summaries, key ideas and topic-level learning notes.",
+    title: "Source Notes",
+    description: "uploaded lecture notes, handwritten notes, PDFs or note files used as study material.",
   },
 ] as const;
 
@@ -53,7 +53,7 @@ export function LibraryPage() {
 
       <section className="content-panel">
         <h3>Add or manage your materials</h3>
-        <p>Use the same material manager for books, articles, papers and notes.</p>
+        <p>Use the same material manager for books, articles, papers and source notes.</p>
         <div className="button-row">
           <Link className="button secondary" to="/study-materials?add=file">Add a file from this device</Link>
           <Link className="button secondary" to="/study-materials?add=link">Add a cloud link</Link>
