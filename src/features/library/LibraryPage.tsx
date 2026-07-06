@@ -47,7 +47,7 @@ export function LibraryPage() {
         <div className="button-row">
           <Link className="button secondary" to="/study-materials?add=file">Add a file from this device</Link>
           <Link className="button secondary" to="/study-materials?add=link">Add a cloud link</Link>
-          <Link className="button primary" to="/study-materials">Manage sources</Link>
+          <Link className="button primary" to="/study-materials">View saved sources</Link>
         </div>
       </section>
     </div>
