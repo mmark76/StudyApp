@@ -10,8 +10,8 @@ const sourceStructure = [
     description: "Break a book, paper or PDF into major learning blocks.",
   },
   {
-    title: "Sections",
-    description: "Split each chapter into smaller parts that are easier to study and review.",
+    title: "Sections / Paragraphs",
+    description: "Split each chapter into sections and paragraphs that are easier to study and review.",
   },
   {
     title: "Concepts",
