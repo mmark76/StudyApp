@@ -25,7 +25,7 @@ export function AppearanceSettingsPage() {
       <header className="page-heading">
         <p className="eyebrow">Display</p>
         <h2>Settings</h2>
-        <p>Adjust the accent colours, background colours, font, text size and spacing used across your study workspace.</p>
+        <p>Adjust colours, font, text size and spacing across your study workspace.</p>
       </header>
 
       <section className="content-panel">
