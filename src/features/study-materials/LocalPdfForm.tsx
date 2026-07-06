@@ -19,7 +19,6 @@ export function LocalPdfForm({
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
-  const [rightsConfirmed, setRightsConfirmed] = useState(false);
   const lock = useRef(false);
 
   function chooseFile(event: ChangeEvent<HTMLInputElement>) {
@@ -39,10 +38,6 @@ export function LocalPdfForm({
     }
     if (file.size > MAX_LOCAL_FILE_SIZE) {
       onMessage("The file is larger than 50 MB. Use a cloud link for larger files.");
-      return;
-    }
-    if (!rightsConfirmed) {
-      onMessage("Confirm that you have permission to use this file.");
       return;
     }
     if (files.some((item) => item.fileName === file.name && item.size === file.size)) {
@@ -65,7 +60,6 @@ export function LocalPdfForm({
       await studyDatabase.studyFiles.add(item);
       setFile(null);
       setTitle("");
-      setRightsConfirmed(false);
       const input = form.elements.namedItem("study-file") as HTMLInputElement | null;
       if (input) input.value = "";
       onMessage("The study file was added to this device.");
@@ -98,14 +92,6 @@ export function LocalPdfForm({
           onChange={(event) => setTitle(event.target.value)}
           placeholder="The file name will be used automatically"
         />
-      </label>
-      <label className="permission-check">
-        <input
-          checked={rightsConfirmed}
-          type="checkbox"
-          onChange={(event) => setRightsConfirmed(event.target.checked)}
-        />
-        <span>I have permission to use this file for my studies.</span>
       </label>
       <button className="button primary" type="submit">Add material from this device</button>
     </form>
