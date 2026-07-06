@@ -50,6 +50,7 @@ export function StudyTheoryPage() {
               <Link className="button secondary compact" to="/study-materials?add=file">Import from Local Disk</Link>
               <Link className="button secondary compact" to="/study-materials?add=link">Import from Cloud</Link>
               <Link className="button primary compact" to="/study-materials">View {item.title}</Link>
+              <Link className="button secondary compact" to="/study-materials">View Material</Link>
             </div>
           </article>
         ))}
