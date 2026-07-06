@@ -14,7 +14,7 @@ const sourceStructure = [
     description: "Split each chapter into sections and paragraphs that are easier to study and review.",
   },
   {
-    title: "Concepts",
+    title: "Key Concepts",
     description: "Extract the key ideas, definitions and principles that need to be understood and remembered.",
   },
   {
