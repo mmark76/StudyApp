@@ -29,6 +29,16 @@ export function LibraryPage() {
       </header>
 
       <section className="content-panel">
+        <h3>Add or manage your materials</h3>
+        <p>Use the same material manager for books, articles, papers and source notes.</p>
+        <div className="button-row">
+          <Link className="button secondary" to="/study-materials?add=file">Add a file from this device</Link>
+          <Link className="button secondary" to="/study-materials?add=link">Add a cloud link</Link>
+          <Link className="button primary" to="/study-materials">View saved materials</Link>
+        </div>
+      </section>
+
+      <section className="content-panel">
         <p className="eyebrow">Material categories</p>
         <h3>What can you add here?</h3>
         <ul>
@@ -49,16 +59,6 @@ export function LibraryPage() {
           <li><strong>Backup:</strong> local files are not included when you save a copy of your study progress. Keep the original files somewhere safe.</li>
           <li><strong>Browser data:</strong> local files may be lost if browser/site data is cleared, if private browsing is used, or if the browser removes storage because of low disk space.</li>
         </ul>
-      </section>
-
-      <section className="content-panel">
-        <h3>Add or manage your materials</h3>
-        <p>Use the same material manager for books, articles, papers and source notes.</p>
-        <div className="button-row">
-          <Link className="button secondary" to="/study-materials?add=file">Add a file from this device</Link>
-          <Link className="button secondary" to="/study-materials?add=link">Add a cloud link</Link>
-          <Link className="button primary" to="/study-materials">View saved materials</Link>
-        </div>
       </section>
     </div>
   );
