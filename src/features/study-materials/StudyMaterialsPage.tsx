@@ -66,8 +66,19 @@ export function StudyMaterialsPage() {
       <header className="page-heading">
         <p className="eyebrow">Books, notes and theory</p>
         <h2>Study materials</h2>
-        <p>Keep your course books, notes, articles, papers and files together with your study content.</p>
+        <p>Add local files or cloud links for your course books, notes, articles and papers.</p>
       </header>
+
+      <section className="content-panel">
+        <p className="eyebrow">Storage clarification</p>
+        <h3>How storage works</h3>
+        <ul>
+          <li><strong>Files from this device:</strong> stored only in this browser on this device. They are not uploaded and are not synced.</li>
+          <li><strong>Cloud links:</strong> only the title and link are saved here. The real file remains in your cloud service.</li>
+          <li><strong>Storage is local:</strong> files may be lost if browser/site data is cleared, if private browsing is used, or if the browser removes storage because of low disk space.</li>
+          <li><strong>Backups:</strong> local files are not included in study progress backups. Keep the original files in a safe place.</li>
+        </ul>
+      </section>
 
       <section className="content-panel">
         <h3>Your cloud links</h3>
@@ -118,10 +129,12 @@ export function StudyMaterialsPage() {
           <p className="eyebrow">Option 1</p>
           <h3>Add a file from this device</h3>
           <div className="privacy-notice">
-            <strong>Private and local</strong>
-            <p>The file stays only inside this browser on this device.</p>
+            <strong>Stored in this browser on this device</strong>
+            <p>The file is private and local. It is not uploaded to a server and it is not synced to another device.</p>
             <p>Supported examples: PDF, Word documents, text files, CSV files and images.</p>
-            <p>Maximum size: 50 MB per file. Local files are not included when you save a copy of your study progress.</p>
+            <p>Maximum size: 50 MB per file.</p>
+            <p>Local files are not included when you save a copy of your study progress. Keep the original file somewhere safe.</p>
+            <p>The file may be lost if browser/site data is cleared, if you use private browsing, or if the browser removes storage because of low disk space.</p>
           </div>
         </div>
         <LocalPdfForm files={localFiles} onMessage={setMessage} />
@@ -133,10 +146,11 @@ export function StudyMaterialsPage() {
           <h3>Add a cloud link</h3>
           <p>Use this option for large files or materials you want to access from different devices.</p>
           <ol className="friendly-steps">
-            <li>Upload the book, notes, paper or source file to a cloud service.</li>
+            <li>Upload the book, notes, paper or source file to your cloud service.</li>
             <li>Choose the sharing access that is appropriate for you.</li>
             <li>Copy the shared link and paste it below.</li>
           </ol>
+          <p>Only the title and link are saved in this app. The actual file remains in your cloud service.</p>
         </div>
         <CloudLinkForm savedLinks={savedLinks} existingLinks={links} onMessage={setMessage} />
       </section>
