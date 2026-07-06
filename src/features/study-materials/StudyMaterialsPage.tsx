@@ -138,12 +138,12 @@ export function StudyMaterialsPage() {
         <h3>Add study materials</h3>
         <p>Choose whether you want to add material from this device or from a cloud link.</p>
 
-        <div className="library-grid">
+        <div className="library-grid" style={{ alignItems: "stretch" }}>
           <section
             className="template-card"
             ref={localFileSectionRef}
             tabIndex={-1}
-            style={{ display: "grid", gap: "1rem", alignContent: "start" }}
+            style={{ display: "grid", gap: "1rem", alignContent: "start", height: "100%" }}
           >
             <div>
               <p className="eyebrow">Option 1</p>
@@ -164,7 +164,7 @@ export function StudyMaterialsPage() {
             className="template-card"
             ref={cloudLinkSectionRef}
             tabIndex={-1}
-            style={{ display: "grid", gap: "1rem", alignContent: "start" }}
+            style={{ display: "grid", gap: "1rem", alignContent: "start", height: "100%" }}
           >
             <div>
               <p className="eyebrow">Option 2</p>
