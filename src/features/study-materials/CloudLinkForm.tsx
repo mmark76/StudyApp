@@ -74,7 +74,7 @@ export function CloudLinkForm({
           placeholder="https://..."
         />
       </label>
-      <button className="button primary" type="submit">Add cloud link</button>
+      <button className="button primary" type="submit">Add material from this cloud link</button>
     </form>
   );
 }
