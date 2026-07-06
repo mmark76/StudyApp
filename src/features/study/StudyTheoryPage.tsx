@@ -22,12 +22,8 @@ const sourceStructure = [
     description: "Keep references and source trails connected to the material they support.",
   },
   {
-    title: "Images",
-    description: "Identify visual evidence, examples and figures worth remembering.",
-  },
-  {
-    title: "Diagrams",
-    description: "Separate conceptual diagrams, processes, systems and relationships from plain text.",
+    title: "Images / Diagrams",
+    description: "Identify visual evidence, figures, conceptual diagrams, processes and relationships worth remembering.",
   },
 ] as const;
 
