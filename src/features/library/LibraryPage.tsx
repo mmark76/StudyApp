@@ -32,8 +32,8 @@ export function LibraryPage() {
         <h3>Add or manage your materials</h3>
         <p>Use the same material manager for books, articles, papers and source notes.</p>
         <div className="button-row">
-          <Link className="button secondary" to="/study-materials?add=file">Add a file from this device</Link>
-          <Link className="button secondary" to="/study-materials?add=link">Add a cloud link</Link>
+          <Link className="button secondary" to="/study-materials?add=file">Add material from this device</Link>
+          <Link className="button secondary" to="/study-materials?add=link">Add material from this cloud link</Link>
           <Link className="button primary" to="/study-materials">View saved materials</Link>
         </div>
       </section>
