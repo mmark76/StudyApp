@@ -45,7 +45,7 @@ export function LearnPage() {
       <header className="page-heading">
         <p className="eyebrow">Practice and memory</p>
         <h2>Learn</h2>
-        <p>Turn structured material into your own notes, summaries, active recall, exercises, spaced review and measurable progress.</p>
+        <p>Turn structured material into notes, summaries, flashcards, review, quizzes and progress.</p>
       </header>
 
       <section className="learning-stage-grid" aria-label="Learning tools">
