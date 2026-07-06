@@ -25,7 +25,7 @@ export function LibraryPage() {
       <header className="page-heading">
         <p className="eyebrow">Learning resources</p>
         <h2>Library</h2>
-        <p>Add study material here. Local files stay in this browser on this device; cloud materials are saved as links.</p>
+        <p>Add study material here. Local files stay on this device; cloud materials are saved as links.</p>
       </header>
 
       <section className="content-panel">
