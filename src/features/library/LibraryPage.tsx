@@ -25,7 +25,7 @@ export function LibraryPage() {
       <header className="page-heading">
         <p className="eyebrow">Learning resources</p>
         <h2>Library</h2>
-        <p>Store your source material here. Study &amp; Learn will transform it into theory, notes, flashcards and exercises.</p>
+        <p>Add source material here. Local files stay in this browser on this device; cloud sources are saved as links.</p>
       </header>
 
       <section className="content-panel">
@@ -37,6 +37,17 @@ export function LibraryPage() {
               <strong>{category.title}:</strong> {category.description}
             </li>
           ))}
+        </ul>
+      </section>
+
+      <section className="content-panel">
+        <p className="eyebrow">Storage clarification</p>
+        <h3>Where is it stored?</h3>
+        <ul>
+          <li><strong>Local files:</strong> stored only inside this browser on this device. They are not uploaded to a server and are not synced to other devices.</li>
+          <li><strong>Cloud links:</strong> only the name and shared link are saved in the app. The actual file stays in your cloud service.</li>
+          <li><strong>Backup:</strong> local files are not included when you save a copy of your study progress. Keep the original files somewhere safe.</li>
+          <li><strong>Browser data:</strong> local files may be lost if browser/site data is cleared, if private browsing is used, or if the browser removes storage because of low disk space.</li>
         </ul>
       </section>
 
