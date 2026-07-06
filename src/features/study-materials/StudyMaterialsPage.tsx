@@ -117,9 +117,9 @@ export function StudyMaterialsPage() {
         <p className="eyebrow">View</p>
         <h3>Study material categories</h3>
         <p>Use these sections to jump to the part of the material you want to structure.</p>
-        <div className="card-grid">
+        <div className="learning-stage-grid">
           {studyMaterialCategories.map((category) => (
-            <article className="template-card" id={category.id} key={category.id} tabIndex={-1}>
+            <article className="learning-stage-card" id={category.id} key={category.id} tabIndex={-1}>
               <h4>{category.title}</h4>
               <p>{category.description}</p>
             </article>
