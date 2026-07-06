@@ -96,6 +96,17 @@ export function StudyMaterialsPage() {
       </header>
 
       <section className="content-panel">
+        <p className="eyebrow">Storage clarification</p>
+        <h3>How storage works</h3>
+        <ul>
+          <li><strong>Files from this device:</strong> stored only in this browser on this device. They are not uploaded and are not synced.</li>
+          <li><strong>Cloud links:</strong> only the title and link are saved here. The real file remains in your cloud service.</li>
+          <li><strong>Storage is local:</strong> files may be lost if browser/site data is cleared, if private browsing is used, or if the browser removes storage because of low disk space.</li>
+          <li><strong>Backups:</strong> local files are not included in study progress backups. Keep the original files in a safe place.</li>
+        </ul>
+      </section>
+
+      <section className="content-panel">
         <p className="eyebrow">View</p>
         <h3>Study material categories</h3>
         <p>Jump to the part of the material you want to structure.</p>
@@ -120,17 +131,6 @@ export function StudyMaterialsPage() {
             </article>
           ))}
         </div>
-      </section>
-
-      <section className="content-panel">
-        <p className="eyebrow">Storage clarification</p>
-        <h3>How storage works</h3>
-        <ul>
-          <li><strong>Files from this device:</strong> stored only in this browser on this device. They are not uploaded and are not synced.</li>
-          <li><strong>Cloud links:</strong> only the title and link are saved here. The real file remains in your cloud service.</li>
-          <li><strong>Storage is local:</strong> files may be lost if browser/site data is cleared, if private browsing is used, or if the browser removes storage because of low disk space.</li>
-          <li><strong>Backups:</strong> local files are not included in study progress backups. Keep the original files in a safe place.</li>
-        </ul>
       </section>
 
       <section className="content-panel material-option-panel" ref={localFileSectionRef} tabIndex={-1}>
