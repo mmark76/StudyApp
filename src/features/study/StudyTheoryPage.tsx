@@ -3,18 +3,22 @@ import { Link } from "react-router-dom";
 const sourceStructure = [
   {
     title: "Contents",
-    description: "Capture the table of contents and the high-level map of the source.",
+    description: "Start with the table of contents and the high-level map of the material.",
   },
   {
     title: "Chapters",
     description: "Break a book, paper or PDF into major learning blocks.",
   },
   {
-    title: "Paragraphs",
-    description: "Reduce dense text into smaller units that can be understood and reviewed.",
+    title: "Sections",
+    description: "Split each chapter into smaller parts that are easier to study and review.",
   },
   {
-    title: "Bibliography",
+    title: "Concepts",
+    description: "Extract the key ideas, definitions and principles that need to be understood and remembered.",
+  },
+  {
+    title: "Bibliography / References",
     description: "Keep references and source trails connected to the material they support.",
   },
   {
@@ -33,13 +37,13 @@ export function StudyTheoryPage() {
       <header className="page-heading">
         <p className="eyebrow">Theory and understanding</p>
         <h2>Study</h2>
-        <p>Read, structure and understand your sources before turning them into exercises.</p>
+        <p>Read, structure and understand your materials before turning them into exercises.</p>
       </header>
 
       <section
         className="learning-stage-grid"
         style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}
-        aria-label="Study source structure"
+        aria-label="Study material structure"
       >
         {sourceStructure.map((item, index) => (
           <article className="learning-stage-card" key={item.title}>
