@@ -59,7 +59,7 @@ export function LocalPdfForm({
     if (existingFile) {
       setUploadedFile({ id: existingFile.id, title: existingFile.title });
       clearDraft();
-      onMessage("This file has already been uploaded and is now marked as Uploaded.");
+      onMessage("");
       return;
     }
 
