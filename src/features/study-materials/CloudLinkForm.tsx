@@ -21,6 +21,12 @@ export function CloudLinkForm({
   const [url, setUrl] = useState("");
   const [uploadedLink, setUploadedLink] = useState<StudyMaterialLink | null>(null);
   const lock = useRef(false);
+  const canRemove = Boolean(uploadedLink) || title.trim().length > 0 || url.trim().length > 0;
+
+  function clearDraft() {
+    setTitle("");
+    setUrl("");
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -43,8 +49,7 @@ export function CloudLinkForm({
         value: [...savedLinks, item],
       });
       setUploadedLink(item);
-      setTitle("");
-      setUrl("");
+      clearDraft();
       onMessage("The cloud link was uploaded to the app.");
     } catch {
       onMessage("Enter a name and a valid web link.");
@@ -53,17 +58,36 @@ export function CloudLinkForm({
     }
   }
 
-  async function removeUploadedLink() {
-    if (!uploadedLink || lock.current) return;
+  async function removeSelectionOrUpload() {
+    if (lock.current) return;
+
+    if (!uploadedLink) {
+      clearDraft();
+      onMessage("The cloud link fields were cleared.");
+      return;
+    }
+
     lock.current = true;
 
     try {
+      const currentSetting = await studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY);
+      const currentLinks = Array.isArray(currentSetting?.value)
+        ? currentSetting.value.filter((link): link is StudyMaterialLink => (
+          typeof link === "object"
+          && link !== null
+          && "id" in link
+          && "title" in link
+          && "url" in link
+        ))
+        : savedLinks;
+
       await studyDatabase.settings.put({
         key: STUDY_MATERIALS_SETTING_KEY,
-        value: savedLinks.filter((link) => link.id !== uploadedLink.id),
+        value: currentLinks.filter((link) => link.id !== uploadedLink.id),
       });
       onMessage(`Removed uploaded link: ${uploadedLink.title}.`);
       setUploadedLink(null);
+      clearDraft();
     } catch {
       onMessage("The uploaded link could not be removed.");
     } finally {
@@ -105,7 +129,7 @@ export function CloudLinkForm({
         <button className="button primary compact-square" disabled={Boolean(uploadedLink)} type="submit">
           {uploadedLink ? "Uploaded" : "Upload"}
         </button>
-        <button className="button danger compact-square" disabled={!uploadedLink} onClick={() => void removeUploadedLink()} type="button">
+        <button className="button danger compact-square" disabled={!canRemove} onClick={() => void removeSelectionOrUpload()} type="button">
           Remove
         </button>
       </div>
