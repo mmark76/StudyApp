@@ -70,6 +70,11 @@ function makeRangeId(): string {
   return createId("range");
 }
 
+function bytesToPdfBlob(bytes: Uint8Array): Blob {
+  const arrayBuffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+  return new Blob([arrayBuffer], { type: "application/pdf" });
+}
+
 export function SplitPdfTool({
   files,
   onMessage,
@@ -94,11 +99,12 @@ export function SplitPdfTool({
     setPageCount(null);
     setPageCountError("");
 
-    if (!selectedFile) return undefined;
+    const file = selectedFile;
+    if (!file) return undefined;
 
     async function readPageCount() {
       try {
-        const bytes = await selectedFile.data.arrayBuffer();
+        const bytes = await file.data.arrayBuffer();
         const pdf = await PDFDocument.load(bytes);
         if (!cancelled) {
           const count = pdf.getPageCount();
@@ -159,7 +165,7 @@ export function SplitPdfTool({
         for (const page of copiedPages) outputPdf.addPage(page);
 
         const outputBytes = await outputPdf.save();
-        const outputBlob = new Blob([outputBytes], { type: "application/pdf" });
+        const outputBlob = bytesToPdfBlob(outputBytes);
 
         if (outputBlob.size > MAX_LOCAL_FILE_SIZE) {
           throw new Error(`The generated PDF for pages ${range.label} is larger than 50 MB.`);
