@@ -3,19 +3,39 @@ import { Link } from "react-router-dom";
 const libraryCategories = [
   {
     title: "Books",
-    description: "textbooks, manuals, chapters and longer reference works.",
+    description: "Textbooks, manuals, chapters and longer reference works.",
+    action: "Open books",
+    to: "/study-materials#chapters",
   },
   {
     title: "Articles",
-    description: "web articles, magazine pieces and focused explanatory resources.",
+    description: "Web articles, magazine pieces and focused explanatory resources.",
+    action: "Open articles",
+    to: "/study-materials",
   },
   {
     title: "Papers",
-    description: "research papers, reports and other evidence-based material.",
+    description: "Research papers, reports and other evidence-based material.",
+    action: "Open papers",
+    to: "/study-materials",
   },
   {
-    title: "Source Notes",
-    description: "uploaded lecture notes, handwritten notes, PDFs or note files used as study material.",
+    title: "Outsource Notes",
+    description: "External lecture notes, uploaded notes, PDFs or source files used as study material.",
+    action: "Open outsource notes",
+    to: "/study-materials",
+  },
+  {
+    title: "My Notes",
+    description: "Capture your own important points, observations and study notes from the material you have structured.",
+    action: "Open my notes",
+    to: "/units",
+  },
+  {
+    title: "Summaries",
+    description: "Review condensed chapter summaries, learning objectives and key terms before practice.",
+    action: "Open summaries",
+    to: "/units",
   },
 ] as const;
 
@@ -25,29 +45,18 @@ export function LibraryPage() {
       <header className="page-heading">
         <p className="eyebrow">Learning resources</p>
         <h2>Library</h2>
-        <p>Add study material here. Local files stay on this device; cloud materials are saved as links.</p>
+        <p>Organise your books, articles, papers, outsource notes, personal notes and summaries.</p>
       </header>
 
-      <section className="content-panel">
-        <h3>Add or manage your materials</h3>
-        <p>Use the same material manager for books, articles, papers and source notes.</p>
-        <div className="button-row">
-          <Link className="button secondary" to="/study-materials?add=file">Add material from this device</Link>
-          <Link className="button secondary" to="/study-materials?add=link">Add material from this cloud link</Link>
-          <Link className="button primary" to="/study-materials">View saved materials</Link>
-        </div>
-      </section>
-
-      <section className="content-panel">
-        <p className="eyebrow">Material categories</p>
-        <h3>What can you add here?</h3>
-        <ul>
-          {libraryCategories.map((category) => (
-            <li key={category.title}>
-              <strong>{category.title}:</strong> {category.description}
-            </li>
-          ))}
-        </ul>
+      <section className="learning-stage-grid" aria-label="Library categories">
+        {libraryCategories.map((category, index) => (
+          <article className="learning-stage-card" key={category.title}>
+            <span className="stage-number" aria-hidden="true">{index + 1}</span>
+            <h3>{category.title}</h3>
+            <p>{category.description}</p>
+            <Link className="button secondary" to={category.to}>{category.action}</Link>
+          </article>
+        ))}
       </section>
 
       <section className="content-panel">
