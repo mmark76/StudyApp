@@ -54,8 +54,12 @@ export function LocalPdfForm({
       onMessage("The file is larger than 50 MB. Use a cloud link for larger files.");
       return;
     }
-    if (files.some((item) => item.fileName === file.name && item.size === file.size)) {
-      onMessage("This file has already been uploaded.");
+
+    const existingFile = files.find((item) => item.fileName === file.name && item.size === file.size);
+    if (existingFile) {
+      setUploadedFile({ id: existingFile.id, title: existingFile.title });
+      clearDraft();
+      onMessage("This file has already been uploaded and is now marked as Uploaded.");
       return;
     }
 
