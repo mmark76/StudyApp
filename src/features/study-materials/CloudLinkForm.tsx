@@ -33,7 +33,7 @@ export function CloudLinkForm({
         url: normalizeStudyMaterialUrl(url),
       };
       if (existingLinks.some((link) => link.url === item.url)) {
-        onMessage("This link has already been added.");
+        onMessage("This link has already been saved.");
         return;
       }
 
@@ -43,7 +43,7 @@ export function CloudLinkForm({
       });
       setTitle("");
       setUrl("");
-      onMessage("The cloud link was added.");
+      onMessage("The cloud link was saved.");
     } catch {
       onMessage("Enter a name and a valid web link.");
     } finally {
@@ -64,7 +64,7 @@ export function CloudLinkForm({
         />
       </label>
       <label className="field-label">
-        Name
+        Display name
         <input
           required
           maxLength={160}
@@ -74,7 +74,8 @@ export function CloudLinkForm({
           placeholder="Example: Cognitive Psychology textbook"
         />
       </label>
-      <button className="button primary" type="submit">Add material from this cloud link</button>
+      <p className="field-help">This button saves only the title and link. The actual file stays in your cloud service.</p>
+      <button className="button primary" type="submit">Save cloud link</button>
     </form>
   );
 }
