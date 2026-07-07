@@ -32,17 +32,25 @@ function isPdfUpload(file: File): boolean {
   return file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
 }
 
-function countPdfPageObjects(bytes: ArrayBuffer): number | null {
-  try {
-    const text = new TextDecoder("latin1").decode(bytes);
-    const matches = text.match(/\/Type\s*\/Page\b/g);
-    return matches?.length ? matches.length : null;
-  } catch {
-    return null;
-  }
+function readPdfText(bytes: ArrayBuffer): string {
+  return new TextDecoder("latin1").decode(bytes);
 }
 
-function getBestPageCount(pdfLibPageCount: number, objectPageCount: number | null): number {
+function countPdfPageObjects(pdfText: string): number | null {
+  const matches = pdfText.match(/\/Type\s*\/Page\b/g);
+  return matches?.length ? matches.length : null;
+}
+
+function countPdfPageTree(pdfText: string): number | null {
+  const counts = Array.from(pdfText.matchAll(/\/Count\s+(\d+)/g), (match) => Number(match[1]))
+    .filter((count) => Number.isInteger(count) && count > 0 && count < 100000);
+  return counts.length ? Math.max(...counts) : null;
+}
+
+function getBestPageCount(pdfLibPageCount: number, pageTreeCount: number | null, objectPageCount: number | null): number {
+  if (pageTreeCount && pageTreeCount >= pdfLibPageCount) {
+    return pageTreeCount;
+  }
   return objectPageCount && objectPageCount > pdfLibPageCount ? objectPageCount : pdfLibPageCount;
 }
 
@@ -114,6 +122,7 @@ export function SplitPdfTool({
   const [isSplitting, setIsSplitting] = useState(false);
 
   const selectedFile = pdfFiles.find((file) => file.id === selectedFileId);
+  const hasSplitEngineLimit = Boolean(splitEnginePageCount && pageCount && pageCount > splitEnginePageCount);
 
   useEffect(() => {
     let cancelled = false;
@@ -127,8 +136,10 @@ export function SplitPdfTool({
         const pdf = await PDFDocument.load(bytes);
         if (!cancelled) {
           const pdfLibPageCount = pdf.getPageCount();
-          const objectPageCount = countPdfPageObjects(bytes);
-          const bestPageCount = getBestPageCount(pdfLibPageCount, objectPageCount);
+          const pdfText = readPdfText(bytes);
+          const pageTreeCount = countPdfPageTree(pdfText);
+          const objectPageCount = countPdfPageObjects(pdfText);
+          const bestPageCount = getBestPageCount(pdfLibPageCount, pageTreeCount, objectPageCount);
           setPageCount(bestPageCount);
           setSplitEnginePageCount(pdfLibPageCount);
           setRanges((currentRanges) => currentRanges.map((range, index) => (
@@ -224,7 +235,7 @@ export function SplitPdfTool({
       const validatedRanges = validateRanges(ranges, displayPageCount);
       const highestRequestedPage = Math.max(...validatedRanges.flatMap((range) => range.pageIndexes)) + 1;
       if (highestRequestedPage > enginePageCount) {
-        throw new Error(`This PDF shows ${displayPageCount} pages, but the current split engine can copy only ${enginePageCount} pages from its internal PDF structure. Try re-saving or printing the PDF to a new PDF, then upload the new copy.`);
+        throw new Error(`This PDF appears to contain ${displayPageCount} pages, but the current split engine can copy only ${enginePageCount} pages from this PDF. Re-save or print it to a new PDF, then upload the new copy.`);
       }
 
       const outputPrefix = titlePrefix.trim() || selectedFile.title;
@@ -301,11 +312,17 @@ export function SplitPdfTool({
       </label>
 
       {selectedFile ? (
-        <p className="field-help">
-          {pageCount ? `Detected pages: ${pageCount}.` : "Reading page count..."}
-          {splitEnginePageCount && pageCount && pageCount > splitEnginePageCount ? ` Split engine pages: ${splitEnginePageCount}.` : ""}
-          {pageCountError ? ` ${pageCountError}` : ""}
-        </p>
+        <div className="stack-md">
+          <p className="field-help">
+            {pageCount ? `Detected pages: ${pageCount}.` : "Reading page count..."}
+            {pageCountError ? ` ${pageCountError}` : ""}
+          </p>
+          {hasSplitEngineLimit ? (
+            <p className="inline-message">
+              This PDF appears to contain {pageCount} pages, but the current split engine can copy only {splitEnginePageCount} pages from this PDF. Re-save or print it to a new PDF, then upload the new copy.
+            </p>
+          ) : null}
+        </div>
       ) : null}
 
       <div aria-label="Split type" className="tag-row" role="tablist">
