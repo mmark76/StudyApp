@@ -62,7 +62,7 @@ export function LocalPdfForm({
       setTitle("");
       const input = form.elements.namedItem("study-file") as HTMLInputElement | null;
       if (input) input.value = "";
-      onMessage("The study file was added to this device.");
+      onMessage("The study file was saved to this device.");
     } catch {
       onMessage("The file could not be saved. Your browser may not have enough storage space.");
     } finally {
@@ -73,7 +73,7 @@ export function LocalPdfForm({
   return (
     <form className="material-form" onSubmit={(event) => void submit(event)}>
       <label className="field-label">
-        Material from this device
+        Choose local file
         <input
           required
           accept=".pdf,.doc,.docx,.txt,.md,.csv,.jpg,.jpeg,.png,.gif,.webp,application/pdf,text/*,image/*"
@@ -83,7 +83,7 @@ export function LocalPdfForm({
         />
       </label>
       <label className="field-label">
-        Name
+        Display name
         <input
           required
           maxLength={160}
@@ -93,7 +93,8 @@ export function LocalPdfForm({
           placeholder="The file name will be used automatically"
         />
       </label>
-      <button className="button primary" type="submit">Add material from this device</button>
+      <p className="field-help">This button saves the chosen file in this browser so it can be read or used later.</p>
+      <button className="button primary" type="submit">Save file to this device</button>
     </form>
   );
 }
