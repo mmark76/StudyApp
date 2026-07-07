@@ -37,15 +37,15 @@ export function StudyTheoryPage() {
   return (
     <div className="stack-lg">
       <header className="page-heading">
-        <p className="eyebrow">Read per level</p>
-        <h2>Study per Level</h2>
-        <p>Read and understand the same material level by level before turning it into practice.</p>
+        <p className="eyebrow">Structured reading</p>
+        <h2>Structured Study</h2>
+        <p>Read and understand the same material through contents, chapters, sections, concepts, references and diagrams.</p>
       </header>
 
       <section
         className="learning-stage-grid"
         style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}
-        aria-label="Study material reading levels"
+        aria-label="Structured Study reading levels"
       >
         {sourceStructure.map((item, index) => (
           <article className="learning-stage-card" id={item.id} key={item.title} tabIndex={-1}>
