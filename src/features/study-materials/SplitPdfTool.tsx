@@ -194,7 +194,7 @@ async function createRenderedSplitFiles(
         canvasContext.fillStyle = "white";
         canvasContext.fillRect(0, 0, canvas.width, canvas.height);
 
-        await sourcePage.render({ canvasContext, viewport: renderViewport }).promise;
+        await sourcePage.render({ canvas, canvasContext, viewport: renderViewport }).promise;
         const imageBlob = await canvasToBlob(canvas, "image/jpeg", 0.92);
         const imageBytes = new Uint8Array(await imageBlob.arrayBuffer());
         const image = await outputPdf.embedJpg(imageBytes);
