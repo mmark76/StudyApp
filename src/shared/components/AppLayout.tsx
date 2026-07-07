@@ -4,11 +4,11 @@ import { useAppearanceSettings } from "../../features/appearance/useAppearanceSe
 
 const mainNavigation = [
   { to: "/", label: "Home", matches: ["/"] },
-  { to: "/library", label: "Library", matches: ["/library"] },
-  { to: "/study/theory", label: "Study", matches: ["/study", "/study/theory", "/units", "/import"] },
-  { to: "/learn", label: "Learn", matches: ["/learn", "/flashcards", "/review", "/quiz", "/progress"] },
+  { to: "/library", label: "Library from Source", matches: ["/library"] },
+  { to: "/study/theory", label: "Study per Level", matches: ["/study", "/study/theory", "/units", "/import"] },
+  { to: "/learn", label: "Learn & Practice", matches: ["/learn", "/flashcards", "/review", "/quiz", "/progress"] },
   { to: "/tools#split-pdf", label: "Split PDF Tool", matches: ["/tools"] },
-  { to: "/study-materials#manage-materials", label: "Add / Remove Material", matches: ["/study-materials"] },
+  { to: "/study-materials", label: "Add / Remove Material", matches: ["/study-materials"] },
 ] as const;
 
 const footerNavigation = [
