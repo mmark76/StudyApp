@@ -30,7 +30,7 @@ export function ToolsPage() {
         </div>
       </section>
 
-      <section className="content-panel">
+      <section className="content-panel" id="split-pdf" tabIndex={-1}>
         <p className="eyebrow">Local PDF tool</p>
         <h3>Split PDF</h3>
         <p>
