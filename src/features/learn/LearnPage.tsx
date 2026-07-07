@@ -4,7 +4,7 @@ const learnTools = [
   {
     title: "Flashcards",
     description: "Use active recall to test whether you can bring an answer back from memory.",
-    action: "Open flashcards",
+    action: "Practice with flashcards",
     to: "/flashcards",
   },
   {
