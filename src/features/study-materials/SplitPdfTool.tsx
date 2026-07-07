@@ -99,12 +99,9 @@ export function SplitPdfTool({
     setPageCount(null);
     setPageCountError("");
 
-    const file = selectedFile;
-    if (!file) return undefined;
-
-    async function readPageCount() {
+    async function readPageCount(fileToRead: LocalStudyFile) {
       try {
-        const bytes = await file.data.arrayBuffer();
+        const bytes = await fileToRead.data.arrayBuffer();
         const pdf = await PDFDocument.load(bytes);
         if (!cancelled) {
           const count = pdf.getPageCount();
@@ -118,7 +115,7 @@ export function SplitPdfTool({
       }
     }
 
-    void readPageCount();
+    if (selectedFile) void readPageCount(selectedFile);
 
     return () => {
       cancelled = true;
