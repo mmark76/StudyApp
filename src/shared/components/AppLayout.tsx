@@ -7,7 +7,14 @@ const mainNavigation = [
   { to: "/library", label: "Library", matches: ["/library", "/study-materials"] },
   { to: "/study/theory", label: "Study", matches: ["/study", "/study/theory", "/units", "/import"] },
   { to: "/learn", label: "Learn", matches: ["/learn", "/flashcards", "/review", "/quiz", "/progress"] },
-  { to: "/tools", label: "Tools", matches: ["/tools"] },
+] as const;
+
+const toolsNavigation = [
+  ["/tools", "Tools overview"],
+  ["/tools#split-pdf", "Split PDF"],
+  ["/study-materials?add=file", "Add material from this device"],
+  ["/study-materials?add=link", "Add material from a cloud link"],
+  ["/study-materials#manage-materials", "View / remove saved materials"],
 ] as const;
 
 const footerNavigation = [
@@ -24,6 +31,7 @@ function isActiveMainArea(pathname: string, matches: readonly string[]): boolean
 export function AppLayout() {
   useAppearanceSettings();
   const location = useLocation();
+  const isToolsActive = isActiveMainArea(location.pathname, ["/tools"]);
 
   return (
     <div className="app-shell">
@@ -47,6 +55,19 @@ export function AppLayout() {
                 </Link>
               );
             })}
+            <details className="main-nav-dropdown">
+              <summary
+                aria-current={isToolsActive ? "page" : undefined}
+                className={isToolsActive ? "active" : undefined}
+              >
+                Tools
+              </summary>
+              <div className="main-nav-dropdown-menu">
+                {toolsNavigation.map(([to, label]) => (
+                  <NavLink key={to} to={to}>{label}</NavLink>
+                ))}
+              </div>
+            </details>
           </nav>
           <div className="utility-actions" aria-label="Study settings">
             <NavLink to="/appearance">Settings</NavLink>
