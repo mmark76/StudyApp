@@ -2,18 +2,6 @@ import { Link } from "react-router-dom";
 
 const learnTools = [
   {
-    title: "My Notes",
-    description: "Capture your own important points, observations and study notes from the material you have structured.",
-    action: "Open my notes",
-    to: "/units",
-  },
-  {
-    title: "Summaries",
-    description: "Review condensed chapter summaries, learning objectives and key terms before practice.",
-    action: "Open summaries",
-    to: "/units",
-  },
-  {
     title: "Flashcards",
     description: "Use active recall to test whether you can bring an answer back from memory.",
     action: "Open flashcards",
@@ -45,7 +33,7 @@ export function LearnPage() {
       <header className="page-heading">
         <p className="eyebrow">Practice and memory</p>
         <h2>Learn</h2>
-        <p>Turn structured material into notes, summaries, flashcards, review, quizzes and progress.</p>
+        <p>Turn structured material into flashcards, review, quizzes and progress.</p>
       </header>
 
       <section className="learning-stage-grid" aria-label="Learning tools">
