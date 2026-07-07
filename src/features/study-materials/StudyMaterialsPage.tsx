@@ -76,7 +76,7 @@ export function StudyMaterialsPage() {
       <header className="page-heading">
         <p className="eyebrow">Material management</p>
         <h2>Add / Remove Material</h2>
-        <p>Add material to the app or remove saved material. Reading belongs in Library from Source and Study per Level.</p>
+        <p>Add material to the app or remove saved material. Reading belongs in Library from Source and Structured Study.</p>
       </header>
 
       <section className="content-panel">
