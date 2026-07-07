@@ -10,6 +10,11 @@ import {
 } from "./localStudyFiles";
 import { normalizeStudyMaterialTitle } from "./studyMaterials";
 
+interface UploadedLocalFile {
+  id: string;
+  title: string;
+}
+
 export function LocalPdfForm({
   files,
   onMessage,
@@ -19,11 +24,13 @@ export function LocalPdfForm({
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
+  const [uploadedFile, setUploadedFile] = useState<UploadedLocalFile | null>(null);
   const lock = useRef(false);
 
   function chooseFile(event: ChangeEvent<HTMLInputElement>) {
     const selected = event.target.files?.[0] ?? null;
     setFile(selected);
+    setUploadedFile(null);
     if (selected && title.trim().length === 0) setTitle(titleFromFileName(selected.name));
   }
 
@@ -41,7 +48,7 @@ export function LocalPdfForm({
       return;
     }
     if (files.some((item) => item.fileName === file.name && item.size === file.size)) {
-      onMessage("This file has already been added.");
+      onMessage("This file has already been uploaded.");
       return;
     }
 
@@ -58,13 +65,28 @@ export function LocalPdfForm({
         fileKind: getLocalStudyFileKind(file.name, file.type),
       };
       await studyDatabase.studyFiles.add(item);
+      setUploadedFile({ id: item.id, title: item.title });
       setFile(null);
       setTitle("");
       const input = form.elements.namedItem("study-file") as HTMLInputElement | null;
       if (input) input.value = "";
-      onMessage("The study file was saved in the app.");
+      onMessage("The study file was uploaded to the app.");
     } catch {
-      onMessage("The file could not be saved. Your browser may not have enough storage space.");
+      onMessage("The file could not be uploaded. Your browser may not have enough storage space.");
+    } finally {
+      lock.current = false;
+    }
+  }
+
+  async function removeUploadedFile() {
+    if (!uploadedFile || lock.current) return;
+    lock.current = true;
+    try {
+      await studyDatabase.studyFiles.delete(uploadedFile.id);
+      onMessage(`Removed uploaded file: ${uploadedFile.title}.`);
+      setUploadedFile(null);
+    } catch {
+      onMessage("The uploaded file could not be removed.");
     } finally {
       lock.current = false;
     }
@@ -75,7 +97,7 @@ export function LocalPdfForm({
       <label className="field-label">
         Choose local file
         <input
-          required
+          required={!uploadedFile}
           accept=".pdf,.doc,.docx,.txt,.md,.csv,.jpg,.jpeg,.png,.gif,.webp,application/pdf,text/*,image/*"
           name="study-file"
           type="file"
@@ -85,16 +107,26 @@ export function LocalPdfForm({
       <label className="field-label">
         Display name
         <input
-          required
+          required={!uploadedFile}
           maxLength={160}
           type="text"
           value={title}
-          onChange={(event) => setTitle(event.target.value)}
+          onChange={(event) => {
+            setTitle(event.target.value);
+            setUploadedFile(null);
+          }}
           placeholder="The file name will be used automatically"
         />
       </label>
-      <p className="field-help">This button stores a private browser copy inside StudyApp so it can be read or used later.</p>
-      <button className="button primary" type="submit">Save selected file in app</button>
+      <p className="field-help">Upload stores a private browser copy inside StudyApp so it can be read or used later.</p>
+      <div className="button-row">
+        <button className="button primary compact-square" disabled={Boolean(uploadedFile)} type="submit">
+          {uploadedFile ? "Uploaded" : "Upload"}
+        </button>
+        <button className="button danger compact-square" disabled={!uploadedFile} onClick={() => void removeUploadedFile()} type="button">
+          Remove
+        </button>
+      </div>
     </form>
   );
 }
