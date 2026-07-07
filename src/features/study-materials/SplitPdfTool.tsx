@@ -24,9 +24,9 @@ interface ValidatedRange {
   pageIndexes: number[];
 }
 
-const MAX_SPLIT_RANGES = 25;
+const MAX_SPLIT_RANGES = 50;
 const PDF_RENDER_SCALE = 2;
-const RENDERED_SPLIT_NOTE = "Created with compatibility mode. Pages are image-based, so text selection/search may not be preserved in the generated split PDF.";
+const RENDERED_SPLIT_NOTE = "Saved as a new PDF in StudyApp. You can split each new PDF again if needed.";
 
 function isPdfFile(file: LocalStudyFile): boolean {
   return file.fileKind === "pdf"
@@ -87,14 +87,14 @@ function readPageNumber(value: string, fieldName: string): number {
 
 function validateRanges(ranges: readonly RangeRow[], pageCount: number): ValidatedRange[] {
   if (ranges.length === 0) throw new Error("Add at least one range.");
-  if (ranges.length > MAX_SPLIT_RANGES) throw new Error(`Use up to ${MAX_SPLIT_RANGES} ranges at a time.`);
+  if (ranges.length > MAX_SPLIT_RANGES) throw new Error(`Use up to ${MAX_SPLIT_RANGES} chunks at a time.`);
 
   return ranges.map((range, index) => {
-    const from = readPageNumber(range.from, `Range ${index + 1} start page`);
-    const to = readPageNumber(range.to, `Range ${index + 1} end page`);
+    const from = readPageNumber(range.from, `Chunk ${index + 1} start page`);
+    const to = readPageNumber(range.to, `Chunk ${index + 1} end page`);
 
-    if (to < from) throw new Error(`Range ${index + 1} ends before it starts.`);
-    if (to > pageCount) throw new Error(`Range ${index + 1} is outside the PDF. This file has ${pageCount} pages.`);
+    if (to < from) throw new Error(`Chunk ${index + 1} ends before it starts.`);
+    if (to > pageCount) throw new Error(`Chunk ${index + 1} is outside the PDF. This file has ${pageCount} pages.`);
 
     return {
       label: from === to ? `${from}` : `${from}-${to}`,
@@ -446,7 +446,7 @@ export function SplitPdfTool({
           </p>
           {hasSplitEngineLimit ? (
             <p className="inline-message">
-              Compatibility mode will be used for this PDF. The local vector splitter can copy only {splitEnginePageCount} pages, but the PDF.js local rendering engine can read {pageCount} pages. Generated split PDFs may be image-based.
+              This PDF has {pageCount} pages. You can split it into up to {MAX_SPLIT_RANGES} chunks at a time. First split the book into chapters. Then choose a chapter PDF and split it again into sections or subchapters.
             </p>
           ) : null}
         </div>
@@ -454,7 +454,7 @@ export function SplitPdfTool({
 
       <div aria-label="Split type" className="tag-row" role="tablist">
         {([
-          ["range", "Range"],
+          ["range", "Chunks"],
           ["pages", "Pages"],
           ["size", "Size"],
         ] as const).map(([tab, label]) => (
@@ -473,7 +473,7 @@ export function SplitPdfTool({
       </div>
 
       <div>
-        <p className="eyebrow">Range mode</p>
+        <p className="eyebrow">Chunk mode</p>
         <div className="tag-row">
           {([
             ["custom", "Custom"],
@@ -498,7 +498,7 @@ export function SplitPdfTool({
         {ranges.map((range, index) => (
           <fieldset className="content-panel" key={range.id} style={{ padding: "1rem" }}>
             <legend>
-              Range <span className="tag">{index + 1}</span>
+              Chunk <span className="tag">{index + 1}</span>
             </legend>
             <div className="library-grid" style={{ alignItems: "end" }}>
               <label className="field-label">
@@ -528,7 +528,7 @@ export function SplitPdfTool({
       </div>
 
       <button className="button secondary" disabled={ranges.length >= MAX_SPLIT_RANGES} onClick={addRange} type="button">
-        Add Range
+        Add Chunk
       </button>
 
       <label className="field-label">
@@ -543,7 +543,7 @@ export function SplitPdfTool({
       </label>
 
       <p className="field-help">
-        Custom range mode creates one new local PDF for every range. Processing happens only in this browser.
+        Each chunk creates one new PDF. For a textbook, split by chapters first. Then choose a chapter PDF and split it again by sections or subchapters.
       </p>
 
       {pdfFiles.length === 0 ? <p className="inline-message">Upload a PDF here or add one in Add / Remove Material, then split it.</p> : null}
