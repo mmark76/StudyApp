@@ -67,6 +67,14 @@ export function LibraryPage() {
     window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
   }
 
+  async function deleteLocalFile(fileId: string) {
+    const file = localFiles.find((item) => item.id === fileId);
+    if (!file) return;
+    const shouldDelete = window.confirm(`Delete "${file.title}" from StudyApp? This cannot be undone.`);
+    if (!shouldDelete) return;
+    await studyDatabase.studyFiles.delete(fileId);
+  }
+
   return (
     <div className="stack-lg">
       <header className="page-heading">
@@ -94,7 +102,10 @@ export function LibraryPage() {
                     <strong>{file.title}</strong>
                     <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)} · {file.fileName}</span>
                   </div>
-                  <button className="button secondary compact-square" onClick={() => openLocalFile(file.id)} type="button">Open</button>
+                  <div className="local-file-actions">
+                    <button className="button secondary compact-square" onClick={() => openLocalFile(file.id)} type="button">View</button>
+                    <button className="button danger compact-square" onClick={() => void deleteLocalFile(file.id)} type="button">Delete</button>
+                  </div>
                 </li>
               ))}
             </ul>
