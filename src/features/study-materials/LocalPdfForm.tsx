@@ -133,7 +133,7 @@ export function LocalPdfForm({
       </label>
       <p className="field-help">Upload stores a private browser copy inside StudyApp so it can be read or used later.</p>
       <div className="button-row">
-        <button className="button primary compact-square" disabled={Boolean(uploadedFile)} type="submit">
+        <button className={uploadedFile ? "button success compact-square" : "button primary compact-square"} disabled={Boolean(uploadedFile)} type="submit">
           {uploadedFile ? "Uploaded" : "Upload"}
         </button>
         <button className="button danger compact-square" disabled={!canRemove} onClick={() => void removeSelectionOrUpload()} type="button">
