@@ -19,6 +19,16 @@ export function ToolsPage() {
         <p>Use local study utilities that work inside this browser without uploading your files.</p>
       </header>
 
+      <section className="content-panel" id="split-pdf" tabIndex={-1}>
+        <p className="eyebrow">Local PDF tool</p>
+        <h3>Split PDF</h3>
+        <p>
+          Split a locally saved PDF into smaller PDF files. Processing happens only in this browser,
+          and the generated PDFs are saved as local study materials on this device.
+        </p>
+        <SplitPdfTool files={localFiles} onMessage={setMessage} />
+      </section>
+
       <section className="content-panel">
         <p className="eyebrow">Materials</p>
         <h3>Add / remove material</h3>
@@ -28,16 +38,6 @@ export function ToolsPage() {
           <Link className="button secondary" to="/study-materials?add=link">Add material from a cloud link</Link>
           <Link className="button secondary" to="/study-materials#manage-materials">View / remove saved materials</Link>
         </div>
-      </section>
-
-      <section className="content-panel" id="split-pdf" tabIndex={-1}>
-        <p className="eyebrow">Local PDF tool</p>
-        <h3>Split PDF</h3>
-        <p>
-          Split a locally saved PDF into smaller PDF files. Processing happens only in this browser,
-          and the generated PDFs are saved as local study materials on this device.
-        </p>
-        <SplitPdfTool files={localFiles} onMessage={setMessage} />
       </section>
 
       <p className="inline-message status-banner" role="status" aria-live="polite">{message}</p>
