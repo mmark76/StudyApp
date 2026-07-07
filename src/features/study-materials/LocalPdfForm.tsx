@@ -13,6 +13,7 @@ import { normalizeStudyMaterialTitle } from "./studyMaterials";
 interface UploadedLocalFile {
   id: string;
   title: string;
+  fileName: string;
 }
 
 export function LocalPdfForm({
@@ -57,7 +58,7 @@ export function LocalPdfForm({
 
     const existingFile = files.find((item) => item.fileName === file.name && item.size === file.size);
     if (existingFile) {
-      setUploadedFile({ id: existingFile.id, title: existingFile.title });
+      setUploadedFile({ id: existingFile.id, title: existingFile.title, fileName: existingFile.fileName });
       clearDraft();
       onMessage("");
       return;
@@ -76,7 +77,7 @@ export function LocalPdfForm({
         fileKind: getLocalStudyFileKind(file.name, file.type),
       };
       await studyDatabase.studyFiles.add(item);
-      setUploadedFile({ id: item.id, title: item.title });
+      setUploadedFile({ id: item.id, title: item.title, fileName: item.fileName });
       clearDraft();
       onMessage("The study file was uploaded to the app.");
     } catch {
@@ -141,12 +142,15 @@ export function LocalPdfForm({
           className={uploadedFile ? "button success compact-square" : "button primary compact-square"}
           type={uploadedFile ? "button" : "submit"}
         >
-          {uploadedFile ? "Uploaded" : "Upload"}
+          {uploadedFile ? "File Uploaded" : "Upload"}
         </button>
         <button className="button danger compact-square" disabled={!canRemove} onClick={() => void removeSelectionOrUpload()} type="button">
           Remove
         </button>
       </div>
+      {uploadedFile ? (
+        <p className="field-help uploaded-file-name">{uploadedFile.fileName}</p>
+      ) : null}
     </form>
   );
 }
