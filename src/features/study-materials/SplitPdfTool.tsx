@@ -212,10 +212,10 @@ export function SplitPdfTool({
 
       <div aria-label="Split type" className="tag-row" role="tablist">
         {([
-          ["range", "▣", "Range"],
-          ["pages", "◫", "Pages"],
-          ["size", "◻", "Size"],
-        ] as const).map(([tab, icon, label]) => (
+          ["range", "Range"],
+          ["pages", "Pages"],
+          ["size", "Size"],
+        ] as const).map(([tab, label]) => (
           <button
             aria-selected={activeTab === tab}
             className={activeTab === tab ? "button primary" : "button secondary"}
@@ -225,7 +225,7 @@ export function SplitPdfTool({
             role="tab"
             type="button"
           >
-            <span aria-hidden="true">{icon}</span> {label}
+            {label}
           </button>
         ))}
       </div>
@@ -236,7 +236,7 @@ export function SplitPdfTool({
           {([
             ["custom", "Custom"],
             ["fixed", "Fixed"],
-            ["smart", "Smart ✦"],
+            ["smart", "Smart"],
           ] as const).map(([mode, label]) => (
             <button
               aria-pressed={rangeMode === mode}
@@ -256,7 +256,7 @@ export function SplitPdfTool({
         {ranges.map((range, index) => (
           <fieldset className="content-panel" key={range.id} style={{ padding: "1rem" }}>
             <legend>
-              ↕ Range <span className="tag">{index + 1}</span>
+              Range <span className="tag">{index + 1}</span>
             </legend>
             <div className="library-grid" style={{ alignItems: "end" }}>
               <label className="field-label">
@@ -286,7 +286,7 @@ export function SplitPdfTool({
       </div>
 
       <button className="button secondary" disabled={ranges.length >= MAX_SPLIT_RANGES} onClick={addRange} type="button">
-        + Add Range
+        Add Range
       </button>
 
       <label className="field-label">
@@ -307,7 +307,7 @@ export function SplitPdfTool({
       {pdfFiles.length === 0 ? <p className="inline-message">Add a local PDF first, then return here to split it.</p> : null}
 
       <button className="button primary" disabled={!selectedFile || !pageCount || Boolean(pageCountError) || isSplitting} type="submit">
-        {isSplitting ? "Splitting PDF..." : "Split PDF →"}
+        {isSplitting ? "Splitting PDF..." : "Split PDF"}
       </button>
     </form>
   );
