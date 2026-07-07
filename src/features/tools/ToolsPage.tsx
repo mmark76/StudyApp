@@ -14,9 +14,9 @@ export function ToolsPage() {
   return (
     <div className="stack-lg">
       <header className="page-heading">
-        <p className="eyebrow">Utilities</p>
-        <h2>Tools</h2>
-        <p>Use local study utilities that work inside this browser without uploading your files.</p>
+        <p className="eyebrow">Local PDF tool</p>
+        <h2>Split PDF Tool</h2>
+        <p>Split local PDF files inside this browser without uploading your files.</p>
       </header>
 
       <section className="content-panel" id="split-pdf" tabIndex={-1}>
