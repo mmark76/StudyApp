@@ -1,4 +1,13 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
+import { useLiveQuery } from "dexie-react-hooks";
+import { studyDatabase } from "../../infrastructure/database/studyDatabase";
+import { formatFileKind, formatFileSize } from "../study-materials/localStudyFiles";
+import {
+  builtInStudyMaterials,
+  parseStoredStudyMaterials,
+  STUDY_MATERIALS_SETTING_KEY,
+} from "../study-materials/studyMaterials";
 
 const libraryCategories = [
   {
@@ -34,6 +43,30 @@ const libraryCategories = [
 ] as const;
 
 export function LibraryPage() {
+  const localFiles = useLiveQuery(
+    () => studyDatabase.studyFiles.orderBy("createdAt").reverse().toArray(),
+    [],
+  ) ?? [];
+  const setting = useLiveQuery(
+    () => studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY),
+    [],
+  );
+  const savedLinks = useMemo(
+    () => parseStoredStudyMaterials(setting?.value),
+    [setting?.value],
+  );
+  const sourceLinks = [...builtInStudyMaterials, ...savedLinks];
+  const hasSavedSourceMaterial = localFiles.length > 0 || sourceLinks.length > 0;
+
+  function openLocalFile(fileId: string) {
+    const file = localFiles.find((item) => item.id === fileId);
+    if (!file) return;
+    const blob = file.mimeType ? file.data.slice(0, file.data.size, file.mimeType) : file.data;
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank", "noopener,noreferrer");
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
+
   return (
     <div className="stack-lg">
       <header className="page-heading">
@@ -41,6 +74,50 @@ export function LibraryPage() {
         <h2>Library from Source</h2>
         <p>Read primary and source material only: books, articles, papers, outsource notes, personal notes and summaries.</p>
       </header>
+
+      <section className="content-panel" aria-label="All uploaded source material">
+        <p className="eyebrow">All source material</p>
+        <h3>All uploaded files</h3>
+        <p>This is the complete read-only list of files and source links saved in StudyApp. Add and remove actions stay in Add / Remove Material.</p>
+
+        {!hasSavedSourceMaterial ? (
+          <p className="inline-message">No uploaded files or saved source links yet.</p>
+        ) : null}
+
+        {localFiles.length > 0 ? (
+          <div className="stack-md">
+            <h4>Files saved in StudyApp</h4>
+            <ul className="local-file-list">
+              {localFiles.map((file) => (
+                <li className="local-file-row" key={file.id}>
+                  <div>
+                    <strong>{file.title}</strong>
+                    <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)} · {file.fileName}</span>
+                  </div>
+                  <button className="button secondary compact-square" onClick={() => openLocalFile(file.id)} type="button">Open</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        {sourceLinks.length > 0 ? (
+          <div className="stack-md">
+            <h4>Saved cloud links</h4>
+            <ul className="local-file-list">
+              {sourceLinks.map((link) => (
+                <li className="local-file-row" key={link.id}>
+                  <div>
+                    <strong>{link.title}</strong>
+                    <span>{link.url}</span>
+                  </div>
+                  <a className="button secondary compact-square" href={link.url} rel="noopener noreferrer" target="_blank">Open</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+      </section>
 
       <section className="learning-stage-grid" aria-label="Library source reading categories">
         {libraryCategories.map((category, index) => (
