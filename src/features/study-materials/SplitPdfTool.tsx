@@ -11,8 +11,6 @@ import { normalizeStudyMaterialTitle } from "./studyMaterials";
 
 GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
-type SplitTab = "range" | "pages" | "size";
-type RangeMode = "custom" | "fixed" | "smart";
 
 interface RangeRow {
   id: string;
@@ -249,8 +247,6 @@ export function SplitPdfTool({
   const [pageCount, setPageCount] = useState<number | null>(null);
   const [splitEnginePageCount, setSplitEnginePageCount] = useState<number | null>(null);
   const [pageCountError, setPageCountError] = useState("");
-  const [activeTab, setActiveTab] = useState<SplitTab>("range");
-  const [rangeMode, setRangeMode] = useState<RangeMode>("custom");
   const [ranges, setRanges] = useState<RangeRow[]>([{ id: makeRangeId(), from: "1", to: "1" }]);
   const [titlePrefix, setTitlePrefix] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -369,7 +365,7 @@ export function SplitPdfTool({
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!selectedFile || isSplitting || activeTab !== "range" || rangeMode !== "custom") return;
+    if (!selectedFile || isSplitting) return;
 
     setRecentSplitCount(0);
     setIsSplitting(true);
@@ -455,48 +451,6 @@ export function SplitPdfTool({
           ) : null}
         </div>
       ) : null}
-
-      <div aria-label="Split type" className="tag-row" role="tablist">
-        {([
-          ["range", "Chunks"],
-          ["pages", "Pages"],
-          ["size", "Size"],
-        ] as const).map(([tab, label]) => (
-          <button
-            aria-selected={activeTab === tab}
-            className={activeTab === tab ? "button primary" : "button secondary"}
-            disabled={tab !== "range"}
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            role="tab"
-            type="button"
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      <div>
-        <p className="eyebrow">Chunk mode</p>
-        <div className="tag-row">
-          {([
-            ["custom", "Custom"],
-            ["fixed", "Fixed"],
-            ["smart", "Smart"],
-          ] as const).map(([mode, label]) => (
-            <button
-              aria-pressed={rangeMode === mode}
-              className={rangeMode === mode ? "button primary" : "button secondary"}
-              disabled={mode !== "custom"}
-              key={mode}
-              onClick={() => setRangeMode(mode)}
-              type="button"
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
 
       <div className="stack-md">
         {ranges.map((range, index) => (
