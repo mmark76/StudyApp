@@ -177,7 +177,7 @@ code { background: var(--slate-100); border-radius: 0.35rem; padding: 0.15rem 0.
 .footer-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.35rem 1rem; margin-top: 0.3rem; font-size: 0.85rem; }
 .footer-meta a { color: var(--slate-600); text-underline-offset: 0.2em; }
 .stack-lg > * + * { margin-top: var(--stack-gap); }
-.page-heading { max-width: 780px; }
+.page-heading { max-width: none; }
 .hero-panel, .content-panel, .study-panel, .quiz-card, .empty-state { background: var(--surface); border: 1px solid var(--slate-300); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: var(--panel-padding); }
 .hero-panel { max-width: 850px; }
 .dashboard-hero { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr); gap: 1.5rem; max-width: none; align-items: center; }
