@@ -25,7 +25,15 @@ export function LocalPdfForm({
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [uploadedFile, setUploadedFile] = useState<UploadedLocalFile | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const lock = useRef(false);
+  const canRemove = Boolean(uploadedFile) || Boolean(file) || title.trim().length > 0;
+
+  function clearDraft() {
+    setFile(null);
+    setTitle("");
+    if (inputRef.current) inputRef.current.value = "";
+  }
 
   function chooseFile(event: ChangeEvent<HTMLInputElement>) {
     const selected = event.target.files?.[0] ?? null;
@@ -36,7 +44,6 @@ export function LocalPdfForm({
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = event.currentTarget;
     if (!file || lock.current) return;
 
     if (!isSupportedStudyFile(file)) {
@@ -66,10 +73,7 @@ export function LocalPdfForm({
       };
       await studyDatabase.studyFiles.add(item);
       setUploadedFile({ id: item.id, title: item.title });
-      setFile(null);
-      setTitle("");
-      const input = form.elements.namedItem("study-file") as HTMLInputElement | null;
-      if (input) input.value = "";
+      clearDraft();
       onMessage("The study file was uploaded to the app.");
     } catch {
       onMessage("The file could not be uploaded. Your browser may not have enough storage space.");
@@ -78,13 +82,21 @@ export function LocalPdfForm({
     }
   }
 
-  async function removeUploadedFile() {
-    if (!uploadedFile || lock.current) return;
+  async function removeSelectionOrUpload() {
+    if (lock.current) return;
+
+    if (!uploadedFile) {
+      clearDraft();
+      onMessage("The selected file was cleared.");
+      return;
+    }
+
     lock.current = true;
     try {
       await studyDatabase.studyFiles.delete(uploadedFile.id);
       onMessage(`Removed uploaded file: ${uploadedFile.title}.`);
       setUploadedFile(null);
+      clearDraft();
     } catch {
       onMessage("The uploaded file could not be removed.");
     } finally {
@@ -97,6 +109,7 @@ export function LocalPdfForm({
       <label className="field-label">
         Choose local file
         <input
+          ref={inputRef}
           required={!uploadedFile}
           accept=".pdf,.doc,.docx,.txt,.md,.csv,.jpg,.jpeg,.png,.gif,.webp,application/pdf,text/*,image/*"
           name="study-file"
@@ -123,7 +136,7 @@ export function LocalPdfForm({
         <button className="button primary compact-square" disabled={Boolean(uploadedFile)} type="submit">
           {uploadedFile ? "Uploaded" : "Upload"}
         </button>
-        <button className="button danger compact-square" disabled={!uploadedFile} onClick={() => void removeUploadedFile()} type="button">
+        <button className="button danger compact-square" disabled={!canRemove} onClick={() => void removeSelectionOrUpload()} type="button">
           Remove
         </button>
       </div>
