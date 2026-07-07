@@ -1,4 +1,5 @@
 import { type ChangeEvent, type FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { PDFDocument } from "pdf-lib";
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
@@ -254,6 +255,7 @@ export function SplitPdfTool({
   const [titlePrefix, setTitlePrefix] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [isSplitting, setIsSplitting] = useState(false);
+  const [recentSplitCount, setRecentSplitCount] = useState(0);
 
   const selectedFile = pdfFiles.find((file) => file.id === selectedFileId);
   const hasSplitEngineLimit = Boolean(splitEnginePageCount && pageCount && pageCount > splitEnginePageCount);
@@ -369,6 +371,7 @@ export function SplitPdfTool({
     event.preventDefault();
     if (!selectedFile || isSplitting || activeTab !== "range" || rangeMode !== "custom") return;
 
+    setRecentSplitCount(0);
     setIsSplitting(true);
     try {
       const sourceBytes = await selectedFile.data.arrayBuffer();
@@ -392,6 +395,7 @@ export function SplitPdfTool({
         : await createRenderedSplitFiles(sourceBytes, validatedRanges, outputPrefix, selectedFile.fileName);
 
       await studyDatabase.studyFiles.bulkAdd(splitFiles);
+      setRecentSplitCount(splitFiles.length);
       const compatibilityNote = canUseVectorEngine ? "" : ` ${RENDERED_SPLIT_NOTE}`;
       onMessage(splitFiles.length === 1
         ? `Created 1 split PDF: ${splitFiles[0].fileName}.${compatibilityNote}`
@@ -430,7 +434,7 @@ export function SplitPdfTool({
 
       <label className="field-label">
         PDF saved in StudyApp
-        <select required value={selectedFileId} onChange={(event) => setSelectedFileId(event.target.value)}>
+        <select required value={selectedFileId} onChange={(event) => { setSelectedFileId(event.target.value); setRecentSplitCount(0); }}>
           <option value="">Choose a local PDF</option>
           {pdfFiles.map((file) => (
             <option key={file.id} value={file.id}>{file.title} · {file.fileName} · {formatFileSize(file.size)}</option>
@@ -551,6 +555,17 @@ export function SplitPdfTool({
       <button className="button primary" disabled={!selectedFile || !pageCount || Boolean(pageCountError) || isSplitting} type="submit">
         {isSplitting ? "Splitting PDF..." : "Split PDF"}
       </button>
+
+      {recentSplitCount > 0 ? (
+        <div className="stack-md">
+          <Link className="button secondary" to="/library">
+            View split PDFs
+          </Link>
+          <p className="field-help">
+            {recentSplitCount} new {recentSplitCount === 1 ? "PDF was" : "PDFs were"} saved in Library.
+          </p>
+        </div>
+      ) : null}
     </form>
   );
 }
