@@ -97,6 +97,19 @@ input[type="file"]::file-selector-button {
   cursor: pointer;
 }
 
+.button.compact-square {
+  min-width: 5.4rem;
+  padding: 0.52rem 0.72rem;
+  border-radius: 0.25rem;
+  font-size: 0.95rem;
+  line-height: 1.1;
+}
+
+.button.compact-square:disabled {
+  cursor: default;
+  opacity: 0.72;
+}
+
 @media (max-width: 760px) {
   .material-option-panel {
     grid-template-columns: 1fr;
