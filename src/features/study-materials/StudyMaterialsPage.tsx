@@ -4,7 +4,6 @@ import { useLocation, useSearchParams } from "react-router-dom";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import { CloudLinkForm } from "./CloudLinkForm";
 import { LocalPdfForm } from "./LocalPdfForm";
-import { SplitPdfTool } from "./SplitPdfTool";
 import {
   builtInStudyMaterials,
   parseStoredStudyMaterials,
@@ -185,16 +184,6 @@ export function StudyMaterialsPage() {
             <CloudLinkForm savedLinks={savedLinks} existingLinks={links} onMessage={setMessage} />
           </section>
         </div>
-      </section>
-
-      <section className="content-panel">
-        <p className="eyebrow">Local PDF tool</p>
-        <h3>Split PDF</h3>
-        <p>
-          Split a locally saved PDF into smaller PDF files. Processing happens only in this browser,
-          and the generated PDFs are saved as local study materials on this device.
-        </p>
-        <SplitPdfTool files={localFiles} onMessage={setMessage} />
       </section>
 
       <p className="inline-message status-banner" role="status" aria-live="polite">{message}</p>
