@@ -32,6 +32,20 @@ function isPdfUpload(file: File): boolean {
   return file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
 }
 
+function countPdfPageObjects(bytes: ArrayBuffer): number | null {
+  try {
+    const text = new TextDecoder("latin1").decode(bytes);
+    const matches = text.match(/\/Type\s*\/Page\b/g);
+    return matches?.length ? matches.length : null;
+  } catch {
+    return null;
+  }
+}
+
+function getBestPageCount(pdfLibPageCount: number, objectPageCount: number | null): number {
+  return objectPageCount && objectPageCount > pdfLibPageCount ? objectPageCount : pdfLibPageCount;
+}
+
 function readPageNumber(value: string, fieldName: string): number {
   const pageNumber = Number(value.trim());
   if (!Number.isInteger(pageNumber) || pageNumber < 1) {
@@ -90,6 +104,7 @@ export function SplitPdfTool({
   const uploadInputRef = useRef<HTMLInputElement>(null);
   const [selectedFileId, setSelectedFileId] = useState("");
   const [pageCount, setPageCount] = useState<number | null>(null);
+  const [splitEnginePageCount, setSplitEnginePageCount] = useState<number | null>(null);
   const [pageCountError, setPageCountError] = useState("");
   const [activeTab, setActiveTab] = useState<SplitTab>("range");
   const [rangeMode, setRangeMode] = useState<RangeMode>("custom");
@@ -103,6 +118,7 @@ export function SplitPdfTool({
   useEffect(() => {
     let cancelled = false;
     setPageCount(null);
+    setSplitEnginePageCount(null);
     setPageCountError("");
 
     async function readPageCount(fileToRead: LocalStudyFile) {
@@ -110,10 +126,13 @@ export function SplitPdfTool({
         const bytes = await fileToRead.data.arrayBuffer();
         const pdf = await PDFDocument.load(bytes);
         if (!cancelled) {
-          const count = pdf.getPageCount();
-          setPageCount(count);
+          const pdfLibPageCount = pdf.getPageCount();
+          const objectPageCount = countPdfPageObjects(bytes);
+          const bestPageCount = getBestPageCount(pdfLibPageCount, objectPageCount);
+          setPageCount(bestPageCount);
+          setSplitEnginePageCount(pdfLibPageCount);
           setRanges((currentRanges) => currentRanges.map((range, index) => (
-            index === 0 && range.to === "1" ? { ...range, to: String(Math.min(5, count)) } : range
+            index === 0 && range.to === "1" ? { ...range, to: String(Math.min(5, bestPageCount)) } : range
           )));
         }
       } catch {
@@ -200,7 +219,14 @@ export function SplitPdfTool({
     try {
       const sourceBytes = await selectedFile.data.arrayBuffer();
       const sourcePdf = await PDFDocument.load(sourceBytes);
-      const validatedRanges = validateRanges(ranges, sourcePdf.getPageCount());
+      const enginePageCount = sourcePdf.getPageCount();
+      const displayPageCount = pageCount ?? enginePageCount;
+      const validatedRanges = validateRanges(ranges, displayPageCount);
+      const highestRequestedPage = Math.max(...validatedRanges.flatMap((range) => range.pageIndexes)) + 1;
+      if (highestRequestedPage > enginePageCount) {
+        throw new Error(`This PDF shows ${displayPageCount} pages, but the current split engine can copy only ${enginePageCount} pages from its internal PDF structure. Try re-saving or printing the PDF to a new PDF, then upload the new copy.`);
+      }
+
       const outputPrefix = titlePrefix.trim() || selectedFile.title;
       const splitFiles: LocalStudyFile[] = [];
 
@@ -265,11 +291,11 @@ export function SplitPdfTool({
       </div>
 
       <label className="field-label">
-        PDF saved on this device
+        PDF saved in StudyApp
         <select required value={selectedFileId} onChange={(event) => setSelectedFileId(event.target.value)}>
           <option value="">Choose a local PDF</option>
           {pdfFiles.map((file) => (
-            <option key={file.id} value={file.id}>{file.title} · {formatFileSize(file.size)}</option>
+            <option key={file.id} value={file.id}>{file.title} · {file.fileName} · {formatFileSize(file.size)}</option>
           ))}
         </select>
       </label>
@@ -277,6 +303,7 @@ export function SplitPdfTool({
       {selectedFile ? (
         <p className="field-help">
           {pageCount ? `Detected pages: ${pageCount}.` : "Reading page count..."}
+          {splitEnginePageCount && pageCount && pageCount > splitEnginePageCount ? ` Split engine pages: ${splitEnginePageCount}.` : ""}
           {pageCountError ? ` ${pageCountError}` : ""}
         </p>
       ) : null}
