@@ -10,11 +10,11 @@ const mainNavigation = [
 ] as const;
 
 const toolsNavigation = [
-  ["/tools", "Tools overview"],
   ["/tools#split-pdf", "Split PDF"],
   ["/study-materials?add=file", "Add material from this device"],
   ["/study-materials?add=link", "Add material from a cloud link"],
   ["/study-materials#manage-materials", "View / remove saved materials"],
+  ["/tools", "Tools overview"],
 ] as const;
 
 const footerNavigation = [
@@ -55,19 +55,20 @@ export function AppLayout() {
                 </Link>
               );
             })}
-            <details className="main-nav-dropdown">
-              <summary
+            <div className="main-nav-dropdown">
+              <Link
                 aria-current={isToolsActive ? "page" : undefined}
-                className={isToolsActive ? "active" : undefined}
+                className={isToolsActive ? "main-nav-dropdown-trigger active" : "main-nav-dropdown-trigger"}
+                to="/tools"
               >
                 Tools
-              </summary>
+              </Link>
               <div className="main-nav-dropdown-menu">
                 {toolsNavigation.map(([to, label]) => (
                   <NavLink key={to} to={to}>{label}</NavLink>
                 ))}
               </div>
-            </details>
+            </div>
           </nav>
           <div className="utility-actions" aria-label="Study settings">
             <NavLink to="/appearance">Settings</NavLink>
