@@ -7,14 +7,7 @@ const mainNavigation = [
   { to: "/library", label: "Library", matches: ["/library", "/study-materials"] },
   { to: "/study/theory", label: "Study", matches: ["/study", "/study/theory", "/units", "/import"] },
   { to: "/learn", label: "Learn", matches: ["/learn", "/flashcards", "/review", "/quiz", "/progress"] },
-] as const;
-
-const toolsNavigation = [
-  ["/tools#split-pdf", "Split PDF"],
-  ["/study-materials?add=file", "Add material from this device"],
-  ["/study-materials?add=link", "Add material from a cloud link"],
-  ["/study-materials#manage-materials", "View / remove saved materials"],
-  ["/tools", "Tools overview"],
+  { to: "/tools#split-pdf", label: "Split PDF Tool", matches: ["/tools"] },
 ] as const;
 
 const footerNavigation = [
@@ -31,7 +24,6 @@ function isActiveMainArea(pathname: string, matches: readonly string[]): boolean
 export function AppLayout() {
   useAppearanceSettings();
   const location = useLocation();
-  const isToolsActive = isActiveMainArea(location.pathname, ["/tools"]);
 
   return (
     <div className="app-shell">
@@ -55,20 +47,6 @@ export function AppLayout() {
                 </Link>
               );
             })}
-            <div className="main-nav-dropdown">
-              <Link
-                aria-current={isToolsActive ? "page" : undefined}
-                className={isToolsActive ? "main-nav-dropdown-trigger active" : "main-nav-dropdown-trigger"}
-                to="/tools"
-              >
-                Tools
-              </Link>
-              <div className="main-nav-dropdown-menu">
-                {toolsNavigation.map(([to, label]) => (
-                  <NavLink key={to} to={to}>{label}</NavLink>
-                ))}
-              </div>
-            </div>
           </nav>
           <div className="utility-actions" aria-label="Study settings">
             <NavLink to="/appearance">Settings</NavLink>
