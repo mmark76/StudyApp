@@ -119,7 +119,7 @@ export function CloudLinkForm({
       </label>
       <p className="field-help">Upload saves only the title and link. The actual file stays in your cloud service.</p>
       <div className="button-row">
-        <button className="button primary compact-square" disabled={Boolean(uploadedLink)} type="submit">
+        <button className={uploadedLink ? "button success compact-square" : "button primary compact-square"} disabled={Boolean(uploadedLink)} type="submit">
           {uploadedLink ? "Uploaded" : "Upload"}
         </button>
         <button className="button danger compact-square" disabled={!canRemove} onClick={() => void removeSelectionOrUpload()} type="button">
