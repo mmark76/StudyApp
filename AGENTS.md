@@ -36,7 +36,7 @@ The current main navigation is intentionally separated into five areas. Keep the
 Library from Source   = read original/source material
 Structured Study      = read the same material by structure and level
 Learn & Practice      = practise and consolidate knowledge
-Split PDF Tool        = split local PDFs in the browser
+Split PDF Tool        = split local PDFs in the browser, plus Upload PDF as the only intentional overlap
 Add / Remove Material = add or remove saved material
 ```
 
@@ -60,15 +60,15 @@ This area is for active recall, flashcards, due review, quizzes and progress tra
 
 ### Split PDF Tool
 
-Allowed primary action: **Split PDF**.
+Allowed primary actions: **Upload PDF** and **Split PDF**.
 
-This area should remain a local PDF utility only. It should not duplicate Add / Remove Material.
+This area should remain a local PDF utility. The only approved overlap with material management is an **Upload PDF** action that accepts PDF files only and exists only so the user can upload a direct input for splitting. Do not add general file upload, cloud-link upload, remove-material, or material-management controls here.
 
 ### Add / Remove Material
 
 Allowed primary actions: **Add** and **Remove**.
 
-This area is the only place for adding local files, adding cloud links and removing saved material. It may allow opening saved material for checking before deletion, but reading/studying belongs in Library from Source and Structured Study.
+This area is the main place for adding local files, adding cloud links and removing saved material. It may allow opening saved material for checking before deletion, but reading/studying belongs in Library from Source and Structured Study.
 
 ## Repository structure
 
