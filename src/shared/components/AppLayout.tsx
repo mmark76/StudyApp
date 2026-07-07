@@ -7,6 +7,7 @@ const mainNavigation = [
   { to: "/library", label: "Library", matches: ["/library", "/study-materials"] },
   { to: "/study/theory", label: "Study", matches: ["/study", "/study/theory", "/units", "/import"] },
   { to: "/learn", label: "Learn", matches: ["/learn", "/flashcards", "/review", "/quiz", "/progress"] },
+  { to: "/tools", label: "Tools", matches: ["/tools"] },
 ] as const;
 
 const footerNavigation = [
