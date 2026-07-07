@@ -4,6 +4,7 @@ import { createId } from "../../shared/utils/id";
 import {
   normalizeStudyMaterialTitle,
   normalizeStudyMaterialUrl,
+  parseStoredStudyMaterials,
   STUDY_MATERIALS_SETTING_KEY,
   type StudyMaterialLink,
 } from "./studyMaterials";
@@ -71,15 +72,7 @@ export function CloudLinkForm({
 
     try {
       const currentSetting = await studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY);
-      const currentLinks = Array.isArray(currentSetting?.value)
-        ? currentSetting.value.filter((link): link is StudyMaterialLink => (
-          typeof link === "object"
-          && link !== null
-          && "id" in link
-          && "title" in link
-          && "url" in link
-        ))
-        : savedLinks;
+      const currentLinks = parseStoredStudyMaterials(currentSetting?.value);
 
       await studyDatabase.settings.put({
         key: STUDY_MATERIALS_SETTING_KEY,
