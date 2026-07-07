@@ -2,25 +2,39 @@ import { Link } from "react-router-dom";
 
 const homeSpaces = [
   {
-    eyebrow: "Library",
-    title: "Your library space",
-    description: "Store books, articles, papers, source notes, links and files.",
-    action: "Open Library",
+    eyebrow: "Read from source",
+    title: "Library from Source",
+    description: "Read primary and source material: books, articles, papers, source notes, my notes and summaries.",
+    action: "Read from source",
     to: "/library",
   },
   {
-    eyebrow: "Study",
-    title: "Your study space",
-    description: "Structure contents, chapters, sections, key concepts, references, images and diagrams.",
-    action: "Open Study",
+    eyebrow: "Structured reading",
+    title: "Structured Study",
+    description: "Read the same material by structure: contents, chapters, sections, key concepts, references and diagrams.",
+    action: "Start structured study",
     to: "/study/theory",
   },
   {
-    eyebrow: "Learn",
-    title: "Your learning space",
-    description: "Build my notes, summaries, flashcards, review, quizzes and progress.",
-    action: "Open Learn",
+    eyebrow: "Practice and memory",
+    title: "Learn & Practice",
+    description: "Practise and consolidate with flashcards, review, quizzes and progress.",
+    action: "Start practice",
     to: "/learn",
+  },
+  {
+    eyebrow: "PDF utility",
+    title: "Split PDF Tool",
+    description: "Split local PDF files inside this browser without uploading your files.",
+    action: "Open split PDF tool",
+    to: "/tools#split-pdf",
+  },
+  {
+    eyebrow: "Material management",
+    title: "Add / Remove Material",
+    description: "Add material to the app or remove saved local files and cloud links.",
+    action: "Manage material",
+    to: "/study-materials",
   },
 ] as const;
 
