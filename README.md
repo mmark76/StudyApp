@@ -1,4 +1,4 @@
-# Generic Study App
+# StudyApp
 
 A local-first, subject-neutral study application template.
 
@@ -6,18 +6,63 @@ A local-first, subject-neutral study application template.
 
 The long-term goal of this project is documented in [`VISION.md`](VISION.md).
 
-In short, StudyApp is intended to become a **local-first personal knowledge and learning system**: a private workspace where the user can collect study material, understand it at multiple depths, transform it into active learning, and retrieve knowledge through meaningful filters.
+In short, StudyApp is intended to become a **local-first personal knowledge and learning system**: a private workspace where the user can keep study material, read it from source, study it through structure, practise it through active recall, and protect local ownership of data.
 
 The app should not be understood only as a flashcards app. Flashcards, quizzes, review queues and spaced repetition are learning tools inside a broader system for organising, understanding, remembering and recalling knowledge.
 
+## Current product areas
+
+The user-facing workflow is intentionally separated into distinct areas so that actions do not overlap.
+
+1. **Library from Source** — read original/source material only.
+   - Books
+   - Articles
+   - Papers
+   - Source or external notes
+   - My Notes
+   - Summaries
+
+2. **Structured Study** — read and understand the same material through structure.
+   - Contents
+   - Chapters
+   - Sections / Paragraphs
+   - Key Concepts
+   - Bibliography / References
+   - Images / Diagrams
+
+3. **Learn & Practice** — practise and consolidate knowledge.
+   - Flashcards
+   - Due review
+   - Quiz
+   - Progress
+
+4. **Split PDF Tool** — use a local browser-only utility to split saved PDF files.
+
+5. **Add / Remove Material** — add or remove local files and cloud links.
+   - Add material from this device
+   - Add material from a cloud link
+   - Remove saved local files or cloud links
+
+The guiding boundary is:
+
+```text
+Library from Source = read from original/source material
+Structured Study    = read the same material by structure and level
+Learn & Practice    = practise and consolidate
+Split PDF Tool      = PDF splitting utility only
+Add / Remove Material = material management only
+```
+
+## Intended learning workflow
+
 The intended user workflow is:
 
-1. import or save study material such as PDFs, Word documents, links, images, diagrams, charts, notes, bibliography and references;
-2. read and structure that material at multiple depths, from overview and table of contents to chapters, headings, paragraphs, concepts, images and references;
-3. classify the same material through different perspectives, such as historical, scientific, theoretical, practical, philosophical, technical or methodological views;
-4. convert knowledge into active learning through repetition, flashcards, quizzes and due reviews;
-5. support cognitive functions such as attention, comprehension, association, classification, visual learning, active recall and metacognitive review;
-6. store and retrieve information through filters such as source, chapter, section, concept, material type, perspective, difficulty, due status, review history, bibliography or reference.
+1. add or save study material such as PDFs, Word documents, links, images, diagrams, charts, notes, bibliography and references through **Add / Remove Material**;
+2. read the original/source material through **Library from Source**;
+3. read and understand the same material by structure through **Structured Study**;
+4. practise and consolidate knowledge through **Learn & Practice** using flashcards, due review, quizzes and progress tracking;
+5. use **Split PDF Tool** only when a PDF needs to be divided into smaller local files;
+6. retrieve information through meaningful filters such as source, chapter, section, concept, material type, difficulty, due status, review history, bibliography or reference.
 
 The project keeps the learning workflow of the original study app while starting with no subject content:
 
@@ -31,47 +76,40 @@ The project keeps the learning workflow of the original study app while starting
 - validated JSON backup and restore;
 - offline-ready PWA without accounts or backend.
 
-## Application structure
-
-The primary study flow is organised around these areas:
-
-- **Home** — entry point for Study, Learn and Library;
-- **Study & Learn** — the learning workspace, split into **Study** for theory and **Learn** for exercises;
-- **Library** — source materials organised as Books, Articles, Papers and Notes.
-
 ## Study vocabulary
 
 The app uses this study hierarchy:
 
 ```text
-Subject
-└── Chapter
-    └── Section
-        └── Concept
-            └── Flashcards
+Source Material
+└── Structured Study
+    ├── Contents
+    ├── Chapters
+    ├── Sections / Paragraphs
+    ├── Key Concepts
+    ├── Bibliography / References
+    └── Images / Diagrams
+        └── Learn & Practice
+            ├── Flashcards
+            ├── Review
+            ├── Quiz
+            └── Progress
 ```
 
-- **Subject** — the full field or course, such as Cognitive Psychology.
-- **Chapter** — a major part of the subject.
-- **Section** — a smaller part inside a chapter.
-- **Concept** — a key idea to understand and remember.
-- **Flashcard** — a question-and-answer item for active recall.
-- **Review** — spaced repetition of due flashcards.
-- **Quiz** — a short test built from flashcards.
-- **Progress** — local study history and review data.
-- **Library** — study sources, links and local files.
+- **Source Material** — the original book, paper, article, note, PDF, file or link.
+- **Library from Source** — read primary/source material and notes without add/remove actions.
+- **Structured Study** — read the same material through contents, chapters, sections, concepts, references and diagrams.
+- **Learn & Practice** — practise with flashcards, due review, quizzes and progress tracking.
+- **Split PDF Tool** — split local PDFs in the browser.
+- **Add / Remove Material** — add or remove local files and cloud links.
 
-## Library
+## Local-first data and privacy
 
-The Library stores source material. It supports cloud links and local files kept inside the browser on the current device. Local files can include PDFs, Word documents, text files, CSV files and images, subject to the configured size limit.
+Study progress, user-added links and local files remain in the browser's IndexedDB unless the user exports a backup or manually opens a cloud link. The application has no account system and no backend by default.
 
-## Study and Learn
+Local files are stored only in this browser on this device. They are not uploaded and are not synced by StudyApp. Cloud links store only the title and URL; the actual file remains in the user's cloud service.
 
-**Study** is for theory: selecting sources, organising contents, chapters, sections, concepts, bibliography, images, diagrams, tables, notes and summaries.
-
-**Learn** is for exercises: flashcards, due review, quizzes, practice and progress tracking.
-
-Content import, detailed progress and study-material management remain available through the app navigation.
+Progress backups include progress, sessions and settings, but they do not include local file blobs.
 
 ## Add a subject
 
@@ -91,10 +129,6 @@ npm run typecheck
 npm test
 npm run build
 ```
-
-## Data and privacy
-
-Study progress, user-added links and local files remain in the browser's IndexedDB unless the user exports a backup. Progress backups include progress, sessions and settings, but they do not include local file blobs.
 
 ## Licence
 
