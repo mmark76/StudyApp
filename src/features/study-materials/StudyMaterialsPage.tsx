@@ -11,45 +11,13 @@ import {
   STUDY_MATERIALS_SETTING_KEY,
 } from "./studyMaterials";
 
-const studyMaterialCategories = [
-  {
-    id: "contents",
-    title: "Contents",
-    description: "Table of contents and the high-level map of the material.",
-  },
-  {
-    id: "chapters",
-    title: "Chapters",
-    description: "Major learning blocks inside a book, paper, PDF or course material.",
-  },
-  {
-    id: "sections-paragraphs",
-    title: "Sections / Paragraphs",
-    description: "Smaller parts inside chapters for focused study and review.",
-  },
-  {
-    id: "key-concepts",
-    title: "Key Concepts",
-    description: "Important ideas, definitions and principles that need to be understood and remembered.",
-  },
-  {
-    id: "bibliography-references",
-    title: "Bibliography / References",
-    description: "References and source trails connected to the study material.",
-  },
-  {
-    id: "images-diagrams",
-    title: "Images / Diagrams",
-    description: "Figures, diagrams, visual evidence, processes and relationships worth remembering.",
-  },
-] as const;
-
 export function StudyMaterialsPage() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const addMode = searchParams.get("add");
   const cloudLinkSectionRef = useRef<HTMLElement>(null);
   const localFileSectionRef = useRef<HTMLElement>(null);
+  const manageSectionRef = useRef<HTMLElement>(null);
   const setting = useLiveQuery(
     () => studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY),
     [],
@@ -106,9 +74,9 @@ export function StudyMaterialsPage() {
   return (
     <div className="stack-lg">
       <header className="page-heading">
-        <p className="eyebrow">Books, notes and theory</p>
-        <h2>Study materials</h2>
-        <p>Add local files or cloud links for your course books, notes, articles and papers.</p>
+        <p className="eyebrow">Material management</p>
+        <h2>Add / Remove Material</h2>
+        <p>Add material to the app or remove saved material. Reading belongs in Library from Source and Study per Level.</p>
       </header>
 
       <section className="content-panel">
@@ -123,35 +91,8 @@ export function StudyMaterialsPage() {
       </section>
 
       <section className="content-panel">
-        <p className="eyebrow">View</p>
-        <h3>Study material categories</h3>
-        <p>Jump to the part of the material you want to structure.</p>
-        <div className="learning-stage-grid">
-          {studyMaterialCategories.map((category) => (
-            <article
-              className="learning-stage-card"
-              id={category.id}
-              key={category.id}
-              tabIndex={-1}
-              style={{ minHeight: "220px", gap: "0.5rem" }}
-            >
-              <h4 style={{ marginBottom: "0.25rem" }}>{category.title}</h4>
-              <p style={{ margin: 0 }}>{category.description}</p>
-              <div className="tag-row" style={{ marginTop: "auto" }}>
-                <span className="tag">Cloud links: {links.length}</span>
-                <span className="tag">Files on this device: {localFiles.length}</span>
-              </div>
-              <p className="field-help" style={{ marginTop: "0.15rem" }}>
-                Materials for this category appear here.
-              </p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="content-panel">
         <p className="eyebrow">Add</p>
-        <h3>Add study materials</h3>
+        <h3>Add material</h3>
         <p>Choose whether you want to add material from this device or from a cloud link.</p>
 
         <div className="library-grid" style={{ alignItems: "stretch" }}>
@@ -202,9 +143,9 @@ export function StudyMaterialsPage() {
         </div>
       </section>
 
-      <section className="content-panel" id="manage-materials" tabIndex={-1}>
-        <p className="eyebrow">Manage</p>
-        <h3>View / remove saved materials</h3>
+      <section className="content-panel" id="manage-materials" ref={manageSectionRef} tabIndex={-1}>
+        <p className="eyebrow">Remove</p>
+        <h3>Remove saved material</h3>
         <p>Open or remove local files saved on this device, and remove cloud links saved in this app.</p>
 
         {localFiles.length === 0 && savedLinks.length === 0 ? (
