@@ -5,7 +5,7 @@ import { useAppearanceSettings } from "../../features/appearance/useAppearanceSe
 const mainNavigation = [
   { to: "/", label: "Home", matches: ["/"] },
   { to: "/library", label: "Library from Source", matches: ["/library"] },
-  { to: "/study/theory", label: "Study per Level", matches: ["/study", "/study/theory", "/units", "/import"] },
+  { to: "/study/theory", label: "Structured Study", matches: ["/study", "/study/theory", "/units", "/import"] },
   { to: "/learn", label: "Learn & Practice", matches: ["/learn", "/flashcards", "/review", "/quiz", "/progress"] },
   { to: "/tools#split-pdf", label: "Split PDF Tool", matches: ["/tools"] },
   { to: "/study-materials", label: "Add / Remove Material", matches: ["/study-materials"] },
