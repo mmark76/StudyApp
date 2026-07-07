@@ -14,7 +14,7 @@ The current product interface is intentionally separated into five clear areas. 
 Library from Source   = read original/source material
 Structured Study      = read the same material by structure and level
 Learn & Practice      = practise and consolidate knowledge
-Split PDF Tool        = split local PDFs in the browser
+Split PDF Tool        = split local PDFs in the browser, plus Upload PDF as the only intentional overlap
 Add / Remove Material = add or remove saved material
 ```
 
@@ -64,9 +64,9 @@ This area transforms studied material into recall, review and testing.
 
 ### Split PDF Tool
 
-Purpose: **PDF utility only**.
+Purpose: **PDF utility only**, with one explicit exception.
 
-This area contains the local browser-only PDF splitting tool. It should not become a general material manager.
+This area contains the local browser-only PDF splitting tool. Its only allowed overlap with material management is an **Upload PDF** action that uploads a PDF directly as input for splitting. It should not become a general material manager and should not add support for non-PDF uploads, cloud links, or remove/manage workflows.
 
 ### Add / Remove Material
 
@@ -117,7 +117,14 @@ current_navigation_areas:
   split_pdf_tool:
     purpose: split local PDFs in browser
     allowed_actions:
+      - upload_pdf_for_splitting
       - split_pdf
+    overlap_policy: Upload PDF is the only intentional overlap with material management
+    not_for:
+      - add_non_pdf_material
+      - add_cloud_link
+      - remove_material
+      - manage_general_material
   add_remove_material:
     purpose: material management
     allowed_actions:
@@ -184,6 +191,10 @@ Add / Remove Material
                 ├── Quiz items
                 ├── Review history
                 └── Progress
+
+Split PDF Tool
+└── Upload PDF for direct split input
+    └── Split PDF into local PDF files
 ```
 
 This means source material is not only stored. It should become structured knowledge that can be studied, tested, connected, reviewed, and recalled.
@@ -199,8 +210,9 @@ The user should then be able to:
 1. read original/source material in **Library from Source**;
 2. read and understand the same material through structure in **Structured Study**;
 3. practise and consolidate knowledge in **Learn & Practice**;
-4. split local PDFs when needed in **Split PDF Tool**;
-5. add or remove saved material only in **Add / Remove Material**.
+4. upload a PDF directly in **Split PDF Tool** only when the purpose is to split it;
+5. split local PDFs when needed in **Split PDF Tool**;
+6. add or remove saved material only in **Add / Remove Material**.
 
 ## Cognitive learning goal
 
@@ -222,7 +234,7 @@ StudyApp should support more than passive reading. The learning workflow should 
    User content, progress, study files, and settings should remain local unless the user explicitly exports or chooses another behaviour.
 
 2. **Clear separation of app areas**  
-   Library from Source is for reading source material. Structured Study is for reading by structure. Learn & Practice is for active learning. Split PDF Tool is a utility. Add / Remove Material is for material management.
+   Library from Source is for reading source material. Structured Study is for reading by structure. Learn & Practice is for active learning. Split PDF Tool is a PDF utility with only one allowed overlap: Upload PDF for direct split input. Add / Remove Material is for material management.
 
 3. **Source material must remain useful after import**  
    It is not enough to upload a file or save a link. The user must be able to find it, open it, read it, structure it, connect it to concepts, and use it for study.
@@ -250,6 +262,7 @@ StudyApp should support more than passive reading. The learning workflow should 
 A feature is aligned with the product vision if it helps the user do at least one of these:
 
 - add or remove useful study material in the dedicated material-management area;
+- upload a PDF directly inside Split PDF Tool only for immediate split use;
 - read source material without mixing in management actions;
 - understand material at a deeper or clearer level through structure;
 - connect concepts to sources, examples, diagrams, or references;
@@ -261,7 +274,7 @@ A feature is aligned with the product vision if it helps the user do at least on
 
 A feature is probably not aligned if it:
 
-- makes the five main areas overlap in purpose;
+- makes the five main areas overlap in purpose beyond the explicit Upload PDF exception in Split PDF Tool;
 - turns the app into a generic cloud learning platform;
 - treats uploaded material as dead file storage;
 - makes the app depend on accounts, backend storage, analytics, or telemetry by default;
@@ -275,11 +288,12 @@ A feature is probably not aligned if it:
 Before making significant changes, human contributors and AI agents should ask:
 
 1. Does this change preserve the separation between Library from Source, Structured Study, Learn & Practice, Split PDF Tool, and Add / Remove Material?
-2. Does it support the broader knowledge-and-learning vision, not only a narrow UI task?
-3. Does it preserve local-first privacy?
-4. Does it help the user move between source reading, structure, concept, and recall?
-5. Does it protect imported material, progress, and backups from silent loss?
-6. Does it keep source material usable after import?
-7. Does it keep the system understandable to the user?
+2. If it adds overlap, is it only the approved Upload PDF action inside Split PDF Tool?
+3. Does it support the broader knowledge-and-learning vision, not only a narrow UI task?
+4. Does it preserve local-first privacy?
+5. Does it help the user move between source reading, structure, concept, and recall?
+6. Does it protect imported material, progress, and backups from silent loss?
+7. Does it keep source material usable after import?
+8. Does it keep the system understandable to the user?
 
 If the answer to these questions is unclear, prefer documenting the assumption before implementing the change.
