@@ -4,32 +4,32 @@ const sourceStructure = [
   {
     id: "contents",
     title: "Contents",
-    description: "Start with the table of contents and the high-level map of the material.",
+    description: "Read the table of contents and the high-level map of the material.",
   },
   {
     id: "chapters",
     title: "Chapters",
-    description: "Break a book, paper or PDF into major learning blocks.",
+    description: "Read the material as major learning blocks inside a book, paper or PDF.",
   },
   {
     id: "sections-paragraphs",
     title: "Sections / Paragraphs",
-    description: "Split each chapter into sections and paragraphs that are easier to study and review.",
+    description: "Read smaller parts inside chapters for focused study and review.",
   },
   {
     id: "key-concepts",
     title: "Key Concepts",
-    description: "Extract the key ideas, definitions and principles that need to be understood and remembered.",
+    description: "Read the important ideas, definitions and principles that need to be understood.",
   },
   {
     id: "bibliography-references",
     title: "Bibliography / References",
-    description: "Keep references and source trails connected to the material they support.",
+    description: "Read references and source trails connected to the material they support.",
   },
   {
     id: "images-diagrams",
     title: "Images / Diagrams",
-    description: "Identify visual evidence, figures, conceptual diagrams, processes and relationships worth remembering.",
+    description: "Read visual evidence, figures, diagrams, processes and relationships.",
   },
 ] as const;
 
@@ -37,26 +37,22 @@ export function StudyTheoryPage() {
   return (
     <div className="stack-lg">
       <header className="page-heading">
-        <p className="eyebrow">Theory and understanding</p>
-        <h2>Study</h2>
-        <p>Read, structure and understand your materials before turning them into exercises.</p>
+        <p className="eyebrow">Read per level</p>
+        <h2>Study per Level</h2>
+        <p>Read and understand the same material level by level before turning it into practice.</p>
       </header>
 
       <section
         className="learning-stage-grid"
         style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}
-        aria-label="Study material structure"
+        aria-label="Study material reading levels"
       >
         {sourceStructure.map((item, index) => (
-          <article className="learning-stage-card" key={item.title}>
+          <article className="learning-stage-card" id={item.id} key={item.title} tabIndex={-1}>
             <span className="stage-number" aria-hidden="true">{index + 1}</span>
             <h3>{item.title}</h3>
             <p>{item.description}</p>
-            <div className="button-row">
-              <Link className="button secondary compact" to="/study-materials?add=file">Add material from Local Disk</Link>
-              <Link className="button secondary compact" to="/study-materials?add=link">Add material from Cloud</Link>
-              <Link className="button primary compact" to={`/study-materials#${item.id}`}>View {item.title}</Link>
-            </div>
+            <Link className="button secondary" to={`/study/theory#${item.id}`}>Read</Link>
           </article>
         ))}
       </section>
