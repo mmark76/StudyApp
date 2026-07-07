@@ -77,6 +77,12 @@
   font-size: 0.9rem;
 }
 
+.local-file-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.5rem;
+}
+
 input[type="file"] {
   width: 100%;
   padding: 0.7rem;
@@ -127,5 +133,13 @@ input[type="file"]::file-selector-button {
   .local-file-row {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .local-file-actions {
+    width: 100%;
+  }
+
+  .local-file-actions .button {
+    flex: 1 1 0;
   }
 }
