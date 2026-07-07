@@ -1,0 +1,79 @@
+.main-nav-dropdown {
+  position: relative;
+}
+
+.main-nav-dropdown summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 100%;
+  padding: 0.65rem 0.9rem;
+  border-radius: 999px;
+  color: var(--slate-600);
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.main-nav-dropdown summary::-webkit-details-marker {
+  display: none;
+}
+
+.main-nav-dropdown summary::marker {
+  content: "";
+}
+
+.main-nav-dropdown summary:hover,
+.main-nav-dropdown summary.active,
+.main-nav-dropdown[open] summary {
+  background: var(--blue-100);
+  color: var(--navy-800);
+}
+
+.main-nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  left: 0;
+  z-index: 80;
+  display: grid;
+  min-width: 16rem;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  border: 1px solid var(--slate-300);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.main-nav .main-nav-dropdown-menu a {
+  display: block;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.main-nav .main-nav-dropdown-menu a:hover,
+.main-nav .main-nav-dropdown-menu a.active {
+  background: var(--blue-100);
+  color: var(--navy-800);
+}
+
+@media (max-width: 720px) {
+  .main-nav-dropdown {
+    width: 100%;
+  }
+
+  .main-nav-dropdown summary {
+    width: 100%;
+  }
+
+  .main-nav-dropdown-menu {
+    position: static;
+    margin-top: 0.35rem;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .main-nav .main-nav-dropdown-menu a {
+    white-space: normal;
+  }
+}
