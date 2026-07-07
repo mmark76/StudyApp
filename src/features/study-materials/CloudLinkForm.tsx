@@ -19,6 +19,7 @@ export function CloudLinkForm({
 }) {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
+  const [uploadedLink, setUploadedLink] = useState<StudyMaterialLink | null>(null);
   const lock = useRef(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -33,7 +34,7 @@ export function CloudLinkForm({
         url: normalizeStudyMaterialUrl(url),
       };
       if (existingLinks.some((link) => link.url === item.url)) {
-        onMessage("This link has already been saved.");
+        onMessage("This link has already been uploaded.");
         return;
       }
 
@@ -41,11 +42,30 @@ export function CloudLinkForm({
         key: STUDY_MATERIALS_SETTING_KEY,
         value: [...savedLinks, item],
       });
+      setUploadedLink(item);
       setTitle("");
       setUrl("");
-      onMessage("The cloud link was saved.");
+      onMessage("The cloud link was uploaded to the app.");
     } catch {
       onMessage("Enter a name and a valid web link.");
+    } finally {
+      lock.current = false;
+    }
+  }
+
+  async function removeUploadedLink() {
+    if (!uploadedLink || lock.current) return;
+    lock.current = true;
+
+    try {
+      await studyDatabase.settings.put({
+        key: STUDY_MATERIALS_SETTING_KEY,
+        value: savedLinks.filter((link) => link.id !== uploadedLink.id),
+      });
+      onMessage(`Removed uploaded link: ${uploadedLink.title}.`);
+      setUploadedLink(null);
+    } catch {
+      onMessage("The uploaded link could not be removed.");
     } finally {
       lock.current = false;
     }
@@ -56,26 +76,39 @@ export function CloudLinkForm({
       <label className="field-label">
         Shared link
         <input
-          required
+          required={!uploadedLink}
           type="url"
           value={url}
-          onChange={(event) => setUrl(event.target.value)}
+          onChange={(event) => {
+            setUrl(event.target.value);
+            setUploadedLink(null);
+          }}
           placeholder="https://..."
         />
       </label>
       <label className="field-label">
         Display name
         <input
-          required
+          required={!uploadedLink}
           maxLength={160}
           type="text"
           value={title}
-          onChange={(event) => setTitle(event.target.value)}
+          onChange={(event) => {
+            setTitle(event.target.value);
+            setUploadedLink(null);
+          }}
           placeholder="Example: Cognitive Psychology textbook"
         />
       </label>
-      <p className="field-help">This button saves only the title and link. The actual file stays in your cloud service.</p>
-      <button className="button primary" type="submit">Save cloud link</button>
+      <p className="field-help">Upload saves only the title and link. The actual file stays in your cloud service.</p>
+      <div className="button-row">
+        <button className="button primary compact-square" disabled={Boolean(uploadedLink)} type="submit">
+          {uploadedLink ? "Uploaded" : "Upload"}
+        </button>
+        <button className="button danger compact-square" disabled={!uploadedLink} onClick={() => void removeUploadedLink()} type="button">
+          Remove
+        </button>
+      </div>
     </form>
   );
 }
