@@ -1,9 +1,9 @@
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { type ChangeEvent, type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { PDFDocument } from "pdf-lib";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { LocalStudyFile } from "../../shared/types/models";
 import { createId } from "../../shared/utils/id";
-import { formatFileSize, MAX_LOCAL_FILE_SIZE } from "./localStudyFiles";
+import { formatFileSize, MAX_LOCAL_FILE_SIZE, titleFromFileName } from "./localStudyFiles";
 import { normalizeStudyMaterialTitle } from "./studyMaterials";
 
 type SplitTab = "range" | "pages" | "size";
@@ -26,6 +26,10 @@ function isPdfFile(file: LocalStudyFile): boolean {
   return file.fileKind === "pdf"
     || file.mimeType === "application/pdf"
     || file.fileName.toLowerCase().endsWith(".pdf");
+}
+
+function isPdfUpload(file: File): boolean {
+  return file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
 }
 
 function readPageNumber(value: string, fieldName: string): number {
@@ -83,6 +87,7 @@ export function SplitPdfTool({
   onMessage: (message: string) => void;
 }) {
   const pdfFiles = useMemo(() => files.filter(isPdfFile), [files]);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
   const [selectedFileId, setSelectedFileId] = useState("");
   const [pageCount, setPageCount] = useState<number | null>(null);
   const [pageCountError, setPageCountError] = useState("");
@@ -90,6 +95,7 @@ export function SplitPdfTool({
   const [rangeMode, setRangeMode] = useState<RangeMode>("custom");
   const [ranges, setRanges] = useState<RangeRow[]>([{ id: makeRangeId(), from: "1", to: "1" }]);
   const [titlePrefix, setTitlePrefix] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
   const [isSplitting, setIsSplitting] = useState(false);
 
   const selectedFile = pdfFiles.find((file) => file.id === selectedFileId);
@@ -121,6 +127,48 @@ export function SplitPdfTool({
       cancelled = true;
     };
   }, [selectedFile]);
+
+  async function uploadPdf(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0] ?? null;
+    event.target.value = "";
+    if (!file || isUploading) return;
+
+    if (!isPdfUpload(file)) {
+      onMessage("Choose a PDF file to upload for splitting.");
+      return;
+    }
+    if (file.size > MAX_LOCAL_FILE_SIZE) {
+      onMessage("The PDF is larger than 50 MB. Split PDF Tool supports local PDFs up to 50 MB.");
+      return;
+    }
+    if (files.some((item) => item.fileName === file.name && item.size === file.size)) {
+      const existingFile = files.find((item) => item.fileName === file.name && item.size === file.size && isPdfFile(item));
+      if (existingFile) setSelectedFileId(existingFile.id);
+      onMessage("This PDF has already been uploaded. It is selected for splitting.");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const item: LocalStudyFile = {
+        id: createId("file"),
+        title: normalizeStudyMaterialTitle(titleFromFileName(file.name)),
+        fileName: file.name,
+        size: file.size,
+        createdAt: new Date().toISOString(),
+        data: file.slice(0, file.size, file.type || "application/pdf"),
+        mimeType: file.type || "application/pdf",
+        fileKind: "pdf",
+      };
+      await studyDatabase.studyFiles.add(item);
+      setSelectedFileId(item.id);
+      onMessage("The PDF was uploaded locally and selected for splitting.");
+    } catch {
+      onMessage("The PDF could not be saved. Your browser may not have enough storage space.");
+    } finally {
+      setIsUploading(false);
+    }
+  }
 
   function updateRange(id: string, field: "from" | "to", value: string) {
     setRanges((currentRanges) => currentRanges.map((range) => (
@@ -193,6 +241,29 @@ export function SplitPdfTool({
 
   return (
     <form className="material-form" onSubmit={(event) => void submit(event)}>
+      <div className="button-row">
+        <button className="button secondary" disabled={isUploading} onClick={() => uploadInputRef.current?.click()} type="button">
+          {isUploading ? "Uploading PDF..." : "Upload PDF"}
+        </button>
+        <input
+          ref={uploadInputRef}
+          accept=".pdf,application/pdf"
+          aria-label="Upload PDF for splitting"
+          type="file"
+          onChange={(event) => void uploadPdf(event)}
+          style={{
+            blockSize: 1,
+            border: 0,
+            clipPath: "inset(50%)",
+            inlineSize: 1,
+            overflow: "hidden",
+            padding: 0,
+            position: "absolute",
+            whiteSpace: "nowrap",
+          }}
+        />
+      </div>
+
       <label className="field-label">
         PDF saved on this device
         <select required value={selectedFileId} onChange={(event) => setSelectedFileId(event.target.value)}>
@@ -304,7 +375,7 @@ export function SplitPdfTool({
         Custom range mode creates one new local PDF for every range. Processing happens only in this browser.
       </p>
 
-      {pdfFiles.length === 0 ? <p className="inline-message">Add a local PDF first, then return here to split it.</p> : null}
+      {pdfFiles.length === 0 ? <p className="inline-message">Upload a PDF here or add one in Add / Remove Material, then split it.</p> : null}
 
       <button className="button primary" disabled={!selectedFile || !pageCount || Boolean(pageCountError) || isSplitting} type="submit">
         {isSplitting ? "Splitting PDF..." : "Split PDF"}
