@@ -4,6 +4,7 @@ import { useLocation, useSearchParams } from "react-router-dom";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import { CloudLinkForm } from "./CloudLinkForm";
 import { LocalPdfForm } from "./LocalPdfForm";
+import { formatFileSize, formatFileKind, openLocalFile } from "./localStudyFiles";
 import {
   builtInStudyMaterials,
   parseStoredStudyMaterials,
@@ -86,6 +87,21 @@ export function StudyMaterialsPage() {
     target.scrollIntoView({ behavior: "smooth", block: "start" });
     target.focus({ preventScroll: true });
   }, [location.hash]);
+
+  async function removeLocalFile(fileId: string, title: string) {
+    if (!window.confirm(`Remove "${title}" from this device?`)) return;
+    await studyDatabase.studyFiles.delete(fileId);
+    setMessage("The local study file was removed from this device.");
+  }
+
+  async function removeCloudLink(linkId: string, title: string) {
+    if (!window.confirm(`Remove cloud link "${title}" from this app?`)) return;
+    await studyDatabase.settings.put({
+      key: STUDY_MATERIALS_SETTING_KEY,
+      value: savedLinks.filter((link) => link.id !== linkId),
+    });
+    setMessage("The cloud link was removed from this app.");
+  }
 
   return (
     <div className="stack-lg">
@@ -184,6 +200,48 @@ export function StudyMaterialsPage() {
             <CloudLinkForm savedLinks={savedLinks} existingLinks={links} onMessage={setMessage} />
           </section>
         </div>
+      </section>
+
+      <section className="content-panel" id="manage-materials" tabIndex={-1}>
+        <p className="eyebrow">Manage</p>
+        <h3>View / remove saved materials</h3>
+        <p>Open or remove local files saved on this device, and remove cloud links saved in this app.</p>
+
+        {localFiles.length === 0 && savedLinks.length === 0 ? (
+          <p className="inline-message">No saved materials yet.</p>
+        ) : null}
+
+        {localFiles.length > 0 ? (
+          <div className="stack-md">
+            <h4>Files on this device</h4>
+            {localFiles.map((file) => (
+              <article className="template-card" key={file.id}>
+                <h4>{file.title}</h4>
+                <p className="field-help">{formatFileKind(file.fileKind)} · {formatFileSize(file.size)} · {file.fileName}</p>
+                <div className="button-row">
+                  <button className="button secondary" onClick={() => openLocalFile(file)} type="button">Open</button>
+                  <button className="button danger" onClick={() => void removeLocalFile(file.id, file.title)} type="button">Remove</button>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : null}
+
+        {savedLinks.length > 0 ? (
+          <div className="stack-md">
+            <h4>Cloud links</h4>
+            {savedLinks.map((link) => (
+              <article className="template-card" key={link.id}>
+                <h4>{link.title}</h4>
+                <p className="field-help">{link.url}</p>
+                <div className="button-row">
+                  <a className="button secondary" href={link.url} rel="noopener noreferrer" target="_blank">Open</a>
+                  <button className="button danger" onClick={() => void removeCloudLink(link.id, link.title)} type="button">Remove</button>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : null}
       </section>
 
       <p className="inline-message status-banner" role="status" aria-live="polite">{message}</p>
