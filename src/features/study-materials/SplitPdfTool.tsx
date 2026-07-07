@@ -1,10 +1,14 @@
 import { type ChangeEvent, type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { PDFDocument } from "pdf-lib";
+import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
+import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { LocalStudyFile } from "../../shared/types/models";
 import { createId } from "../../shared/utils/id";
 import { formatFileSize, MAX_LOCAL_FILE_SIZE, titleFromFileName } from "./localStudyFiles";
 import { normalizeStudyMaterialTitle } from "./studyMaterials";
+
+GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 type SplitTab = "range" | "pages" | "size";
 type RangeMode = "custom" | "fixed" | "smart";
@@ -21,6 +25,8 @@ interface ValidatedRange {
 }
 
 const MAX_SPLIT_RANGES = 25;
+const PDF_RENDER_SCALE = 2;
+const RENDERED_SPLIT_NOTE = "Created with compatibility mode. Pages are image-based, so text selection/search may not be preserved in the generated split PDF.";
 
 function isPdfFile(file: LocalStudyFile): boolean {
   return file.fileKind === "pdf"
@@ -47,11 +53,28 @@ function countPdfPageTree(pdfText: string): number | null {
   return counts.length ? Math.max(...counts) : null;
 }
 
-function getBestPageCount(pdfLibPageCount: number, pageTreeCount: number | null, objectPageCount: number | null): number {
-  if (pageTreeCount && pageTreeCount >= pdfLibPageCount) {
-    return pageTreeCount;
+function getBestPageCount(
+  pdfJsPageCount: number | null,
+  pdfLibPageCount: number | null,
+  pageTreeCount: number | null,
+  objectPageCount: number | null,
+): number | null {
+  if (pdfJsPageCount) return pdfJsPageCount;
+  if (pageTreeCount && pdfLibPageCount && pageTreeCount >= pdfLibPageCount) return pageTreeCount;
+  if (objectPageCount && pdfLibPageCount && objectPageCount > pdfLibPageCount) return objectPageCount;
+  return pdfLibPageCount ?? pageTreeCount ?? objectPageCount;
+}
+
+async function readPdfJsPageCount(bytes: ArrayBuffer): Promise<number | null> {
+  try {
+    const loadingTask = getDocument({ data: new Uint8Array(bytes.slice(0)) });
+    const pdfDocument = await loadingTask.promise;
+    const pageCount = pdfDocument.numPages;
+    await pdfDocument.destroy();
+    return pageCount;
+  } catch {
+    return null;
   }
-  return objectPageCount && objectPageCount > pdfLibPageCount ? objectPageCount : pdfLibPageCount;
 }
 
 function readPageNumber(value: string, fieldName: string): number {
@@ -101,6 +124,117 @@ function bytesToPdfBlob(bytes: Uint8Array): Blob {
   return new Blob([arrayBuffer], { type: "application/pdf" });
 }
 
+function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality?: number): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error("The page could not be rendered for compatibility splitting."));
+    }, type, quality);
+  });
+}
+
+async function createVectorSplitFiles(
+  sourcePdf: PDFDocument,
+  validatedRanges: readonly ValidatedRange[],
+  outputPrefix: string,
+  sourceFileName: string,
+): Promise<LocalStudyFile[]> {
+  const splitFiles: LocalStudyFile[] = [];
+
+  for (const [index, range] of validatedRanges.entries()) {
+    const outputPdf = await PDFDocument.create();
+    const copiedPages = await outputPdf.copyPages(sourcePdf, range.pageIndexes);
+    for (const page of copiedPages) outputPdf.addPage(page);
+
+    const outputBytes = await outputPdf.save();
+    const outputBlob = bytesToPdfBlob(outputBytes);
+
+    if (outputBlob.size > MAX_LOCAL_FILE_SIZE) {
+      throw new Error(`The generated PDF for pages ${range.label} is larger than 50 MB.`);
+    }
+
+    splitFiles.push({
+      id: createId("file"),
+      title: makeTitle(`${outputPrefix} — pages ${range.label}`),
+      fileName: makeSplitFileName(sourceFileName, range.label, index),
+      size: outputBlob.size,
+      createdAt: new Date().toISOString(),
+      data: outputBlob,
+      mimeType: "application/pdf",
+      fileKind: "pdf",
+    });
+  }
+
+  return splitFiles;
+}
+
+async function createRenderedSplitFiles(
+  sourceBytes: ArrayBuffer,
+  validatedRanges: readonly ValidatedRange[],
+  outputPrefix: string,
+  sourceFileName: string,
+): Promise<LocalStudyFile[]> {
+  const loadingTask = getDocument({ data: new Uint8Array(sourceBytes.slice(0)) });
+  const pdfJsDocument = await loadingTask.promise;
+  const splitFiles: LocalStudyFile[] = [];
+
+  try {
+    for (const [rangeIndex, range] of validatedRanges.entries()) {
+      const outputPdf = await PDFDocument.create();
+
+      for (const pageIndex of range.pageIndexes) {
+        const sourcePage = await pdfJsDocument.getPage(pageIndex + 1);
+        const displayViewport = sourcePage.getViewport({ scale: 1 });
+        const renderViewport = sourcePage.getViewport({ scale: PDF_RENDER_SCALE });
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.ceil(renderViewport.width);
+        canvas.height = Math.ceil(renderViewport.height);
+        const canvasContext = canvas.getContext("2d", { alpha: false });
+        if (!canvasContext) throw new Error("The browser could not create a PDF rendering surface.");
+        canvasContext.fillStyle = "white";
+        canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+
+        await sourcePage.render({ canvasContext, viewport: renderViewport }).promise;
+        const imageBlob = await canvasToBlob(canvas, "image/jpeg", 0.92);
+        const imageBytes = new Uint8Array(await imageBlob.arrayBuffer());
+        const image = await outputPdf.embedJpg(imageBytes);
+        const outputPage = outputPdf.addPage([displayViewport.width, displayViewport.height]);
+        outputPage.drawImage(image, {
+          x: 0,
+          y: 0,
+          width: displayViewport.width,
+          height: displayViewport.height,
+        });
+        sourcePage.cleanup();
+        canvas.width = 0;
+        canvas.height = 0;
+      }
+
+      const outputBytes = await outputPdf.save();
+      const outputBlob = bytesToPdfBlob(outputBytes);
+
+      if (outputBlob.size > MAX_LOCAL_FILE_SIZE) {
+        throw new Error(`The compatibility output for pages ${range.label} is larger than 50 MB. Try a smaller page range.`);
+      }
+
+      splitFiles.push({
+        id: createId("file"),
+        title: makeTitle(`${outputPrefix} — pages ${range.label}`),
+        fileName: makeSplitFileName(sourceFileName, range.label, rangeIndex),
+        size: outputBlob.size,
+        createdAt: new Date().toISOString(),
+        data: outputBlob,
+        mimeType: "application/pdf",
+        fileKind: "pdf",
+      });
+    }
+  } finally {
+    await pdfJsDocument.destroy();
+  }
+
+  return splitFiles;
+}
+
 export function SplitPdfTool({
   files,
   onMessage,
@@ -133,13 +267,22 @@ export function SplitPdfTool({
     async function readPageCount(fileToRead: LocalStudyFile) {
       try {
         const bytes = await fileToRead.data.arrayBuffer();
-        const pdf = await PDFDocument.load(bytes);
+        let pdfLibPageCount: number | null = null;
+        try {
+          const pdf = await PDFDocument.load(bytes);
+          pdfLibPageCount = pdf.getPageCount();
+        } catch {
+          pdfLibPageCount = null;
+        }
+
+        const pdfJsPageCount = await readPdfJsPageCount(bytes);
+        const pdfText = readPdfText(bytes);
+        const pageTreeCount = countPdfPageTree(pdfText);
+        const objectPageCount = countPdfPageObjects(pdfText);
+        const bestPageCount = getBestPageCount(pdfJsPageCount, pdfLibPageCount, pageTreeCount, objectPageCount);
+        if (!bestPageCount) throw new Error("No page count could be detected.");
+
         if (!cancelled) {
-          const pdfLibPageCount = pdf.getPageCount();
-          const pdfText = readPdfText(bytes);
-          const pageTreeCount = countPdfPageTree(pdfText);
-          const objectPageCount = countPdfPageObjects(pdfText);
-          const bestPageCount = getBestPageCount(pdfLibPageCount, pageTreeCount, objectPageCount);
           setPageCount(bestPageCount);
           setSplitEnginePageCount(pdfLibPageCount);
           setRanges((currentRanges) => currentRanges.map((range, index) => (
@@ -229,46 +372,30 @@ export function SplitPdfTool({
     setIsSplitting(true);
     try {
       const sourceBytes = await selectedFile.data.arrayBuffer();
-      const sourcePdf = await PDFDocument.load(sourceBytes);
-      const enginePageCount = sourcePdf.getPageCount();
+      let sourcePdf: PDFDocument | null = null;
+      let enginePageCount = 0;
+      try {
+        sourcePdf = await PDFDocument.load(sourceBytes);
+        enginePageCount = sourcePdf.getPageCount();
+      } catch {
+        sourcePdf = null;
+      }
+
       const displayPageCount = pageCount ?? enginePageCount;
+      if (!displayPageCount) throw new Error("The PDF page count could not be read.");
       const validatedRanges = validateRanges(ranges, displayPageCount);
       const highestRequestedPage = Math.max(...validatedRanges.flatMap((range) => range.pageIndexes)) + 1;
-      if (highestRequestedPage > enginePageCount) {
-        throw new Error(`This PDF appears to contain ${displayPageCount} pages, but the current split engine can copy only ${enginePageCount} pages from this PDF. Re-save or print it to a new PDF, then upload the new copy.`);
-      }
-
+      const canUseVectorEngine = Boolean(sourcePdf && highestRequestedPage <= enginePageCount);
       const outputPrefix = titlePrefix.trim() || selectedFile.title;
-      const splitFiles: LocalStudyFile[] = [];
-
-      for (const [index, range] of validatedRanges.entries()) {
-        const outputPdf = await PDFDocument.create();
-        const copiedPages = await outputPdf.copyPages(sourcePdf, range.pageIndexes);
-        for (const page of copiedPages) outputPdf.addPage(page);
-
-        const outputBytes = await outputPdf.save();
-        const outputBlob = bytesToPdfBlob(outputBytes);
-
-        if (outputBlob.size > MAX_LOCAL_FILE_SIZE) {
-          throw new Error(`The generated PDF for pages ${range.label} is larger than 50 MB.`);
-        }
-
-        splitFiles.push({
-          id: createId("file"),
-          title: makeTitle(`${outputPrefix} — pages ${range.label}`),
-          fileName: makeSplitFileName(selectedFile.fileName, range.label, index),
-          size: outputBlob.size,
-          createdAt: new Date().toISOString(),
-          data: outputBlob,
-          mimeType: "application/pdf",
-          fileKind: "pdf",
-        });
-      }
+      const splitFiles = canUseVectorEngine && sourcePdf
+        ? await createVectorSplitFiles(sourcePdf, validatedRanges, outputPrefix, selectedFile.fileName)
+        : await createRenderedSplitFiles(sourceBytes, validatedRanges, outputPrefix, selectedFile.fileName);
 
       await studyDatabase.studyFiles.bulkAdd(splitFiles);
+      const compatibilityNote = canUseVectorEngine ? "" : ` ${RENDERED_SPLIT_NOTE}`;
       onMessage(splitFiles.length === 1
-        ? `Created 1 split PDF: ${splitFiles[0].fileName}.`
-        : `Created ${splitFiles.length} split PDFs from ${selectedFile.fileName}.`);
+        ? `Created 1 split PDF: ${splitFiles[0].fileName}.${compatibilityNote}`
+        : `Created ${splitFiles.length} split PDFs from ${selectedFile.fileName}.${compatibilityNote}`);
     } catch (error) {
       onMessage(error instanceof Error ? error.message : "The PDF could not be split.");
     } finally {
@@ -319,7 +446,7 @@ export function SplitPdfTool({
           </p>
           {hasSplitEngineLimit ? (
             <p className="inline-message">
-              This PDF appears to contain {pageCount} pages, but the current split engine can copy only {splitEnginePageCount} pages from this PDF. Re-save or print it to a new PDF, then upload the new copy.
+              Compatibility mode will be used for this PDF. The local vector splitter can copy only {splitEnginePageCount} pages, but the PDF.js local rendering engine can read {pageCount} pages. Generated split PDFs may be image-based.
             </p>
           ) : null}
         </div>
