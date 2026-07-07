@@ -26,7 +26,7 @@ export function ToolsPage() {
         <div className="button-row">
           <Link className="button primary" to="/study-materials?add=file">Add material from this device</Link>
           <Link className="button secondary" to="/study-materials?add=link">Add material from a cloud link</Link>
-          <Link className="button secondary" to="/study-materials">View / remove saved materials</Link>
+          <Link className="button secondary" to="/study-materials#manage-materials">View / remove saved materials</Link>
         </div>
       </section>
 
