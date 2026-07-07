@@ -5,6 +5,7 @@ import { App } from "./app/App";
 import "./styles/global.css";
 import "./styles/onboarding.css";
 import "./styles/studyMaterials.css";
+import "./styles/navigationDropdown.css";
 import "./styles/buildVersion.css";
 import "./styles/appearanceSettings.css";
 
