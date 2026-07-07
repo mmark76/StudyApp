@@ -2,19 +2,19 @@ import { Link } from "react-router-dom";
 
 const studyLearnAreas = [
   {
-    title: "Study",
-    label: "Theory",
-    description: "Read, structure and understand books, PDFs, articles, papers and notes.",
-    examples: ["Contents", "Chapters", "Paragraphs", "Bibliography", "Images", "Diagrams"],
-    action: "Open Study",
+    title: "Structured Study",
+    label: "Structured reading",
+    description: "Read and understand material by structure: contents, chapters, sections, key concepts, references, images and diagrams.",
+    examples: ["Contents", "Chapters", "Sections", "Key concepts", "References", "Diagrams"],
+    action: "Start structured study",
     to: "/study/theory",
   },
   {
-    title: "Learn",
-    label: "Exercises",
-    description: "Practice active recall with flashcards, due review, quizzes and progress tracking.",
+    title: "Learn & Practice",
+    label: "Practice and memory",
+    description: "Practise active recall with flashcards, due review, quizzes and progress tracking.",
     examples: ["Flashcards", "Review", "Quiz", "Practice", "Weak points", "Progress"],
-    action: "Open Learn",
+    action: "Start practice",
     to: "/learn",
   },
 ] as const;
@@ -23,12 +23,12 @@ export function StudyLearnPage() {
   return (
     <div className="stack-lg">
       <header className="page-heading">
-        <p className="eyebrow">Theory and practice</p>
-        <h2>Study &amp; Learn</h2>
-        <p>Use Study to understand theory. Use Learn to practise, recall and test what you know.</p>
+        <p className="eyebrow">Structured reading and practice</p>
+        <h2>Structured Study &amp; Learn</h2>
+        <p>Use Structured Study to read and understand material. Use Learn &amp; Practice to consolidate it.</p>
       </header>
 
-      <section className="learning-stage-grid" aria-label="Study and Learn areas">
+      <section className="learning-stage-grid" aria-label="Structured Study and Learn areas">
         {studyLearnAreas.map((area, index) => (
           <article className="learning-stage-card study-learn-area-card" key={area.title}>
             <span className="stage-number" aria-hidden="true">{index + 1}</span>
@@ -46,10 +46,10 @@ export function StudyLearnPage() {
       <section className="content-panel review-callout">
         <div>
           <p className="eyebrow">Learning flow</p>
-          <h3>Library → Study → Learn</h3>
-          <p>Keep your sources in the Library, break them into theory inside Study, then turn that theory into exercises in Learn.</p>
+          <h3>Library from Source → Structured Study → Learn &amp; Practice</h3>
+          <p>Read from source first, study the same material through structure, then practise and consolidate it.</p>
         </div>
-        <Link className="button secondary" to="/library">Open Library</Link>
+        <Link className="button secondary" to="/library">Read from source</Link>
       </section>
     </div>
   );
