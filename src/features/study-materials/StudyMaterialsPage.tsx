@@ -92,8 +92,8 @@ export function StudyMaterialsPage() {
 
       <section className="content-panel">
         <p className="eyebrow">Add</p>
-        <h3>Add material</h3>
-        <p>Choose whether you want to add material from this device or from a cloud link.</p>
+        <h3>Save new material</h3>
+        <p>Choose a local file or paste a cloud link, then use the save button to store it in this app.</p>
 
         <div className="library-grid" style={{ alignItems: "stretch" }}>
           <section
@@ -105,7 +105,7 @@ export function StudyMaterialsPage() {
             <div style={{ display: "grid", gap: "1rem", minHeight: "26rem", alignContent: "start" }}>
               <div>
                 <p className="eyebrow">Option 1</p>
-                <h4>Add material from this device</h4>
+                <h4>Local file</h4>
               </div>
               <div className="privacy-notice">
                 <strong>Stored in this browser on this device</strong>
@@ -128,7 +128,7 @@ export function StudyMaterialsPage() {
             <div style={{ display: "grid", gap: "1rem", minHeight: "26rem", alignContent: "start" }}>
               <div>
                 <p className="eyebrow">Option 2</p>
-                <h4>Add material from a cloud link</h4>
+                <h4>Cloud link</h4>
                 <p>Use this option for large files or materials you want to access from different devices.</p>
               </div>
               <ol className="friendly-steps">
