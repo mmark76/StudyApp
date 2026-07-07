@@ -62,7 +62,7 @@ export function LocalPdfForm({
       setTitle("");
       const input = form.elements.namedItem("study-file") as HTMLInputElement | null;
       if (input) input.value = "";
-      onMessage("The study file was saved to this device.");
+      onMessage("The study file was saved in the app.");
     } catch {
       onMessage("The file could not be saved. Your browser may not have enough storage space.");
     } finally {
@@ -93,8 +93,8 @@ export function LocalPdfForm({
           placeholder="The file name will be used automatically"
         />
       </label>
-      <p className="field-help">This button saves the chosen file in this browser so it can be read or used later.</p>
-      <button className="button primary" type="submit">Save file to this device</button>
+      <p className="field-help">This button stores a private browser copy inside StudyApp so it can be read or used later.</p>
+      <button className="button primary" type="submit">Save selected file in app</button>
     </form>
   );
 }
