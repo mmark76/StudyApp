@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 const homeSpaces = [
@@ -40,7 +41,8 @@ const homeSpaces = [
     eyebrow: "Getting started",
     title: "How to work with StudyApp",
     description: "A normal workflow for moving from source material to practice and progress.",
-    steps: [
+    action: "Open guide",
+    guideSteps: [
       "Add study material: upload local PDFs, documents, images, or save cloud links.",
       "Organize your material: classify files by material type so they are easier to find.",
       "Split large PDFs: use Split PDF Tool to create smaller focused PDFs from a source PDF.",
@@ -55,6 +57,26 @@ const homeSpaces = [
 ] as const;
 
 export function HomePage() {
+  const guideDialogRef = useRef<HTMLDialogElement | null>(null);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const guideSpace = homeSpaces.find((space) => "guideSteps" in space);
+
+  useEffect(() => {
+    const dialog = guideDialogRef.current;
+    if (!dialog) {
+      return;
+    }
+
+    if (isGuideOpen && !dialog.open) {
+      dialog.showModal();
+      return;
+    }
+
+    if (!isGuideOpen && dialog.open) {
+      dialog.close();
+    }
+  }, [isGuideOpen]);
+
   return (
     <div className="stack-lg">
       <section className="learning-stage-grid" aria-label="Home study spaces">
@@ -63,18 +85,35 @@ export function HomePage() {
             <p className="eyebrow">{space.eyebrow}</p>
             <h2>{space.title}</h2>
             <p>{space.description}</p>
-            {"steps" in space ? (
-              <ol className="learning-stage-steps">
-                {space.steps.map((step) => (
-                  <li key={step}>{step}</li>
-                ))}
-              </ol>
+            {"guideSteps" in space ? (
+              <button className="button primary" type="button" onClick={() => setIsGuideOpen(true)}>{space.action}</button>
             ) : (
               <Link className="button primary" to={space.to}>{space.action}</Link>
             )}
           </article>
         ))}
       </section>
+
+      {guideSpace && (
+        <dialog
+          aria-labelledby="home-guide-title"
+          className="home-guide-dialog"
+          onClose={() => setIsGuideOpen(false)}
+          ref={guideDialogRef}
+        >
+          <p className="eyebrow">{guideSpace.eyebrow}</p>
+          <h2 id="home-guide-title">{guideSpace.title}</h2>
+          <p>{guideSpace.description}</p>
+          <ol className="learning-stage-steps">
+            {guideSpace.guideSteps.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+          <div className="home-guide-actions">
+            <button className="button secondary" type="button" onClick={() => setIsGuideOpen(false)}>Close</button>
+          </div>
+        </dialog>
+      )}
     </div>
   );
 }
