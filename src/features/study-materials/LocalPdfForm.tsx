@@ -75,6 +75,7 @@ export function LocalPdfForm({
         data: file.slice(0, file.size, file.type || "application/octet-stream"),
         mimeType: file.type || "application/octet-stream",
         fileKind: getLocalStudyFileKind(file.name, file.type),
+        fileSource: "source-material",
       };
       await studyDatabase.studyFiles.add(item);
       setUploadedFile({ id: item.id, title: item.title, fileName: item.fileName });
