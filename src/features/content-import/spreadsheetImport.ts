@@ -1,5 +1,8 @@
 import type { Flashcard, StudyUnit } from "../../shared/types/models";
 
+const UNITS_HEADERS = ["Chapter number", "Chapter title", "What should you learn?", "Key points", "Important terms"];
+const FLASHCARDS_HEADERS = ["Chapter number", "Question", "Answer", "Keywords"];
+
 function parseDelimitedText(text: string): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
@@ -34,6 +37,15 @@ function parseDelimitedText(text: string): string[][] {
   return rows;
 }
 
+function validateHeaders(actual: readonly string[], expected: readonly string[], label: string): void {
+  const matches = actual.length === expected.length
+    && expected.every((header, index) => actual[index] === header);
+
+  if (!matches) {
+    throw new Error(`The ${label} file must start with these column headings: ${expected.join(", ")}`);
+  }
+}
+
 function splitList(value: string): string[] {
   return value
     .split("|")
@@ -55,6 +67,8 @@ function requireText(value: string, label: string): string {
 
 export function parseUnitsSpreadsheet(text: string): StudyUnit[] {
   const rows = parseDelimitedText(text);
+  if (rows.length === 0) throw new Error("The file contains no chapters");
+  validateHeaders(rows[0], UNITS_HEADERS, "chapters");
   if (rows.length < 2) throw new Error("The file contains no chapters");
 
   const units = rows.slice(1).map((row) => {
@@ -79,6 +93,8 @@ export function parseUnitsSpreadsheet(text: string): StudyUnit[] {
 
 export function parseFlashcardsSpreadsheet(text: string, units: readonly StudyUnit[]): Flashcard[] {
   const rows = parseDelimitedText(text);
+  if (rows.length === 0) throw new Error("The file contains no flashcards");
+  validateHeaders(rows[0], FLASHCARDS_HEADERS, "flashcards");
   if (rows.length < 2) throw new Error("The file contains no flashcards");
 
   const unitsByNumber = new Map<number, StudyUnit>(
