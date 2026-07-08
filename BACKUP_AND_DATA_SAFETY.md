@@ -73,6 +73,8 @@ A complete export feature should define:
 - hash/checksum values for integrity;
 - restore behavior and conflict handling.
 
+The working design for this future feature is in [`docs/LOCAL_FILE_EXPORT_DESIGN.md`](docs/LOCAL_FILE_EXPORT_DESIGN.md).
+
 ## Future restore requirements
 
 A restore flow should:
