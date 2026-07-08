@@ -21,6 +21,7 @@ The user-facing workflow is intentionally separated into distinct areas so that 
    - Source or external notes
    - My Notes
    - Summaries
+   - Final source-material placement and correction
 
 2. **Structured Study** — read and understand the same material through structure.
    - Contents
@@ -30,6 +31,7 @@ The user-facing workflow is intentionally separated into distinct areas so that 
    - Bibliography / References
    - Images / Diagrams
    - Split PDF extracts created from source material
+   - Final structured-study placement and correction
 
 3. **Learn & Practice** — practise and consolidate knowledge.
    - Flashcards
@@ -40,7 +42,7 @@ The user-facing workflow is intentionally separated into distinct areas so that 
 4. **Split PDF Tool** — use a local browser-only utility to split saved PDF files.
    - The only intentional overlap with material management is an extra **Upload PDF** action, limited to uploading a PDF directly for splitting.
    - Generated split PDFs are shown under **Structured Study** as structured source extracts, not under **Library from Source**.
-   - Each generated chunk may have a display name and a structured type such as Contents, Chapter, Section / Paragraph, Key Concept, Bibliography / Reference, or Image / Diagram.
+   - Each generated chunk must be given a user-chosen display name and structured type such as Contents, Chapter, Section / Paragraph, Key Concept, Bibliography / Reference, or Image / Diagram.
 
 5. **Add / Remove Material** — add or remove local files and cloud links.
    - Add material from this device
@@ -51,8 +53,8 @@ The user-facing workflow is intentionally separated into distinct areas so that 
 The guiding boundary is:
 
 ```text
-Library from Source   = read from original/source material
-Structured Study      = read the same material by structure and level
+Library from Source   = read and final-place original/source material
+Structured Study      = read and final-place the same material by structure and level
 Learn & Practice      = practise and consolidate
 Split PDF Tool        = PDF splitting utility, plus Upload PDF for direct split input only
 Add / Remove Material = material management only
@@ -64,12 +66,14 @@ The intended user workflow is:
 
 1. add or save study material such as PDFs, Word documents, links, images, diagrams, charts, notes, bibliography and references through **Add / Remove Material**;
 2. give source material a display name and source type so it appears under Books, Articles, Papers, Outsource Notes, My Notes or Summaries;
-3. read the original/source material through **Library from Source**;
+3. read the original/source material through **Library from Source** and correct its final Library placement there when needed;
 4. use **Split PDF Tool** when a PDF needs to be uploaded for splitting or divided into smaller local files;
 5. give each split PDF chunk a display name and structured type so it appears under Contents, Chapters, Sections / Paragraphs, Key Concepts, Bibliography / References or Images / Diagrams;
-6. read and understand the same material by structure through **Structured Study**;
+6. read and understand the same material by structure through **Structured Study** and correct its final Structured Study placement there when needed;
 7. practise and consolidate knowledge through **Learn & Practice** using flashcards, due review, quizzes and progress tracking;
 8. retrieve information through meaningful filters such as source, chapter, section, concept, material type, difficulty, due status, review history, bibliography or reference.
+
+The app should not silently guess the educational type of saved material. Items without a user-chosen type remain **Unclassified** until the user chooses their final placement.
 
 The project keeps the learning workflow of the original study app while starting with no subject content:
 
@@ -104,8 +108,8 @@ Source Material
 ```
 
 - **Source Material** — the original book, paper, article, note, PDF, file or link.
-- **Library from Source** — read primary/source material and notes without add/remove actions.
-- **Structured Study** — read the same material through contents, chapters, sections, concepts, references, diagrams and split PDF extracts.
+- **Library from Source** — read primary/source material and correct its final source-material placement.
+- **Structured Study** — read the same material through contents, chapters, sections, concepts, references, diagrams and split PDF extracts, and correct final structured placement.
 - **Learn & Practice** — practise with flashcards, due review, quizzes and progress tracking.
 - **Split PDF Tool** — split local PDFs in the browser; it may upload a PDF only as direct input for splitting.
 - **Add / Remove Material** — add or remove local files and cloud links.
