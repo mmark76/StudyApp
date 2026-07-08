@@ -44,7 +44,7 @@ export function parseStoredStudyMaterials(value: unknown): StudyMaterialLink[] {
         id,
         title: normalizeStudyMaterialTitle(item.title),
         url: normalizeStudyMaterialUrl(item.url),
-        materialType: isSourceMaterialType(item.materialType) ? item.materialType : "book",
+        materialType: isSourceMaterialType(item.materialType) ? item.materialType : undefined,
       });
       ids.add(id);
     } catch {
