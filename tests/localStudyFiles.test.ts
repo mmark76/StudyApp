@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { isSourceMaterialFile, isSplitPdfFile } from "../src/features/study-materials/localStudyFiles";
+import {
+  getSourceMaterialType,
+  getStructuredStudyType,
+  isSourceMaterialFile,
+  isSplitPdfFile,
+} from "../src/features/study-materials/localStudyFiles";
 import type { LocalStudyFile } from "../src/shared/types/models";
 
 function makeFile(overrides: Partial<LocalStudyFile>): LocalStudyFile {
@@ -42,5 +47,26 @@ describe("local study file classification", () => {
 
     expect(isSplitPdfFile(file)).toBe(false);
     expect(isSourceMaterialFile(file)).toBe(true);
+  });
+
+  it("routes source PDFs to Books by default", () => {
+    const file = makeFile({ fileSource: "source-material" });
+
+    expect(getSourceMaterialType(file)).toBe("book");
+  });
+
+  it("routes explicitly typed split PDFs to the matching Structured Study card", () => {
+    const file = makeFile({ fileSource: "split-pdf", materialType: "contents" });
+
+    expect(getStructuredStudyType(file)).toBe("contents");
+  });
+
+  it("routes legacy split PDFs without type to sections", () => {
+    const file = makeFile({
+      title: "Cognitive Psychology — pages 4-9",
+      fileName: "Cognitive-Psychology-pages-4-9.pdf",
+    });
+
+    expect(getStructuredStudyType(file)).toBe("section");
   });
 });
