@@ -2,7 +2,7 @@ import { type FormEvent, useRef, useState } from "react";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { SourceMaterialType } from "../../shared/types/models";
 import { createId } from "../../shared/utils/id";
-import { sourceMaterialTypeOptions } from "./localStudyFiles";
+import { isSourceMaterialType, sourceMaterialTypeOptions } from "./localStudyFiles";
 import {
   normalizeStudyMaterialTitle,
   normalizeStudyMaterialUrl,
@@ -22,20 +22,26 @@ export function CloudLinkForm({
 }) {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
-  const [materialType, setMaterialType] = useState<SourceMaterialType>("book");
+  const [materialType, setMaterialType] = useState<SourceMaterialType | "">("");
   const [uploadedLink, setUploadedLink] = useState<StudyMaterialLink | null>(null);
   const lock = useRef(false);
-  const canRemove = Boolean(uploadedLink) || title.trim().length > 0 || url.trim().length > 0;
+  const canRemove = Boolean(uploadedLink) || title.trim().length > 0 || url.trim().length > 0 || materialType.length > 0;
 
   function clearDraft() {
     setTitle("");
     setUrl("");
-    setMaterialType("book");
+    setMaterialType("");
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (lock.current) return;
+
+    if (!isSourceMaterialType(materialType)) {
+      onMessage("Choose a source type before uploading the link.");
+      return;
+    }
+
     lock.current = true;
 
     try {
@@ -58,7 +64,7 @@ export function CloudLinkForm({
       clearDraft();
       onMessage("The cloud link was uploaded to the app.");
     } catch {
-      onMessage("Enter a name and a valid web link.");
+      onMessage("Enter a name, choose a source type, and use a valid web link.");
     } finally {
       lock.current = false;
     }
@@ -125,18 +131,20 @@ export function CloudLinkForm({
       <label className="field-label">
         Type
         <select
+          required={!uploadedLink}
           value={materialType}
           onChange={(event) => {
-            setMaterialType(event.target.value as SourceMaterialType);
+            setMaterialType(event.target.value as SourceMaterialType | "");
             setUploadedLink(null);
           }}
         >
+          <option value="">Choose type</option>
           {sourceMaterialTypeOptions.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
           ))}
         </select>
       </label>
-      <p className="field-help">Upload saves only the title, type and link. The actual file stays in your cloud service.</p>
+      <p className="field-help">Upload saves only the title, type and link that you choose. The actual file stays in your cloud service.</p>
       <div className="button-row">
         <button
           className={uploadedLink ? "button success compact-square" : "button primary compact-square"}

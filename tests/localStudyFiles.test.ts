@@ -49,8 +49,14 @@ describe("local study file classification", () => {
     expect(isSourceMaterialFile(file)).toBe(true);
   });
 
-  it("routes source PDFs to Books by default", () => {
+  it("leaves source files unclassified when the user has not chosen a source type", () => {
     const file = makeFile({ fileSource: "source-material" });
+
+    expect(getSourceMaterialType(file)).toBeNull();
+  });
+
+  it("routes explicitly typed source files to the matching Library card", () => {
+    const file = makeFile({ fileSource: "source-material", materialType: "book" });
 
     expect(getSourceMaterialType(file)).toBe("book");
   });
@@ -61,12 +67,12 @@ describe("local study file classification", () => {
     expect(getStructuredStudyType(file)).toBe("contents");
   });
 
-  it("routes legacy split PDFs without type to sections", () => {
+  it("leaves legacy split PDFs unclassified until the user chooses a structured type", () => {
     const file = makeFile({
       title: "Cognitive Psychology — pages 4-9",
       fileName: "Cognitive-Psychology-pages-4-9.pdf",
     });
 
-    expect(getStructuredStudyType(file)).toBe("section");
+    expect(getStructuredStudyType(file)).toBeNull();
   });
 });

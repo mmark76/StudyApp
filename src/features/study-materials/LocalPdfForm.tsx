@@ -3,12 +3,11 @@ import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { LocalStudyFile, SourceMaterialType } from "../../shared/types/models";
 import { createId } from "../../shared/utils/id";
 import {
-  getDefaultSourceMaterialType,
   getLocalStudyFileKind,
+  isSourceMaterialType,
   isSupportedStudyFile,
   MAX_LOCAL_FILE_SIZE,
   sourceMaterialTypeOptions,
-  titleFromFileName,
 } from "./localStudyFiles";
 import { normalizeStudyMaterialTitle } from "./studyMaterials";
 
@@ -27,16 +26,16 @@ export function LocalPdfForm({
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
-  const [materialType, setMaterialType] = useState<SourceMaterialType>("book");
+  const [materialType, setMaterialType] = useState<SourceMaterialType | "">("");
   const [uploadedFile, setUploadedFile] = useState<UploadedLocalFile | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const lock = useRef(false);
-  const canRemove = Boolean(uploadedFile) || Boolean(file) || title.trim().length > 0;
+  const canRemove = Boolean(uploadedFile) || Boolean(file) || title.trim().length > 0 || materialType.length > 0;
 
   function clearDraft() {
     setFile(null);
     setTitle("");
-    setMaterialType("book");
+    setMaterialType("");
     if (inputRef.current) inputRef.current.value = "";
   }
 
@@ -44,11 +43,6 @@ export function LocalPdfForm({
     const selected = event.target.files?.[0] ?? null;
     setFile(selected);
     setUploadedFile(null);
-    if (selected) {
-      const kind = getLocalStudyFileKind(selected.name, selected.type);
-      setMaterialType(getDefaultSourceMaterialType(kind));
-      if (title.trim().length === 0) setTitle(titleFromFileName(selected.name));
-    }
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -61,6 +55,10 @@ export function LocalPdfForm({
     }
     if (file.size > MAX_LOCAL_FILE_SIZE) {
       onMessage("The file is larger than 50 MB. Use a cloud link for larger files.");
+      return;
+    }
+    if (!isSourceMaterialType(materialType)) {
+      onMessage("Choose a source type before uploading the file.");
       return;
     }
 
@@ -76,7 +74,7 @@ export function LocalPdfForm({
     try {
       const item: LocalStudyFile = {
         id: createId("file"),
-        title: normalizeStudyMaterialTitle(title || titleFromFileName(file.name)),
+        title: normalizeStudyMaterialTitle(title),
         fileName: file.name,
         size: file.size,
         createdAt: new Date().toISOString(),
@@ -91,7 +89,7 @@ export function LocalPdfForm({
       clearDraft();
       onMessage("The study file was uploaded to the app.");
     } catch {
-      onMessage("The file could not be uploaded. Your browser may not have enough storage space.");
+      onMessage("Enter a display name and choose a source type. The file also needs enough browser storage space.");
     } finally {
       lock.current = false;
     }
@@ -143,24 +141,26 @@ export function LocalPdfForm({
             setTitle(event.target.value);
             setUploadedFile(null);
           }}
-          placeholder="The file name will be used automatically"
+          placeholder="Example: Cognitive Psychology"
         />
       </label>
       <label className="field-label">
         Type
         <select
+          required={!uploadedFile}
           value={materialType}
           onChange={(event) => {
-            setMaterialType(event.target.value as SourceMaterialType);
+            setMaterialType(event.target.value as SourceMaterialType | "");
             setUploadedFile(null);
           }}
         >
+          <option value="">Choose type</option>
           {sourceMaterialTypeOptions.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
           ))}
         </select>
       </label>
-      <p className="field-help">Upload stores a private browser copy inside StudyApp with a display name and source type.</p>
+      <p className="field-help">Upload stores a private browser copy inside StudyApp with the display name and source type you choose.</p>
       <div className="button-row">
         <button
           className={uploadedFile ? "button success compact-square" : "button primary compact-square"}

@@ -6,7 +6,13 @@ import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { LocalStudyFile, StructuredStudyType } from "../../shared/types/models";
 import { createId } from "../../shared/utils/id";
-import { formatFileSize, MAX_LOCAL_FILE_SIZE, structuredStudyTypeOptions, titleFromFileName } from "./localStudyFiles";
+import {
+  formatFileSize,
+  isStructuredStudyType,
+  MAX_LOCAL_FILE_SIZE,
+  structuredStudyTypeOptions,
+  titleFromFileName,
+} from "./localStudyFiles";
 import { normalizeStudyMaterialTitle } from "./studyMaterials";
 
 GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
@@ -16,7 +22,7 @@ interface RangeRow {
   from: string;
   to: string;
   name: string;
-  materialType: StructuredStudyType;
+  materialType: StructuredStudyType | "";
 }
 
 interface ValidatedRange {
@@ -28,7 +34,6 @@ interface ValidatedRange {
 
 const MAX_SPLIT_RANGES = 50;
 const PDF_RENDER_SCALE = 2;
-const DEFAULT_STRUCTURED_TYPE: StructuredStudyType = "section";
 const RENDERED_SPLIT_NOTE = "Saved as a new Structured Study PDF. You can split each new PDF again if needed.";
 
 function isPdfFile(file: LocalStudyFile): boolean {
@@ -95,14 +100,17 @@ function validateRanges(ranges: readonly RangeRow[], pageCount: number): Validat
   return ranges.map((range, index) => {
     const from = readPageNumber(range.from, `Chunk ${index + 1} start page`);
     const to = readPageNumber(range.to, `Chunk ${index + 1} end page`);
+    const name = range.name.trim();
 
     if (to < from) throw new Error(`Chunk ${index + 1} ends before it starts.`);
     if (to > pageCount) throw new Error(`Chunk ${index + 1} is outside the PDF. This file has ${pageCount} pages.`);
+    if (name.length === 0) throw new Error(`Chunk ${index + 1} needs a name.`);
+    if (!isStructuredStudyType(range.materialType)) throw new Error(`Chunk ${index + 1} needs a structured type.`);
 
     return {
       label: from === to ? `${from}` : `${from}-${to}`,
       pageIndexes: Array.from({ length: to - from + 1 }, (_, pageIndex) => from - 1 + pageIndex),
-      name: range.name.trim(),
+      name,
       materialType: range.materialType,
     };
   });
@@ -124,12 +132,8 @@ function makeRangeId(): string {
   return createId("range");
 }
 
-function makeRangeRow(from = "1", to = "1", materialType: StructuredStudyType = DEFAULT_STRUCTURED_TYPE): RangeRow {
+function makeRangeRow(from = "1", to = "1", materialType: StructuredStudyType | "" = ""): RangeRow {
   return { id: makeRangeId(), from, to, name: "", materialType };
-}
-
-function makeRangeTitle(range: ValidatedRange, outputPrefix: string): string {
-  return makeTitle(range.name || `${outputPrefix} — pages ${range.label}`);
 }
 
 function bytesToPdfBlob(bytes: Uint8Array): Blob {
@@ -149,7 +153,6 @@ function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality?: number)
 async function createVectorSplitFiles(
   sourcePdf: PDFDocument,
   validatedRanges: readonly ValidatedRange[],
-  outputPrefix: string,
   sourceFileName: string,
   sourceFileId: string,
 ): Promise<LocalStudyFile[]> {
@@ -169,7 +172,7 @@ async function createVectorSplitFiles(
 
     splitFiles.push({
       id: createId("file"),
-      title: makeRangeTitle(range, outputPrefix),
+      title: makeTitle(range.name),
       fileName: makeSplitFileName(sourceFileName, range.label, index),
       size: outputBlob.size,
       createdAt: new Date().toISOString(),
@@ -189,7 +192,6 @@ async function createVectorSplitFiles(
 async function createRenderedSplitFiles(
   sourceBytes: ArrayBuffer,
   validatedRanges: readonly ValidatedRange[],
-  outputPrefix: string,
   sourceFileName: string,
   sourceFileId: string,
 ): Promise<LocalStudyFile[]> {
@@ -238,7 +240,7 @@ async function createRenderedSplitFiles(
 
       splitFiles.push({
         id: createId("file"),
-        title: makeRangeTitle(range, outputPrefix),
+        title: makeTitle(range.name),
         fileName: makeSplitFileName(sourceFileName, range.label, rangeIndex),
         size: outputBlob.size,
         createdAt: new Date().toISOString(),
@@ -272,7 +274,6 @@ export function SplitPdfTool({
   const [splitEnginePageCount, setSplitEnginePageCount] = useState<number | null>(null);
   const [pageCountError, setPageCountError] = useState("");
   const [ranges, setRanges] = useState<RangeRow[]>([makeRangeRow()]);
-  const [titlePrefix, setTitlePrefix] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [isSplitting, setIsSplitting] = useState(false);
   const [recentSplitCount, setRecentSplitCount] = useState(0);
@@ -355,11 +356,10 @@ export function SplitPdfTool({
         mimeType: file.type || "application/pdf",
         fileKind: "pdf",
         fileSource: "source-material",
-        materialType: "book",
       };
       await studyDatabase.studyFiles.add(item);
       setSelectedFileId(item.id);
-      onMessage("The PDF was uploaded locally and selected for splitting.");
+      onMessage("The PDF was uploaded locally and selected for splitting. Classify the source PDF later in Library from Source if needed.");
     } catch {
       onMessage("The PDF could not be saved. Your browser may not have enough storage space.");
     } finally {
@@ -368,9 +368,11 @@ export function SplitPdfTool({
   }
 
   function updateRange(id: string, field: "from" | "to" | "name" | "materialType", value: string) {
-    setRanges((currentRanges) => currentRanges.map((range) => (
-      range.id === id ? { ...range, [field]: value } as RangeRow : range
-    )));
+    setRanges((currentRanges) => currentRanges.map((range) => {
+      if (range.id !== id) return range;
+      if (field === "materialType") return { ...range, materialType: isStructuredStudyType(value) ? value : "" };
+      return { ...range, [field]: value };
+    }));
   }
 
   function addRange() {
@@ -379,7 +381,7 @@ export function SplitPdfTool({
       const nextFromNumber = previous ? Number(previous.to) + 1 : 1;
       const nextFrom = Number.isInteger(nextFromNumber) && nextFromNumber > 0 ? nextFromNumber : 1;
       const nextTo = pageCount ? Math.min(pageCount, nextFrom + 4) : nextFrom;
-      return [...currentRanges, makeRangeRow(String(nextFrom), String(nextTo), previous?.materialType ?? DEFAULT_STRUCTURED_TYPE)];
+      return [...currentRanges, makeRangeRow(String(nextFrom), String(nextTo), previous?.materialType ?? "")];
     });
   }
 
@@ -411,10 +413,9 @@ export function SplitPdfTool({
       const validatedRanges = validateRanges(ranges, displayPageCount);
       const highestRequestedPage = Math.max(...validatedRanges.flatMap((range) => range.pageIndexes)) + 1;
       const canUseVectorEngine = Boolean(sourcePdf && highestRequestedPage <= enginePageCount);
-      const outputPrefix = titlePrefix.trim() || selectedFile.title;
       const splitFiles = canUseVectorEngine && sourcePdf
-        ? await createVectorSplitFiles(sourcePdf, validatedRanges, outputPrefix, selectedFile.fileName, selectedFile.id)
-        : await createRenderedSplitFiles(sourceBytes, validatedRanges, outputPrefix, selectedFile.fileName, selectedFile.id);
+        ? await createVectorSplitFiles(sourcePdf, validatedRanges, selectedFile.fileName, selectedFile.id)
+        : await createRenderedSplitFiles(sourceBytes, validatedRanges, selectedFile.fileName, selectedFile.id);
 
       await studyDatabase.studyFiles.bulkAdd(splitFiles);
       setRecentSplitCount(splitFiles.length);
@@ -506,6 +507,7 @@ export function SplitPdfTool({
               <label className="field-label">
                 Name
                 <input
+                  required
                   maxLength={160}
                   type="text"
                   value={range.name}
@@ -516,9 +518,11 @@ export function SplitPdfTool({
               <label className="field-label">
                 Type
                 <select
+                  required
                   value={range.materialType}
                   onChange={(event) => updateRange(range.id, "materialType", event.target.value)}
                 >
+                  <option value="">Choose type</option>
                   {structuredStudyTypeOptions.map((option) => (
                     <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
@@ -536,19 +540,8 @@ export function SplitPdfTool({
         Add Chunk
       </button>
 
-      <label className="field-label">
-        Output title prefix
-        <input
-          maxLength={120}
-          type="text"
-          value={titlePrefix}
-          onChange={(event) => setTitlePrefix(event.target.value)}
-          placeholder="Used only when a chunk name is empty"
-        />
-      </label>
-
       <p className="field-help">
-        Give each chunk a name and type. For example: Name "Contents" and Type "Contents"; or Name "Chapter 1" and Type "Chapter".
+        Give each chunk a name and type yourself. For example: Name "Contents" and Type "Contents"; or Name "Chapter 1" and Type "Chapter".
       </p>
 
       {pdfFiles.length === 0 ? <p className="inline-message">Upload a PDF here or add one in Add / Remove Material, then split it.</p> : null}
