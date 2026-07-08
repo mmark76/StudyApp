@@ -1,17 +1,20 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLiveQuery } from "dexie-react-hooks";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
-import type { SourceMaterialType } from "../../shared/types/models";
+import type { LocalStudyFile, SourceMaterialType } from "../../shared/types/models";
 import {
   formatFileKind,
   formatFileSize,
   formatMaterialTypeLabel,
   getSourceMaterialType,
   isSourceMaterialFile,
+  isSourceMaterialType,
+  sourceMaterialTypeOptions,
 } from "../study-materials/localStudyFiles";
 import {
   builtInStudyMaterials,
+  normalizeStudyMaterialTitle,
   parseStoredStudyMaterials,
   STUDY_MATERIALS_SETTING_KEY,
   type StudyMaterialLink,
@@ -61,8 +64,105 @@ const libraryCategories = [
   description: string;
 }[];
 
-function getLinkMaterialType(link: StudyMaterialLink): SourceMaterialType {
-  return link.materialType ?? "book";
+function getLinkMaterialType(link: StudyMaterialLink): SourceMaterialType | null {
+  return link.materialType ?? null;
+}
+
+function SourceFilePlacementEditor({ file }: { file: LocalStudyFile }) {
+  const [title, setTitle] = useState(file.title);
+  const [materialType, setMaterialType] = useState<SourceMaterialType | "">(getSourceMaterialType(file) ?? "");
+  const [message, setMessage] = useState("");
+
+  async function savePlacement() {
+    if (!isSourceMaterialType(materialType)) {
+      setMessage("Choose a source type.");
+      return;
+    }
+
+    try {
+      await studyDatabase.studyFiles.update(file.id, {
+        title: normalizeStudyMaterialTitle(title),
+        materialType,
+      });
+      setMessage("Saved.");
+    } catch {
+      setMessage("Could not save placement.");
+    }
+  }
+
+  return (
+    <div className="library-grid" style={{ alignItems: "end" }}>
+      <label className="field-label">
+        Name
+        <input maxLength={160} type="text" value={title} onChange={(event) => setTitle(event.target.value)} />
+      </label>
+      <label className="field-label">
+        Type
+        <select value={materialType} onChange={(event) => setMaterialType(event.target.value as SourceMaterialType | "")}>
+          <option value="">Unclassified</option>
+          {sourceMaterialTypeOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </label>
+      <button className="button primary compact-square" onClick={() => void savePlacement()} type="button">Save</button>
+      {message ? <p className="field-help" role="status">{message}</p> : null}
+    </div>
+  );
+}
+
+function SourceLinkPlacementEditor({
+  link,
+  savedLinks,
+}: {
+  link: StudyMaterialLink;
+  savedLinks: readonly StudyMaterialLink[];
+}) {
+  const [title, setTitle] = useState(link.title);
+  const [materialType, setMaterialType] = useState<SourceMaterialType | "">(getLinkMaterialType(link) ?? "");
+  const [message, setMessage] = useState("");
+
+  async function savePlacement() {
+    if (!isSourceMaterialType(materialType)) {
+      setMessage("Choose a source type.");
+      return;
+    }
+
+    try {
+      const setting = await studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY);
+      const currentLinks = parseStoredStudyMaterials(setting?.value);
+      const sourceLinks = currentLinks.length > 0 ? currentLinks : savedLinks;
+      await studyDatabase.settings.put({
+        key: STUDY_MATERIALS_SETTING_KEY,
+        value: sourceLinks.map((item) => (
+          item.id === link.id ? { ...item, title: normalizeStudyMaterialTitle(title), materialType } : item
+        )),
+      });
+      setMessage("Saved.");
+    } catch {
+      setMessage("Could not save placement.");
+    }
+  }
+
+  return (
+    <div className="library-grid" style={{ alignItems: "end" }}>
+      <label className="field-label">
+        Name
+        <input maxLength={160} type="text" value={title} onChange={(event) => setTitle(event.target.value)} />
+      </label>
+      <label className="field-label">
+        Type
+        <select value={materialType} onChange={(event) => setMaterialType(event.target.value as SourceMaterialType | "")}>
+          <option value="">Unclassified</option>
+          {sourceMaterialTypeOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </label>
+      <button className="button primary compact-square" onClick={() => void savePlacement()} type="button">Save</button>
+      {message ? <p className="field-help" role="status">{message}</p> : null}
+    </div>
+  );
 }
 
 export function LibraryPage() {
@@ -83,6 +183,9 @@ export function LibraryPage() {
     [setting?.value],
   );
   const sourceLinks = [...builtInStudyMaterials, ...savedLinks];
+  const savedLinkIds = new Set(savedLinks.map((link) => link.id));
+  const unclassifiedFiles = localFiles.filter((file) => getSourceMaterialType(file) === null);
+  const unclassifiedLinks = sourceLinks.filter((link) => getLinkMaterialType(link) === null);
   const hasSavedSourceMaterial = localFiles.length > 0 || sourceLinks.length > 0;
 
   function openLocalFile(fileId: string) {
@@ -128,6 +231,7 @@ export function LibraryPage() {
                   <div>
                     <strong>{file.title}</strong>
                     <span>{formatMaterialTypeLabel(getSourceMaterialType(file))} · {formatFileKind(file.fileKind)} · {formatFileSize(file.size)} · {file.fileName}</span>
+                    <SourceFilePlacementEditor file={file} />
                   </div>
                   <div className="local-file-actions">
                     <button className="button secondary compact-square" onClick={() => openLocalFile(file.id)} type="button">View</button>
@@ -148,6 +252,7 @@ export function LibraryPage() {
                   <div>
                     <strong>{link.title}</strong>
                     <span>{formatMaterialTypeLabel(getLinkMaterialType(link))} · {link.url}</span>
+                    {savedLinkIds.has(link.id) ? <SourceLinkPlacementEditor link={link} savedLinks={savedLinks} /> : null}
                   </div>
                   <a className="button secondary compact-square" href={link.url} rel="noopener noreferrer" target="_blank">Open</a>
                 </li>
@@ -156,6 +261,36 @@ export function LibraryPage() {
           </div>
         ) : null}
       </section>
+
+      {(unclassifiedFiles.length > 0 || unclassifiedLinks.length > 0) ? (
+        <section className="content-panel" id="unclassified-source-material" tabIndex={-1}>
+          <p className="eyebrow">Needs placement</p>
+          <h3>Unclassified source material</h3>
+          <p>These items have no type yet. Choose the final Library placement yourself.</p>
+          <ul className="local-file-list">
+            {unclassifiedFiles.map((file) => (
+              <li className="local-file-row" key={file.id}>
+                <div>
+                  <strong>{file.title}</strong>
+                  <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)} · {file.fileName}</span>
+                  <SourceFilePlacementEditor file={file} />
+                </div>
+                <button className="button secondary compact-square" onClick={() => openLocalFile(file.id)} type="button">View</button>
+              </li>
+            ))}
+            {unclassifiedLinks.map((link) => (
+              <li className="local-file-row" key={link.id}>
+                <div>
+                  <strong>{link.title}</strong>
+                  <span>{link.url}</span>
+                  {savedLinkIds.has(link.id) ? <SourceLinkPlacementEditor link={link} savedLinks={savedLinks} /> : null}
+                </div>
+                <a className="button secondary compact-square" href={link.url} rel="noopener noreferrer" target="_blank">Open</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="learning-stage-grid" aria-label="Library source reading categories">
         {libraryCategories.map((category, index) => {
@@ -176,6 +311,7 @@ export function LibraryPage() {
                       <div>
                         <strong>{file.title}</strong>
                         <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)}</span>
+                        <SourceFilePlacementEditor file={file} />
                       </div>
                       <button className="button secondary compact-square" onClick={() => openLocalFile(file.id)} type="button">View</button>
                     </li>
@@ -185,6 +321,7 @@ export function LibraryPage() {
                       <div>
                         <strong>{link.title}</strong>
                         <span>{link.url}</span>
+                        {savedLinkIds.has(link.id) ? <SourceLinkPlacementEditor link={link} savedLinks={savedLinks} /> : null}
                       </div>
                       <a className="button secondary compact-square" href={link.url} rel="noopener noreferrer" target="_blank">Open</a>
                     </li>
@@ -201,7 +338,7 @@ export function LibraryPage() {
       <section className="content-panel">
         <p className="eyebrow">Boundary</p>
         <h3>What belongs here?</h3>
-        <p>This area is only for reading from source. Adding and removing material is handled separately in Add / Remove Material.</p>
+        <p>This area is for reading and final placement of source material. Adding and removing material is handled separately in Add / Remove Material.</p>
       </section>
     </div>
   );
