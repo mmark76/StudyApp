@@ -33,8 +33,8 @@ Do not treat uploaded material as dead file storage. Do not optimise only for fl
 The current main navigation is intentionally separated into five areas. Keep these boundaries clear.
 
 ```text
-Library from Source   = read original/source material
-Structured Study      = read the same material by structure and level
+Library from Source   = read and final-place original/source material
+Structured Study      = read and final-place the same material by structure and level
 Learn & Practice      = practise and consolidate knowledge
 Split PDF Tool        = split local PDFs in the browser, plus Upload PDF as the only intentional overlap
 Add / Remove Material = add or remove saved material
@@ -42,15 +42,15 @@ Add / Remove Material = add or remove saved material
 
 ### Library from Source
 
-Allowed primary action: **Read**.
+Allowed primary actions: **Read** and **final source-material placement/correction**.
 
-This area may show reading categories such as Books, Articles, Papers, Source/External Notes, My Notes and Summaries. It must not become the add/remove material workflow.
+This area may show reading categories such as Books, Articles, Papers, Source/External Notes, My Notes and Summaries. It must not become the add/remove material workflow. Placement controls may correct the final Library category of already saved source material.
 
 ### Structured Study
 
-Allowed primary action: **Read**.
+Allowed primary actions: **Read** and **final structured placement/correction**.
 
-This area is for structured reading and understanding through Contents, Chapters, Sections / Paragraphs, Key Concepts, Bibliography / References and Images / Diagrams. It must not contain material-management controls.
+This area is for structured reading and understanding through Contents, Chapters, Sections / Paragraphs, Key Concepts, Bibliography / References and Images / Diagrams. It must not become the general material-management workflow. Placement controls may correct the final Structured Study category of split PDF extracts.
 
 ### Learn & Practice
 
@@ -198,29 +198,11 @@ Prioritise tests for:
 - keyboard accessibility of forms and upload controls
 - PWA offline and update behaviour
 
-Tests should be deterministic. Inject time and randomness rather than depending on the real clock or `Math.random()` directly.
+## Agent workflow
 
-## Change discipline
-
-- Keep changes narrowly scoped.
-- Do not perform unrelated refactoring in the same change.
-- Do not change legal text, copyright ownership, licensing, privacy claims, or product branding without explicit owner approval.
-- Update the README when setup, commands, data behaviour, deployment, or user-visible workflows change.
-- Update `VISION.md` and this file when the top-level workflow or navigation model changes.
-- Explain data migrations and destructive behaviour clearly in the pull-request description.
-- Prefer a branch and pull request over direct changes to `main`.
-
-## Completion checklist
-
-Before presenting work as complete, confirm that:
-
-- TypeScript passes.
-- Tests pass.
-- The production build succeeds.
-- New behaviour has appropriate tests.
-- No user data can be silently lost or overwritten.
-- Keyboard access still works.
-- Privacy claims still match actual network behaviour.
-- PWA/offline behaviour is not unintentionally broken.
-- Documentation is updated where required.
-- No secrets, generated data, or personal files are included.
+- Use one focused branch or PR per task.
+- Keep changes reviewable and avoid unrelated cleanup.
+- State the exact files changed and why.
+- State the commands run and their results.
+- For documentation-only changes, say when tests were not run.
+- For any user-data change, document the data-safety impact in the PR.
