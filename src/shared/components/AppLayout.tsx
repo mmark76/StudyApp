@@ -29,9 +29,17 @@ export function AppLayout() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <div>
-          <p className="eyebrow">Your private study space</p>
-          <h1>{studyConfig.appName}</h1>
+        <div className="app-header-top">
+          <div>
+            <p className="eyebrow">Your private study space</p>
+            <h1>{studyConfig.appName}</h1>
+          </div>
+          <div className="utility-actions" aria-label="Study settings">
+            <NavLink to="/appearance">Settings</NavLink>
+            <a href="https://markellosecosystem.com/" target="_blank" rel="noreferrer">
+              Back to markellosecosystem
+            </a>
+          </div>
         </div>
         <div className="navigation-row">
           <nav className="main-nav" aria-label="Main navigation">
@@ -49,12 +57,6 @@ export function AppLayout() {
               );
             })}
           </nav>
-          <div className="utility-actions" aria-label="Study settings">
-            <NavLink to="/appearance">Settings</NavLink>
-            <a href="https://markellosecosystem.com/" target="_blank" rel="noreferrer">
-              Back to markellosecosystem
-            </a>
-          </div>
         </div>
       </header>
       <main className="app-main">
