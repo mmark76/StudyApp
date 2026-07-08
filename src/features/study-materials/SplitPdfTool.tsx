@@ -286,6 +286,7 @@ export function SplitPdfTool({
         const pageTreeCount = countPdfPageTree(pdfText);
         const objectPageCount = countPdfPageObjects(pdfText);
         const bestPageCount = getBestPageCount(pdfJsPageCount, pdfLibPageCount, pageTreeCount, objectPageCount);
+        if (!bestPageCount) throw new Error("No page count could be detected.");
 
         if (!cancelled) {
           setPageCount(bestPageCount);
