@@ -1,4 +1,8 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
+import { useLiveQuery } from "dexie-react-hooks";
+import { studyDatabase } from "../../infrastructure/database/studyDatabase";
+import { formatFileKind, formatFileSize, isSplitPdfFile } from "../study-materials/localStudyFiles";
 
 const sourceStructure = [
   {
@@ -34,6 +38,24 @@ const sourceStructure = [
 ] as const;
 
 export function StudyTheoryPage() {
+  const localFiles = useLiveQuery(
+    () => studyDatabase.studyFiles.orderBy("createdAt").reverse().toArray(),
+    [],
+  ) ?? [];
+  const splitPdfFiles = useMemo(
+    () => localFiles.filter(isSplitPdfFile),
+    [localFiles],
+  );
+
+  function openSplitPdf(fileId: string) {
+    const file = splitPdfFiles.find((item) => item.id === fileId);
+    if (!file) return;
+    const blob = file.mimeType ? file.data.slice(0, file.data.size, file.mimeType) : file.data;
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank", "noopener,noreferrer");
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
+
   return (
     <div className="stack-lg">
       <header className="page-heading">
@@ -41,6 +63,28 @@ export function StudyTheoryPage() {
         <h2>Structured Study</h2>
         <p>Read and understand the same material through contents, chapters, sections, concepts, references and diagrams.</p>
       </header>
+
+      <section className="content-panel" aria-label="Structured split PDF files">
+        <p className="eyebrow">Structured source extracts</p>
+        <h3>Split PDFs</h3>
+        <p>PDF chunks created by Split PDF Tool appear here as structured chapters, sections or source extracts. Original source files remain in Library from Source.</p>
+
+        {splitPdfFiles.length === 0 ? (
+          <p className="inline-message">No split PDFs yet. Use Split PDF Tool to create chapter or section PDFs from a source file.</p>
+        ) : (
+          <ul className="local-file-list">
+            {splitPdfFiles.map((file) => (
+              <li className="local-file-row" key={file.id}>
+                <div>
+                  <strong>{file.title}</strong>
+                  <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)} · {file.fileName}</span>
+                </div>
+                <button className="button secondary compact-square" onClick={() => openSplitPdf(file.id)} type="button">View</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section
         className="learning-stage-grid"
