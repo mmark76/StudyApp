@@ -40,10 +40,12 @@ The user-facing workflow is intentionally separated into distinct areas so that 
 4. **Split PDF Tool** — use a local browser-only utility to split saved PDF files.
    - The only intentional overlap with material management is an extra **Upload PDF** action, limited to uploading a PDF directly for splitting.
    - Generated split PDFs are shown under **Structured Study** as structured source extracts, not under **Library from Source**.
+   - Each generated chunk may have a display name and a structured type such as Contents, Chapter, Section / Paragraph, Key Concept, Bibliography / Reference, or Image / Diagram.
 
 5. **Add / Remove Material** — add or remove local files and cloud links.
    - Add material from this device
    - Add material from a cloud link
+   - Choose a source type such as Book, Article, Paper, Outsource Note, My Note, or Summary
    - Remove saved local files or cloud links
 
 The guiding boundary is:
@@ -61,11 +63,13 @@ Add / Remove Material = material management only
 The intended user workflow is:
 
 1. add or save study material such as PDFs, Word documents, links, images, diagrams, charts, notes, bibliography and references through **Add / Remove Material**;
-2. read the original/source material through **Library from Source**;
-3. read and understand the same material by structure through **Structured Study**;
-4. practise and consolidate knowledge through **Learn & Practice** using flashcards, due review, quizzes and progress tracking;
-5. use **Split PDF Tool** when a PDF needs to be uploaded for splitting or divided into smaller local files; generated split PDFs appear in **Structured Study**;
-6. retrieve information through meaningful filters such as source, chapter, section, concept, material type, difficulty, due status, review history, bibliography or reference.
+2. give source material a display name and source type so it appears under Books, Articles, Papers, Outsource Notes, My Notes or Summaries;
+3. read the original/source material through **Library from Source**;
+4. use **Split PDF Tool** when a PDF needs to be uploaded for splitting or divided into smaller local files;
+5. give each split PDF chunk a display name and structured type so it appears under Contents, Chapters, Sections / Paragraphs, Key Concepts, Bibliography / References or Images / Diagrams;
+6. read and understand the same material by structure through **Structured Study**;
+7. practise and consolidate knowledge through **Learn & Practice** using flashcards, due review, quizzes and progress tracking;
+8. retrieve information through meaningful filters such as source, chapter, section, concept, material type, difficulty, due status, review history, bibliography or reference.
 
 The project keeps the learning workflow of the original study app while starting with no subject content:
 
@@ -110,7 +114,7 @@ Source Material
 
 Study progress, user-added links and local files remain in the browser's IndexedDB unless the user exports a backup or manually opens a cloud link. The application has no account system and no backend by default.
 
-Local files are stored only in this browser on this device. They are not uploaded and are not synced by StudyApp. Cloud links store only the title and URL; the actual file remains in the user's cloud service.
+Local files are stored only in this browser on this device. They are not uploaded and are not synced by StudyApp. Cloud links store only the title, type and URL; the actual file remains in the user's cloud service.
 
 Progress backups include progress, sessions and settings, but they do not include local file blobs.
 
