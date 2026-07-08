@@ -3,6 +3,8 @@ import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { LocalStudyFile, SourceMaterialType } from "../../shared/types/models";
 import { createId } from "../../shared/utils/id";
 import {
+  computeBlobSha256,
+  findDuplicateLocalStudyFile,
   getLocalStudyFileKind,
   isSourceMaterialType,
   isSupportedStudyFile,
@@ -62,16 +64,21 @@ export function LocalPdfForm({
       return;
     }
 
-    const existingFile = files.find((item) => item.fileName === file.name && item.size === file.size);
-    if (existingFile) {
-      setUploadedFile({ id: existingFile.id, title: existingFile.title, fileName: existingFile.fileName });
-      clearDraft();
-      onMessage("");
-      return;
-    }
-
     lock.current = true;
     try {
+      const contentHash = await computeBlobSha256(file);
+      const existingFile = findDuplicateLocalStudyFile(files, {
+        fileName: file.name,
+        size: file.size,
+        contentHash,
+      });
+      if (existingFile) {
+        setUploadedFile({ id: existingFile.id, title: existingFile.title, fileName: existingFile.fileName });
+        clearDraft();
+        onMessage("");
+        return;
+      }
+
       const item: LocalStudyFile = {
         id: createId("file"),
         title: normalizeStudyMaterialTitle(title),
@@ -83,6 +90,7 @@ export function LocalPdfForm({
         fileKind: getLocalStudyFileKind(file.name, file.type),
         fileSource: "source-material",
         materialType,
+        ...(contentHash ? { contentHash } : {}),
       };
       await studyDatabase.studyFiles.add(item);
       setUploadedFile({ id: item.id, title: item.title, fileName: item.fileName });

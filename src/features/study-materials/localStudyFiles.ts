@@ -90,6 +90,31 @@ export function isSupportedStudyFile(file: File): boolean {
     || file.type.startsWith("image/");
 }
 
+export async function computeBlobSha256(blob: Blob, cryptoProvider: Crypto | null | undefined = globalThis.crypto): Promise<string | null> {
+  try {
+    const subtle = cryptoProvider?.subtle;
+    if (!subtle) return null;
+
+    const hash = await subtle.digest("SHA-256", await blob.arrayBuffer());
+    return Array.from(new Uint8Array(hash), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  } catch {
+    return null;
+  }
+}
+
+export function findDuplicateLocalStudyFile(
+  files: readonly LocalStudyFile[],
+  candidate: Pick<LocalStudyFile, "fileName" | "size"> & { contentHash?: string | null },
+): LocalStudyFile | undefined {
+  if (candidate.contentHash) {
+    const hashMatch = files.find((file) => file.contentHash === candidate.contentHash);
+    if (hashMatch) return hashMatch;
+    return files.find((file) => !file.contentHash && file.fileName === candidate.fileName && file.size === candidate.size);
+  }
+
+  return files.find((file) => !file.contentHash && file.fileName === candidate.fileName && file.size === candidate.size);
+}
+
 export function isPdfStudyFile(file: LocalStudyFile): boolean {
   return file.fileKind === "pdf"
     || file.mimeType === "application/pdf"

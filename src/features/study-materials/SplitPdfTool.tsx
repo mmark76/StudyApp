@@ -7,6 +7,8 @@ import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { LocalStudyFile, StructuredStudyType } from "../../shared/types/models";
 import { createId } from "../../shared/utils/id";
 import {
+  computeBlobSha256,
+  findDuplicateLocalStudyFile,
   formatFileSize,
   isStructuredStudyType,
   MAX_LOCAL_FILE_SIZE,
@@ -170,6 +172,7 @@ async function createVectorSplitFiles(
       throw new Error(`The generated PDF for pages ${range.label} is larger than 50 MB.`);
     }
 
+    const contentHash = await computeBlobSha256(outputBlob);
     splitFiles.push({
       id: createId("file"),
       title: makeTitle(range.name),
@@ -183,6 +186,7 @@ async function createVectorSplitFiles(
       materialType: range.materialType,
       sourceFileId,
       pageRangeLabel: range.label,
+      ...(contentHash ? { contentHash } : {}),
     });
   }
 
@@ -238,6 +242,7 @@ async function createRenderedSplitFiles(
         throw new Error(`The compatibility output for pages ${range.label} is larger than 50 MB. Try a smaller page range.`);
       }
 
+      const contentHash = await computeBlobSha256(outputBlob);
       splitFiles.push({
         id: createId("file"),
         title: makeTitle(range.name),
@@ -251,6 +256,7 @@ async function createRenderedSplitFiles(
         materialType: range.materialType,
         sourceFileId,
         pageRangeLabel: range.label,
+        ...(contentHash ? { contentHash } : {}),
       });
     }
   } finally {
@@ -337,14 +343,21 @@ export function SplitPdfTool({
       onMessage("The PDF is larger than 50 MB. Split PDF Tool supports local PDFs up to 50 MB.");
       return;
     }
-    if (files.some((item) => item.fileName === file.name && item.size === file.size)) {
-      const existingFile = files.find((item) => item.fileName === file.name && item.size === file.size && isPdfFile(item));
+
+    setIsUploading(true);
+    const contentHash = await computeBlobSha256(file);
+    const existingFile = findDuplicateLocalStudyFile(files.filter(isPdfFile), {
+      fileName: file.name,
+      size: file.size,
+      contentHash,
+    });
+    if (existingFile) {
       if (existingFile) setSelectedFileId(existingFile.id);
       onMessage("This PDF has already been uploaded. It is selected for splitting.");
+      setIsUploading(false);
       return;
     }
 
-    setIsUploading(true);
     try {
       const item: LocalStudyFile = {
         id: createId("file"),
@@ -356,6 +369,7 @@ export function SplitPdfTool({
         mimeType: file.type || "application/pdf",
         fileKind: "pdf",
         fileSource: "source-material",
+        ...(contentHash ? { contentHash } : {}),
       };
       await studyDatabase.studyFiles.add(item);
       setSelectedFileId(item.id);

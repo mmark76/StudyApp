@@ -56,6 +56,7 @@ export interface LocalStudyFile {
   materialType?: LocalStudyMaterialType;
   sourceFileId?: string;
   pageRangeLabel?: string;
+  contentHash?: string;
 }
 
 export interface AppSetting {
