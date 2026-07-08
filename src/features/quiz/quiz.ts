@@ -7,6 +7,16 @@ export interface QuizQuestion {
   options: string[];
 }
 
+export interface QuizAnswerLock {
+  current: boolean;
+}
+
+export function claimQuizAnswer(lock: QuizAnswerLock): boolean {
+  if (lock.current) return false;
+  lock.current = true;
+  return true;
+}
+
 export function shuffle<T>(values: readonly T[], random = Math.random): T[] {
   const result = [...values];
   for (let index = result.length - 1; index > 0; index -= 1) {

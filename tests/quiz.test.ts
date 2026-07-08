@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildQuiz } from "../src/features/quiz/quiz";
+import { buildQuiz, claimQuizAnswer } from "../src/features/quiz/quiz";
 import type { Flashcard } from "../src/shared/types/models";
 
 const cards: Flashcard[] = Array.from({ length: 5 }, (_, index) => ({
@@ -22,5 +22,12 @@ describe("buildQuiz", () => {
       expect(new Set(question.options).size).toBe(4);
       expect(question.options).toContain(question.correctAnswer);
     }
+  });
+
+  it("accepts only one answer while a question is locked", () => {
+    const lock = { current: false };
+
+    expect(claimQuizAnswer(lock)).toBe(true);
+    expect(claimQuizAnswer(lock)).toBe(false);
   });
 });
