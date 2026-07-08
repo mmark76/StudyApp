@@ -37,8 +37,8 @@ export function ContentImportPage() {
       const nextTopics = [...byNumber.values()].sort((first, second) => first.number - second.number);
       await studyDatabase.settings.put({ key: IMPORTED_UNITS_SETTING_KEY, value: nextTopics });
       setMessage(`${spreadsheetTopics.length} chapter${spreadsheetTopics.length === 1 ? "" : "s"} added or updated successfully.`);
-    } catch {
-      setMessage("We could not read the chapters file. Download a fresh template and keep the column headings unchanged.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "We could not read the chapters file. Download a fresh template and keep the column headings unchanged.");
     } finally {
       event.target.value = "";
     }
@@ -57,8 +57,8 @@ export function ContentImportPage() {
       const nextFlashcards = [...byId.values()];
       await studyDatabase.settings.put({ key: IMPORTED_FLASHCARDS_SETTING_KEY, value: nextFlashcards });
       setMessage(`${spreadsheetFlashcards.length} flashcard${spreadsheetFlashcards.length === 1 ? "" : "s"} added or updated successfully.`);
-    } catch {
-      setMessage("We could not read the flashcards file. Make sure its chapter numbers match chapters already added to the app.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "We could not read the flashcards file. Make sure its chapter numbers match chapters already added to the app.");
     } finally {
       event.target.value = "";
     }
