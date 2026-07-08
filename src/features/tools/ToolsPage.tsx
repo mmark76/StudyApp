@@ -23,7 +23,7 @@ export function ToolsPage() {
         <h3>Split PDF</h3>
         <p>
           Split a locally saved PDF into smaller PDF files. Processing happens only in this browser,
-          and the generated PDFs are saved as local study materials on this device.
+          and the generated PDFs are saved as Structured Study material on this device.
         </p>
         <SplitPdfTool files={localFiles} onMessage={setMessage} />
       </section>
