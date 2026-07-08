@@ -109,12 +109,15 @@ Important fields:
 - `materialType`
 - `sourceFileId`
 - `pageRangeLabel`
+- `contentHash`
 
 `data` is a `Blob`. This can be large and is not currently included in progress/settings backups.
 
 `fileSource` separates original source material from generated split PDFs.
 
 `sourceFileId` links a generated split PDF back to its original source file when available.
+
+`contentHash` is an optional SHA-256 hash for local file content. New local files and generated split PDFs can store it. Legacy records without `contentHash` remain valid and readable.
 
 Future complete local-file export/import behavior is designed in [`docs/LOCAL_FILE_EXPORT_DESIGN.md`](docs/LOCAL_FILE_EXPORT_DESIGN.md). That design preserves local file metadata, Blob data, split PDF relationships and `contentHash` values where available.
 
@@ -146,6 +149,7 @@ Do not silently guess a material type. Untyped records should remain unclassifie
 - A `CardProgress.cardId` should point to an existing flashcard, or be cleaned when the corresponding imported card is removed.
 - A split PDF `sourceFileId` may point to an original source file.
 - Source deletion must handle related split PDFs intentionally.
+- `contentHash` should be preferred for duplicate local-file detection when available.
 
 ## Migration rules
 
@@ -160,7 +164,6 @@ When changing persisted data:
 
 ## Future fields to consider
 
-- `contentHash` for local files.
 - `updatedAt` for user-edited records.
 - `schemaVersion` for complex setting values.
 - explicit backup/export metadata.

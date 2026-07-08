@@ -20,6 +20,8 @@ It does not include local file blobs such as uploaded PDFs, Word documents, imag
 
 Users should keep the original PDFs and files outside StudyApp as their primary file copies.
 
+This is the current v1 behavior. A future complete local-file export/import feature is designed, but it is not implemented yet.
+
 ## What can be lost
 
 Local browser data may be lost if:
@@ -50,7 +52,7 @@ Included in the current JSON backup. This covers stored app settings, user-added
 
 Includes files stored in IndexedDB as `Blob` data, such as uploaded source PDFs, documents, images, and generated split PDFs.
 
-These are not included in the current JSON backup. Keep original file copies outside StudyApp, especially before clearing browser data, changing browsers, or moving to another device.
+These are not included in the current JSON backup. New local file records can store `contentHash` values for safer duplicate detection, but the file blobs themselves still remain only in this browser on this device. Keep original file copies outside StudyApp, especially before clearing browser data, changing browsers, or moving to another device.
 
 ### Cloud links
 

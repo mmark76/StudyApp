@@ -36,6 +36,22 @@ const homeSpaces = [
     action: "Manage material",
     to: "/study-materials",
   },
+  {
+    eyebrow: "Getting started",
+    title: "How to work with StudyApp",
+    description: "A normal workflow for moving from source material to practice and progress.",
+    steps: [
+      "Add study material: upload local PDFs, documents, images, or save cloud links.",
+      "Organize your material: classify files by material type so they are easier to find.",
+      "Split large PDFs: use Split PDF Tool to create smaller focused PDFs from a source PDF.",
+      "Import flashcards: import units and flashcards from CSV using the required headers.",
+      "Review daily: use review mode for spaced repetition.",
+      "Take quizzes: use quiz mode to test knowledge.",
+      "Track progress: use progress and session data to understand study activity.",
+      "Back up progress and settings: use the current backup for progress and settings.",
+      "Keep original files safe: StudyApp is local-first and browser-only. Local files stay in this browser, but the current backup does not include local file blobs, so keep original PDFs and files outside StudyApp.",
+    ],
+  },
 ] as const;
 
 export function HomePage() {
@@ -47,7 +63,15 @@ export function HomePage() {
             <p className="eyebrow">{space.eyebrow}</p>
             <h2>{space.title}</h2>
             <p>{space.description}</p>
-            <Link className="button primary" to={space.to}>{space.action}</Link>
+            {"steps" in space ? (
+              <ol className="learning-stage-steps">
+                {space.steps.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+            ) : (
+              <Link className="button primary" to={space.to}>{space.action}</Link>
+            )}
           </article>
         ))}
       </section>
