@@ -2,45 +2,68 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useLiveQuery } from "dexie-react-hooks";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
-import { formatFileKind, formatFileSize, isSourceMaterialFile } from "../study-materials/localStudyFiles";
+import type { SourceMaterialType } from "../../shared/types/models";
+import {
+  formatFileKind,
+  formatFileSize,
+  formatMaterialTypeLabel,
+  getSourceMaterialType,
+  isSourceMaterialFile,
+} from "../study-materials/localStudyFiles";
 import {
   builtInStudyMaterials,
   parseStoredStudyMaterials,
   STUDY_MATERIALS_SETTING_KEY,
+  type StudyMaterialLink,
 } from "../study-materials/studyMaterials";
 
 const libraryCategories = [
   {
     id: "books",
+    materialType: "book",
     title: "Books",
     description: "Read textbooks, manuals, chapters and longer reference works from the original source.",
   },
   {
     id: "articles",
+    materialType: "article",
     title: "Articles",
     description: "Read web articles, magazine pieces and focused explanatory resources from the source.",
   },
   {
     id: "papers",
+    materialType: "paper",
     title: "Papers",
     description: "Read research papers, reports and evidence-based material from the original document.",
   },
   {
     id: "outsource-notes",
+    materialType: "outsource-note",
     title: "Outsource Notes",
     description: "Read external lecture notes, uploaded notes, PDFs or source files used as study material.",
   },
   {
     id: "my-notes",
+    materialType: "my-note",
     title: "My Notes",
     description: "Read your own important points, observations and study notes from the material you have structured.",
   },
   {
     id: "summaries",
+    materialType: "summary",
     title: "Summaries",
     description: "Read condensed chapter summaries, learning objectives and key terms before practice.",
   },
-] as const;
+] as const satisfies readonly {
+  id: string;
+  materialType: SourceMaterialType;
+  title: string;
+  description: string;
+}[];
+
+function getLinkMaterialType(link: StudyMaterialLink): SourceMaterialType {
+  return link.materialType ?? "book";
+}
 
 export function LibraryPage() {
   const allLocalFiles = useLiveQuery(
@@ -104,7 +127,7 @@ export function LibraryPage() {
                 <li className="local-file-row" key={file.id}>
                   <div>
                     <strong>{file.title}</strong>
-                    <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)} · {file.fileName}</span>
+                    <span>{formatMaterialTypeLabel(getSourceMaterialType(file))} · {formatFileKind(file.fileKind)} · {formatFileSize(file.size)} · {file.fileName}</span>
                   </div>
                   <div className="local-file-actions">
                     <button className="button secondary compact-square" onClick={() => openLocalFile(file.id)} type="button">View</button>
@@ -124,7 +147,7 @@ export function LibraryPage() {
                 <li className="local-file-row" key={link.id}>
                   <div>
                     <strong>{link.title}</strong>
-                    <span>{link.url}</span>
+                    <span>{formatMaterialTypeLabel(getLinkMaterialType(link))} · {link.url}</span>
                   </div>
                   <a className="button secondary compact-square" href={link.url} rel="noopener noreferrer" target="_blank">Open</a>
                 </li>
@@ -135,14 +158,44 @@ export function LibraryPage() {
       </section>
 
       <section className="learning-stage-grid" aria-label="Library source reading categories">
-        {libraryCategories.map((category, index) => (
-          <article className="learning-stage-card" id={category.id} key={category.title} tabIndex={-1}>
-            <span className="stage-number" aria-hidden="true">{index + 1}</span>
-            <h3>{category.title}</h3>
-            <p>{category.description}</p>
-            <Link className="button secondary" to={`/library#${category.id}`}>Read</Link>
-          </article>
-        ))}
+        {libraryCategories.map((category, index) => {
+          const categoryFiles = localFiles.filter((file) => getSourceMaterialType(file) === category.materialType);
+          const categoryLinks = sourceLinks.filter((link) => getLinkMaterialType(link) === category.materialType);
+          const hasItems = categoryFiles.length > 0 || categoryLinks.length > 0;
+
+          return (
+            <article className="learning-stage-card" id={category.id} key={category.title} tabIndex={-1}>
+              <span className="stage-number" aria-hidden="true">{index + 1}</span>
+              <h3>{category.title}</h3>
+              <p>{category.description}</p>
+              <Link className="button secondary" to={`/library#${category.id}`}>Read</Link>
+              {hasItems ? (
+                <ul className="local-file-list">
+                  {categoryFiles.map((file) => (
+                    <li className="local-file-row" key={file.id}>
+                      <div>
+                        <strong>{file.title}</strong>
+                        <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)}</span>
+                      </div>
+                      <button className="button secondary compact-square" onClick={() => openLocalFile(file.id)} type="button">View</button>
+                    </li>
+                  ))}
+                  {categoryLinks.map((link) => (
+                    <li className="local-file-row" key={link.id}>
+                      <div>
+                        <strong>{link.title}</strong>
+                        <span>{link.url}</span>
+                      </div>
+                      <a className="button secondary compact-square" href={link.url} rel="noopener noreferrer" target="_blank">Open</a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="field-help">No {category.title.toLowerCase()} saved yet.</p>
+              )}
+            </article>
+          );
+        })}
       </section>
 
       <section className="content-panel">
