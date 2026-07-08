@@ -166,11 +166,11 @@ code { background: var(--slate-100); border-radius: 0.35rem; padding: 0.15rem 0.
 .app-header h1 { margin: 0; }
 .navigation-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1rem; }
 .main-nav { display: flex; flex-wrap: wrap; gap: 0.45rem; }
-.main-nav a { padding: 0.65rem 0.9rem; border-radius: 999px; text-decoration: none; color: var(--slate-600); font-weight: 700; }
-.main-nav a:hover, .main-nav a.active { background: var(--blue-100); color: var(--navy-800); }
+.main-nav a { padding: 0.65rem 0.9rem; border: 1px solid rgb(203 213 225 / 0.72); border-radius: 999px; background: rgb(255 255 255 / 0.36); text-decoration: none; color: var(--slate-600); font-weight: 700; }
+.main-nav a:hover, .main-nav a.active { border-color: var(--slate-300); background: var(--blue-100); color: var(--navy-800); }
 .utility-actions { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: flex-end; }
-.utility-actions a, .utility-actions button { padding: 0.65rem 0.9rem; border: 1px solid var(--slate-300); border-radius: 999px; background: var(--surface); color: var(--slate-700); font-weight: 700; text-align: center; text-decoration: none; cursor: pointer; }
-.utility-actions a:hover, .utility-actions a.active, .utility-actions button:hover { background: var(--blue-100); color: var(--navy-800); }
+.utility-actions a, .utility-actions button { padding: 0.65rem 0.9rem; border: 1px solid rgb(203 213 225 / 0.72); border-radius: 999px; background: rgb(255 255 255 / 0.36); color: var(--slate-700); font-weight: 700; text-align: center; text-decoration: none; cursor: pointer; }
+.utility-actions a:hover, .utility-actions a.active, .utility-actions button:hover { border-color: var(--slate-300); background: var(--blue-100); color: var(--navy-800); }
 .app-main { width: min(var(--content-width), calc(100% - 2rem)); margin: 0 auto; padding: 2rem 0; }
 .app-footer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; padding: 0.8rem 1rem; text-align: center; color: var(--slate-500); border-top: 1px solid var(--slate-300); background: var(--surface); box-shadow: 0 -4px 14px rgb(15 23 42 / 0.08); }
 .app-footer p { margin: 0; }
