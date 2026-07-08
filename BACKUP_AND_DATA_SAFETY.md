@@ -10,7 +10,15 @@ This protects ownership and privacy, but it also means the browser storage is im
 
 ## Current backup limitation
 
-The current backup model is progress/settings oriented. Local file blobs such as PDFs, documents, images, and split PDFs are not part of the current progress backup unless a future feature explicitly adds them.
+The current JSON backup is progress/settings oriented. It includes:
+
+- card progress and review scheduling;
+- study session records;
+- app settings, including settings-backed imported content and saved cloud-link records.
+
+It does not include local file blobs such as uploaded PDFs, Word documents, images, or generated split PDFs. Those files remain stored only in this browser on this device unless a future complete local-file export feature explicitly adds them.
+
+Users should keep the original PDFs and files outside StudyApp as their primary file copies.
 
 ## What can be lost
 
@@ -32,17 +40,17 @@ Do not call an export "complete" unless it includes every supported data class t
 
 ### Progress and sessions
 
-Includes card progress, review scheduling, study sessions, and quiz/session summaries where implemented.
+Included in the current JSON backup. This covers card progress, review scheduling, study sessions, and quiz/session summaries where implemented.
 
 ### Settings
 
-Includes stored app settings, user-added study links, and imported content when those are saved in the settings table.
+Included in the current JSON backup. This covers stored app settings, user-added study links, and imported content when those are saved in the settings table.
 
 ### Local files
 
 Includes files stored in IndexedDB as `Blob` data, such as uploaded source PDFs, documents, images, and generated split PDFs.
 
-These are the highest-risk data class because they may be large and may not be included in progress/settings backups.
+These are not included in the current JSON backup. Keep original file copies outside StudyApp, especially before clearing browser data, changing browsers, or moving to another device.
 
 ### Cloud links
 

@@ -134,7 +134,7 @@ Study progress, user-added links and local files remain in the browser's Indexed
 
 Local files are stored only in this browser on this device. They are not uploaded and are not synced by StudyApp. Cloud links store only the title, type and URL; the actual file remains in the user's cloud service.
 
-Progress backups include progress, sessions and settings, but they do not include local file blobs.
+Progress/settings backups include progress, sessions and settings-backed data. They do not include local file blobs such as uploaded PDFs, documents, images or generated split PDFs. Keep original files outside StudyApp as your primary file copies.
 
 For more detail, see [`BACKUP_AND_DATA_SAFETY.md`](BACKUP_AND_DATA_SAFETY.md).
 
