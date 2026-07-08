@@ -1,4 +1,10 @@
-import type { LocalStudyFile, LocalStudyFileKind } from "../../shared/types/models";
+import type {
+  LocalStudyFile,
+  LocalStudyFileKind,
+  LocalStudyMaterialType,
+  SourceMaterialType,
+  StructuredStudyType,
+} from "../../shared/types/models";
 
 export const MAX_LOCAL_FILE_SIZE = 50 * 1024 * 1024;
 
@@ -16,8 +22,40 @@ export const SUPPORTED_LOCAL_FILE_EXTENSIONS = [
   ".webp",
 ] as const;
 
+export interface MaterialTypeOption<T extends LocalStudyMaterialType> {
+  value: T;
+  label: string;
+  description: string;
+}
+
+export const sourceMaterialTypeOptions = [
+  { value: "book", label: "Book", description: "A textbook, manual, chapter collection or longer reference work." },
+  { value: "article", label: "Article", description: "A web article, magazine piece or focused explanatory resource." },
+  { value: "paper", label: "Paper", description: "A research paper, report or evidence-based document." },
+  { value: "outsource-note", label: "Outsource Note", description: "External lecture notes, shared notes or imported source notes." },
+  { value: "my-note", label: "My Note", description: "Personal notes, observations or working material." },
+  { value: "summary", label: "Summary", description: "A condensed summary or overview of study material." },
+] as const satisfies readonly MaterialTypeOption<SourceMaterialType>[];
+
+export const structuredStudyTypeOptions = [
+  { value: "contents", label: "Contents", description: "The table of contents or high-level map of the material." },
+  { value: "chapter", label: "Chapter", description: "A major learning block inside a book, paper or PDF." },
+  { value: "section", label: "Section / Paragraph", description: "A smaller focused part inside a chapter." },
+  { value: "key-concept", label: "Key Concept", description: "An important idea, definition or principle." },
+  { value: "bibliography-reference", label: "Bibliography / Reference", description: "A reference list, bibliography or source trail." },
+  { value: "image-diagram", label: "Image / Diagram", description: "A visual, figure, image, diagram or chart." },
+] as const satisfies readonly MaterialTypeOption<StructuredStudyType>[];
+
 const GENERATED_SPLIT_PDF_FILENAME_PATTERN = /-pages-\d+(?:-\d+)?\.pdf$/i;
 const GENERATED_SPLIT_PDF_TITLE_PATTERN = /[—-]\s*pages\s+\d+(?:-\d+)?$/i;
+
+export function isSourceMaterialType(value: unknown): value is SourceMaterialType {
+  return typeof value === "string" && sourceMaterialTypeOptions.some((option) => option.value === value);
+}
+
+export function isStructuredStudyType(value: unknown): value is StructuredStudyType {
+  return typeof value === "string" && structuredStudyTypeOptions.some((option) => option.value === value);
+}
 
 export function getLocalStudyFileKind(fileName: string, mimeType = ""): LocalStudyFileKind {
   const lowerName = fileName.toLowerCase();
@@ -29,6 +67,41 @@ export function getLocalStudyFileKind(fileName: string, mimeType = ""): LocalStu
   if (lowerType.startsWith("image/") || [".jpg", ".jpeg", ".png", ".gif", ".webp"].some((extension) => lowerName.endsWith(extension))) return "image";
   if (lowerName.endsWith(".csv")) return "spreadsheet";
   return "other";
+}
+
+export function getDefaultSourceMaterialType(kind?: LocalStudyFileKind): SourceMaterialType {
+  switch (kind) {
+    case "pdf": return "book";
+    case "image": return "my-note";
+    case "text": return "my-note";
+    case "document":
+    case "spreadsheet":
+    case "other":
+    default:
+      return "outsource-note";
+  }
+}
+
+export function getSourceMaterialType(file: LocalStudyFile): SourceMaterialType {
+  return isSourceMaterialType(file.materialType)
+    ? file.materialType
+    : getDefaultSourceMaterialType(file.fileKind);
+}
+
+export function getStructuredStudyType(file: LocalStudyFile): StructuredStudyType {
+  if (isStructuredStudyType(file.materialType)) return file.materialType;
+
+  const searchableText = `${file.title} ${file.fileName}`.toLowerCase();
+  if (searchableText.includes("contents")) return "contents";
+  if (searchableText.includes("chapter")) return "chapter";
+  if (searchableText.includes("bibliography") || searchableText.includes("reference")) return "bibliography-reference";
+  if (searchableText.includes("diagram") || searchableText.includes("image") || file.fileKind === "image") return "image-diagram";
+  if (searchableText.includes("concept")) return "key-concept";
+  return "section";
+}
+
+export function formatMaterialTypeLabel(type: LocalStudyMaterialType): string {
+  return [...sourceMaterialTypeOptions, ...structuredStudyTypeOptions].find((option) => option.value === type)?.label ?? "Unclassified";
 }
 
 export function isSupportedStudyFile(file: File): boolean {
