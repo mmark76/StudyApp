@@ -69,38 +69,16 @@ export function getLocalStudyFileKind(fileName: string, mimeType = ""): LocalStu
   return "other";
 }
 
-export function getDefaultSourceMaterialType(kind?: LocalStudyFileKind): SourceMaterialType {
-  switch (kind) {
-    case "pdf": return "book";
-    case "image": return "my-note";
-    case "text": return "my-note";
-    case "document":
-    case "spreadsheet":
-    case "other":
-    default:
-      return "outsource-note";
-  }
+export function getSourceMaterialType(file: LocalStudyFile): SourceMaterialType | null {
+  return isSourceMaterialType(file.materialType) ? file.materialType : null;
 }
 
-export function getSourceMaterialType(file: LocalStudyFile): SourceMaterialType {
-  return isSourceMaterialType(file.materialType)
-    ? file.materialType
-    : getDefaultSourceMaterialType(file.fileKind);
+export function getStructuredStudyType(file: LocalStudyFile): StructuredStudyType | null {
+  return isStructuredStudyType(file.materialType) ? file.materialType : null;
 }
 
-export function getStructuredStudyType(file: LocalStudyFile): StructuredStudyType {
-  if (isStructuredStudyType(file.materialType)) return file.materialType;
-
-  const searchableText = `${file.title} ${file.fileName}`.toLowerCase();
-  if (searchableText.includes("contents")) return "contents";
-  if (searchableText.includes("chapter")) return "chapter";
-  if (searchableText.includes("bibliography") || searchableText.includes("reference")) return "bibliography-reference";
-  if (searchableText.includes("diagram") || searchableText.includes("image") || file.fileKind === "image") return "image-diagram";
-  if (searchableText.includes("concept")) return "key-concept";
-  return "section";
-}
-
-export function formatMaterialTypeLabel(type: LocalStudyMaterialType): string {
+export function formatMaterialTypeLabel(type?: LocalStudyMaterialType | null): string {
+  if (!type) return "Unclassified";
   return [...sourceMaterialTypeOptions, ...structuredStudyTypeOptions].find((option) => option.value === type)?.label ?? "Unclassified";
 }
 
