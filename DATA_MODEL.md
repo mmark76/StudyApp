@@ -116,6 +116,8 @@ Important fields:
 
 `sourceFileId` links a generated split PDF back to its original source file when available.
 
+Future complete local-file export/import behavior is designed in [`docs/LOCAL_FILE_EXPORT_DESIGN.md`](docs/LOCAL_FILE_EXPORT_DESIGN.md). That design preserves local file metadata, Blob data, split PDF relationships and `contentHash` values where available.
+
 ## Material classification
 
 Source material types:
