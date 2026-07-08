@@ -1,6 +1,8 @@
 import { type FormEvent, useRef, useState } from "react";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
+import type { SourceMaterialType } from "../../shared/types/models";
 import { createId } from "../../shared/utils/id";
+import { sourceMaterialTypeOptions } from "./localStudyFiles";
 import {
   normalizeStudyMaterialTitle,
   normalizeStudyMaterialUrl,
@@ -20,6 +22,7 @@ export function CloudLinkForm({
 }) {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
+  const [materialType, setMaterialType] = useState<SourceMaterialType>("book");
   const [uploadedLink, setUploadedLink] = useState<StudyMaterialLink | null>(null);
   const lock = useRef(false);
   const canRemove = Boolean(uploadedLink) || title.trim().length > 0 || url.trim().length > 0;
@@ -27,6 +30,7 @@ export function CloudLinkForm({
   function clearDraft() {
     setTitle("");
     setUrl("");
+    setMaterialType("book");
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -35,10 +39,11 @@ export function CloudLinkForm({
     lock.current = true;
 
     try {
-      const item = {
+      const item: StudyMaterialLink = {
         id: createId("material"),
         title: normalizeStudyMaterialTitle(title),
         url: normalizeStudyMaterialUrl(url),
+        materialType,
       };
       if (existingLinks.some((link) => link.url === item.url)) {
         onMessage("This link has already been uploaded.");
@@ -117,7 +122,21 @@ export function CloudLinkForm({
           placeholder="Example: Cognitive Psychology textbook"
         />
       </label>
-      <p className="field-help">Upload saves only the title and link. The actual file stays in your cloud service.</p>
+      <label className="field-label">
+        Type
+        <select
+          value={materialType}
+          onChange={(event) => {
+            setMaterialType(event.target.value as SourceMaterialType);
+            setUploadedLink(null);
+          }}
+        >
+          {sourceMaterialTypeOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </label>
+      <p className="field-help">Upload saves only the title, type and link. The actual file stays in your cloud service.</p>
       <div className="button-row">
         <button
           className={uploadedLink ? "button success compact-square" : "button primary compact-square"}
