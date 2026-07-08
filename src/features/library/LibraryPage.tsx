@@ -4,6 +4,11 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { LocalStudyFile, SourceMaterialType } from "../../shared/types/models";
 import {
+  findRelatedSplitPdfFiles,
+  getLocalFileDeletionIds,
+  type LocalFileDeletionChoice,
+} from "./localFileDeletion";
+import {
   formatFileKind,
   formatFileSize,
   formatMaterialTypeLabel,
@@ -182,6 +187,7 @@ export function LibraryPage() {
     () => parseStoredStudyMaterials(setting?.value),
     [setting?.value],
   );
+  const [deleteMessage, setDeleteMessage] = useState("");
   const sourceLinks = [...builtInStudyMaterials, ...savedLinks];
   const savedLinkIds = new Set(savedLinks.map((link) => link.id));
   const unclassifiedFiles = localFiles.filter((file) => getSourceMaterialType(file) === null);
@@ -197,12 +203,56 @@ export function LibraryPage() {
     window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
   }
 
+  function chooseDeletionForRelatedSplitPdfs(file: LocalStudyFile, relatedSplitPdfs: readonly LocalStudyFile[]): LocalFileDeletionChoice {
+    const splitList = relatedSplitPdfs.map((item) => `- ${item.title}`).join("\n");
+    const response = window.prompt(
+      [
+        `"${file.title}" has ${relatedSplitPdfs.length} related split PDF${relatedSplitPdfs.length === 1 ? "" : "s"}.`,
+        "Type DELETE ALL to delete the source file and the related split PDFs.",
+        "Type KEEP SPLITS to delete only the source file and keep the split PDFs in Structured Study without the original source file.",
+        "Press Cancel to keep everything.",
+        "",
+        splitList,
+      ].join("\n"),
+    );
+    if (response === null) return "cancel";
+
+    const normalized = response.trim().toLocaleLowerCase();
+    if (normalized === "delete all") return "delete-source-and-splits";
+    if (normalized === "keep splits") return "delete-source-only";
+
+    window.alert("Nothing was deleted. Type DELETE ALL, KEEP SPLITS, or press Cancel.");
+    return "cancel";
+  }
+
   async function deleteLocalFile(fileId: string) {
     const file = localFiles.find((item) => item.id === fileId);
     if (!file) return;
-    const shouldDelete = window.confirm(`Delete "${file.title}" from StudyApp? This cannot be undone.`);
-    if (!shouldDelete) return;
-    await studyDatabase.studyFiles.delete(fileId);
+    const relatedSplitPdfs = findRelatedSplitPdfFiles(fileId, allLocalFiles);
+
+    if (relatedSplitPdfs.length === 0) {
+      const shouldDelete = window.confirm(`Delete "${file.title}" from StudyApp? This cannot be undone.`);
+      if (!shouldDelete) return;
+      await studyDatabase.studyFiles.delete(fileId);
+      return;
+    }
+
+    const choice = chooseDeletionForRelatedSplitPdfs(file, relatedSplitPdfs);
+    const deletionIds = getLocalFileDeletionIds(fileId, relatedSplitPdfs, choice);
+    if (deletionIds.length === 0) {
+      setDeleteMessage("Nothing was deleted.");
+      return;
+    }
+
+    await studyDatabase.transaction("rw", studyDatabase.studyFiles, async () => {
+      await studyDatabase.studyFiles.bulkDelete(deletionIds);
+    });
+
+    setDeleteMessage(
+      choice === "delete-source-and-splits"
+        ? `Deleted "${file.title}" and ${relatedSplitPdfs.length} related split PDF${relatedSplitPdfs.length === 1 ? "" : "s"}.`
+        : `Deleted "${file.title}". ${relatedSplitPdfs.length} split PDF${relatedSplitPdfs.length === 1 ? "" : "s"} kept in Structured Study without the original source file by your choice.`,
+    );
   }
 
   return (
@@ -225,6 +275,7 @@ export function LibraryPage() {
         {localFiles.length > 0 ? (
           <div className="stack-md">
             <h4>Files saved in StudyApp</h4>
+            {deleteMessage ? <p className="inline-message status-banner" role="status">{deleteMessage}</p> : null}
             <ul className="local-file-list">
               {localFiles.map((file) => (
                 <li className="local-file-row" key={file.id}>
