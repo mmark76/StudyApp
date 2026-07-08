@@ -1,22 +1,24 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { Rating } from "../../shared/types/models";
-import { isDue } from "../../shared/utils/date";
 import { useStudyContent } from "../content-import/useStudyContent";
+import { buildDueReviewQueue, nextReviewIndex } from "./reviewQueue";
 import { scheduleReview } from "./spacedRepetition";
 
 export function ReviewPage() {
   const { flashcards } = useStudyContent();
-  const progress = useLiveQuery(() => studyDatabase.cardProgress.toArray(), []) ?? [];
-  const dueCards = useMemo(() => {
-    const dueIds = new Set(progress.filter((item) => isDue(item.nextReviewAt)).map((item) => item.cardId));
-    return flashcards.filter((card) => dueIds.has(card.id));
-  }, [flashcards, progress]);
+  const progress = useLiveQuery(() => studyDatabase.cardProgress.toArray(), []);
+  const [dueCards, setDueCards] = useState<typeof flashcards>([]);
   const [index, setIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const lock = useRef(false);
   const card = dueCards[index];
+
+  useEffect(() => {
+    if (!progress) return;
+    setDueCards((current) => current.length > 0 ? current : buildDueReviewQueue(flashcards, progress));
+  }, [flashcards, progress]);
 
   async function rate(rating: Rating) {
     if (!card || lock.current) return;
@@ -25,7 +27,7 @@ export function ReviewPage() {
       const previous = await studyDatabase.cardProgress.get(card.id);
       await studyDatabase.cardProgress.put(scheduleReview(card.id, rating, previous));
       setRevealed(false);
-      setIndex((current) => current >= dueCards.length - 1 ? 0 : current + 1);
+      setIndex((current) => nextReviewIndex(current));
     } finally {
       lock.current = false;
     }
