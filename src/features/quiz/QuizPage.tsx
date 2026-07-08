@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import { createId } from "../../shared/utils/id";
 import { useStudyContent } from "../content-import/useStudyContent";
-import { buildQuiz } from "./quiz";
+import { buildQuiz, claimQuizAnswer } from "./quiz";
 
 export function QuizPage() {
   const { flashcards } = useStudyContent();
@@ -10,10 +10,15 @@ export function QuizPage() {
   const [index, setIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
+  const answerLock = useRef(false);
   const question = questions[index];
 
+  useEffect(() => {
+    answerLock.current = false;
+  }, [index]);
+
   async function answer(option: string) {
-    if (!question || finished) return;
+    if (!question || finished || !claimQuizAnswer(answerLock)) return;
     const nextScore = score + (option === question.correctAnswer ? 1 : 0);
     setScore(nextScore);
     if (index >= questions.length - 1) {
