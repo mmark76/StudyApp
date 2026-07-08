@@ -10,6 +10,20 @@ In short, StudyApp is intended to become a **local-first personal knowledge and 
 
 The app should not be understood only as a flashcards app. Flashcards, quizzes, review queues and spaced repetition are learning tools inside a broader system for organising, understanding, remembering and recalling knowledge.
 
+## Project guidance documents
+
+Before making larger code, data-model, or workflow changes, read these files:
+
+- [`AGENTS.md`](AGENTS.md) — instructions for AI coding agents and automated contributors.
+- [`AUDIT.md`](AUDIT.md) — current audit findings and priority risks.
+- [`ROADMAP.md`](ROADMAP.md) — recommended development sequence.
+- [`CODEX_TASKS.md`](CODEX_TASKS.md) — small, focused tasks suitable for Codex-style implementation.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — PR and review rules.
+- [`ARCHITECTURE.md`](ARCHITECTURE.md) — architecture overview.
+- [`DATA_MODEL.md`](DATA_MODEL.md) — persisted data model and relationship rules.
+- [`BACKUP_AND_DATA_SAFETY.md`](BACKUP_AND_DATA_SAFETY.md) — backup limitations and data-safety expectations.
+- [`SECURITY.md`](SECURITY.md) — security and privacy boundaries.
+
 ## Current product areas
 
 The user-facing workflow is intentionally separated into distinct areas so that actions do not overlap.
@@ -122,6 +136,20 @@ Local files are stored only in this browser on this device. They are not uploade
 
 Progress backups include progress, sessions and settings, but they do not include local file blobs.
 
+For more detail, see [`BACKUP_AND_DATA_SAFETY.md`](BACKUP_AND_DATA_SAFETY.md).
+
+## Current limitations
+
+These limitations are intentional or known at this stage:
+
+- Local files and split PDFs depend on browser storage.
+- Progress/settings backups do not currently include local file blobs.
+- Duplicate local file detection should be improved with content hashing.
+- Source-file deletion should intentionally handle any related split PDFs.
+- Review and quiz flows need regression protection for queue stability and duplicate submissions.
+
+See [`AUDIT.md`](AUDIT.md) and [`ROADMAP.md`](ROADMAP.md) for the current priority plan.
+
 ## Add a subject
 
 1. Edit `src/app/studyConfig.ts` for the application and subject names.
@@ -140,6 +168,24 @@ npm run typecheck
 npm test
 npm run build
 ```
+
+Before merging code changes, run:
+
+```bash
+npm test
+npm run typecheck
+npm run build
+```
+
+Documentation-only changes should still explain that tests were not run.
+
+## Contributor workflow
+
+- Use one focused branch or PR per task.
+- Start with the tasks in [`CODEX_TASKS.md`](CODEX_TASKS.md).
+- Follow [`AGENTS.md`](AGENTS.md) for Codex-style work.
+- Follow [`CONTRIBUTING.md`](CONTRIBUTING.md) for PR requirements.
+- Keep the local-first/no-backend boundary unless the owner explicitly changes the product direction.
 
 ## Licence
 
