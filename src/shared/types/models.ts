@@ -1,6 +1,7 @@
 export type Rating = 0 | 1 | 2;
 export type StudyMode = "flashcards" | "quiz" | "review";
 export type LocalStudyFileKind = "pdf" | "document" | "text" | "image" | "spreadsheet" | "other";
+export type LocalStudyFileSource = "source-material" | "split-pdf";
 
 export interface StudyUnit {
   id: string;
@@ -48,6 +49,9 @@ export interface LocalStudyFile {
   data: Blob;
   mimeType?: string;
   fileKind?: LocalStudyFileKind;
+  fileSource?: LocalStudyFileSource;
+  sourceFileId?: string;
+  pageRangeLabel?: string;
 }
 
 export interface AppSetting {

@@ -16,6 +16,9 @@ export const SUPPORTED_LOCAL_FILE_EXTENSIONS = [
   ".webp",
 ] as const;
 
+const GENERATED_SPLIT_PDF_FILENAME_PATTERN = /-pages-\d+(?:-\d+)?\.pdf$/i;
+const GENERATED_SPLIT_PDF_TITLE_PATTERN = /[—-]\s*pages\s+\d+(?:-\d+)?$/i;
+
 export function getLocalStudyFileKind(fileName: string, mimeType = ""): LocalStudyFileKind {
   const lowerName = fileName.toLowerCase();
   const lowerType = mimeType.toLowerCase();
@@ -34,6 +37,23 @@ export function isSupportedStudyFile(file: File): boolean {
     || file.type === "application/pdf"
     || file.type.startsWith("text/")
     || file.type.startsWith("image/");
+}
+
+export function isPdfStudyFile(file: LocalStudyFile): boolean {
+  return file.fileKind === "pdf"
+    || file.mimeType === "application/pdf"
+    || file.fileName.toLowerCase().endsWith(".pdf");
+}
+
+export function isSplitPdfFile(file: LocalStudyFile): boolean {
+  return file.fileSource === "split-pdf"
+    || (isPdfStudyFile(file)
+      && (GENERATED_SPLIT_PDF_FILENAME_PATTERN.test(file.fileName)
+        || GENERATED_SPLIT_PDF_TITLE_PATTERN.test(file.title)));
+}
+
+export function isSourceMaterialFile(file: LocalStudyFile): boolean {
+  return !isSplitPdfFile(file);
 }
 
 export function formatFileKind(kind?: LocalStudyFileKind): string {

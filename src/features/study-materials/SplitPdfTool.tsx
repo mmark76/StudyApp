@@ -25,7 +25,7 @@ interface ValidatedRange {
 
 const MAX_SPLIT_RANGES = 50;
 const PDF_RENDER_SCALE = 2;
-const RENDERED_SPLIT_NOTE = "Saved as a new PDF in StudyApp. You can split each new PDF again if needed.";
+const RENDERED_SPLIT_NOTE = "Saved as a new Structured Study PDF. You can split each new PDF again if needed.";
 
 function isPdfFile(file: LocalStudyFile): boolean {
   return file.fileKind === "pdf"
@@ -137,6 +137,7 @@ async function createVectorSplitFiles(
   validatedRanges: readonly ValidatedRange[],
   outputPrefix: string,
   sourceFileName: string,
+  sourceFileId: string,
 ): Promise<LocalStudyFile[]> {
   const splitFiles: LocalStudyFile[] = [];
 
@@ -161,6 +162,9 @@ async function createVectorSplitFiles(
       data: outputBlob,
       mimeType: "application/pdf",
       fileKind: "pdf",
+      fileSource: "split-pdf",
+      sourceFileId,
+      pageRangeLabel: range.label,
     });
   }
 
@@ -172,6 +176,7 @@ async function createRenderedSplitFiles(
   validatedRanges: readonly ValidatedRange[],
   outputPrefix: string,
   sourceFileName: string,
+  sourceFileId: string,
 ): Promise<LocalStudyFile[]> {
   const loadingTask = getDocument({ data: new Uint8Array(sourceBytes.slice(0)) });
   const pdfJsDocument = await loadingTask.promise;
@@ -225,6 +230,9 @@ async function createRenderedSplitFiles(
         data: outputBlob,
         mimeType: "application/pdf",
         fileKind: "pdf",
+        fileSource: "split-pdf",
+        sourceFileId,
+        pageRangeLabel: range.label,
       });
     }
   } finally {
@@ -278,7 +286,6 @@ export function SplitPdfTool({
         const pageTreeCount = countPdfPageTree(pdfText);
         const objectPageCount = countPdfPageObjects(pdfText);
         const bestPageCount = getBestPageCount(pdfJsPageCount, pdfLibPageCount, pageTreeCount, objectPageCount);
-        if (!bestPageCount) throw new Error("No page count could be detected.");
 
         if (!cancelled) {
           setPageCount(bestPageCount);
@@ -330,6 +337,7 @@ export function SplitPdfTool({
         data: file.slice(0, file.size, file.type || "application/pdf"),
         mimeType: file.type || "application/pdf",
         fileKind: "pdf",
+        fileSource: "source-material",
       };
       await studyDatabase.studyFiles.add(item);
       setSelectedFileId(item.id);
@@ -387,8 +395,8 @@ export function SplitPdfTool({
       const canUseVectorEngine = Boolean(sourcePdf && highestRequestedPage <= enginePageCount);
       const outputPrefix = titlePrefix.trim() || selectedFile.title;
       const splitFiles = canUseVectorEngine && sourcePdf
-        ? await createVectorSplitFiles(sourcePdf, validatedRanges, outputPrefix, selectedFile.fileName)
-        : await createRenderedSplitFiles(sourceBytes, validatedRanges, outputPrefix, selectedFile.fileName);
+        ? await createVectorSplitFiles(sourcePdf, validatedRanges, outputPrefix, selectedFile.fileName, selectedFile.id)
+        : await createRenderedSplitFiles(sourceBytes, validatedRanges, outputPrefix, selectedFile.fileName, selectedFile.id);
 
       await studyDatabase.studyFiles.bulkAdd(splitFiles);
       setRecentSplitCount(splitFiles.length);
@@ -512,11 +520,11 @@ export function SplitPdfTool({
 
       {recentSplitCount > 0 ? (
         <div className="stack-md">
-          <Link className="button secondary" to="/library">
+          <Link className="button secondary" to="/study/theory">
             View split PDFs
           </Link>
           <p className="field-help">
-            {recentSplitCount} new {recentSplitCount === 1 ? "PDF was" : "PDFs were"} saved in Library.
+            {recentSplitCount} new {recentSplitCount === 1 ? "PDF was" : "PDFs were"} saved in Structured Study.
           </p>
         </div>
       ) : null}

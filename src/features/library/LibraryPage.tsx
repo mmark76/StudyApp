@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useLiveQuery } from "dexie-react-hooks";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
-import { formatFileKind, formatFileSize } from "../study-materials/localStudyFiles";
+import { formatFileKind, formatFileSize, isSourceMaterialFile } from "../study-materials/localStudyFiles";
 import {
   builtInStudyMaterials,
   parseStoredStudyMaterials,
@@ -43,10 +43,14 @@ const libraryCategories = [
 ] as const;
 
 export function LibraryPage() {
-  const localFiles = useLiveQuery(
+  const allLocalFiles = useLiveQuery(
     () => studyDatabase.studyFiles.orderBy("createdAt").reverse().toArray(),
     [],
   ) ?? [];
+  const localFiles = useMemo(
+    () => allLocalFiles.filter(isSourceMaterialFile),
+    [allLocalFiles],
+  );
   const setting = useLiveQuery(
     () => studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY),
     [],
@@ -86,7 +90,7 @@ export function LibraryPage() {
       <section className="content-panel" aria-label="All uploaded source material">
         <p className="eyebrow">All source material</p>
         <h3>All uploaded files</h3>
-        <p>This is the complete read-only list of files and source links saved in StudyApp. Add and remove actions stay in Add / Remove Material.</p>
+        <p>This is the complete read-only list of original files and source links saved in StudyApp. Split PDFs appear in Structured Study.</p>
 
         {!hasSavedSourceMaterial ? (
           <p className="inline-message">No uploaded files or saved source links yet.</p>
