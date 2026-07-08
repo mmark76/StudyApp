@@ -1,7 +1,11 @@
+import type { SourceMaterialType } from "../../shared/types/models";
+import { isSourceMaterialType } from "./localStudyFiles";
+
 export interface StudyMaterialLink {
   id: string;
   title: string;
   url: string;
+  materialType?: SourceMaterialType;
 }
 
 export const STUDY_MATERIALS_SETTING_KEY = "study-material-links";
@@ -36,7 +40,12 @@ export function parseStoredStudyMaterials(value: unknown): StudyMaterialLink[] {
     try {
       const id = item.id.trim();
       if (!id || ids.has(id)) continue;
-      result.push({ id, title: normalizeStudyMaterialTitle(item.title), url: normalizeStudyMaterialUrl(item.url) });
+      result.push({
+        id,
+        title: normalizeStudyMaterialTitle(item.title),
+        url: normalizeStudyMaterialUrl(item.url),
+        materialType: isSourceMaterialType(item.materialType) ? item.materialType : "book",
+      });
       ids.add(id);
     } catch {
       // Ignore malformed local records.

@@ -1,11 +1,13 @@
 import { type ChangeEvent, type FormEvent, useRef, useState } from "react";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
-import type { LocalStudyFile } from "../../shared/types/models";
+import type { LocalStudyFile, SourceMaterialType } from "../../shared/types/models";
 import { createId } from "../../shared/utils/id";
 import {
+  getDefaultSourceMaterialType,
   getLocalStudyFileKind,
   isSupportedStudyFile,
   MAX_LOCAL_FILE_SIZE,
+  sourceMaterialTypeOptions,
   titleFromFileName,
 } from "./localStudyFiles";
 import { normalizeStudyMaterialTitle } from "./studyMaterials";
@@ -25,6 +27,7 @@ export function LocalPdfForm({
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
+  const [materialType, setMaterialType] = useState<SourceMaterialType>("book");
   const [uploadedFile, setUploadedFile] = useState<UploadedLocalFile | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const lock = useRef(false);
@@ -33,6 +36,7 @@ export function LocalPdfForm({
   function clearDraft() {
     setFile(null);
     setTitle("");
+    setMaterialType("book");
     if (inputRef.current) inputRef.current.value = "";
   }
 
@@ -40,7 +44,11 @@ export function LocalPdfForm({
     const selected = event.target.files?.[0] ?? null;
     setFile(selected);
     setUploadedFile(null);
-    if (selected && title.trim().length === 0) setTitle(titleFromFileName(selected.name));
+    if (selected) {
+      const kind = getLocalStudyFileKind(selected.name, selected.type);
+      setMaterialType(getDefaultSourceMaterialType(kind));
+      if (title.trim().length === 0) setTitle(titleFromFileName(selected.name));
+    }
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -76,6 +84,7 @@ export function LocalPdfForm({
         mimeType: file.type || "application/octet-stream",
         fileKind: getLocalStudyFileKind(file.name, file.type),
         fileSource: "source-material",
+        materialType,
       };
       await studyDatabase.studyFiles.add(item);
       setUploadedFile({ id: item.id, title: item.title, fileName: item.fileName });
@@ -137,7 +146,21 @@ export function LocalPdfForm({
           placeholder="The file name will be used automatically"
         />
       </label>
-      <p className="field-help">Upload stores a private browser copy inside StudyApp so it can be read or used later.</p>
+      <label className="field-label">
+        Type
+        <select
+          value={materialType}
+          onChange={(event) => {
+            setMaterialType(event.target.value as SourceMaterialType);
+            setUploadedFile(null);
+          }}
+        >
+          {sourceMaterialTypeOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </label>
+      <p className="field-help">Upload stores a private browser copy inside StudyApp with a display name and source type.</p>
       <div className="button-row">
         <button
           className={uploadedFile ? "button success compact-square" : "button primary compact-square"}

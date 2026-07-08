@@ -2,6 +2,9 @@ export type Rating = 0 | 1 | 2;
 export type StudyMode = "flashcards" | "quiz" | "review";
 export type LocalStudyFileKind = "pdf" | "document" | "text" | "image" | "spreadsheet" | "other";
 export type LocalStudyFileSource = "source-material" | "split-pdf";
+export type SourceMaterialType = "book" | "article" | "paper" | "outsource-note" | "my-note" | "summary";
+export type StructuredStudyType = "contents" | "chapter" | "section" | "key-concept" | "bibliography-reference" | "image-diagram";
+export type LocalStudyMaterialType = SourceMaterialType | StructuredStudyType;
 
 export interface StudyUnit {
   id: string;
@@ -50,6 +53,7 @@ export interface LocalStudyFile {
   mimeType?: string;
   fileKind?: LocalStudyFileKind;
   fileSource?: LocalStudyFileSource;
+  materialType?: LocalStudyMaterialType;
   sourceFileId?: string;
   pageRangeLabel?: string;
 }
