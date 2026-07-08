@@ -10,6 +10,23 @@ In short, StudyApp is intended to become a **local-first personal knowledge and 
 
 The app should not be understood only as a flashcards app. Flashcards, quizzes, review queues and spaced repetition are learning tools inside a broader system for organising, understanding, remembering and recalling knowledge.
 
+## Current v1 status
+
+StudyApp is a **v1 release candidate** after the local-first hardening pass documented in [`AUDIT.md`](AUDIT.md), [`ROADMAP.md`](ROADMAP.md), and [`CODEX_TASKS.md`](CODEX_TASKS.md).
+
+Completed v1 hardening work includes:
+
+- stable due-review queue behavior;
+- duplicate-answer protection in quizzes;
+- CSV header validation for chapter and flashcard imports;
+- CI checks for install, typecheck, tests and build;
+- intentional source/split-PDF deletion handling;
+- clearer backup/data-safety wording;
+- local file `contentHash` support for new local files and generated split PDFs;
+- a future complete local-file export/import design in [`docs/LOCAL_FILE_EXPORT_DESIGN.md`](docs/LOCAL_FILE_EXPORT_DESIGN.md).
+
+This status does not mean full local-file export exists yet. The current backup remains a progress/settings JSON backup and does not include local file blobs.
+
 ## Project guidance documents
 
 Before making larger code, data-model, or workflow changes, read these files:
@@ -23,6 +40,7 @@ Before making larger code, data-model, or workflow changes, read these files:
 - [`DATA_MODEL.md`](DATA_MODEL.md) — persisted data model and relationship rules.
 - [`BACKUP_AND_DATA_SAFETY.md`](BACKUP_AND_DATA_SAFETY.md) — backup limitations and data-safety expectations.
 - [`SECURITY.md`](SECURITY.md) — security and privacy boundaries.
+- [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) — v1 release-candidate manual checklist.
 
 ## Current product areas
 
@@ -144,9 +162,10 @@ These limitations are intentional or known at this stage:
 
 - Local files and split PDFs depend on browser storage.
 - Progress/settings backups do not currently include local file blobs.
-- Duplicate local file detection should be improved with content hashing.
-- Source-file deletion should intentionally handle any related split PDFs.
-- Review and quiz flows need regression protection for queue stability and duplicate submissions.
+- A future complete local-file export/import feature is designed but not implemented.
+- Local file hashing is stored for new files; older local file records may not have `contentHash`.
+- Linting/formatting automation remains future work.
+- Some UX polish remains future work, including PDF split progress feedback and replacing the quiz restart page reload.
 
 See [`AUDIT.md`](AUDIT.md) and [`ROADMAP.md`](ROADMAP.md) for the current priority plan.
 

@@ -4,137 +4,124 @@ _Last updated: 2026-07-08_
 
 ## Purpose
 
-This audit records the current stability, data-safety, maintainability, and automation issues that should guide the next development phase.
+This audit records the current stability, data-safety, maintainability, and automation state for the v1 release candidate.
 
-It is a working audit for planning focused PRs.
+## Overall Assessment
 
-## Overall assessment
+StudyApp is in a **v1 hardening complete** state. The main local-first workflows are source-visible, browser-only, offline-ready, and protected by TypeScript, Vitest tests, and GitHub Actions CI.
 
-StudyApp has a good local-first foundation, clear product boundaries, strict TypeScript, a small test suite, and sensible validation around file and link handling.
-
-The main risk areas are:
-
-- data lifecycle and backup expectations;
-- source PDF deletion versus generated split PDFs;
-- review and quiz state stability;
-- missing automation such as CI, dependency review, linting, and formatting;
-- limited test coverage for data import, backup, deletion, and queue behavior.
-
-## Critical / high priority findings
-
-### 1. Local files are not included in progress backups
-
-Local files are stored in IndexedDB as `Blob` data, while the current backup model is progress/settings oriented. This is documented behavior, but it is still a real data-loss risk if the browser storage is cleared or the user changes device.
-
-**Risk:** loss of saved PDFs, documents, images, and split PDFs.
-
-**Recommended direction:** add a clearly labelled export path for local files, or add a complete backup mode that includes file blobs. Until then, keep the UI and documentation explicit about what is and is not backed up.
-
-**Acceptance criteria:**
-
-- The UI clearly states whether local files are included in a backup.
-- Documentation states what can be restored and what cannot.
-- A future complete backup/export feature includes tests for schema validation and file handling.
-
-### 2. Deleting a source PDF can leave split PDFs orphaned
-
-Split PDFs can keep a `sourceFileId` relation to the original source file. If a source file is deleted without considering those child files, Structured Study may contain split PDFs whose source no longer exists.
-
-**Risk:** loss of traceability and confusing orphaned study material.
-
-**Recommended direction:** when deleting a source file, detect child split PDFs and offer a clear choice: keep them, delete them, or cancel. Add an orphan indicator in Structured Study if kept.
-
-**Acceptance criteria:**
-
-- Source deletion detects related split PDFs.
-- The user is warned before any destructive cascade.
-- A test covers source deletion with zero, one, and multiple child split PDFs.
-
-### 3. Review queue may skip cards after rating
-
-The review page derives due cards from live progress data. After rating a card, the due set changes, and the current index can move past the next due card.
-
-**Risk:** due cards can be skipped or review order can become unstable.
-
-**Recommended direction:** use a stable review session queue or update the current index relative to the next due-card list without incrementing blindly.
-
-**Acceptance criteria:**
-
-- Rating one due card does not skip the next due card.
-- Tests cover the regression.
-- Existing spaced repetition behavior remains unchanged.
-
-## Medium priority findings
-
-### 4. Quiz answer submission lacks a double-submit lock
-
-Rapid repeated clicks on an answer can cause duplicate state transitions or duplicate session writes.
-
-**Acceptance criteria:**
-
-- Each quiz question accepts only one answer.
-- Rapid double-clicking does not double count.
-- Tests cover duplicate answer submission where practical.
-
-### 5. Duplicate file detection uses filename and size only
-
-Two different files can share the same name and size. This may incorrectly treat a new file as an existing file.
-
-**Recommended direction:** compute and store a content hash using Web Crypto where practical.
-
-### 6. CSV import does not validate headers explicitly
-
-The parser reads data by column position and skips the header row. It should reject unexpected headers with a clear message.
-
-**Acceptance criteria:**
-
-- Units and flashcard imports validate expected headers.
-- Wrong headers produce a specific error.
-- Tests cover valid headers, wrong headers, and quoted values.
-
-### 7. PDF rendered split fallback can be heavy
-
-Compatibility splitting renders pages to canvas and embeds JPEG output. This can consume memory and increase output size for large ranges.
-
-**Recommended direction:** add progress feedback, smaller quality/scale options, and clear warnings when rendered output is used.
-
-## Low priority findings
-
-### 8. Quiz restart uses full page reload
-
-Use React state reset instead of `window.location.reload()`.
-
-### 9. Placement editors appear in multiple lists
-
-This is functional but can feel repetitive. Consider consolidating editing into one explicit placement action.
-
-### 10. Some layout choices are inline
-
-Move repeated or responsive layout rules into CSS classes where possible.
-
-## Test priorities
-
-Add or improve tests for:
+The v1 hardening pass addressed the highest-risk study-session and local-file lifecycle issues:
 
 - review queue stability;
-- quiz duplicate answer prevention;
-- source deletion and split PDF handling;
+- quiz duplicate-answer protection;
 - CSV header validation;
-- malformed stored settings;
-- backup and restore validation;
-- local file classification and legacy split detection;
-- URL validation and unsupported protocols;
-- file hashing once introduced.
+- source/split-PDF deletion handling;
+- progress/settings backup clarity;
+- local file content hashing for new records;
+- complete local-file export/import design;
+- CI for install, typecheck, tests and build.
 
-## Recommended implementation order
+This does not mean the app has full local-file export/import yet. Current progress/settings backup still does not include local file blobs, and users should keep original PDFs and files outside StudyApp.
 
-1. Fix review queue stability.
-2. Add quiz answer lock.
-3. Add CSV header validation.
-4. Add CI workflow for typecheck, tests, and build.
-5. Add source deletion handling for split PDFs.
-6. Add documentation and UI warnings for local-file backup limitations.
-7. Add file hashing.
-8. Add complete export/backup for local files.
-9. Add linting and formatting.
-10. Polish placement editing and PDF split progress.
+## Resolved v1 Hardening Findings
+
+### 1. Local Files Are Not Included in Progress Backups - Clarified
+
+Status: documented and reflected in user-facing backup copy.
+
+The current JSON backup is intentionally progress/settings oriented. It includes progress, sessions and settings-backed data, but not local file blobs such as uploaded PDFs, documents, images or generated split PDFs.
+
+Remaining future work:
+
+- implement complete local-file export/import from [`docs/LOCAL_FILE_EXPORT_DESIGN.md`](docs/LOCAL_FILE_EXPORT_DESIGN.md).
+
+### 2. Deleting a Source PDF Can Leave Split PDFs Orphaned - Fixed
+
+Status: source deletion now detects related split PDFs by `sourceFileId` and requires an intentional user choice.
+
+Current behavior:
+
+- files without related split PDFs keep the simple delete confirmation;
+- source files with related split PDFs allow cancel;
+- the user may keep split PDFs intentionally;
+- the user may delete source and related split PDFs together;
+- multi-file deletion uses a transaction.
+
+### 3. Review Queue May Skip Cards After Rating - Fixed
+
+Status: review sessions use a stable due-card queue so rating one due card does not skip the next due card.
+
+Regression tests cover the queue behavior. The spaced-repetition algorithm was not changed.
+
+### 4. Quiz Answer Submission Lacks a Double-Submit Lock - Fixed
+
+Status: quiz answers are guarded so rapid repeated clicks do not submit the same question twice.
+
+Tests cover the answer lock helper.
+
+### 5. Duplicate File Detection Uses Filename and Size Only - Improved
+
+Status: new local files and generated split PDFs can store a SHA-256 `contentHash`, and duplicate detection prefers `contentHash` when available.
+
+Legacy files without `contentHash` remain readable and use the conservative name/size fallback.
+
+### 6. CSV Import Does Not Validate Headers Explicitly - Fixed
+
+Status: chapter/unit and flashcard CSV imports require the expected headers and preserve quoted CSV value support.
+
+Tests cover valid headers, wrong headers and quoted values.
+
+### 7. Missing Automation - Improved
+
+Status: GitHub Actions CI runs install, typecheck, tests and build on pull requests and pushes to `main`.
+
+Dependabot is configured for npm and GitHub Actions updates.
+
+## Remaining Future Work
+
+These items are not v1 hardening blockers, but they remain useful next steps.
+
+### Complete Local-File Export/Import
+
+The design exists in [`docs/LOCAL_FILE_EXPORT_DESIGN.md`](docs/LOCAL_FILE_EXPORT_DESIGN.md). Implementation remains future work.
+
+The current progress/settings backup still does not include local file blobs.
+
+### PDF Split Progress and Compatibility Feedback
+
+Compatibility splitting can be heavy for large page ranges. Future work should add progress feedback, clearer compatibility-mode warnings and possibly quality/scale options.
+
+### Quiz Restart Polish
+
+The quiz restart still uses a full page reload. Replacing it with local React state reset would be a small UX polish task.
+
+### Placement Editing UX
+
+Placement editors appear in multiple lists. This is functional, but future UX polish could consolidate final placement correction.
+
+### Linting and Formatting
+
+ESLint and Prettier remain future work. Add them only when the repository is ready for a formatting baseline to avoid unrelated churn.
+
+### Complete Backup/Restore Validation Expansion
+
+Before expanding restore behavior, add stricter runtime validation, preview summaries and tests for malformed, duplicate, missing and oversized data.
+
+## Test Priorities After v1
+
+Future test expansion should prioritise:
+
+- complete local-file export/import validation when implemented;
+- quota and large-Blob failure paths;
+- restore preview and conflict handling;
+- orphaned split PDF indicators if added;
+- PDF split progress and compatibility behavior;
+- keyboard accessibility of import/export controls.
+
+## Recommended Next Implementation Order
+
+1. Implement complete local-file export/import from the design.
+2. Add PDF split progress and compatibility warnings.
+3. Replace quiz restart page reload with React state reset.
+4. Add stricter restore preview/validation before expanding backup behavior.
+5. Introduce linting/formatting after agreeing on a baseline.

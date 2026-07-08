@@ -2,9 +2,9 @@
 
 _Last updated: 2026-07-08_
 
-Use these tasks one at a time. Each task should become a small, focused PR.
+The v1 hardening task queue is complete. Keep future Codex tasks small, focused, and aligned with `AGENTS.md`, `README.md`, `ROADMAP.md`, `DATA_MODEL.md`, and `BACKUP_AND_DATA_SAFETY.md`.
 
-## Standard preface
+## Standard Preface
 
 Read `AGENTS.md`, `README.md`, `AUDIT.md`, and `ROADMAP.md` first. Work only on the requested task. Keep the local-first/no-backend model. Avoid unrelated refactors. Run these checks when practical:
 
@@ -14,125 +14,99 @@ npm run typecheck
 npm run build
 ```
 
-## Task 1 — Review queue stability
+## Completed v1 Hardening Tasks
 
-Fix the due-card queue so that rating one due card does not skip the next due card.
+### Task 1 - Review Queue Stability - Done
 
-Scope:
+Fixed the due-card queue so rating one due card does not skip the next due card.
 
-- `src/features/review/ReviewPage.tsx`
-- review-related tests if practical
+Status:
 
-Acceptance criteria:
+- stable review queue behavior is implemented;
+- spaced-repetition scheduling remains unchanged;
+- regression tests were added.
 
-- Rating a card does not skip the next due card.
-- The spaced-repetition algorithm is not changed unless needed.
-- A regression test is added where practical.
+### Task 2 - Quiz Answer Lock - Done
 
-## Task 2 — Quiz answer lock
+Prevented rapid repeated answer clicks from submitting the same quiz question more than once.
 
-Prevent rapid repeated answer clicks from submitting the same quiz question more than once.
+Status:
 
-Scope:
+- each question accepts only one answer;
+- final quiz session recording is protected from duplicate submission;
+- current quiz UX remains otherwise unchanged.
 
-- `src/features/quiz/QuizPage.tsx`
-- quiz-related tests if practical
+### Task 3 - CSV Header Validation - Done
 
-Acceptance criteria:
+Required expected headers in chapter and flashcard CSV imports.
 
-- Each question accepts only one answer.
-- The final quiz session is recorded once.
-- Current quiz behavior remains otherwise unchanged.
+Status:
 
-## Task 3 — CSV header validation
+- valid templates still import;
+- wrong headers fail clearly;
+- quoted CSV values still work;
+- parser tests were added.
 
-Require the expected headers in chapter and flashcard CSV imports.
+### Task 4 - CI Workflow - Done
 
-Scope:
+Added GitHub Actions CI for pull requests and pushes to `main`.
 
-- `src/features/content-import/spreadsheetImport.ts`
-- import-related tests
+Status:
 
-Acceptance criteria:
-
-- Valid templates still import.
-- Wrong headers fail clearly.
-- Quoted CSV values still work.
-
-## Task 4 — CI workflow
-
-Add GitHub Actions CI for pull requests and pushes to `main`.
-
-Scope:
-
-- `.github/workflows/ci.yml`
-
-Acceptance criteria:
-
-- CI runs `npm ci`.
-- CI runs `npm run typecheck`.
-- CI runs `npm test`.
+- CI runs `npm ci`;
+- CI runs `npm run typecheck`;
+- CI runs `npm test`;
 - CI runs `npm run build`.
 
-## Task 5 — Source and split PDF deletion behavior
+### Task 5 - Source and Split PDF Deletion Behavior - Done
 
-Improve source-file deletion so related split PDFs are detected and handled intentionally.
+Improved source-file deletion so related split PDFs are detected and handled intentionally.
 
-Scope:
+Status:
 
-- `src/features/library/LibraryPage.tsx`
-- helper module/tests if useful
+- source files without related split PDFs behave as before;
+- source files with related split PDFs show clear user choices;
+- deleting source and related split PDFs together uses a transaction;
+- helper tests cover child detection and deletion choices.
 
-Acceptance criteria:
+### Task 6 - Backup Clarity - Done
 
-- Source files without related split PDFs behave as before.
-- Source files with related split PDFs show clear user choices.
-- Multi-record changes use a transaction.
+Clarified that the current progress/settings backup does not include local file blobs.
 
-## Task 6 — Backup clarity
+Status:
 
-Clarify that current progress/settings backup does not include local file blobs.
+- UI and docs use matching language;
+- the user can understand what is saved and what is not;
+- no new export implementation was added.
 
-Scope:
+### Task 7 - File Content Hashing - Done
 
-- backup/export UI files if present
-- `README.md`
-- `BACKUP_AND_DATA_SAFETY.md`
+Added content hashing for newly saved local files and safer duplicate detection.
 
-Acceptance criteria:
+Status:
 
-- UI and docs use matching language.
-- The user can understand what is saved and what is not.
-- No new export implementation is added in this task.
+- new local files can store `contentHash`;
+- generated split PDFs can store `contentHash`;
+- duplicate detection prefers hashes when available;
+- legacy files without hashes continue to load and use the conservative fallback.
 
-## Task 7 — File content hashing
+### Task 8 - Complete Local-File Export Design - Done
 
-Add content hashing for newly saved local files and use it for safer duplicate detection.
+Designed the future complete local-file export/import format without implementing it.
 
-Scope:
+Status:
 
-- `src/shared/types/models.ts`
-- local file upload/split helpers
-- tests where practical
+- export scope is clear;
+- restore scope and safety rules are clear;
+- browser storage and file-size limitations are documented;
+- design lives in [`docs/LOCAL_FILE_EXPORT_DESIGN.md`](docs/LOCAL_FILE_EXPORT_DESIGN.md).
 
-Acceptance criteria:
+## Future Task Candidates
 
-- New files can store a content hash.
-- Duplicate detection prefers the hash when available.
-- Legacy files continue to load.
+These are future tasks, not v1 hardening blockers:
 
-## Task 8 — Complete local-file export design
-
-Design the future complete export format before implementation.
-
-Scope:
-
-- `BACKUP_AND_DATA_SAFETY.md`
-- `DATA_MODEL.md`
-- optional ADR
-
-Acceptance criteria:
-
-- Export scope is clear.
-- Restore scope is clear.
-- Browser storage and file-size limitations are documented.
+- Implement complete local-file export/import from the design.
+- Add PDF split progress feedback and compatibility-mode warnings.
+- Replace quiz restart full page reload with React state reset.
+- Introduce linting/formatting after agreeing on a formatting baseline.
+- Add deeper backup/restore validation before any restore behavior expansion.

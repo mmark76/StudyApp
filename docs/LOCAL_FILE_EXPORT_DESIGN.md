@@ -1,12 +1,12 @@
 # Complete Local-File Export Design
 
-_Status: design only_
+_Status: design only. Complete local-file export/import is not implemented in v1._
 
 This document describes a future complete export/import feature for StudyApp. It does not describe current behavior. The current JSON backup remains progress/settings oriented and does not include local file blobs.
 
 ## Goals
 
-The future complete export should let a user preserve and restore all local StudyApp data in a browser-only, local-first way. It should include progress, settings, imported content, cloud-link records, local file metadata, uploaded file blobs, source PDFs, uploaded documents/images, generated split PDFs, and content hashes.
+The future complete export should let a user preserve and restore all local StudyApp data in a browser-only, local-first way. It should include progress, settings, imported content, cloud-link records, local file metadata, uploaded file blobs, source PDFs, uploaded documents/images, generated split PDFs, and `contentHash` values.
 
 The feature must not require an account, backend, telemetry, remote storage, or external processing of study content.
 
