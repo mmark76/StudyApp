@@ -259,7 +259,7 @@ export function LibraryPage() {
     <div className="stack-lg">
       <header className="page-heading">
         <p className="eyebrow">Read from source</p>
-        <h2>Library from Source</h2>
+        <h2>Library</h2>
         <p>Read primary and source material only: books, articles, papers, outsource notes, personal notes and summaries.</p>
       </header>
 

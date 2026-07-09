@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 const homeSpaces = [
   {
     eyebrow: "Read from source",
-    title: "Library from Source",
+    title: "Library",
     description: "Read primary and source material: books, articles, papers, source notes, my notes and summaries.",
     action: "Read from source",
     to: "/library",
