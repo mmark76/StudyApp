@@ -18,10 +18,31 @@
 }
 
 @media (max-width: 640px) {
+  .app-shell {
+    padding-bottom: 4.25rem;
+  }
+
+  .app-footer {
+    padding: 0.38rem 0.7rem 0.5rem;
+    font-size: 0.78rem;
+    line-height: 1.25;
+  }
+
+  .app-footer p {
+    line-height: 1.25;
+  }
+
+  .footer-meta {
+    gap: 0.2rem 0.65rem;
+    margin-top: 0.15rem;
+    font-size: 0.72rem;
+    line-height: 1.2;
+  }
+
   .build-version {
     right: 0.35rem;
-    bottom: 0.25rem;
-    font-size: 0.64rem;
-    opacity: 0.62;
+    bottom: 0.15rem;
+    font-size: 0.52rem;
+    opacity: 0.45;
   }
 }
