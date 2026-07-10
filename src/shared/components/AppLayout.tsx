@@ -37,6 +37,13 @@ export function AppLayout() {
           <div className="utility-actions" aria-label="Study settings">
             <NavLink to="/appearance">Settings</NavLink>
             <a
+              href="https://github.com/mmark76/StudyApp/issues/new/choose"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Feedback
+            </a>
+            <a
               className="text-link"
               href="https://markellosecosystem.com/"
               target="_blank"
