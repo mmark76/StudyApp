@@ -36,6 +36,9 @@ export function AppLayout() {
           </div>
           <div className="utility-actions" aria-label="Study settings">
             <NavLink to="/appearance">Settings</NavLink>
+            <a href="mailto:markellos.markides@gmail.com?subject=StudyApp%20Feedback">
+              Feedback
+            </a>
             <a href="https://markellosecosystem.com/" target="_blank" rel="noreferrer">
               Back to markellosecosystem
             </a>
