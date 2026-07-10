@@ -18,6 +18,14 @@
 }
 
 @media (max-width: 760px) {
+  .app-shell {
+    padding-bottom: calc(10rem + env(safe-area-inset-bottom));
+  }
+
+  .app-footer {
+    padding-bottom: calc(0.8rem + env(safe-area-inset-bottom));
+  }
+
   .build-version {
     position: static;
     display: block;
