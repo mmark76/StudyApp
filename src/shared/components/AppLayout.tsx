@@ -36,7 +36,21 @@ export function AppLayout() {
           </div>
           <div className="utility-actions" aria-label="Study settings">
             <NavLink to="/appearance">Settings</NavLink>
-            <a href="https://markellosecosystem.com/" target="_blank" rel="noreferrer">
+            <a
+              className="text-link"
+              href="https://markellosecosystem.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                background: "transparent",
+                border: 0,
+                borderRadius: 0,
+                color: "var(--blue-600)",
+                padding: 0,
+                textDecoration: "underline",
+                textUnderlineOffset: "0.2em"
+              }}
+            >
               Back to markellosecosystem
             </a>
           </div>
