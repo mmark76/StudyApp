@@ -67,13 +67,13 @@ export function AppLayout() {
         <nav className="footer-meta" aria-label="Legal information">
           {footerNavigation.map(([to, label]) => <NavLink key={to} to={to}>{label}</NavLink>)}
         </nav>
+        <small
+          className="build-version"
+          title="Version · Cyprus build date (YYYYMMDD) and local time · commit reference"
+        >
+          {__APP_BUILD_ID__}
+        </small>
       </footer>
-      <small
-        className="build-version"
-        title="Version · Cyprus build date (YYYYMMDD) and local time · commit reference"
-      >
-        {__APP_BUILD_ID__}
-      </small>
     </div>
   );
 }
