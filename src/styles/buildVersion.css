@@ -26,6 +26,11 @@
     padding-bottom: calc(0.8rem + env(safe-area-inset-bottom));
   }
 
+  .app-footer > p {
+    font-size: 0.72rem;
+    line-height: 1.25;
+  }
+
   .build-version {
     position: static;
     display: block;
