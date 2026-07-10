@@ -17,11 +17,24 @@
   white-space: nowrap;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 760px) {
+  .app-shell {
+    padding-bottom: calc(10rem + env(safe-area-inset-bottom));
+  }
+
+  .app-footer {
+    padding-bottom: calc(0.8rem + env(safe-area-inset-bottom));
+  }
+
   .build-version {
-    right: 0.35rem;
-    bottom: 0.25rem;
+    position: static;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 0.4rem;
     font-size: 0.64rem;
+    line-height: 1.3;
     opacity: 0.62;
+    text-align: center;
   }
 }
