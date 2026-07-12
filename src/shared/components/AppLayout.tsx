@@ -36,11 +36,7 @@ export function AppLayout() {
           </div>
           <div className="utility-actions" aria-label="Study settings">
             <NavLink to="/appearance">Settings</NavLink>
-            <a
-              href="https://github.com/mmark76/StudyApp/issues/new/choose"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href="mailto:markellos.markides@gmail.com?subject=StudyApp%20Feedback">
               Feedback
             </a>
             <a
