@@ -176,8 +176,13 @@ export function LocalPdfForm({
         >
           {uploadedFile ? "File Uploaded" : "Upload"}
         </button>
-        <button className="button danger compact-square" disabled={!canRemove} onClick={() => void removeSelectionOrUpload()} type="button">
-          Remove
+        <button
+          className={uploadedFile ? "button danger compact-square" : "button secondary compact-square"}
+          disabled={!canRemove}
+          onClick={() => void removeSelectionOrUpload()}
+          type="button"
+        >
+          {uploadedFile ? "Undo upload" : "Clear"}
         </button>
       </div>
       {uploadedFile ? (

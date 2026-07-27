@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import { useLiveQuery } from "dexie-react-hooks";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { LocalStudyFile, StructuredStudyType } from "../../shared/types/models";
@@ -110,6 +109,7 @@ export function StudyTheoryPage() {
     [localFiles],
   );
   const unclassifiedFiles = splitPdfFiles.filter((file) => getStructuredStudyType(file) === null);
+  const [message, setMessage] = useState("");
 
   function openSplitPdf(fileId: string) {
     const file = splitPdfFiles.find((item) => item.id === fileId);
@@ -118,6 +118,18 @@ export function StudyTheoryPage() {
     const url = URL.createObjectURL(blob);
     window.open(url, "_blank", "noopener,noreferrer");
     window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
+
+  async function removeSplitPdf(file: LocalStudyFile) {
+    const confirmed = window.confirm(`Remove "${file.title}" from Structured Study? This cannot be undone.`);
+    if (!confirmed) return;
+
+    try {
+      await studyDatabase.studyFiles.delete(file.id);
+      setMessage(`Removed ${file.title}.`);
+    } catch {
+      setMessage("The split PDF could not be removed.");
+    }
   }
 
   return (
@@ -150,7 +162,10 @@ export function StudyTheoryPage() {
                   <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)} · {file.fileName}</span>
                   <StructuredFilePlacementEditor file={file} />
                 </div>
-                <button className="button secondary compact-square" onClick={() => openSplitPdf(file.id)} type="button">View</button>
+                <div className="local-file-actions">
+                  <button className="button secondary compact-square" onClick={() => openSplitPdf(file.id)} type="button">View</button>
+                  <button className="button danger compact-square" onClick={() => void removeSplitPdf(file)} type="button">Remove</button>
+                </div>
               </li>
             ))}
           </ul>
@@ -170,7 +185,6 @@ export function StudyTheoryPage() {
               <span className="stage-number" aria-hidden="true">{index + 1}</span>
               <h3>{item.title}</h3>
               <p>{item.description}</p>
-              <Link className="button secondary" to={`/study/theory#${item.id}`}>Read</Link>
               {filesForType.length > 0 ? (
                 <ul className="local-file-list">
                   {filesForType.map((file) => (
@@ -180,7 +194,10 @@ export function StudyTheoryPage() {
                         <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)} · {file.fileName}</span>
                         <StructuredFilePlacementEditor file={file} />
                       </div>
-                      <button className="button secondary compact-square" onClick={() => openSplitPdf(file.id)} type="button">View</button>
+                      <div className="local-file-actions">
+                        <button className="button secondary compact-square" onClick={() => openSplitPdf(file.id)} type="button">View</button>
+                        <button className="button danger compact-square" onClick={() => void removeSplitPdf(file)} type="button">Remove</button>
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -191,6 +208,8 @@ export function StudyTheoryPage() {
           );
         })}
       </section>
+
+      {message ? <p className="inline-message status-banner" role="status" aria-live="polite">{message}</p> : null}
     </div>
   );
 }
