@@ -1,15 +1,17 @@
 import { type ChangeEvent, type FormEvent, useRef, useState } from "react";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
-import type { LocalStudyFile, SourceMaterialType } from "../../shared/types/models";
+import type { LocalStudyFile, SourceMaterialType, StructuredStudyType } from "../../shared/types/models";
 import { createId } from "../../shared/utils/id";
 import {
   computeBlobSha256,
   findDuplicateLocalStudyFile,
   getLocalStudyFileKind,
   isSourceMaterialType,
+  isStructuredStudyType,
   isSupportedStudyFile,
   MAX_LOCAL_FILE_SIZE,
   sourceMaterialTypeOptions,
+  structuredStudyTypeOptions,
 } from "./localStudyFiles";
 import { normalizeStudyMaterialTitle } from "./studyMaterials";
 
@@ -29,15 +31,21 @@ export function LocalPdfForm({
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [materialType, setMaterialType] = useState<SourceMaterialType | "">("");
+  const [structuredStudyType, setStructuredStudyType] = useState<StructuredStudyType | "">("");
   const [uploadedFile, setUploadedFile] = useState<UploadedLocalFile | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const lock = useRef(false);
-  const canRemove = Boolean(uploadedFile) || Boolean(file) || title.trim().length > 0 || materialType.length > 0;
+  const canRemove = Boolean(uploadedFile)
+    || Boolean(file)
+    || title.trim().length > 0
+    || materialType.length > 0
+    || structuredStudyType.length > 0;
 
   function clearDraft() {
     setFile(null);
     setTitle("");
     setMaterialType("");
+    setStructuredStudyType("");
     if (inputRef.current) inputRef.current.value = "";
   }
 
@@ -60,9 +68,15 @@ export function LocalPdfForm({
       return;
     }
     if (!isSourceMaterialType(materialType)) {
-      onMessage("Choose a source type before uploading the file.");
+      onMessage("Choose a Library type before uploading the file.");
       return;
     }
+    if (structuredStudyType && !isStructuredStudyType(structuredStudyType)) {
+      onMessage("Choose a valid Structured Study part.");
+      return;
+    }
+
+    const selectedStructuredType = isStructuredStudyType(structuredStudyType) ? structuredStudyType : null;
 
     lock.current = true;
     try {
@@ -75,7 +89,7 @@ export function LocalPdfForm({
       if (existingFile) {
         setUploadedFile({ id: existingFile.id, title: existingFile.title, fileName: existingFile.fileName });
         clearDraft();
-        onMessage("");
+        onMessage("This file has already been uploaded.");
         return;
       }
 
@@ -90,14 +104,19 @@ export function LocalPdfForm({
         fileKind: getLocalStudyFileKind(file.name, file.type),
         fileSource: "source-material",
         materialType,
+        ...(selectedStructuredType ? { structuredStudyType: selectedStructuredType } : {}),
         ...(contentHash ? { contentHash } : {}),
       };
       await studyDatabase.studyFiles.add(item);
       setUploadedFile({ id: item.id, title: item.title, fileName: item.fileName });
       clearDraft();
-      onMessage("The study file was uploaded to the app.");
+      onMessage(
+        selectedStructuredType
+          ? "The study file was uploaded to the Library and Structured Study."
+          : "The study file was uploaded to the Library.",
+      );
     } catch {
-      onMessage("Enter a display name and choose a source type. The file also needs enough browser storage space.");
+      onMessage("Enter a display name and choose a Library type. The file also needs enough browser storage space.");
     } finally {
       lock.current = false;
     }
@@ -153,7 +172,7 @@ export function LocalPdfForm({
         />
       </label>
       <label className="field-label">
-        Type
+        Library type
         <select
           required={!uploadedFile}
           value={materialType}
@@ -162,13 +181,28 @@ export function LocalPdfForm({
             setUploadedFile(null);
           }}
         >
-          <option value="">Choose type</option>
+          <option value="">Choose Library type</option>
           {sourceMaterialTypeOptions.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
           ))}
         </select>
       </label>
-      <p className="field-help">Upload stores a private browser copy inside StudyApp with the display name and source type you choose.</p>
+      <label className="field-label">
+        Structured part (optional)
+        <select
+          value={structuredStudyType}
+          onChange={(event) => {
+            setStructuredStudyType(event.target.value as StructuredStudyType | "");
+            setUploadedFile(null);
+          }}
+        >
+          <option value="">Do not add to Structured Study</option>
+          {structuredStudyTypeOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </label>
+      <p className="field-help">Upload stores one private browser copy. The Library type places it in Library, and the optional Structured part also places the same file in Structured Study.</p>
       <div className="button-row">
         <button
           className={uploadedFile ? "button success compact-square" : "button primary compact-square"}
