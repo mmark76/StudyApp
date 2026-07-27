@@ -2,12 +2,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useSearchParams } from "react-router-dom";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
+import type { LocalStudyFile } from "../../shared/types/models";
 import { CloudLinkForm } from "./CloudLinkForm";
 import { LocalPdfForm } from "./LocalPdfForm";
+import { formatFileKind, formatFileSize, isSplitPdfFile } from "./localStudyFiles";
 import {
   builtInStudyMaterials,
   parseStoredStudyMaterials,
   STUDY_MATERIALS_SETTING_KEY,
+  type StudyMaterialLink,
 } from "./studyMaterials";
 
 export function StudyMaterialsPage() {
@@ -43,12 +46,41 @@ export function StudyMaterialsPage() {
     target.focus({ preventScroll: true });
   }, [addMode]);
 
+  async function removeLocalFile(file: LocalStudyFile) {
+    const confirmed = window.confirm(`Remove "${file.title}" from StudyApp? This cannot be undone.`);
+    if (!confirmed) return;
+
+    try {
+      await studyDatabase.studyFiles.delete(file.id);
+      setMessage(`Removed ${file.title}.`);
+    } catch {
+      setMessage("The saved file could not be removed.");
+    }
+  }
+
+  async function removeSavedLink(link: StudyMaterialLink) {
+    const confirmed = window.confirm(`Remove "${link.title}" from StudyApp? The file in your cloud service will not be deleted.`);
+    if (!confirmed) return;
+
+    try {
+      const currentSetting = await studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY);
+      const currentLinks = parseStoredStudyMaterials(currentSetting?.value);
+      await studyDatabase.settings.put({
+        key: STUDY_MATERIALS_SETTING_KEY,
+        value: currentLinks.filter((item) => item.id !== link.id),
+      });
+      setMessage(`Removed ${link.title}.`);
+    } catch {
+      setMessage("The saved cloud link could not be removed.");
+    }
+  }
+
   return (
     <div className="stack-lg">
       <header className="page-heading">
         <p className="eyebrow">Material management</p>
         <h2>Add / Remove Material</h2>
-        <p>Add material to the app or remove the item you just uploaded. Reading belongs in Library from Source and Structured Study.</p>
+        <p>Add new material or remove any saved local file or cloud link. Reading belongs in Library from Source and Structured Study.</p>
       </header>
 
       <section className="content-panel">
@@ -65,7 +97,7 @@ export function StudyMaterialsPage() {
       <section className="content-panel">
         <p className="eyebrow">Upload</p>
         <h3>Upload new material</h3>
-        <p>Choose a local file or paste a cloud link, then use Upload. After upload, the button changes to Uploaded and a red Remove button can undo that upload.</p>
+        <p>Choose a local file or paste a cloud link, then use Upload. Clear resets the form, while Undo upload removes only the item that was just uploaded.</p>
 
         <div className="library-grid" style={{ alignItems: "stretch" }}>
           <section
@@ -113,6 +145,55 @@ export function StudyMaterialsPage() {
             <CloudLinkForm savedLinks={savedLinks} existingLinks={links} onMessage={setMessage} />
           </section>
         </div>
+      </section>
+
+      <section className="content-panel">
+        <p className="eyebrow">Remove</p>
+        <h3>Saved material</h3>
+        <p>Remove any item already stored in StudyApp. Removing a local file is permanent. Removing a cloud link does not delete the original cloud file.</p>
+        {localFiles.length === 0 && savedLinks.length === 0 ? (
+          <p className="inline-message">No saved material yet.</p>
+        ) : (
+          <div className="library-grid" style={{ alignItems: "start" }}>
+            <section className="template-card">
+              <h4>Local files</h4>
+              {localFiles.length === 0 ? (
+                <p className="field-help">No local files saved.</p>
+              ) : (
+                <ul className="local-file-list">
+                  {localFiles.map((file) => (
+                    <li className="local-file-row" key={file.id}>
+                      <div>
+                        <strong>{file.title}</strong>
+                        <span>{isSplitPdfFile(file) ? "Structured split PDF" : "Source material"} · {formatFileKind(file.fileKind)} · {formatFileSize(file.size)} · {file.fileName}</span>
+                      </div>
+                      <button className="button danger compact-square" onClick={() => void removeLocalFile(file)} type="button">Remove</button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            <section className="template-card">
+              <h4>Cloud links</h4>
+              {savedLinks.length === 0 ? (
+                <p className="field-help">No cloud links saved.</p>
+              ) : (
+                <ul className="local-file-list">
+                  {savedLinks.map((link) => (
+                    <li className="local-file-row" key={link.id}>
+                      <div>
+                        <strong>{link.title}</strong>
+                        <span>{link.url}</span>
+                      </div>
+                      <button className="button danger compact-square" onClick={() => void removeSavedLink(link)} type="button">Remove</button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          </div>
+        )}
       </section>
 
       <p className="inline-message status-banner" role="status" aria-live="polite">{message}</p>
