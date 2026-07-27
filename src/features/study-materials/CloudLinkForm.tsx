@@ -152,8 +152,13 @@ export function CloudLinkForm({
         >
           {uploadedLink ? "Uploaded" : "Upload"}
         </button>
-        <button className="button danger compact-square" disabled={!canRemove} onClick={() => void removeSelectionOrUpload()} type="button">
-          Remove
+        <button
+          className={uploadedLink ? "button danger compact-square" : "button secondary compact-square"}
+          disabled={!canRemove}
+          onClick={() => void removeSelectionOrUpload()}
+          type="button"
+        >
+          {uploadedLink ? "Undo upload" : "Clear"}
         </button>
       </div>
     </form>
