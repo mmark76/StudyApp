@@ -13,6 +13,7 @@ import {
   getSourceMaterialType,
   isSourceMaterialFile,
 } from "../study-materials/localStudyFiles";
+import { MaterialUploadPanel } from "../study-materials/MaterialUploadPanel";
 import {
   builtInStudyMaterials,
   parseStoredStudyMaterials,
@@ -85,8 +86,9 @@ export function LibraryPage() {
     () => parseStoredStudyMaterials(setting?.value),
     [setting?.value],
   );
-  const [deleteMessage, setDeleteMessage] = useState("");
-  const sourceLinks = [...builtInStudyMaterials, ...savedLinks].filter(
+  const [message, setMessage] = useState("");
+  const allLinks = [...builtInStudyMaterials, ...savedLinks];
+  const sourceLinks = allLinks.filter(
     (link) => getLinkMaterialType(link) !== null || !link.structuredStudyType,
   );
   const savedLinkIds = new Set(savedLinks.map((link) => link.id));
@@ -135,9 +137,9 @@ export function LibraryPage() {
 
       try {
         await studyDatabase.studyFiles.delete(fileId);
-        setDeleteMessage(`Deleted "${file.title}".`);
+        setMessage(`Deleted "${file.title}".`);
       } catch {
-        setDeleteMessage(`Could not delete "${file.title}".`);
+        setMessage(`Could not delete "${file.title}".`);
       }
       return;
     }
@@ -145,7 +147,7 @@ export function LibraryPage() {
     const choice = chooseDeletionForRelatedSplitPdfs(file, relatedSplitPdfs);
     const deletionIds = getLocalFileDeletionIds(fileId, relatedSplitPdfs, choice);
     if (deletionIds.length === 0) {
-      setDeleteMessage("Nothing was deleted.");
+      setMessage("Nothing was deleted.");
       return;
     }
 
@@ -154,13 +156,13 @@ export function LibraryPage() {
         await studyDatabase.studyFiles.bulkDelete(deletionIds);
       });
 
-      setDeleteMessage(
+      setMessage(
         choice === "delete-source-and-splits"
           ? `Deleted "${file.title}" and ${relatedSplitPdfs.length} related split PDF${relatedSplitPdfs.length === 1 ? "" : "s"}.`
           : `Deleted "${file.title}". ${relatedSplitPdfs.length} split PDF${relatedSplitPdfs.length === 1 ? "" : "s"} kept in Structured Study without the original source file by your choice.`,
       );
     } catch {
-      setDeleteMessage(`Could not delete "${file.title}".`);
+      setMessage(`Could not delete "${file.title}".`);
     }
   }
 
@@ -179,9 +181,9 @@ export function LibraryPage() {
         key: STUDY_MATERIALS_SETTING_KEY,
         value: currentLinks.filter((item) => item.id !== link.id),
       });
-      setDeleteMessage(`Deleted "${link.title}" from StudyApp.`);
+      setMessage(`Deleted "${link.title}" from StudyApp.`);
     } catch {
-      setDeleteMessage(`Could not delete "${link.title}".`);
+      setMessage(`Could not delete "${link.title}".`);
     }
   }
 
@@ -193,7 +195,15 @@ export function LibraryPage() {
         <p>Read primary and source material only: books, articles, papers, outsource notes, personal notes and summaries.</p>
       </header>
 
-      {deleteMessage ? <p className="inline-message status-banner" role="status">{deleteMessage}</p> : null}
+      <MaterialUploadPanel
+        destination="library"
+        files={allLocalFiles}
+        savedLinks={savedLinks}
+        existingLinks={allLinks}
+        onMessage={setMessage}
+      />
+
+      {message ? <p className="inline-message status-banner" role="status" aria-live="polite">{message}</p> : null}
 
       {(unclassifiedFiles.length > 0 || unclassifiedLinks.length > 0) ? (
         <section className="content-panel" id="unclassified-source-material" tabIndex={-1}>
@@ -282,7 +292,7 @@ export function LibraryPage() {
       <section className="content-panel">
         <p className="eyebrow">Boundary</p>
         <h3>What belongs here?</h3>
-        <p>Open or delete material from its Library category here. Add new material in Add / Remove Material.</p>
+        <p>Add material once in the upload panel above, then open or delete it from its Library category.</p>
       </section>
     </div>
   );
