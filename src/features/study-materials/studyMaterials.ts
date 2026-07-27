@@ -1,11 +1,12 @@
-import type { SourceMaterialType } from "../../shared/types/models";
-import { isSourceMaterialType } from "./localStudyFiles";
+import type { SourceMaterialType, StructuredStudyType } from "../../shared/types/models";
+import { isSourceMaterialType, isStructuredStudyType } from "./localStudyFiles";
 
 export interface StudyMaterialLink {
   id: string;
   title: string;
   url: string;
   materialType?: SourceMaterialType;
+  structuredStudyType?: StructuredStudyType;
 }
 
 export const STUDY_MATERIALS_SETTING_KEY = "study-material-links";
@@ -31,6 +32,24 @@ export function normalizeStudyMaterialTitle(value: string): string {
   return title;
 }
 
+export function titleFromStudyMaterialUrl(value: string): string {
+  const url = new URL(value);
+  const rawSegment = url.pathname.split("/").filter(Boolean).pop() ?? "";
+  let segment = rawSegment;
+  try {
+    segment = decodeURIComponent(rawSegment);
+  } catch {
+    // Keep the encoded path segment when it cannot be decoded safely.
+  }
+
+  const cleanedSegment = segment
+    .replace(/\.[^.]+$/i, "")
+    .replace(/[-_]+/g, " ")
+    .trim();
+  const hostname = url.hostname.replace(/^www\./i, "");
+  return normalizeStudyMaterialTitle((cleanedSegment || hostname || "Cloud material").slice(0, 160));
+}
+
 export function parseStoredStudyMaterials(value: unknown): StudyMaterialLink[] {
   if (!Array.isArray(value)) return [];
   const result: StudyMaterialLink[] = [];
@@ -45,6 +64,7 @@ export function parseStoredStudyMaterials(value: unknown): StudyMaterialLink[] {
         title: normalizeStudyMaterialTitle(item.title),
         url: normalizeStudyMaterialUrl(item.url),
         materialType: isSourceMaterialType(item.materialType) ? item.materialType : undefined,
+        structuredStudyType: isStructuredStudyType(item.structuredStudyType) ? item.structuredStudyType : undefined,
       });
       ids.add(id);
     } catch {
