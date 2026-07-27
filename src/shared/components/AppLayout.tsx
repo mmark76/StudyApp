@@ -8,7 +8,6 @@ const mainNavigation = [
   { to: "/study/theory", label: "Structured Study", matches: ["/study", "/study/theory", "/units", "/import"] },
   { to: "/learn", label: "Learn & Practice", matches: ["/learn", "/flashcards", "/review", "/quiz", "/progress"] },
   { to: "/tools#split-pdf", label: "Split PDF Tool", matches: ["/tools"] },
-  { to: "/study-materials", label: "Add / Remove Material", matches: ["/study-materials"] },
 ] as const;
 
 const footerNavigation = [
