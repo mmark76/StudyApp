@@ -11,7 +11,9 @@ import {
   isStructuredStudyType,
   structuredStudyTypeOptions,
 } from "../study-materials/localStudyFiles";
+import { MaterialUploadPanel } from "../study-materials/MaterialUploadPanel";
 import {
+  builtInStudyMaterials,
   normalizeStudyMaterialTitle,
   parseStoredStudyMaterials,
   STUDY_MATERIALS_SETTING_KEY,
@@ -118,14 +120,16 @@ export function StudyTheoryPage() {
     () => studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY),
     [],
   );
+  const savedLinks = useMemo(
+    () => parseStoredStudyMaterials(setting?.value),
+    [setting?.value],
+  );
+  const allLinks = [...builtInStudyMaterials, ...savedLinks];
   const structuredFiles = useMemo(
     () => localFiles.filter(isStructuredStudyFile),
     [localFiles],
   );
-  const structuredLinks = useMemo(
-    () => parseStoredStudyMaterials(setting?.value).filter((link) => getLinkStructuredStudyType(link) !== null),
-    [setting?.value],
-  );
+  const structuredLinks = allLinks.filter((link) => getLinkStructuredStudyType(link) !== null);
   const unclassifiedFiles = structuredFiles.filter(
     (file) => isSplitPdfFile(file) && getStructuredStudyType(file) === null,
   );
@@ -193,12 +197,22 @@ export function StudyTheoryPage() {
         <p>Read and understand the same material through contents, chapters, sections, concepts, references and diagrams.</p>
       </header>
 
+      <MaterialUploadPanel
+        destination="structured-study"
+        files={localFiles}
+        savedLinks={savedLinks}
+        existingLinks={allLinks}
+        onMessage={setMessage}
+      />
+
+      {message ? <p className="inline-message status-banner" role="status" aria-live="polite">{message}</p> : null}
+
       <section className="content-panel" aria-label="Structured study material">
         <p className="eyebrow">Structured source material</p>
         <h3>Files and links by structured type</h3>
-        <p>Local files, cloud links and PDF chunks appear in the matching Structured Study card below.</p>
+        <p>Upload material once above. Local files, cloud links and PDF chunks then appear in the matching Structured Study card below.</p>
         {!hasStructuredMaterial ? (
-          <p className="inline-message">No structured material yet. Choose Structured Study during upload or use Split PDF Tool to create chapter or section PDFs.</p>
+          <p className="inline-message">No structured material yet. Upload a file or link above, or use Split PDF Tool to create chapter or section PDFs.</p>
         ) : null}
       </section>
 
@@ -275,8 +289,6 @@ export function StudyTheoryPage() {
           );
         })}
       </section>
-
-      {message ? <p className="inline-message status-banner" role="status" aria-live="polite">{message}</p> : null}
     </div>
   );
 }
