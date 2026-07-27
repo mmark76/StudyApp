@@ -71,7 +71,7 @@ function getLinkMaterialType(link: StudyMaterialLink): SourceMaterialType | null
 
 export function LibraryPage() {
   const allLocalFiles = useLiveQuery(
-    () => studyDatabase.studyFiles.orderBy("createdAt").reverse().toArray(),
+    () => studyDatabase.studyFiles.orderBy("createdAt").toArray(),
     [],
   ) ?? [];
   const localFiles = useMemo(
@@ -215,7 +215,7 @@ export function LibraryPage() {
               <li className="local-file-row" key={file.id}>
                 <div>
                   <strong>{file.title}</strong>
-                  <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)} · {file.fileName}</span>
+                  <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)}</span>
                 </div>
                 <div className="local-file-actions">
                   <button className="button secondary compact-square" onClick={() => openLocalFile(file.id)} type="button">View</button>

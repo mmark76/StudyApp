@@ -113,7 +113,7 @@ function StructuredFilePlacementEditor({ file }: { file: LocalStudyFile }) {
 
 export function StudyTheoryPage() {
   const localFiles = useLiveQuery(
-    () => studyDatabase.studyFiles.orderBy("createdAt").reverse().toArray(),
+    () => studyDatabase.studyFiles.orderBy("createdAt").toArray(),
     [],
   ) ?? [];
   const setting = useLiveQuery(
@@ -226,7 +226,7 @@ export function StudyTheoryPage() {
               <li className="local-file-row" key={file.id}>
                 <div>
                   <strong>{file.title}</strong>
-                  <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)} · {file.fileName}</span>
+                  <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)}</span>
                   <StructuredFilePlacementEditor file={file} />
                 </div>
                 <div className="local-file-actions">
@@ -260,7 +260,7 @@ export function StudyTheoryPage() {
                     <li className="local-file-row" key={file.id}>
                       <div>
                         <strong>{file.title}</strong>
-                        <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)} · {file.fileName}</span>
+                        <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)}</span>
                       </div>
                       <div className="local-file-actions">
                         <button className="button secondary compact-square" onClick={() => openStructuredFile(file.id)} type="button">View</button>
