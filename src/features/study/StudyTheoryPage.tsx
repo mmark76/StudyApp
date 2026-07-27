@@ -7,6 +7,7 @@ import {
   formatFileSize,
   getStructuredStudyType,
   isSplitPdfFile,
+  isStructuredStudyFile,
   isStructuredStudyType,
   structuredStudyTypeOptions,
 } from "../study-materials/localStudyFiles";
@@ -70,7 +71,7 @@ function StructuredFilePlacementEditor({ file }: { file: LocalStudyFile }) {
     try {
       await studyDatabase.studyFiles.update(file.id, {
         title: normalizeStudyMaterialTitle(title),
-        materialType,
+        ...(isSplitPdfFile(file) ? { materialType } : { structuredStudyType: materialType }),
       });
       setMessage("Saved.");
     } catch {
@@ -104,15 +105,17 @@ export function StudyTheoryPage() {
     () => studyDatabase.studyFiles.orderBy("createdAt").reverse().toArray(),
     [],
   ) ?? [];
-  const splitPdfFiles = useMemo(
-    () => localFiles.filter(isSplitPdfFile),
+  const structuredFiles = useMemo(
+    () => localFiles.filter(isStructuredStudyFile),
     [localFiles],
   );
-  const unclassifiedFiles = splitPdfFiles.filter((file) => getStructuredStudyType(file) === null);
+  const unclassifiedFiles = structuredFiles.filter(
+    (file) => isSplitPdfFile(file) && getStructuredStudyType(file) === null,
+  );
   const [message, setMessage] = useState("");
 
-  function openSplitPdf(fileId: string) {
-    const file = splitPdfFiles.find((item) => item.id === fileId);
+  function openStructuredFile(fileId: string) {
+    const file = structuredFiles.find((item) => item.id === fileId);
     if (!file) return;
     const blob = file.mimeType ? file.data.slice(0, file.data.size, file.mimeType) : file.data;
     const url = URL.createObjectURL(blob);
@@ -120,15 +123,25 @@ export function StudyTheoryPage() {
     window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
   }
 
-  async function removeSplitPdf(file: LocalStudyFile) {
-    const confirmed = window.confirm(`Remove "${file.title}" from Structured Study? This cannot be undone.`);
+  async function removeStructuredFile(file: LocalStudyFile) {
+    const splitPdf = isSplitPdfFile(file);
+    const confirmed = window.confirm(
+      splitPdf
+        ? `Remove "${file.title}" from Structured Study? This cannot be undone.`
+        : `Remove "${file.title}" from Structured Study? The original file will remain in Library.`,
+    );
     if (!confirmed) return;
 
     try {
-      await studyDatabase.studyFiles.delete(file.id);
-      setMessage(`Removed ${file.title}.`);
+      if (splitPdf) {
+        await studyDatabase.studyFiles.delete(file.id);
+        setMessage(`Removed ${file.title}.`);
+      } else {
+        await studyDatabase.studyFiles.update(file.id, { structuredStudyType: null });
+        setMessage(`Removed ${file.title} from Structured Study. The original remains in Library.`);
+      }
     } catch {
-      setMessage("The split PDF could not be removed.");
+      setMessage("The file could not be removed from Structured Study.");
     }
   }
 
@@ -140,12 +153,12 @@ export function StudyTheoryPage() {
         <p>Read and understand the same material through contents, chapters, sections, concepts, references and diagrams.</p>
       </header>
 
-      <section className="content-panel" aria-label="Structured split PDF files">
-        <p className="eyebrow">Structured source extracts</p>
-        <h3>Split PDFs by type</h3>
-        <p>PDF chunks created by Split PDF Tool appear in the matching Structured Study card below. You can correct the final name and type here.</p>
-        {splitPdfFiles.length === 0 ? (
-          <p className="inline-message">No split PDFs yet. Use Split PDF Tool to create chapter or section PDFs from a source file.</p>
+      <section className="content-panel" aria-label="Structured study files">
+        <p className="eyebrow">Structured source material</p>
+        <h3>Files by structured type</h3>
+        <p>Files assigned during upload and PDF chunks created by Split PDF Tool appear in the matching Structured Study card below. You can correct the final name and type here.</p>
+        {structuredFiles.length === 0 ? (
+          <p className="inline-message">No structured files yet. Choose a Structured part during upload or use Split PDF Tool to create chapter or section PDFs.</p>
         ) : null}
       </section>
 
@@ -163,8 +176,8 @@ export function StudyTheoryPage() {
                   <StructuredFilePlacementEditor file={file} />
                 </div>
                 <div className="local-file-actions">
-                  <button className="button secondary compact-square" onClick={() => openSplitPdf(file.id)} type="button">View</button>
-                  <button className="button danger compact-square" onClick={() => void removeSplitPdf(file)} type="button">Remove</button>
+                  <button className="button secondary compact-square" onClick={() => openStructuredFile(file.id)} type="button">View</button>
+                  <button className="button danger compact-square" onClick={() => void removeStructuredFile(file)} type="button">Remove</button>
                 </div>
               </li>
             ))}
@@ -178,7 +191,7 @@ export function StudyTheoryPage() {
         aria-label="Structured Study reading levels"
       >
         {sourceStructure.map((item, index) => {
-          const filesForType = splitPdfFiles.filter((file) => getStructuredStudyType(file) === item.materialType);
+          const filesForType = structuredFiles.filter((file) => getStructuredStudyType(file) === item.materialType);
 
           return (
             <article className="learning-stage-card" id={item.id} key={item.title} tabIndex={-1}>
@@ -195,8 +208,8 @@ export function StudyTheoryPage() {
                         <StructuredFilePlacementEditor file={file} />
                       </div>
                       <div className="local-file-actions">
-                        <button className="button secondary compact-square" onClick={() => openSplitPdf(file.id)} type="button">View</button>
-                        <button className="button danger compact-square" onClick={() => void removeSplitPdf(file)} type="button">Remove</button>
+                        <button className="button secondary compact-square" onClick={() => openStructuredFile(file.id)} type="button">View</button>
+                        <button className="button danger compact-square" onClick={() => void removeStructuredFile(file)} type="button">Remove</button>
                       </div>
                     </li>
                   ))}
