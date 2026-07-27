@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
+import { Link } from "react-router-dom";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { LocalStudyFile } from "../../shared/types/models";
 import { formatFileKind, formatFileSize, isSplitPdfFile } from "./localStudyFiles";
@@ -65,6 +66,10 @@ export function StudyMaterialsPage() {
         <p className="eyebrow">Add</p>
         <h3>Add material in its destination</h3>
         <p>Library has one upload panel for books, articles, papers, notes and summaries. Structured Study has one upload panel for contents, chapters, sections, concepts, references and diagrams.</p>
+        <div className="button-row">
+          <Link className="button primary" to="/library">Go to Library upload</Link>
+          <Link className="button secondary" to="/study/theory">Go to Structured Study upload</Link>
+        </div>
       </section>
 
       <section className="content-panel">
