@@ -74,6 +74,7 @@ export function getSourceMaterialType(file: LocalStudyFile): SourceMaterialType 
 }
 
 export function getStructuredStudyType(file: LocalStudyFile): StructuredStudyType | null {
+  if (isStructuredStudyType(file.structuredStudyType)) return file.structuredStudyType;
   return isStructuredStudyType(file.materialType) ? file.materialType : null;
 }
 
@@ -130,6 +131,10 @@ export function isSplitPdfFile(file: LocalStudyFile): boolean {
 
 export function isSourceMaterialFile(file: LocalStudyFile): boolean {
   return !isSplitPdfFile(file);
+}
+
+export function isStructuredStudyFile(file: LocalStudyFile): boolean {
+  return isSplitPdfFile(file) || getStructuredStudyType(file) !== null;
 }
 
 export function formatFileKind(kind?: LocalStudyFileKind): string {
