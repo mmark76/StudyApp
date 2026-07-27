@@ -83,6 +83,11 @@
   gap: 0.5rem;
 }
 
+#unclassified-source-material .local-file-row > div:first-child > .library-grid,
+.learning-stage-grid[aria-label="Library source reading categories"] .local-file-row > div:first-child > .library-grid {
+  display: none;
+}
+
 input[type="file"] {
   width: 100%;
   padding: 0.7rem;
