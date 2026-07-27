@@ -14,6 +14,7 @@ import {
   structuredStudyTypeOptions,
   titleFromFileName,
 } from "./localStudyFiles";
+import type { MaterialDestination } from "./materialDestination";
 
 interface UploadedLocalFile {
   id: string;
@@ -21,16 +22,15 @@ interface UploadedLocalFile {
   fileName: string;
 }
 
-type UploadDestination = "" | "library" | "structured-study";
-
 export function LocalPdfForm({
+  destination,
   files,
   onMessage,
 }: {
+  destination: MaterialDestination;
   files: readonly LocalStudyFile[];
   onMessage: (message: string) => void;
 }) {
-  const [destination, setDestination] = useState<UploadDestination>("");
   const [file, setFile] = useState<File | null>(null);
   const [materialType, setMaterialType] = useState<SourceMaterialType | "">("");
   const [structuredStudyType, setStructuredStudyType] = useState<StructuredStudyType | "">("");
@@ -39,12 +39,10 @@ export function LocalPdfForm({
   const lock = useRef(false);
   const canRemove = Boolean(uploadedFile)
     || Boolean(file)
-    || destination.length > 0
     || materialType.length > 0
     || structuredStudyType.length > 0;
 
   function clearDraft() {
-    setDestination("");
     setFile(null);
     setMaterialType("");
     setStructuredStudyType("");
@@ -54,13 +52,6 @@ export function LocalPdfForm({
   function chooseFile(event: ChangeEvent<HTMLInputElement>) {
     const selected = event.target.files?.[0] ?? null;
     setFile(selected);
-    setUploadedFile(null);
-  }
-
-  function chooseDestination(value: UploadDestination) {
-    setDestination(value);
-    setMaterialType("");
-    setStructuredStudyType("");
     setUploadedFile(null);
   }
 
@@ -82,10 +73,6 @@ export function LocalPdfForm({
     }
     if (destination === "structured-study" && !isStructuredStudyType(structuredStudyType)) {
       onMessage("Choose a Structured Study part before uploading the file.");
-      return;
-    }
-    if (!destination) {
-      onMessage("Choose whether the file belongs in Library or Structured Study.");
       return;
     }
 
@@ -128,7 +115,11 @@ export function LocalPdfForm({
           : "The study file was uploaded to Library.",
       );
     } catch {
-      onMessage("Choose a destination and type. The file also needs enough browser storage space.");
+      onMessage(
+        destination === "structured-study"
+          ? "Choose a Structured Study part. The file also needs enough browser storage space."
+          : "Choose a Library type. The file also needs enough browser storage space.",
+      );
     } finally {
       lock.current = false;
     }
@@ -156,21 +147,10 @@ export function LocalPdfForm({
     }
   }
 
+  const destinationLabel = destination === "structured-study" ? "Structured Study" : "Library";
+
   return (
     <form className="material-form" onSubmit={(event) => void submit(event)}>
-      <label className="field-label">
-        Where should this material be saved?
-        <select
-          required={!uploadedFile}
-          value={destination}
-          onChange={(event) => chooseDestination(event.target.value as UploadDestination)}
-        >
-          <option value="">Choose destination</option>
-          <option value="library">Library</option>
-          <option value="structured-study">Structured Study</option>
-        </select>
-      </label>
-
       {destination === "library" ? (
         <label className="field-label">
           Library type
@@ -188,9 +168,7 @@ export function LocalPdfForm({
             ))}
           </select>
         </label>
-      ) : null}
-
-      {destination === "structured-study" ? (
+      ) : (
         <label className="field-label">
           Structured part
           <select
@@ -207,7 +185,7 @@ export function LocalPdfForm({
             ))}
           </select>
         </label>
-      ) : null}
+      )}
 
       <label className="field-label">
         Choose local file
@@ -220,7 +198,7 @@ export function LocalPdfForm({
           onChange={chooseFile}
         />
       </label>
-      <p className="field-help">The display name is created automatically from the file name. One private browser copy is stored in the destination you choose.</p>
+      <p className="field-help">The display name is created automatically from the file name. One private browser copy is stored in {destinationLabel}.</p>
       <div className="button-row">
         <button
           className={uploadedFile ? "button success compact-square" : "button primary compact-square"}
