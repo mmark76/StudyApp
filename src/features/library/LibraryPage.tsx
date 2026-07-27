@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import { useLiveQuery } from "dexie-react-hooks";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { LocalStudyFile, SourceMaterialType } from "../../shared/types/models";
@@ -354,7 +353,6 @@ export function LibraryPage() {
               <span className="stage-number" aria-hidden="true">{index + 1}</span>
               <h3>{category.title}</h3>
               <p>{category.description}</p>
-              <Link className="button secondary" to={`/library#${category.id}`}>Read</Link>
               {hasItems ? (
                 <ul className="local-file-list">
                   {categoryFiles.map((file) => (
