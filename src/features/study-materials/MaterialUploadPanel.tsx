@@ -26,6 +26,16 @@ export function MaterialUploadPanel({
       <h3>Upload new material</h3>
       <p>Choose a {typeLabel}, then add either one local file or one cloud link. The material will be stored directly in {destinationLabel}.</p>
 
+      <details className="privacy-notice">
+        <summary><strong>How storage works</strong></summary>
+        <ul>
+          <li><strong>Files from this device:</strong> stored only in this browser inside StudyApp. They are not uploaded to a server and are not synced.</li>
+          <li><strong>Cloud links:</strong> only an automatically generated name, the type and link are saved. The real file remains in your cloud service.</li>
+          <li><strong>Storage is local:</strong> files may be lost if browser or site data is cleared, private browsing is used, or the browser removes storage because of low disk space.</li>
+          <li><strong>Backups:</strong> local files are not included in study progress backups. Keep the original files in a safe place.</li>
+        </ul>
+      </details>
+
       <div className="library-grid" style={{ alignItems: "stretch" }}>
         <section className="template-card" style={{ display: "grid", gap: "1rem", alignContent: "start", height: "100%" }}>
           <div>
