@@ -86,7 +86,9 @@ export function LibraryPage() {
     [setting?.value],
   );
   const [deleteMessage, setDeleteMessage] = useState("");
-  const sourceLinks = [...builtInStudyMaterials, ...savedLinks];
+  const sourceLinks = [...builtInStudyMaterials, ...savedLinks].filter(
+    (link) => getLinkMaterialType(link) !== null || !link.structuredStudyType,
+  );
   const savedLinkIds = new Set(savedLinks.map((link) => link.id));
   const unclassifiedFiles = localFiles.filter((file) => getSourceMaterialType(file) === null);
   const unclassifiedLinks = sourceLinks.filter((link) => getLinkMaterialType(link) === null);

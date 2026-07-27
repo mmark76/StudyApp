@@ -130,7 +130,7 @@ export function isSplitPdfFile(file: LocalStudyFile): boolean {
 }
 
 export function isSourceMaterialFile(file: LocalStudyFile): boolean {
-  return !isSplitPdfFile(file);
+  return file.fileSource !== "structured-material" && !isSplitPdfFile(file);
 }
 
 export function isStructuredStudyFile(file: LocalStudyFile): boolean {

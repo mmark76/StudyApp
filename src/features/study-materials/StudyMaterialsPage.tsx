@@ -80,7 +80,7 @@ export function StudyMaterialsPage() {
       <header className="page-heading">
         <p className="eyebrow">Material management</p>
         <h2>Add / Remove Material</h2>
-        <p>Add new material or remove any saved local file or cloud link. Reading belongs in Library from Source and Structured Study.</p>
+        <p>Add new material or remove any saved local file or cloud link. Reading belongs in Library and Structured Study.</p>
       </header>
 
       <section className="content-panel">
@@ -88,7 +88,7 @@ export function StudyMaterialsPage() {
         <h3>How storage works</h3>
         <ul>
           <li><strong>Files from this device:</strong> stored only in this browser inside StudyApp. They are not uploaded to a server and are not synced.</li>
-          <li><strong>Cloud links:</strong> only the title and link are saved here. The real file remains in your cloud service.</li>
+          <li><strong>Cloud links:</strong> only an automatically generated name, the destination, type and link are saved here. The real file remains in your cloud service.</li>
           <li><strong>Storage is local:</strong> files may be lost if browser/site data is cleared, if private browsing is used, or if the browser removes storage because of low disk space.</li>
           <li><strong>Backups:</strong> local files are not included in study progress backups. Keep the original files in a safe place.</li>
         </ul>
@@ -97,7 +97,7 @@ export function StudyMaterialsPage() {
       <section className="content-panel">
         <p className="eyebrow">Upload</p>
         <h3>Upload new material</h3>
-        <p>Choose a local file or paste a cloud link, then use Upload. Clear resets the form, while Undo upload removes only the item that was just uploaded.</p>
+        <p>Choose whether the material belongs in Library or Structured Study, select its type, then choose a local file or paste a cloud link. Clear resets the form, while Undo upload removes only the item that was just uploaded.</p>
 
         <div className="library-grid" style={{ alignItems: "stretch" }}>
           <section
@@ -140,7 +140,7 @@ export function StudyMaterialsPage() {
                 <li>Choose the sharing access that is appropriate for you.</li>
                 <li>Copy the shared link and paste it below.</li>
               </ol>
-              <p>Only the title and link are saved in this app. The actual file remains in your cloud service.</p>
+              <p>Only an automatically generated name, the destination, type and link are saved in this app. The actual file remains in your cloud service.</p>
             </div>
             <CloudLinkForm savedLinks={savedLinks} existingLinks={links} onMessage={setMessage} />
           </section>
@@ -165,7 +165,7 @@ export function StudyMaterialsPage() {
                     <li className="local-file-row" key={file.id}>
                       <div>
                         <strong>{file.title}</strong>
-                        <span>{isSplitPdfFile(file) ? "Structured split PDF" : "Source material"} · {formatFileKind(file.fileKind)} · {formatFileSize(file.size)} · {file.fileName}</span>
+                        <span>{isSplitPdfFile(file) ? "Structured split PDF" : file.fileSource === "structured-material" ? "Structured Study material" : "Library material"} · {formatFileKind(file.fileKind)} · {formatFileSize(file.size)} · {file.fileName}</span>
                       </div>
                       <button className="button danger compact-square" onClick={() => void removeLocalFile(file)} type="button">Remove</button>
                     </li>
@@ -184,7 +184,7 @@ export function StudyMaterialsPage() {
                     <li className="local-file-row" key={link.id}>
                       <div>
                         <strong>{link.title}</strong>
-                        <span>{link.url}</span>
+                        <span>{link.structuredStudyType ? "Structured Study link" : "Library link"} · {link.url}</span>
                       </div>
                       <button className="button danger compact-square" onClick={() => void removeSavedLink(link)} type="button">Remove</button>
                     </li>

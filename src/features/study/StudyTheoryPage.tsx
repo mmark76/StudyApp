@@ -11,7 +11,12 @@ import {
   isStructuredStudyType,
   structuredStudyTypeOptions,
 } from "../study-materials/localStudyFiles";
-import { normalizeStudyMaterialTitle } from "../study-materials/studyMaterials";
+import {
+  normalizeStudyMaterialTitle,
+  parseStoredStudyMaterials,
+  STUDY_MATERIALS_SETTING_KEY,
+  type StudyMaterialLink,
+} from "../study-materials/studyMaterials";
 
 const sourceStructure = [
   {
@@ -56,6 +61,10 @@ const sourceStructure = [
   title: string;
   description: string;
 }[];
+
+function getLinkStructuredStudyType(link: StudyMaterialLink): StructuredStudyType | null {
+  return isStructuredStudyType(link.structuredStudyType) ? link.structuredStudyType : null;
+}
 
 function StructuredFilePlacementEditor({ file }: { file: LocalStudyFile }) {
   const [title, setTitle] = useState(file.title);
@@ -105,9 +114,17 @@ export function StudyTheoryPage() {
     () => studyDatabase.studyFiles.orderBy("createdAt").reverse().toArray(),
     [],
   ) ?? [];
+  const setting = useLiveQuery(
+    () => studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY),
+    [],
+  );
   const structuredFiles = useMemo(
     () => localFiles.filter(isStructuredStudyFile),
     [localFiles],
+  );
+  const structuredLinks = useMemo(
+    () => parseStoredStudyMaterials(setting?.value).filter((link) => getLinkStructuredStudyType(link) !== null),
+    [setting?.value],
   );
   const unclassifiedFiles = structuredFiles.filter(
     (file) => isSplitPdfFile(file) && getStructuredStudyType(file) === null,
@@ -125,15 +142,17 @@ export function StudyTheoryPage() {
 
   async function removeStructuredFile(file: LocalStudyFile) {
     const splitPdf = isSplitPdfFile(file);
+    const structuredOnly = file.fileSource === "structured-material";
+    const deleteWholeFile = splitPdf || structuredOnly;
     const confirmed = window.confirm(
-      splitPdf
-        ? `Remove "${file.title}" from Structured Study? This cannot be undone.`
+      deleteWholeFile
+        ? `Remove "${file.title}" from StudyApp? This cannot be undone.`
         : `Remove "${file.title}" from Structured Study? The original file will remain in Library.`,
     );
     if (!confirmed) return;
 
     try {
-      if (splitPdf) {
+      if (deleteWholeFile) {
         await studyDatabase.studyFiles.delete(file.id);
         setMessage(`Removed ${file.title}.`);
       } else {
@@ -145,6 +164,27 @@ export function StudyTheoryPage() {
     }
   }
 
+  async function removeStructuredLink(link: StudyMaterialLink) {
+    const confirmed = window.confirm(
+      `Remove "${link.title}" from StudyApp? The original cloud file will not be deleted.`,
+    );
+    if (!confirmed) return;
+
+    try {
+      const currentSetting = await studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY);
+      const currentLinks = parseStoredStudyMaterials(currentSetting?.value);
+      await studyDatabase.settings.put({
+        key: STUDY_MATERIALS_SETTING_KEY,
+        value: currentLinks.filter((item) => item.id !== link.id),
+      });
+      setMessage(`Removed ${link.title} from Structured Study.`);
+    } catch {
+      setMessage("The cloud link could not be removed from Structured Study.");
+    }
+  }
+
+  const hasStructuredMaterial = structuredFiles.length > 0 || structuredLinks.length > 0;
+
   return (
     <div className="stack-lg">
       <header className="page-heading">
@@ -153,12 +193,12 @@ export function StudyTheoryPage() {
         <p>Read and understand the same material through contents, chapters, sections, concepts, references and diagrams.</p>
       </header>
 
-      <section className="content-panel" aria-label="Structured study files">
+      <section className="content-panel" aria-label="Structured study material">
         <p className="eyebrow">Structured source material</p>
-        <h3>Files by structured type</h3>
-        <p>Files assigned during upload and PDF chunks created by Split PDF Tool appear in the matching Structured Study card below. You can correct the final name and type here.</p>
-        {structuredFiles.length === 0 ? (
-          <p className="inline-message">No structured files yet. Choose a Structured part during upload or use Split PDF Tool to create chapter or section PDFs.</p>
+        <h3>Files and links by structured type</h3>
+        <p>Local files, cloud links and PDF chunks appear in the matching Structured Study card below.</p>
+        {!hasStructuredMaterial ? (
+          <p className="inline-message">No structured material yet. Choose Structured Study during upload or use Split PDF Tool to create chapter or section PDFs.</p>
         ) : null}
       </section>
 
@@ -192,13 +232,15 @@ export function StudyTheoryPage() {
       >
         {sourceStructure.map((item, index) => {
           const filesForType = structuredFiles.filter((file) => getStructuredStudyType(file) === item.materialType);
+          const linksForType = structuredLinks.filter((link) => getLinkStructuredStudyType(link) === item.materialType);
+          const hasItems = filesForType.length > 0 || linksForType.length > 0;
 
           return (
             <article className="learning-stage-card" id={item.id} key={item.title} tabIndex={-1}>
               <span className="stage-number" aria-hidden="true">{index + 1}</span>
               <h3>{item.title}</h3>
               <p>{item.description}</p>
-              {filesForType.length > 0 ? (
+              {hasItems ? (
                 <ul className="local-file-list">
                   {filesForType.map((file) => (
                     <li className="local-file-row" key={file.id}>
@@ -210,6 +252,18 @@ export function StudyTheoryPage() {
                       <div className="local-file-actions">
                         <button className="button secondary compact-square" onClick={() => openStructuredFile(file.id)} type="button">View</button>
                         <button className="button danger compact-square" onClick={() => void removeStructuredFile(file)} type="button">Remove</button>
+                      </div>
+                    </li>
+                  ))}
+                  {linksForType.map((link) => (
+                    <li className="local-file-row" key={link.id}>
+                      <div>
+                        <strong>{link.title}</strong>
+                        <span>{link.url}</span>
+                      </div>
+                      <div className="local-file-actions">
+                        <a className="button secondary compact-square" href={link.url} rel="noopener noreferrer" target="_blank">Open</a>
+                        <button className="button danger compact-square" onClick={() => void removeStructuredLink(link)} type="button">Remove</button>
                       </div>
                     </li>
                   ))}
