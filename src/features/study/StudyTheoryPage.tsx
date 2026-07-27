@@ -93,7 +93,7 @@ function StructuredFilePlacementEditor({ file }: { file: LocalStudyFile }) {
           ))}
         </select>
       </label>
-      <button className="button primary compact-square" onClick={() => void savePlacement()} type="button">Save</button>
+      <button className="button primary compact-square" onClick={() => void savePlacement()} type="button">Change name or category</button>
       {message ? <p className="field-help" role="status">{message}</p> : null}
     </div>
   );
