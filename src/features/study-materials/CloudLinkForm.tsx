@@ -8,6 +8,7 @@ import {
   sourceMaterialTypeOptions,
   structuredStudyTypeOptions,
 } from "./localStudyFiles";
+import type { MaterialDestination } from "./materialDestination";
 import {
   normalizeStudyMaterialUrl,
   parseStoredStudyMaterials,
@@ -16,18 +17,17 @@ import {
   type StudyMaterialLink,
 } from "./studyMaterials";
 
-type UploadDestination = "" | "library" | "structured-study";
-
 export function CloudLinkForm({
+  destination,
   savedLinks,
   existingLinks,
   onMessage,
 }: {
+  destination: MaterialDestination;
   savedLinks: readonly StudyMaterialLink[];
   existingLinks: readonly StudyMaterialLink[];
   onMessage: (message: string) => void;
 }) {
-  const [destination, setDestination] = useState<UploadDestination>("");
   const [url, setUrl] = useState("");
   const [materialType, setMaterialType] = useState<SourceMaterialType | "">("");
   const [structuredStudyType, setStructuredStudyType] = useState<StructuredStudyType | "">("");
@@ -35,22 +35,13 @@ export function CloudLinkForm({
   const lock = useRef(false);
   const canRemove = Boolean(uploadedLink)
     || url.trim().length > 0
-    || destination.length > 0
     || materialType.length > 0
     || structuredStudyType.length > 0;
 
   function clearDraft() {
-    setDestination("");
     setUrl("");
     setMaterialType("");
     setStructuredStudyType("");
-  }
-
-  function chooseDestination(value: UploadDestination) {
-    setDestination(value);
-    setMaterialType("");
-    setStructuredStudyType("");
-    setUploadedLink(null);
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -63,10 +54,6 @@ export function CloudLinkForm({
     }
     if (destination === "structured-study" && !isStructuredStudyType(structuredStudyType)) {
       onMessage("Choose a Structured Study part before uploading the link.");
-      return;
-    }
-    if (!destination) {
-      onMessage("Choose whether the link belongs in Library or Structured Study.");
       return;
     }
 
@@ -98,7 +85,11 @@ export function CloudLinkForm({
           : "The cloud link was uploaded to Library.",
       );
     } catch {
-      onMessage("Choose a destination and type, then use a valid web link.");
+      onMessage(
+        destination === "structured-study"
+          ? "Choose a Structured Study part, then use a valid web link."
+          : "Choose a Library type, then use a valid web link.",
+      );
     } finally {
       lock.current = false;
     }
@@ -133,21 +124,10 @@ export function CloudLinkForm({
     }
   }
 
+  const destinationLabel = destination === "structured-study" ? "Structured Study" : "Library";
+
   return (
     <form className="material-form" onSubmit={(event) => void submit(event)}>
-      <label className="field-label">
-        Where should this material be saved?
-        <select
-          required={!uploadedLink}
-          value={destination}
-          onChange={(event) => chooseDestination(event.target.value as UploadDestination)}
-        >
-          <option value="">Choose destination</option>
-          <option value="library">Library</option>
-          <option value="structured-study">Structured Study</option>
-        </select>
-      </label>
-
       {destination === "library" ? (
         <label className="field-label">
           Library type
@@ -165,9 +145,7 @@ export function CloudLinkForm({
             ))}
           </select>
         </label>
-      ) : null}
-
-      {destination === "structured-study" ? (
+      ) : (
         <label className="field-label">
           Structured part
           <select
@@ -184,7 +162,7 @@ export function CloudLinkForm({
             ))}
           </select>
         </label>
-      ) : null}
+      )}
 
       <label className="field-label">
         Shared link
@@ -199,7 +177,7 @@ export function CloudLinkForm({
           placeholder="https://..."
         />
       </label>
-      <p className="field-help">The display name is created automatically from the URL. Only the generated name, destination, type and link are saved; the actual file remains in your cloud service.</p>
+      <p className="field-help">The display name is created automatically from the URL. Only the generated name, type and link are saved in {destinationLabel}; the actual file remains in your cloud service.</p>
       <div className="button-row">
         <button
           className={uploadedLink ? "button success compact-square" : "button primary compact-square"}
