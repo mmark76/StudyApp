@@ -87,7 +87,7 @@ export function LocalPdfForm({
         contentHash,
       });
       if (existingFile) {
-        setUploadedFile({ id: existingFile.id, title: existingFile.title, fileName: existingFile.fileName });
+        setUploadedFile(null);
         clearDraft();
         onMessage("This file has already been uploaded.");
         return;
