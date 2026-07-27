@@ -54,6 +54,7 @@ export interface LocalStudyFile {
   fileKind?: LocalStudyFileKind;
   fileSource?: LocalStudyFileSource;
   materialType?: LocalStudyMaterialType;
+  structuredStudyType?: StructuredStudyType | null;
   sourceFileId?: string;
   pageRangeLabel?: string;
   contentHash?: string;
