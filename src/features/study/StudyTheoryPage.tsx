@@ -261,7 +261,6 @@ export function StudyTheoryPage() {
                       <div>
                         <strong>{file.title}</strong>
                         <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)} · {file.fileName}</span>
-                        <StructuredFilePlacementEditor file={file} />
                       </div>
                       <div className="local-file-actions">
                         <button className="button secondary compact-square" onClick={() => openStructuredFile(file.id)} type="button">View</button>
