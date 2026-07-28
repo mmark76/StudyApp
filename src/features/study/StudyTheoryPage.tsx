@@ -19,6 +19,7 @@ import {
   STUDY_MATERIALS_SETTING_KEY,
   type StudyMaterialLink,
 } from "../study-materials/studyMaterials";
+import "./StructuredFileActions.css";
 
 const sourceStructure = [
   {
@@ -144,6 +145,24 @@ export function StudyTheoryPage() {
     window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
   }
 
+  async function renameStructuredFile(file: LocalStudyFile) {
+    const nextTitle = window.prompt("Rename this file:", file.title);
+    if (nextTitle === null) return;
+
+    try {
+      const normalizedTitle = normalizeStudyMaterialTitle(nextTitle);
+      if (normalizedTitle === file.title) {
+        setMessage("The file name was not changed.");
+        return;
+      }
+
+      await studyDatabase.studyFiles.update(file.id, { title: normalizedTitle });
+      setMessage(`Renamed "${file.title}" to "${normalizedTitle}".`);
+    } catch {
+      setMessage("Enter a valid file name of up to 160 characters.");
+    }
+  }
+
   async function removeStructuredFile(file: LocalStudyFile) {
     const splitPdf = isSplitPdfFile(file);
     const structuredOnly = file.fileSource === "structured-material";
@@ -230,7 +249,8 @@ export function StudyTheoryPage() {
                   <StructuredFilePlacementEditor file={file} />
                 </div>
                 <div className="local-file-actions">
-                  <button className="button secondary compact-square" onClick={() => openStructuredFile(file.id)} type="button">View</button>
+                  <button className="button structured-view-action compact-square" onClick={() => openStructuredFile(file.id)} type="button">View</button>
+                  <button className="button structured-rename-action compact-square" onClick={() => void renameStructuredFile(file)} type="button">Rename</button>
                   <button className="button danger compact-square" onClick={() => void removeStructuredFile(file)} type="button">Remove</button>
                 </div>
               </li>
@@ -263,7 +283,8 @@ export function StudyTheoryPage() {
                         <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)}</span>
                       </div>
                       <div className="local-file-actions">
-                        <button className="button secondary compact-square" onClick={() => openStructuredFile(file.id)} type="button">View</button>
+                        <button className="button structured-view-action compact-square" onClick={() => openStructuredFile(file.id)} type="button">View</button>
+                        <button className="button structured-rename-action compact-square" onClick={() => void renameStructuredFile(file)} type="button">Rename</button>
                         <button className="button danger compact-square" onClick={() => void removeStructuredFile(file)} type="button">Remove</button>
                       </div>
                     </li>
