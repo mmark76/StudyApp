@@ -1,6 +1,7 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { studyConfig } from "../../app/studyConfig";
 import { useAppearanceSettings } from "../../features/appearance/useAppearanceSettings";
+import { PwaUpdateBanner } from "./PwaUpdateBanner";
 
 const mainNavigation = [
   { to: "/", label: "Home", matches: ["/"] },
@@ -75,6 +76,7 @@ export function AppLayout() {
           </nav>
         </div>
       </header>
+      <PwaUpdateBanner />
       <main className="app-main">
         <Outlet />
       </main>

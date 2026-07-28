@@ -90,18 +90,19 @@ A complete export feature should define:
 
 The working design for this future feature is in [`docs/LOCAL_FILE_EXPORT_DESIGN.md`](docs/LOCAL_FILE_EXPORT_DESIGN.md).
 
-## Future restore requirements
+## Future broader restore requirements
 
-A restore flow should:
+A future complete local-file archive restore should additionally:
 
-- validate schema version;
+- validate its archive schema version;
 - validate record shapes at runtime;
 - check uniqueness of IDs;
 - check relationships such as flashcard `unitId`, progress `cardId`, and split PDF `sourceFileId`;
 - show a summary before replacing or merging data;
 - use transactions for multi-table writes;
 - avoid partial restore where possible;
-- clearly report skipped or invalid records.
+- clearly report skipped or invalid records;
+- verify file integrity and split-PDF relationships before writing blobs.
 
 ## User-facing warning to preserve
 

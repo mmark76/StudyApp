@@ -8,19 +8,20 @@ It should not be understood only as a flashcards app. Flashcards, quizzes, revie
 
 ## Current navigation model
 
-The current product interface is intentionally separated into five clear areas. Each area has a different purpose and should not duplicate the main action of another area.
+The current product interface has Home plus four clear study areas. Material is
+added or removed at the destination where it will be read, while each area keeps
+a distinct learning purpose.
 
 ```text
-Library from Source   = read original/source material
-Structured Study      = read the same material by structure and level
+Library from Source   = add, read, classify, and remove original/source material
+Structured Study      = add, read, classify, and remove material by structure and level
 Learn & Practice      = practise and consolidate knowledge
-Split PDF Tool        = split local PDFs in the browser, plus Upload PDF as the only intentional overlap
-Add / Remove Material = add or remove saved material
+Split PDF Tool        = upload a PDF as direct input and split it in the browser
 ```
 
 ### Library from Source
 
-Purpose: **read source material only**.
+Purpose: **manage and read source material**.
 
 This area is for reading primary/source material and reference material, such as:
 
@@ -31,7 +32,8 @@ This area is for reading primary/source material and reference material, such as
 - My Notes
 - Summaries
 
-It should not become the place where material is added or removed. Add/remove actions belong in **Add / Remove Material**.
+Source files and links are added, classified, opened, corrected, and removed
+here so their management remains beside their final reading destination.
 
 ### Structured Study
 
@@ -46,7 +48,8 @@ This area is for studying the same source material by levels and structures, suc
 - Bibliography / References
 - Images / Diagrams
 
-It should stay focused on structured reading and understanding. It should not contain material-management actions.
+It stays focused on structured reading and understanding. Structured files and
+links may be added, classified, opened, corrected, and removed here.
 
 ### Learn & Practice
 
@@ -66,20 +69,10 @@ This area transforms studied material into recall, review and testing.
 
 Purpose: **PDF utility only**, with one explicit exception.
 
-This area contains the local browser-only PDF splitting tool. Its only allowed overlap with material management is an **Upload PDF** action that uploads a PDF directly as input for splitting. It should not become a general material manager and should not add support for non-PDF uploads, cloud links, or remove/manage workflows.
-
-### Add / Remove Material
-
-Purpose: **material management only**.
-
-This area is for:
-
-- adding material from this device;
-- adding material from a cloud link;
-- opening saved material for checking;
-- removing saved local files or cloud links.
-
-Reading and studying belong in **Library from Source** and **Structured Study**.
+This area contains the local browser-only PDF splitting tool. Its **Upload PDF**
+action uploads a PDF directly as input for splitting. It should not become a
+general material manager and should not add support for non-PDF uploads, cloud
+links, or general remove/manage workflows.
 
 ## Machine-readable summary
 
@@ -93,20 +86,20 @@ project_identity:
 
 current_navigation_areas:
   library_from_source:
-    purpose: read original/source material
+    purpose: manage and read original/source material
     allowed_actions:
+      - add_source_material
       - read
-    not_for:
-      - add_material
-      - remove_material
+      - classify_source_material
+      - remove_source_material
   structured_study:
-    purpose: read and understand material by structure and level
+    purpose: manage, read, and understand material by structure and level
     allowed_actions:
+      - add_structured_material
       - read
       - study_by_structure
-    not_for:
-      - add_material
-      - remove_material
+      - classify_structured_material
+      - remove_structured_material
   learn_and_practice:
     purpose: practise and consolidate knowledge
     allowed_actions:
@@ -119,19 +112,11 @@ current_navigation_areas:
     allowed_actions:
       - upload_pdf_for_splitting
       - split_pdf
-    overlap_policy: Upload PDF is the only intentional overlap with material management
     not_for:
       - add_non_pdf_material
       - add_cloud_link
       - remove_material
       - manage_general_material
-  add_remove_material:
-    purpose: material management
-    allowed_actions:
-      - add_local_file
-      - add_cloud_link
-      - open_saved_material_for_checking
-      - remove_saved_material
 
 source_material_types:
   - pdf
@@ -175,22 +160,21 @@ learning_methods:
 ## Core product model
 
 ```text
-Add / Remove Material
-└── Source Material
-    ├── Library from Source
-    │   └── Read original/source material
-    └── Structured Study
-        ├── Contents
-        ├── Chapters
-        ├── Sections / Paragraphs
-        ├── Images / Diagrams
-        ├── Bibliography / References
-        └── Key Concepts
-            └── Learn & Practice
-                ├── Flashcards
-                ├── Quiz items
-                ├── Review history
-                └── Progress
+Source Material
+├── Library from Source
+│   └── Add, read, classify, and remove original/source material
+└── Structured Study
+    ├── Contents
+    ├── Chapters
+    ├── Sections / Paragraphs
+    ├── Images / Diagrams
+    ├── Bibliography / References
+    └── Key Concepts
+        └── Learn & Practice
+            ├── Flashcards
+            ├── Quiz items
+            ├── Review history
+            └── Progress
 
 Split PDF Tool
 └── Upload PDF for direct split input
@@ -210,9 +194,9 @@ The user should then be able to:
 1. read original/source material in **Library from Source**;
 2. read and understand the same material through structure in **Structured Study**;
 3. practise and consolidate knowledge in **Learn & Practice**;
-4. upload a PDF directly in **Split PDF Tool** only when the purpose is to split it;
-5. split local PDFs when needed in **Split PDF Tool**;
-6. add or remove saved material only in **Add / Remove Material**.
+4. add or remove source material in **Library from Source**;
+5. add or remove structured material in **Structured Study**;
+6. upload and split a PDF directly in **Split PDF Tool** when needed.
 
 ## Cognitive learning goal
 
@@ -234,7 +218,9 @@ StudyApp should support more than passive reading. The learning workflow should 
    User content, progress, study files, and settings should remain local unless the user explicitly exports or chooses another behaviour.
 
 2. **Clear separation of app areas**  
-   Library from Source is for reading source material. Structured Study is for reading by structure. Learn & Practice is for active learning. Split PDF Tool is a PDF utility with only one allowed overlap: Upload PDF for direct split input. Add / Remove Material is for material management.
+   Library from Source manages and reads source material. Structured Study
+   manages and reads material by structure. Learn & Practice is for active
+   learning. Split PDF Tool is a PDF-only splitting utility.
 
 3. **Source material must remain useful after import**  
    It is not enough to upload a file or save a link. The user must be able to find it, open it, read it, structure it, connect it to concepts, and use it for study.
@@ -261,9 +247,9 @@ StudyApp should support more than passive reading. The learning workflow should 
 
 A feature is aligned with the product vision if it helps the user do at least one of these:
 
-- add or remove useful study material in the dedicated material-management area;
+- add or remove useful study material at its Library or Structured Study destination;
 - upload a PDF directly inside Split PDF Tool only for immediate split use;
-- read source material without mixing in management actions;
+- read source material where its classification and lifecycle remain visible;
 - understand material at a deeper or clearer level through structure;
 - connect concepts to sources, examples, diagrams, or references;
 - create or improve active recall;
@@ -287,8 +273,8 @@ A feature is probably not aligned if it:
 
 Before making significant changes, human contributors and AI agents should ask:
 
-1. Does this change preserve the separation between Library from Source, Structured Study, Learn & Practice, Split PDF Tool, and Add / Remove Material?
-2. If it adds overlap, is it only the approved Upload PDF action inside Split PDF Tool?
+1. Does this change preserve the separation between Library from Source, Structured Study, Learn & Practice, and Split PDF Tool?
+2. Does material management stay at its reading destination, with only PDF input in Split PDF Tool?
 3. Does it support the broader knowledge-and-learning vision, not only a narrow UI task?
 4. Does it preserve local-first privacy?
 5. Does it help the user move between source reading, structure, concept, and recall?

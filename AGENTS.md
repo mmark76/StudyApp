@@ -30,27 +30,36 @@ Do not treat uploaded material as dead file storage. Do not optimise only for fl
 
 ## Current UX boundaries
 
-The current main navigation is intentionally separated into five areas. Keep these boundaries clear.
+The current main navigation has Home plus four study areas. Material management
+is placed at the destination where the material will be used; there is no
+standalone Add / Remove Material page. Keep these boundaries clear.
 
 ```text
-Library from Source   = read and final-place original/source material
-Structured Study      = read and final-place the same material by structure and level
+Library from Source   = add, read, final-place, and remove original/source material
+Structured Study      = add, read, final-place, and remove material by structure and level
 Learn & Practice      = practise and consolidate knowledge
-Split PDF Tool        = split local PDFs in the browser, plus Upload PDF as the only intentional overlap
-Add / Remove Material = add or remove saved material
+Split PDF Tool        = upload a PDF as direct input and split it in the browser
 ```
 
 ### Library from Source
 
-Allowed primary actions: **Read** and **final source-material placement/correction**.
+Allowed primary actions: **Add**, **Read**, **final source-material
+placement/correction**, and **Remove**.
 
-This area may show reading categories such as Books, Articles, Papers, Source/External Notes, My Notes and Summaries. It must not become the add/remove material workflow. Placement controls may correct the final Library category of already saved source material.
+This area may show reading categories such as Books, Articles, Papers,
+Source/External Notes, My Notes and Summaries. Local source files and source
+links are added and removed here so material management stays beside its final
+reading destination.
 
 ### Structured Study
 
-Allowed primary actions: **Read** and **final structured placement/correction**.
+Allowed primary actions: **Add**, **Read**, **final structured
+placement/correction**, and **Remove**.
 
-This area is for structured reading and understanding through Contents, Chapters, Sections / Paragraphs, Key Concepts, Bibliography / References and Images / Diagrams. It must not become the general material-management workflow. Placement controls may correct the final Structured Study category of split PDF extracts.
+This area is for structured reading and understanding through Contents,
+Chapters, Sections / Paragraphs, Key Concepts, Bibliography / References and
+Images / Diagrams. Structured files and links are added and removed here.
+Placement controls may correct the final category of split PDF extracts.
 
 ### Learn & Practice
 
@@ -62,13 +71,10 @@ This area is for active recall, flashcards, due review, quizzes and progress tra
 
 Allowed primary actions: **Upload PDF** and **Split PDF**.
 
-This area should remain a local PDF utility. The only approved overlap with material management is an **Upload PDF** action that accepts PDF files only and exists only so the user can upload a direct input for splitting. Do not add general file upload, cloud-link upload, remove-material, or material-management controls here.
-
-### Add / Remove Material
-
-Allowed primary actions: **Add** and **Remove**.
-
-This area is the main place for adding local files, adding cloud links and removing saved material. It may allow opening saved material for checking before deletion, but reading/studying belongs in Library from Source and Structured Study.
+This area should remain a local PDF utility. Its **Upload PDF** action accepts
+PDF files only and exists so the user can supply direct input for splitting. Do
+not add general file upload, cloud-link upload, remove-material, or general
+material-management controls here.
 
 ## Repository structure
 

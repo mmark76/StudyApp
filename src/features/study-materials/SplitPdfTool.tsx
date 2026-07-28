@@ -562,7 +562,7 @@ export function SplitPdfTool({
         Give each chunk a name and type yourself. For example: Name "Contents" and Type "Contents"; or Name "Chapter 1" and Type "Chapter".
       </p>
 
-      {pdfFiles.length === 0 ? <p className="inline-message">Upload a PDF here or add one in Add / Remove Material, then split it.</p> : null}
+      {pdfFiles.length === 0 ? <p className="inline-message">Upload a PDF here or add a source PDF in Library, then split it.</p> : null}
 
       <button className="button primary" disabled={!selectedFile || !pageCount || Boolean(pageCountError) || isSplitting} type="submit">
         {isSplitting ? "Splitting PDF..." : "Split PDF"}
