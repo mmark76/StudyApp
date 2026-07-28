@@ -7,9 +7,15 @@ import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { LocalStudyFile, StructuredStudyType } from "../../shared/types/models";
 import { createId } from "../../shared/utils/id";
 import {
+  LocalFilePolicyError,
+  validateLocalStudyFile,
+  validateStoredLocalStudyFile,
+} from "./localFilePolicy";
+import {
   computeBlobSha256,
   findDuplicateLocalStudyFile,
   formatFileSize,
+  isPdfStudyFile,
   isStructuredStudyType,
   MAX_LOCAL_FILE_SIZE,
   structuredStudyTypeOptions,
@@ -37,16 +43,6 @@ interface ValidatedRange {
 const MAX_SPLIT_RANGES = 50;
 const PDF_RENDER_SCALE = 2;
 const RENDERED_SPLIT_NOTE = "Saved as a new Structured Study PDF. You can split each new PDF again if needed.";
-
-function isPdfFile(file: LocalStudyFile): boolean {
-  return file.fileKind === "pdf"
-    || file.mimeType === "application/pdf"
-    || file.fileName.toLowerCase().endsWith(".pdf");
-}
-
-function isPdfUpload(file: File): boolean {
-  return file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
-}
 
 function readPdfText(bytes: ArrayBuffer): string {
   return new TextDecoder("latin1").decode(bytes);
@@ -273,7 +269,7 @@ export function SplitPdfTool({
   files: readonly LocalStudyFile[];
   onMessage: (message: string) => void;
 }) {
-  const pdfFiles = useMemo(() => files.filter(isPdfFile), [files]);
+  const pdfFiles = useMemo(() => files.filter(isPdfStudyFile), [files]);
   const uploadInputRef = useRef<HTMLInputElement>(null);
   const [selectedFileId, setSelectedFileId] = useState("");
   const [pageCount, setPageCount] = useState<number | null>(null);
@@ -295,6 +291,10 @@ export function SplitPdfTool({
 
     async function readPageCount(fileToRead: LocalStudyFile) {
       try {
+        const validatedFile = await validateStoredLocalStudyFile(fileToRead);
+        if (validatedFile.format !== "pdf") {
+          throw new Error("The saved file is not a valid PDF.");
+        }
         const bytes = await fileToRead.data.arrayBuffer();
         let pdfLibPageCount: number | null = null;
         try {
@@ -335,47 +335,51 @@ export function SplitPdfTool({
     event.target.value = "";
     if (!file || isUploading) return;
 
-    if (!isPdfUpload(file)) {
-      onMessage("Choose a PDF file to upload for splitting.");
-      return;
-    }
     if (file.size > MAX_LOCAL_FILE_SIZE) {
       onMessage("The PDF is larger than 50 MB. Split PDF Tool supports local PDFs up to 50 MB.");
       return;
     }
 
     setIsUploading(true);
-    const contentHash = await computeBlobSha256(file);
-    const existingFile = findDuplicateLocalStudyFile(files.filter(isPdfFile), {
-      fileName: file.name,
-      size: file.size,
-      contentHash,
-    });
-    if (existingFile) {
-      if (existingFile) setSelectedFileId(existingFile.id);
-      onMessage("This PDF has already been uploaded. It is selected for splitting.");
-      setIsUploading(false);
-      return;
-    }
-
     try {
+      const validatedFile = await validateLocalStudyFile(file);
+      if (validatedFile.format !== "pdf") {
+        onMessage("Choose a PDF file to upload for splitting.");
+        return;
+      }
+      const contentHash = await computeBlobSha256(file);
+      const existingFile = findDuplicateLocalStudyFile(files.filter(isPdfStudyFile), {
+        fileName: file.name,
+        size: file.size,
+        contentHash,
+      });
+      if (existingFile) {
+        setSelectedFileId(existingFile.id);
+        onMessage("This PDF has already been uploaded. It is selected for splitting.");
+        return;
+      }
+
       const item: LocalStudyFile = {
         id: createId("file"),
         title: normalizeStudyMaterialTitle(titleFromFileName(file.name)),
         fileName: file.name,
         size: file.size,
         createdAt: new Date().toISOString(),
-        data: file.slice(0, file.size, file.type || "application/pdf"),
-        mimeType: file.type || "application/pdf",
-        fileKind: "pdf",
+        data: file.slice(0, file.size, validatedFile.canonicalMimeType),
+        mimeType: validatedFile.canonicalMimeType,
+        fileKind: validatedFile.fileKind,
         fileSource: "source-material",
         ...(contentHash ? { contentHash } : {}),
       };
       await studyDatabase.studyFiles.add(item);
       setSelectedFileId(item.id);
       onMessage("The PDF was uploaded locally and selected for splitting. Classify the source PDF later in Library from Source if needed.");
-    } catch {
-      onMessage("The PDF could not be saved. Your browser may not have enough storage space.");
+    } catch (error) {
+      onMessage(
+        error instanceof LocalFilePolicyError
+          ? error.message
+          : "The PDF could not be saved. Your browser may not have enough storage space.",
+      );
     } finally {
       setIsUploading(false);
     }

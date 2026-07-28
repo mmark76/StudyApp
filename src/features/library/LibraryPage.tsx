@@ -13,6 +13,10 @@ import {
   getSourceMaterialType,
   isSourceMaterialFile,
 } from "../study-materials/localStudyFiles";
+import {
+  LocalFilePolicyError,
+  openLocalStudyFile,
+} from "../study-materials/localFilePolicy";
 import { MaterialUploadPanel } from "../study-materials/MaterialUploadPanel";
 import {
   builtInStudyMaterials,
@@ -95,13 +99,21 @@ export function LibraryPage() {
   const unclassifiedFiles = localFiles.filter((file) => getSourceMaterialType(file) === null);
   const unclassifiedLinks = sourceLinks.filter((link) => getLinkMaterialType(link) === null);
 
-  function openLocalFile(fileId: string) {
+  async function openLocalFile(fileId: string) {
     const file = localFiles.find((item) => item.id === fileId);
     if (!file) return;
-    const blob = file.mimeType ? file.data.slice(0, file.data.size, file.mimeType) : file.data;
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank", "noopener,noreferrer");
-    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    try {
+      const openMode = await openLocalStudyFile(file);
+      if (openMode === "download") {
+        setMessage("This file was downloaded because it cannot be safely previewed in the browser.");
+      }
+    } catch (error) {
+      setMessage(
+        error instanceof LocalFilePolicyError
+          ? error.message
+          : "The file could not be opened.",
+      );
+    }
   }
 
   function chooseDeletionForRelatedSplitPdfs(file: LocalStudyFile, relatedSplitPdfs: readonly LocalStudyFile[]): LocalFileDeletionChoice {
@@ -218,7 +230,7 @@ export function LibraryPage() {
                   <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)}</span>
                 </div>
                 <div className="local-file-actions">
-                  <button className="button secondary compact-square" onClick={() => openLocalFile(file.id)} type="button">View</button>
+                  <button className="button secondary compact-square" onClick={() => void openLocalFile(file.id)} type="button">View</button>
                   <button className="button danger compact-square" onClick={() => void deleteLocalFile(file.id)} type="button">Delete</button>
                 </div>
               </li>
@@ -261,7 +273,7 @@ export function LibraryPage() {
                         <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)}</span>
                       </div>
                       <div className="local-file-actions">
-                        <button className="button secondary compact-square" onClick={() => openLocalFile(file.id)} type="button">View</button>
+                        <button className="button secondary compact-square" onClick={() => void openLocalFile(file.id)} type="button">View</button>
                         <button className="button danger compact-square" onClick={() => void deleteLocalFile(file.id)} type="button">Delete</button>
                       </div>
                     </li>
