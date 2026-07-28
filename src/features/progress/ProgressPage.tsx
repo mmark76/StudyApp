@@ -1,12 +1,30 @@
-import { type ChangeEvent, useState } from "react";
+import { type ChangeEvent, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { exportBackup, importBackup } from "../../infrastructure/backup/backup";
+import {
+  BackupValidationError,
+  createBackupPreview,
+  exportBackup,
+  importBackup,
+  MAX_BACKUP_FILE_SIZE,
+  parseBackupJson,
+  type BackupPreview,
+} from "../../infrastructure/backup/backup";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
+import type { StudyBackup } from "../../shared/types/models";
+
+interface PendingRestore {
+  fileName: string;
+  backup: StudyBackup;
+  preview: BackupPreview;
+}
 
 export function ProgressPage() {
   const progress = useLiveQuery(() => studyDatabase.cardProgress.toArray(), []) ?? [];
   const sessions = useLiveQuery(() => studyDatabase.studySessions.orderBy("startedAt").reverse().toArray(), []) ?? [];
   const [message, setMessage] = useState("");
+  const [pendingRestore, setPendingRestore] = useState<PendingRestore | null>(null);
+  const [isRestoring, setIsRestoring] = useState(false);
+  const restoreLock = useRef(false);
 
   async function downloadProgressCopy() {
     const backup = await exportBackup();
@@ -22,13 +40,46 @@ export function ProgressPage() {
   async function restoreProgress(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
+    setPendingRestore(null);
     try {
-      await importBackup(JSON.parse(await file.text()));
-      setMessage("Your saved progress was restored.");
-    } catch {
-      setMessage("We could not restore progress from that file.");
+      if (file.size > MAX_BACKUP_FILE_SIZE) {
+        throw new BackupValidationError("The backup file is larger than the 10 MB limit.");
+      }
+      const backup = parseBackupJson(await file.text(), file.size);
+      setPendingRestore({
+        fileName: file.name,
+        backup,
+        preview: createBackupPreview(backup),
+      });
+      setMessage("The backup is valid. Review the summary before replacing current data.");
+    } catch (error) {
+      setMessage(
+        error instanceof BackupValidationError
+          ? error.message
+          : "We could not read that backup file.",
+      );
     } finally {
       event.target.value = "";
+    }
+  }
+
+  async function confirmRestore() {
+    if (!pendingRestore || restoreLock.current) return;
+    if (!window.confirm(
+      "Replace the current progress, study sessions and supported settings with this backup? Local file copies are not changed.",
+    )) return;
+
+    restoreLock.current = true;
+    setIsRestoring(true);
+    try {
+      await importBackup(pendingRestore.backup);
+      setPendingRestore(null);
+      setMessage("Your saved progress and settings were restored.");
+    } catch {
+      setMessage("The restore failed. Your existing progress and settings were not changed.");
+    } finally {
+      restoreLock.current = false;
+      setIsRestoring(false);
     }
   }
 
@@ -54,11 +105,51 @@ export function ProgressPage() {
         <p>Save a JSON backup of your progress, study sessions and app settings so you can restore them later.</p>
         <p className="muted">This backup does not include local PDFs, uploaded documents, images or split PDF file copies. Files saved in StudyApp remain only in this browser on this device, so keep your original files somewhere safe.</p>
         <div className="button-row">
-          <button className="button primary" onClick={() => void downloadProgressCopy()}>Save progress and settings backup</button>
-          <label className="button secondary file-button">Restore progress and settings<input accept="application/json" type="file" onChange={(event) => void restoreProgress(event)} /></label>
-          <button className="button danger" onClick={() => void resetProgress()}>Clear my progress</button>
+          <button className="button primary" disabled={isRestoring} onClick={() => void downloadProgressCopy()}>Save progress and settings backup</button>
+          <label className="button secondary file-button">Restore progress and settings<input accept=".json,application/json" disabled={isRestoring} type="file" onChange={(event) => void restoreProgress(event)} /></label>
+          <button className="button danger" disabled={isRestoring} onClick={() => void resetProgress()}>Clear my progress</button>
         </div>
-        <p className="inline-message" role="status">{message}</p>
+        {pendingRestore ? (
+          <div className="template-card stack-md" aria-labelledby="restore-preview-title">
+            <div>
+              <p className="eyebrow">Checked backup</p>
+              <h4 id="restore-preview-title">Restore preview</h4>
+              <p><strong>File:</strong> {pendingRestore.fileName}</p>
+            </div>
+            <ul>
+              <li><strong>{pendingRestore.preview.progressRecords}</strong> progress records</li>
+              <li><strong>{pendingRestore.preview.studySessions}</strong> study sessions</li>
+              <li>
+                <strong>Settings included:</strong>{" "}
+                {pendingRestore.preview.settingLabels.length > 0
+                  ? pendingRestore.preview.settingLabels.join(", ")
+                  : "None"}
+              </li>
+              <li>
+                <strong>Backup created:</strong>{" "}
+                <time dateTime={pendingRestore.preview.exportedAt}>
+                  {new Date(pendingRestore.preview.exportedAt).toLocaleString("en-GB")}
+                </time>
+              </li>
+            </ul>
+            <p className="muted">
+              Restoring replaces current progress, study sessions and supported settings in one operation.
+              Local PDFs, documents, images and split PDF copies are not included or changed.
+            </p>
+            <div className="button-row">
+              <button className="button danger" disabled={isRestoring} onClick={() => void confirmRestore()} type="button">
+                {isRestoring ? "Restoring..." : "Replace current progress and settings"}
+              </button>
+              <button className="button secondary" disabled={isRestoring} onClick={() => {
+                setPendingRestore(null);
+                setMessage("Restore cancelled. No data was changed.");
+              }} type="button">
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : null}
+        <p className="inline-message" role="status" aria-live="polite">{message}</p>
       </section>
       <section className="content-panel">
         <h3>Recent study sessions</h3>
