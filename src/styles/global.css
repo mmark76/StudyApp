@@ -165,6 +165,9 @@ code { background: var(--slate-100); border-radius: 0.35rem; padding: 0.15rem 0.
 .app-header { padding: 1rem max(1rem, calc((100vw - var(--content-width)) / 2)); background: rgb(255 255 255 / 0.82); border-bottom: 1px solid var(--slate-300); backdrop-filter: blur(12px); }
 .app-header-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .app-header h1 { margin: 0; }
+.pwa-update-banner { position: relative; z-index: 40; display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: min(var(--content-width), calc(100% - 2rem)); margin: 1rem auto 0; padding: 1rem; border: 1px solid var(--blue-600); border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow); }
+.pwa-update-banner p { margin: 0.25rem 0 0; color: var(--slate-600); }
+.pwa-update-banner .button-row { flex: 0 0 auto; }
 .navigation-row { display: flex; align-items: center; gap: 1rem; margin-top: 0.85rem; }
 .main-nav { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 .main-nav a { padding: 0.55rem 0.82rem; border: 1px solid rgb(203 213 225 / 0.48); border-radius: 999px; background: transparent; text-decoration: none; color: var(--slate-600); font-weight: 700; line-height: 1; }
@@ -253,6 +256,8 @@ th, td { border-bottom: 1px solid var(--slate-300); padding: 0.75rem; text-align
 }
 @media (max-width: 760px) {
   .app-header-top, .navigation-row, .simple-home-panel, .review-callout { align-items: stretch; flex-direction: column; }
+  .pwa-update-banner { align-items: stretch; flex-direction: column; }
+  .pwa-update-banner .button-row > * { flex: 1 1 auto; }
   .dashboard-hero, .dashboard-action-grid, .library-grid, .learning-stage-grid { grid-template-columns: 1fr; }
   .utility-actions { justify-content: flex-start; }
   .recent-activity-list li { grid-template-columns: 1fr; gap: 0.25rem; }

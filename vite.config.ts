@@ -34,7 +34,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: "autoUpdate",
+      registerType: "prompt",
       includeAssets: ["study-icon.svg"],
       manifest: {
         name: "Markellos Study App",

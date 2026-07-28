@@ -17,6 +17,14 @@ StudyApp is a local-first browser application. It has no backend, no account sys
 
 Local files are stored in the browser's IndexedDB. Treat these files as private user data.
 
+All save and open flows must use
+`src/features/study-materials/localFilePolicy.ts`. The v1 allowlist is PDF,
+DOC/DOCX, TXT/Markdown, CSV, PNG, JPEG, WebP, and GIF. HTML/XHTML, SVG, XML,
+JavaScript, executables, unsupported types, and significant
+extension/MIME/content mismatches are rejected. Revalidate legacy stored blobs
+before opening them. Open only safe renderable types in a new tab and download
+supported non-renderable formats.
+
 Changes touching local files should consider:
 
 - file size limits;
@@ -26,6 +34,12 @@ Changes touching local files should consider:
 - backup/export expectations;
 - deletion confirmation;
 - relationships between source files and split PDFs.
+
+## PWA updates
+
+Do not reload an active page merely because a new service worker is waiting.
+Keep the update prompt user-controlled so unfinished form input or an active
+study interaction is not discarded.
 
 ## Reporting issues
 

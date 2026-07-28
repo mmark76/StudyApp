@@ -31,19 +31,12 @@ const homeSpaces = [
     to: "/tools#split-pdf",
   },
   {
-    eyebrow: "Material management",
-    title: "Add / Remove Material",
-    description: "Add material to the app or remove saved local files and cloud links.",
-    action: "Manage material",
-    to: "/study-materials",
-  },
-  {
     eyebrow: "Getting started",
     title: "How to work with StudyApp",
     description: "A normal workflow for moving from source material to practice and progress.",
     action: "Open guide",
     guideSteps: [
-      "Add study material: upload local PDFs, documents, images, or save cloud links.",
+      "Add source material in Library, or add structured material in Structured Study.",
       "Organize your material: classify files by material type so they are easier to find.",
       "Split large PDFs: use Split PDF Tool to create smaller focused PDFs from a source PDF.",
       "Import flashcards: import units and flashcards from CSV using the required headers.",

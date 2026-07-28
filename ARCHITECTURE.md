@@ -1,113 +1,104 @@
 # Architecture
 
-_Last updated: 2026-07-08_
+_Last updated: 2026-07-28_
 
 ## Summary
 
-StudyApp is a local-first single-page application for organizing, reading, practising, and reviewing study material.
-
-The application is intentionally frontend-only by default. It uses browser storage and does not require a user account, backend API, analytics service, or cloud sync.
+StudyApp is a local-first single-page application for organizing, reading,
+practising, and reviewing study material. It is frontend-only and requires no
+account, backend API, analytics service, or cloud sync.
 
 ## Technology stack
 
-- React
-- TypeScript
-- Vite
-- React Router hash routing
-- Dexie / IndexedDB
-- PDF.js and pdf-lib for PDF handling
-- Vitest for unit tests
-- vite-plugin-pwa for PWA support
+- React 19 and TypeScript
+- Vite and React Router hash routing
+- Dexie over IndexedDB
+- PDF.js and pdf-lib
+- Vitest
+- vite-plugin-pwa
 
-## Runtime model
+## Runtime and storage
 
-The app runs entirely in the browser. User data is stored in IndexedDB.
+The application runs in the browser. IndexedDB contains:
 
-Main storage responsibilities:
+- `cardProgress` — spaced-repetition state;
+- `studySessions` — completed study/quiz session records;
+- `settings` — appearance, imported content, and saved links;
+- `studyFiles` — uploaded and generated local file metadata and blobs.
 
-- `cardProgress`: spaced repetition state;
-- `studySessions`: completed study/quiz sessions;
-- `settings`: app settings, imported content, and saved links;
-- `studyFiles`: local file blobs and metadata.
+The current JSON backup covers progress, sessions, and supported settings. It
+does not contain `studyFiles` blobs.
 
 ## Routing
 
-The app uses hash routing so that static hosting can serve the application without server-side route handling.
+The app uses hash routing so static hosting needs no server-side route
+handling.
 
-Main routes map to product areas:
+- `/` — Home
+- `/library` — Library from Source
+- `/study/theory` — Structured Study
+- `/learn` — Learn & Practice
+- `/flashcards`, `/review`, `/quiz`, `/progress` — practice flows
+- `/import` — chapter and flashcard CSV import
+- `/tools` — Split PDF Tool
+- `/appearance` — local appearance settings
+- `/legal/*` — legal information
 
-- `/` home
-- `/library` Library from Source
-- `/study/theory` Structured Study
-- `/study` Learn & Practice overview
-- `/flashcards` flashcards
-- `/review` due review
-- `/quiz` quiz
-- `/progress` progress
-- `/import` content import
-- `/study-materials` add/remove material
-- `/tools` tools and PDF splitting
-- `/legal/*` legal information
+`/study-materials` is a legacy compatibility route that redirects to
+`/library`. It is not a navigation area. The `src/features/study-materials/`
+folder remains the feature-local home of shared file/link and PDF-splitting
+logic; its name does not imply a standalone page.
 
 ## Product areas
 
 ### Library from Source
 
-Shows original source material and saved cloud links. Allows final source-material placement/correction.
+Adds, classifies, opens, and removes original source files and links. Source
+material is read here.
 
 ### Structured Study
 
-Shows split PDF extracts by structured type. Allows final structured placement/correction.
+Adds, classifies, opens, and removes material by structure and level. Generated
+split-PDF extracts are read and placed here.
 
 ### Learn & Practice
 
-Supports active recall, due review, quiz, and progress.
+Supports flashcards, stable due-review sessions, quizzes, CSV import, and
+progress.
 
 ### Split PDF Tool
 
-Splits local PDFs in the browser. Generated chunks are saved as local study files with `fileSource: "split-pdf"`.
+Accepts direct PDF input and splits it locally. Generated chunks are saved as
+local study files with `fileSource: "split-pdf"` and a `sourceFileId` where
+available.
 
-### Add / Remove Material
+## Safety boundaries
 
-Adds local files and cloud links and removes saved material.
-
-## Data flow
-
-1. User adds source material.
-2. Source material is stored as local file metadata/blob or as a saved cloud link.
-3. User can classify source material into source categories.
-4. User can split PDFs into structured chunks.
-5. Split chunks are classified into structured study categories.
-6. User studies material and practises with flashcards, review, and quiz.
-7. Progress and sessions are stored locally.
-
-## Design constraints
-
-- Keep data local by default.
-- Avoid backend dependencies.
-- Validate all imported or stored unknown data at runtime.
-- Avoid silent destructive actions.
-- Keep local file backup/export limitations explicit.
-- Keep source reading, structured reading, and practice workflows separate.
+- External input is validated at runtime.
+- Local-file save and open flows share one explicit allowlist.
+- Active web/executable content is rejected and non-renderable supported files
+  download instead of opening in the app origin.
+- Restore validates the entire backup before one transactional replacement.
+- Imported flashcard IDs derive from normalized stable content rather than CSV
+  row position.
+- Destructive file operations require an intentional user choice.
+- PWA updates wait for the user's explicit **Update now** action; an update
+  never reloads an active page automatically.
 
 ## High-risk areas
 
-- IndexedDB schema changes and migrations.
-- Backup and restore behavior.
-- Local file blobs and browser storage quota.
-- Source file deletion when split PDFs exist.
-- Review queue stability under live progress updates.
-- PDF splitting memory usage.
-- PWA service-worker update behavior.
+- IndexedDB schema changes and migrations
+- Backup/restore and local-file export
+- Browser storage quota and large PDF processing
+- Source/split-PDF relationships
+- Study-session lifecycle and persistence failures
+- PWA service-worker updates
 
 ## Testing strategy
 
-Prioritize tests for pure domain logic and data safety:
+Focused unit and IndexedDB integration tests cover scheduling, review queues,
+quiz locks, CSV parsing and identity, local-file policy, backup validation and
+transaction rollback, local-file relationships, and PWA update state.
 
-- spaced repetition scheduling;
-- review queue behavior;
-- quiz generation and answer locking;
-- CSV parsing and validation;
-- local file classification;
-- backup/restore validation;
-- source/split PDF relationship handling.
+Broader browser/E2E, accessibility, and large-PDF stress coverage is explicitly
+deferred to [`V1_1_BACKLOG.md`](V1_1_BACKLOG.md).

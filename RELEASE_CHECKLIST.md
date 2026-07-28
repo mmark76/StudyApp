@@ -1,45 +1,76 @@
-# v1 Release Candidate Checklist
+# StudyApp v1.0.0 Release Checklist
 
-_Last updated: 2026-07-08_
+_Last updated: 2026-07-28_
 
-This checklist tracks the final v1 release-candidate posture. It is not a claim that every future feature exists.
+This is the final v1 stopping gate. It does not imply that the v1.1 backlog is
+part of this release.
 
-## Current Status
+## Release identity
 
-- v1 hardening complete.
-- App remains local-first, browser-only and offline-ready.
-- No account system, backend, analytics, advertising, remote storage or telemetry is part of v1.
-- Current progress/settings backup does not include local file blobs.
-- Future complete local-file export/import is designed in [`docs/LOCAL_FILE_EXPORT_DESIGN.md`](docs/LOCAL_FILE_EXPORT_DESIGN.md), but not implemented.
+- Intended release: `1.0.0`.
+- `package.json` version: `1.0.0`.
+- The footer build identifier begins with `v1.0.0_` and adds the Cyprus build
+  date/time and commit reference.
+- Release notes: [`RELEASE_NOTES_v1.md`](RELEASE_NOTES_v1.md).
+- Deferred work: [`V1_1_BACKLOG.md`](V1_1_BACKLOG.md).
 
-## Completed Hardening
+## Safety acceptance
 
-- Review queue stability fixed and tested.
-- Quiz duplicate-answer lock added and tested.
-- CSV header validation added and tested.
-- Source/split-PDF deletion behavior made intentional and tested at helper level.
-- Backup/data-safety wording clarified in UI and docs.
-- Local file `contentHash` support added for new files and generated split PDFs.
-- CI workflow added for install, typecheck, tests and build.
-- Dependabot added for npm and GitHub Actions updates.
+- [x] Every local-file save/open flow uses the central explicit allowlist.
+- [x] Active web content, executable content, and significant type mismatches
+  are rejected.
+- [x] Non-renderable supported files download rather than execute in the app
+  origin.
+- [x] Backup input is fully validated before IndexedDB changes.
+- [x] Restore shows a preview, requires confirmation, and replaces covered data
+  in one transaction.
+- [x] CSV row order does not determine imported flashcard IDs.
+- [x] Duplicate normalized flashcards are rejected.
+- [x] PWA updates wait for an explicit user action and do not force an active
+  page reload.
 
-## Required Manual Checks Before Tagging v1
+## Automated release gate
 
-- Run `npm.cmd test`.
-- Run `npm.cmd run typecheck`.
-- Run `npm.cmd run build`.
-- Open the app locally and check the five navigation areas.
-- Upload a small source PDF and confirm it appears in Library from Source.
-- Split a small PDF and confirm generated chunks appear in Structured Study.
-- Delete a source PDF with related split PDFs and confirm cancel/keep/delete-all choices are clear.
-- Save a progress/settings backup and confirm the wording says local file blobs are not included.
-- Confirm original-file guidance remains visible in Add / Remove Material and backup docs.
-- Confirm no unexpected network behavior is introduced.
+Run from a clean dependency install:
 
-## Known Future Work
+| Check | Result |
+| --- | --- |
+| `npm ci` | Pass — clean lockfile install |
+| `npm run typecheck` | Pass |
+| `npm test` | Pass — 11 files, 84 tests |
+| `npm run build` | Pass — production/PWA bundle generated |
 
-- Implement complete local-file export/import.
-- Add PDF split progress feedback and compatibility-mode warnings.
-- Replace quiz restart page reload with local React state reset.
-- Add linting/formatting after agreeing on a baseline.
-- Expand restore validation and preview behavior before adding broader restore modes.
+Dependency review: `npm audit --omit=dev` reports two instances of the
+high-severity React Router advisory
+[GHSA-qwww-vcr4-c8h2](https://github.com/advisories/GHSA-qwww-vcr4-c8h2).
+The advisory explicitly affects only unstable RSC APIs. StudyApp uses a
+client-only `createHashRouter` SPA and contains no RSC APIs, server actions, or
+backend, so this is documented as non-applicable to the v1 runtime rather than
+resolved with an unscoped breaking dependency migration.
+
+## Manual smoke gate
+
+The concise interactive record must cover Home, Library, Structured Study,
+Learn & Practice, Split PDF Tool, accepted and rejected uploads, CSV import,
+backup export/restore, desktop and narrow layouts, and PWA reload/update
+behavior.
+
+Status: **Pending**. The completed evidence will be recorded in
+[`RELEASE_SMOKE_TEST_v1.md`](RELEASE_SMOKE_TEST_v1.md).
+
+## Documentation gate
+
+- [x] Current navigation describes Home plus four study areas.
+- [x] No current documentation presents Add / Remove Material as a standalone
+  product area.
+- [x] Local-first storage and JSON backup limitations are explicit.
+- [x] Supported/rejected local file behavior is documented.
+- [x] Remaining non-blocking work is isolated in the v1.1 backlog.
+
+## Final decision
+
+**PENDING FINAL SMOKE GATE**
+
+Do not tag or merge the release-gate PR until the automated checks and manual
+smoke record pass. After that decision, stop v1 development and do not begin
+v1.1 work in this PR.

@@ -1,213 +1,135 @@
 # StudyApp
 
-A local-first, subject-neutral study application template.
+A local-first, subject-neutral personal knowledge and learning application.
 
-## Vision and goal
+## Version 1.0.0
 
-The long-term goal of this project is documented in [`VISION.md`](VISION.md).
+StudyApp v1 provides a practical browser-only workflow for adding study
+material, reading it from source or structure, practising with active recall,
+and keeping progress locally.
 
-In short, StudyApp is intended to become a **local-first personal knowledge and learning system**: a private workspace where the user can keep study material, read it from source, study it through structure, practise it through active recall, and protect local ownership of data.
+The v1 safety gate includes:
 
-The app should not be understood only as a flashcards app. Flashcards, quizzes, review queues and spaced repetition are learning tools inside a broader system for organising, understanding, remembering and recalling knowledge.
+- a central local-file allowlist with content checks and safe open/download
+  behavior;
+- strict backup validation, a restore preview, explicit confirmation, and an
+  atomic IndexedDB restore;
+- deterministic content-based IDs for spreadsheet-imported flashcards;
+- stable review queues and quiz duplicate-answer protection;
+- a user-controlled PWA update prompt that never reloads an active page
+  automatically;
+- automated install, typecheck, test, and production-build checks.
 
-## Current v1 status
+See [`RELEASE_NOTES_v1.md`](RELEASE_NOTES_v1.md) for the release summary,
+[`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) for the acceptance gate, and
+[`V1_1_BACKLOG.md`](V1_1_BACKLOG.md) for explicitly deferred work.
 
-StudyApp is a **v1 release candidate** after the local-first hardening pass documented in [`AUDIT.md`](AUDIT.md), [`ROADMAP.md`](ROADMAP.md), and [`CODEX_TASKS.md`](CODEX_TASKS.md).
+## Product areas
 
-Completed v1 hardening work includes:
+Home introduces the workflow. The main work is divided into four areas:
 
-- stable due-review queue behavior;
-- duplicate-answer protection in quizzes;
-- CSV header validation for chapter and flashcard imports;
-- CI checks for install, typecheck, tests and build;
-- intentional source/split-PDF deletion handling;
-- clearer backup/data-safety wording;
-- local file `contentHash` support for new local files and generated split PDFs;
-- a future complete local-file export/import design in [`docs/LOCAL_FILE_EXPORT_DESIGN.md`](docs/LOCAL_FILE_EXPORT_DESIGN.md).
+1. **Library from Source** — add, classify, open, and remove original/source
+   files and links under Books, Articles, Papers, Source Notes, My Notes, or
+   Summaries.
+2. **Structured Study** — add, classify, open, and remove material organized
+   as Contents, Chapters, Sections / Paragraphs, Key Concepts,
+   Bibliography / References, or Images / Diagrams.
+3. **Learn & Practice** — import or use flashcards, complete due reviews, take
+   quizzes, and inspect progress.
+4. **Split PDF Tool** — upload a PDF as direct input and split it locally into
+   named structured extracts.
 
-This status does not mean full local-file export exists yet. The current backup remains a progress/settings JSON backup and does not include local file blobs.
+There is no standalone material-management page. Files and links are managed
+in Library or Structured Study according to their final reading destination.
+The legacy `#/study-materials` URL redirects to Library for compatibility.
 
-## Project guidance documents
+## Intended workflow
 
-Before making larger code, data-model, or workflow changes, read these files:
+1. Add original material in Library, or material already organized by level in
+   Structured Study.
+2. Give each item a clear display name and classification.
+3. Read source material in Library.
+4. Use Split PDF Tool when a source PDF needs smaller focused extracts.
+5. Read those extracts in Structured Study.
+6. Import chapters and flashcards from the supplied CSV templates.
+7. Practise through flashcards, due review, and quizzes.
+8. Inspect progress and regularly export a progress/settings backup.
 
-- [`AGENTS.md`](AGENTS.md) — instructions for AI coding agents and automated contributors.
-- [`AUDIT.md`](AUDIT.md) — current audit findings and priority risks.
-- [`ROADMAP.md`](ROADMAP.md) — recommended development sequence.
-- [`CODEX_TASKS.md`](CODEX_TASKS.md) — small, focused tasks suitable for Codex-style implementation.
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) — PR and review rules.
-- [`ARCHITECTURE.md`](ARCHITECTURE.md) — architecture overview.
-- [`DATA_MODEL.md`](DATA_MODEL.md) — persisted data model and relationship rules.
-- [`BACKUP_AND_DATA_SAFETY.md`](BACKUP_AND_DATA_SAFETY.md) — backup limitations and data-safety expectations.
-- [`SECURITY.md`](SECURITY.md) — security and privacy boundaries.
-- [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) — v1 release-candidate manual checklist.
+## Local-first storage and privacy
 
-## Current product areas
+Study content, progress, settings, links, and uploaded file blobs are stored in
+the browser's IndexedDB. StudyApp has no account system, backend, analytics,
+telemetry, advertising, remote storage, or cloud sync.
 
-The user-facing workflow is intentionally separated into distinct areas so that actions do not overlap.
+Local files stay in the current browser on the current device. Clearing site
+data, removing the browser profile, exhausting browser storage, or changing
+device can remove them. Keep the original files outside StudyApp.
 
-1. **Library from Source** — read original/source material only.
-   - Books
-   - Articles
-   - Papers
-   - Source or external notes
-   - My Notes
-   - Summaries
-   - Final source-material placement and correction
+The JSON backup includes progress, sessions, supported settings,
+settings-backed imported content, and saved link records. It does **not**
+include uploaded PDFs, documents, images, or generated split-PDF blobs. See
+[`BACKUP_AND_DATA_SAFETY.md`](BACKUP_AND_DATA_SAFETY.md).
 
-2. **Structured Study** — read and understand the same material through structure.
-   - Contents
-   - Chapters
-   - Sections / Paragraphs
-   - Key Concepts
-   - Bibliography / References
-   - Images / Diagrams
-   - Split PDF extracts created from source material
-   - Final structured-study placement and correction
+## Supported local files
 
-3. **Learn & Practice** — practise and consolidate knowledge.
-   - Flashcards
-   - Due review
-   - Quiz
-   - Progress
+StudyApp accepts PDF, DOC, DOCX, TXT, Markdown, CSV, PNG, JPEG, WebP, and GIF
+files after checking extension, browser MIME information, and common content
+signatures where practical. Safe browser-renderable formats may open in a new
+tab; Word files download instead.
 
-4. **Split PDF Tool** — use a local browser-only utility to split saved PDF files.
-   - The only intentional overlap with material management is an extra **Upload PDF** action, limited to uploading a PDF directly for splitting.
-   - Generated split PDFs are shown under **Structured Study** as structured source extracts, not under **Library from Source**.
-   - Each generated chunk must be given a user-chosen display name and structured type such as Contents, Chapter, Section / Paragraph, Key Concept, Bibliography / Reference, or Image / Diagram.
-
-5. **Add / Remove Material** — add or remove local files and cloud links.
-   - Add material from this device
-   - Add material from a cloud link
-   - Choose a source type such as Book, Article, Paper, Outsource Note, My Note, or Summary
-   - Remove saved local files or cloud links
-
-The guiding boundary is:
-
-```text
-Library from Source   = read and final-place original/source material
-Structured Study      = read and final-place the same material by structure and level
-Learn & Practice      = practise and consolidate
-Split PDF Tool        = PDF splitting utility, plus Upload PDF for direct split input only
-Add / Remove Material = material management only
-```
-
-## Intended learning workflow
-
-The intended user workflow is:
-
-1. add or save study material such as PDFs, Word documents, links, images, diagrams, charts, notes, bibliography and references through **Add / Remove Material**;
-2. give source material a display name and source type so it appears under Books, Articles, Papers, Outsource Notes, My Notes or Summaries;
-3. read the original/source material through **Library from Source** and correct its final Library placement there when needed;
-4. use **Split PDF Tool** when a PDF needs to be uploaded for splitting or divided into smaller local files;
-5. give each split PDF chunk a display name and structured type so it appears under Contents, Chapters, Sections / Paragraphs, Key Concepts, Bibliography / References or Images / Diagrams;
-6. read and understand the same material by structure through **Structured Study** and correct its final Structured Study placement there when needed;
-7. practise and consolidate knowledge through **Learn & Practice** using flashcards, due review, quizzes and progress tracking;
-8. retrieve information through meaningful filters such as source, chapter, section, concept, material type, difficulty, due status, review history, bibliography or reference.
-
-The app should not silently guess the educational type of saved material. Items without a user-chosen type remain **Unclassified** until the user chooses their final placement.
-
-The project keeps the learning workflow of the original study app while starting with no subject content:
-
-- empty chapters;
-- empty flashcard collection;
-- empty built-in study-material links;
-- flashcards with self-rating `0 / 1 / 2`;
-- local spaced repetition and due-review queue;
-- ten-question quizzes when enough cards exist;
-- local progress dashboard;
-- validated JSON backup and restore;
-- offline-ready PWA without accounts or backend.
-
-## Study vocabulary
-
-The app uses this study hierarchy:
-
-```text
-Source Material
-└── Structured Study
-    ├── Contents
-    ├── Chapters
-    ├── Sections / Paragraphs
-    ├── Key Concepts
-    ├── Bibliography / References
-    └── Images / Diagrams
-        └── Learn & Practice
-            ├── Flashcards
-            ├── Review
-            ├── Quiz
-            └── Progress
-```
-
-- **Source Material** — the original book, paper, article, note, PDF, file or link.
-- **Library from Source** — read primary/source material and correct its final source-material placement.
-- **Structured Study** — read the same material through contents, chapters, sections, concepts, references, diagrams and split PDF extracts, and correct final structured placement.
-- **Learn & Practice** — practise with flashcards, due review, quizzes and progress tracking.
-- **Split PDF Tool** — split local PDFs in the browser; it may upload a PDF only as direct input for splitting.
-- **Add / Remove Material** — add or remove local files and cloud links.
-
-## Local-first data and privacy
-
-Study progress, user-added links and local files remain in the browser's IndexedDB unless the user exports a backup or manually opens a cloud link. The application has no account system and no backend by default.
-
-Local files are stored only in this browser on this device. They are not uploaded and are not synced by StudyApp. Cloud links store only the title, type and URL; the actual file remains in the user's cloud service.
-
-Progress/settings backups include progress, sessions and settings-backed data. They do not include local file blobs such as uploaded PDFs, documents, images or generated split PDFs. Keep original files outside StudyApp as your primary file copies.
-
-For more detail, see [`BACKUP_AND_DATA_SAFETY.md`](BACKUP_AND_DATA_SAFETY.md).
+HTML/XHTML, SVG, XML, JavaScript, executable content, unsupported formats, and
+significantly mismatched file types are rejected. This allowlist applies both
+when a file is saved and when a stored file is opened.
 
 ## Current limitations
 
-These limitations are intentional or known at this stage:
+- Local file blobs and split PDFs are not included in the JSON backup.
+- Storage capacity and persistence depend on the browser and device.
+- Existing legacy row-based flashcard IDs are preserved; they are not guessed
+  or automatically migrated to content-based IDs.
+- PDF processing, complete local-file export/import, broader browser
+  integration tests, and other non-blocking improvements are deferred to
+  [`V1_1_BACKLOG.md`](V1_1_BACKLOG.md).
 
-- Local files and split PDFs depend on browser storage.
-- Progress/settings backups do not currently include local file blobs.
-- A future complete local-file export/import feature is designed but not implemented.
-- Local file hashing is stored for new files; older local file records may not have `contentHash`.
-- Linting/formatting automation remains future work.
-- Some UX polish remains future work, including PDF split progress feedback and replacing the quiz restart page reload.
+## Project guidance
 
-See [`AUDIT.md`](AUDIT.md) and [`ROADMAP.md`](ROADMAP.md) for the current priority plan.
-
-## Add a subject
-
-1. Edit `src/app/studyConfig.ts` for the application and subject names.
-2. Add chapters to `src/data/units.ts`.
-3. Add flashcards to `src/data/flashcards.ts`.
-4. Optionally add built-in links to `src/features/study-materials/studyMaterials.ts`.
-
-The data model is generic and can be used for any academic, professional, or personal study subject.
+- [`VISION.md`](VISION.md) — owner intent and product boundaries.
+- [`AGENTS.md`](AGENTS.md) — repository rules for coding agents.
+- [`ARCHITECTURE.md`](ARCHITECTURE.md) — runtime and feature architecture.
+- [`DATA_MODEL.md`](DATA_MODEL.md) — persisted data and relationship rules.
+- [`SECURITY.md`](SECURITY.md) — security and privacy boundaries.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — contribution and review rules.
+- [`AUDIT.md`](AUDIT.md) — v1 release assessment.
+- [`ROADMAP.md`](ROADMAP.md) and [`CODEX_TASKS.md`](CODEX_TASKS.md) — completed
+  v1 work and the handoff to the v1.1 backlog.
 
 ## Development
 
 ```bash
-npm install
+npm ci
 npm run dev
 npm run typecheck
 npm test
 npm run build
 ```
 
-Before merging code changes, run:
+Before merging a code change, run `npm ci`, typecheck, the full test suite, and
+the production build. Documentation-only changes should state when tests were
+not run.
 
-```bash
-npm test
-npm run typecheck
-npm run build
-```
+## Add built-in subject content
 
-Documentation-only changes should still explain that tests were not run.
+1. Edit `src/app/studyConfig.ts` for application and subject names.
+2. Add chapters to `src/data/units.ts`.
+3. Add flashcards to `src/data/flashcards.ts`.
+4. Optionally add built-in links to
+   `src/features/study-materials/studyMaterials.ts`.
 
-## Contributor workflow
-
-- Use one focused branch or PR per task.
-- Start with the tasks in [`CODEX_TASKS.md`](CODEX_TASKS.md).
-- Follow [`AGENTS.md`](AGENTS.md) for Codex-style work.
-- Follow [`CONTRIBUTING.md`](CONTRIBUTING.md) for PR requirements.
-- Keep the local-first/no-backend boundary unless the owner explicitly changes the product direction.
+The data model is generic and can support academic, professional, or personal
+study subjects.
 
 ## Licence
 
 Copyright © 2026 Markellos Markides. All rights reserved.
 
-See `LICENSE` for the repository's source-visible, all-rights-reserved terms.
+See [`LICENSE`](LICENSE) for the source-visible, all-rights-reserved terms.
