@@ -15,3 +15,45 @@
 .button.structured-rename-action:hover {
   background: #f7df91;
 }
+
+.learning-stage-card .local-file-row {
+  align-items: stretch;
+  flex-direction: column;
+}
+
+.learning-stage-card .local-file-actions {
+  width: 100%;
+}
+
+.learning-stage-card .local-file-actions:has(.structured-rename-action) {
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  justify-content: start;
+  gap: 0.5rem;
+}
+
+.learning-stage-card .structured-rename-action {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  justify-self: start;
+}
+
+.learning-stage-card .structured-view-action {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.learning-stage-card .local-file-actions:has(.structured-rename-action) > .button.danger {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+@media (max-width: 760px) {
+  .learning-stage-card .local-file-actions:has(.structured-rename-action) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .learning-stage-card .local-file-actions:has(.structured-rename-action) > .button {
+    width: 100%;
+  }
+}
