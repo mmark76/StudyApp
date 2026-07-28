@@ -1,0 +1,17 @@
+.button.structured-view-action {
+  background: #dff5f2;
+  color: #155e5a;
+}
+
+.button.structured-view-action:hover {
+  background: #c9ebe6;
+}
+
+.button.structured-rename-action {
+  background: #fff0bd;
+  color: #7a4a00;
+}
+
+.button.structured-rename-action:hover {
+  background: #f7df91;
+}
