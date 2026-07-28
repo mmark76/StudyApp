@@ -1,6 +1,6 @@
 # Data Model
 
-_Last updated: 2026-07-08_
+_Last updated: 2026-07-28_
 
 This document explains the current persisted data model and the safety rules around it.
 
@@ -48,6 +48,28 @@ Important fields:
 - `tags`
 
 When importing flashcards, validate that `unitId` or the referenced unit number exists.
+
+Spreadsheet-imported flashcards use content-based IDs with the prefix
+`flashcard-content-v1-`. The ID is the SHA-256 hash of a versioned identity
+containing:
+
+- the stable unit ID;
+- the question;
+- the answer.
+
+Question and answer identity text is normalized with Unicode NFC, leading and
+trailing whitespace is removed, and each remaining Unicode whitespace sequence
+is collapsed to one ASCII space. Case and punctuation remain significant.
+Keywords, CSV row position and the displayed card number are not part of the
+identity. Duplicate normalized unit/question/answer combinations in one import
+are rejected.
+
+Legacy row-based IDs such as `card-1-1` remain readable and are not rewritten
+automatically. The first re-import of legacy spreadsheet content can therefore
+leave the legacy card beside the new content-ID card. Existing progress remains
+attached to the legacy card instead of being guessed, moved or silently attached
+to different learning content. Removing legacy imported records requires the
+existing explicit content-removal action; no automatic progress migration occurs.
 
 ### CardProgress
 

@@ -1,7 +1,8 @@
 import { type ChangeEvent, useState } from "react";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
-import type { Flashcard, StudyUnit } from "../../shared/types/models";
+import type { StudyUnit } from "../../shared/types/models";
 import { FlashcardForm } from "./FlashcardForm";
+import { mergeImportedFlashcards } from "./flashcardIdentity";
 import {
   IMPORTED_FLASHCARDS_SETTING_KEY,
   IMPORTED_UNITS_SETTING_KEY,
@@ -49,12 +50,14 @@ export function ContentImportPage() {
     if (!file) return;
 
     try {
-      const spreadsheetFlashcards = parseFlashcardsSpreadsheet(await readFile(file), units);
-      const byId = new Map<string, Flashcard>(
-        importedFlashcards.map((card) => [card.id, card] as const),
+      const spreadsheetFlashcards = await parseFlashcardsSpreadsheet(
+        await readFile(file),
+        units,
       );
-      for (const card of spreadsheetFlashcards) byId.set(card.id, card);
-      const nextFlashcards = [...byId.values()];
+      const nextFlashcards = mergeImportedFlashcards(
+        importedFlashcards,
+        spreadsheetFlashcards,
+      );
       await studyDatabase.settings.put({ key: IMPORTED_FLASHCARDS_SETTING_KEY, value: nextFlashcards });
       setMessage(`${spreadsheetFlashcards.length} flashcard${spreadsheetFlashcards.length === 1 ? "" : "s"} added or updated successfully.`);
     } catch (error) {

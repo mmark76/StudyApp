@@ -1,4 +1,8 @@
 import type { Flashcard, StudyUnit } from "../../shared/types/models";
+import {
+  buildFlashcardIdentity,
+  createFlashcardContentId,
+} from "./flashcardIdentity";
 
 const UNITS_HEADERS = ["Chapter number", "Chapter title", "What should you learn?", "Key points", "Important terms"];
 const FLASHCARDS_HEADERS = ["Chapter number", "Question", "Answer", "Keywords"];
@@ -91,7 +95,11 @@ export function parseUnitsSpreadsheet(text: string): StudyUnit[] {
   return units;
 }
 
-export function parseFlashcardsSpreadsheet(text: string, units: readonly StudyUnit[]): Flashcard[] {
+export async function parseFlashcardsSpreadsheet(
+  text: string,
+  units: readonly StudyUnit[],
+  cryptoProvider: Crypto | null | undefined = globalThis.crypto,
+): Promise<Flashcard[]> {
   const rows = parseDelimitedText(text);
   if (rows.length === 0) throw new Error("The file contains no flashcards");
   validateHeaders(rows[0], FLASHCARDS_HEADERS, "flashcards");
@@ -101,8 +109,9 @@ export function parseFlashcardsSpreadsheet(text: string, units: readonly StudyUn
     units.map((unit) => [unit.number, unit] as const),
   );
   const counters = new Map<number, number>();
+  const firstRowByIdentity = new Map<string, number>();
 
-  return rows.slice(1).map((row, rowIndex) => {
+  const drafts = rows.slice(1).map((row, rowIndex) => {
     const [unitNumberValue = "", question = "", answer = "", tags = ""] = row;
     const unitNumber = readNumber(unitNumberValue, "Chapter number");
     const unit = unitsByNumber.get(unitNumber);
@@ -110,14 +119,50 @@ export function parseFlashcardsSpreadsheet(text: string, units: readonly StudyUn
 
     const number = (counters.get(unitNumber) ?? 0) + 1;
     counters.set(unitNumber, number);
+    const parsedQuestion = requireText(question, "Question");
+    const parsedAnswer = requireText(answer, "Answer");
+    const identity = buildFlashcardIdentity(unit.id, parsedQuestion, parsedAnswer);
+    const sourceRow = rowIndex + 2;
+    const firstSourceRow = firstRowByIdentity.get(identity);
+    if (firstSourceRow !== undefined) {
+      throw new Error(
+        `Flashcard rows ${firstSourceRow} and ${sourceRow} have the same chapter, question and answer.`,
+      );
+    }
+    firstRowByIdentity.set(identity, sourceRow);
 
     return {
-      id: `card-${unitNumber}-${rowIndex + 1}`,
       unitId: unit.id,
       number,
-      question: requireText(question, "Question"),
-      answer: requireText(answer, "Answer"),
+      question: parsedQuestion,
+      answer: parsedAnswer,
       tags: splitList(tags),
-    } satisfies Flashcard;
+      identity,
+    };
   });
+
+  const identitiesById = new Map<string, string>();
+  const flashcards: Flashcard[] = [];
+  for (const draft of drafts) {
+    const id = await createFlashcardContentId(
+      draft.unitId,
+      draft.question,
+      draft.answer,
+      cryptoProvider,
+    );
+    const existingIdentity = identitiesById.get(id);
+    if (existingIdentity !== undefined && existingIdentity !== draft.identity) {
+      throw new Error("Two different flashcards produced the same stable ID. No cards were imported.");
+    }
+    identitiesById.set(id, draft.identity);
+    flashcards.push({
+      id,
+      unitId: draft.unitId,
+      number: draft.number,
+      question: draft.question,
+      answer: draft.answer,
+      tags: draft.tags,
+    });
+  }
+  return flashcards;
 }
