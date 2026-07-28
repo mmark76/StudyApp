@@ -11,6 +11,10 @@ import {
   isStructuredStudyType,
   structuredStudyTypeOptions,
 } from "../study-materials/localStudyFiles";
+import {
+  LocalFilePolicyError,
+  openLocalStudyFile,
+} from "../study-materials/localFilePolicy";
 import { MaterialUploadPanel } from "../study-materials/MaterialUploadPanel";
 import {
   builtInStudyMaterials,
@@ -136,13 +140,21 @@ export function StudyTheoryPage() {
   );
   const [message, setMessage] = useState("");
 
-  function openStructuredFile(fileId: string) {
+  async function openStructuredFile(fileId: string) {
     const file = structuredFiles.find((item) => item.id === fileId);
     if (!file) return;
-    const blob = file.mimeType ? file.data.slice(0, file.data.size, file.mimeType) : file.data;
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank", "noopener,noreferrer");
-    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    try {
+      const openMode = await openLocalStudyFile(file);
+      if (openMode === "download") {
+        setMessage("This file was downloaded because it cannot be safely previewed in the browser.");
+      }
+    } catch (error) {
+      setMessage(
+        error instanceof LocalFilePolicyError
+          ? error.message
+          : "The file could not be opened.",
+      );
+    }
   }
 
   async function renameStructuredFile(file: LocalStudyFile) {
@@ -249,7 +261,7 @@ export function StudyTheoryPage() {
                   <StructuredFilePlacementEditor file={file} />
                 </div>
                 <div className="local-file-actions">
-                  <button className="button structured-view-action compact-square" onClick={() => openStructuredFile(file.id)} type="button">View</button>
+                  <button className="button structured-view-action compact-square" onClick={() => void openStructuredFile(file.id)} type="button">View</button>
                   <button className="button structured-rename-action compact-square" onClick={() => void renameStructuredFile(file)} type="button">Rename</button>
                   <button className="button danger compact-square" onClick={() => void removeStructuredFile(file)} type="button">Remove</button>
                 </div>
@@ -283,7 +295,7 @@ export function StudyTheoryPage() {
                         <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)}</span>
                       </div>
                       <div className="local-file-actions">
-                        <button className="button structured-view-action compact-square" onClick={() => openStructuredFile(file.id)} type="button">View</button>
+                        <button className="button structured-view-action compact-square" onClick={() => void openStructuredFile(file.id)} type="button">View</button>
                         <button className="button structured-rename-action compact-square" onClick={() => void renameStructuredFile(file)} type="button">Rename</button>
                         <button className="button danger compact-square" onClick={() => void removeStructuredFile(file)} type="button">Remove</button>
                       </div>

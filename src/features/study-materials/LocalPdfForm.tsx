@@ -3,12 +3,15 @@ import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { LocalStudyFile, SourceMaterialType, StructuredStudyType } from "../../shared/types/models";
 import { createId } from "../../shared/utils/id";
 import {
+  LOCAL_STUDY_FILE_ACCEPT,
+  LocalFilePolicyError,
+  validateLocalStudyFile,
+} from "./localFilePolicy";
+import {
   computeBlobSha256,
   findDuplicateLocalStudyFile,
-  getLocalStudyFileKind,
   isSourceMaterialType,
   isStructuredStudyType,
-  isSupportedStudyFile,
   MAX_LOCAL_FILE_SIZE,
   sourceMaterialTypeOptions,
   structuredStudyTypeOptions,
@@ -59,10 +62,6 @@ export function LocalPdfForm({
     event.preventDefault();
     if (!file || lock.current) return;
 
-    if (!isSupportedStudyFile(file)) {
-      onMessage("Choose a supported study file: PDF, Word, text, CSV, or image.");
-      return;
-    }
     if (file.size > MAX_LOCAL_FILE_SIZE) {
       onMessage("The file is larger than 50 MB. Use a cloud link for larger files.");
       return;
@@ -78,6 +77,7 @@ export function LocalPdfForm({
 
     lock.current = true;
     try {
+      const validatedFile = await validateLocalStudyFile(file);
       const contentHash = await computeBlobSha256(file);
       const existingFile = findDuplicateLocalStudyFile(files, {
         fileName: file.name,
@@ -98,9 +98,9 @@ export function LocalPdfForm({
         fileName: file.name,
         size: file.size,
         createdAt: new Date().toISOString(),
-        data: file.slice(0, file.size, file.type || "application/octet-stream"),
-        mimeType: file.type || "application/octet-stream",
-        fileKind: getLocalStudyFileKind(file.name, file.type),
+        data: file.slice(0, file.size, validatedFile.canonicalMimeType),
+        mimeType: validatedFile.canonicalMimeType,
+        fileKind: validatedFile.fileKind,
         fileSource: destination === "structured-study" ? "structured-material" : "source-material",
         ...(isSourceMaterialType(materialType) ? { materialType } : {}),
         ...(isStructuredStudyType(structuredStudyType) ? { structuredStudyType } : {}),
@@ -114,12 +114,16 @@ export function LocalPdfForm({
           ? "The study file was uploaded to Structured Study."
           : "The study file was uploaded to Library.",
       );
-    } catch {
-      onMessage(
-        destination === "structured-study"
-          ? "Choose a Structured Study part. The file also needs enough browser storage space."
-          : "Choose a Library type. The file also needs enough browser storage space.",
-      );
+    } catch (error) {
+      if (error instanceof LocalFilePolicyError) {
+        onMessage(error.message);
+      } else {
+        onMessage(
+          destination === "structured-study"
+            ? "Choose a Structured Study part. The file also needs enough browser storage space."
+            : "Choose a Library type. The file also needs enough browser storage space.",
+        );
+      }
     } finally {
       lock.current = false;
     }
@@ -192,7 +196,7 @@ export function LocalPdfForm({
         <input
           ref={inputRef}
           required={!uploadedFile}
-          accept=".pdf,.doc,.docx,.txt,.md,.csv,.jpg,.jpeg,.png,.gif,.webp,application/pdf,text/*,image/*"
+          accept={LOCAL_STUDY_FILE_ACCEPT}
           name="study-file"
           type="file"
           onChange={chooseFile}
