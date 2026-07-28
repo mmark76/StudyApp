@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import "./LearnPage.css";
 
 const learnTools = [
   {
@@ -36,7 +37,7 @@ export function LearnPage() {
         <p>Turn structured material into flashcards, review, quizzes and progress.</p>
       </header>
 
-      <section className="learning-stage-grid" aria-label="Learning tools">
+      <section className="learning-stage-grid learn-tools-grid" aria-label="Learning tools">
         {learnTools.map((tool, index) => (
           <article className="learning-stage-card" key={tool.title}>
             <span className="stage-number" aria-hidden="true">{index + 1}</span>
