@@ -1,6 +1,6 @@
 # Backup and Data Safety
 
-_Last updated: 2026-07-08_
+_Last updated: 2026-07-28_
 
 ## Local-first principle
 
@@ -21,6 +21,19 @@ It does not include local file blobs such as uploaded PDFs, Word documents, imag
 Users should keep the original PDFs and files outside StudyApp as their primary file copies.
 
 This is the current v1 behavior. A future complete local-file export/import feature is designed, but it is not implemented yet.
+
+## Current restore safety
+
+StudyApp validates the complete progress/settings backup before changing browser
+data. Restore accepts schema version 1 backups up to 10 MB and checks record
+shapes, supported values, dates, non-negative number ranges, unique IDs,
+supported settings and relationships between chapters, flashcards and progress.
+
+After validation, StudyApp shows the backup creation date and counts for
+progress, sessions and included settings. Existing data is replaced only after
+the user explicitly confirms the preview. Progress, sessions and settings are
+then restored in one IndexedDB transaction. A validation or write failure keeps
+the existing data unchanged. Local file blobs are neither imported nor changed.
 
 ## What can be lost
 
