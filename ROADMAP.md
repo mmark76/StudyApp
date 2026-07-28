@@ -17,6 +17,12 @@ The v1 roadmap ends at the release gate. Completed work includes:
 The v1 scope remains local-first, browser-only, offline-ready, and without
 accounts, a backend, analytics, telemetry, or cloud sync.
 
+## v1.0.0 release-hardening follow-up
+
+A focused post-gate PR adds explicit local-storage/non-backup notices and
+download actions for generated split PDFs. It does not add content generation,
+cloud storage, authentication, backend services, or a new data model.
+
 ## Stopping point
 
 No additional feature or hardening work belongs in the v1 release-gate PR.

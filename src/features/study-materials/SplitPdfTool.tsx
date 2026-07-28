@@ -21,6 +21,12 @@ import {
   structuredStudyTypeOptions,
   titleFromFileName,
 } from "./localStudyFiles";
+import {
+  downloadSplitPdfBatch,
+  downloadSplitPdfFile,
+  makeSplitPdfFileName,
+  replaceLatestSplitDownloadBatch,
+} from "./splitPdfDownloads";
 import { normalizeStudyMaterialTitle } from "./studyMaterials";
 
 GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
@@ -42,7 +48,7 @@ interface ValidatedRange {
 
 const MAX_SPLIT_RANGES = 50;
 const PDF_RENDER_SCALE = 2;
-const RENDERED_SPLIT_NOTE = "Saved as a new Structured Study PDF. You can split each new PDF again if needed.";
+const RENDERED_SPLIT_NOTE = "Saved locally as a new Structured Study PDF. You can split each new PDF again if needed.";
 
 function readPdfText(bytes: ArrayBuffer): string {
   return new TextDecoder("latin1").decode(bytes);
@@ -114,12 +120,6 @@ function validateRanges(ranges: readonly RangeRow[], pageCount: number): Validat
   });
 }
 
-function makeSplitFileName(fileName: string, rangeLabel: string, index: number): string {
-  const baseName = fileName.replace(/\.pdf$/i, "").trim() || "study-material";
-  const safeRange = rangeLabel.replace(/\D+/g, "-").replace(/^-|-$/g, "") || `${index + 1}`;
-  return `${baseName}-pages-${safeRange}.pdf`;
-}
-
 function makeTitle(value: string): string {
   const normalized = value.trim().replace(/\s+/g, " ");
   const safeLength = normalized.length <= 160 ? normalized : `${normalized.slice(0, 157).trimEnd()}...`;
@@ -172,7 +172,7 @@ async function createVectorSplitFiles(
     splitFiles.push({
       id: createId("file"),
       title: makeTitle(range.name),
-      fileName: makeSplitFileName(sourceFileName, range.label, index),
+      fileName: makeSplitPdfFileName(sourceFileName, range.label, index),
       size: outputBlob.size,
       createdAt: new Date().toISOString(),
       data: outputBlob,
@@ -242,7 +242,7 @@ async function createRenderedSplitFiles(
       splitFiles.push({
         id: createId("file"),
         title: makeTitle(range.name),
-        fileName: makeSplitFileName(sourceFileName, range.label, rangeIndex),
+        fileName: makeSplitPdfFileName(sourceFileName, range.label, rangeIndex),
         size: outputBlob.size,
         createdAt: new Date().toISOString(),
         data: outputBlob,
@@ -278,7 +278,8 @@ export function SplitPdfTool({
   const [ranges, setRanges] = useState<RangeRow[]>([makeRangeRow()]);
   const [isUploading, setIsUploading] = useState(false);
   const [isSplitting, setIsSplitting] = useState(false);
-  const [recentSplitCount, setRecentSplitCount] = useState(0);
+  const [recentSplitFiles, setRecentSplitFiles] = useState<LocalStudyFile[]>([]);
+  const [downloadError, setDownloadError] = useState("");
 
   const selectedFile = pdfFiles.find((file) => file.id === selectedFileId);
   const hasSplitEngineLimit = Boolean(splitEnginePageCount && pageCount && pageCount > splitEnginePageCount);
@@ -355,7 +356,7 @@ export function SplitPdfTool({
       });
       if (existingFile) {
         setSelectedFileId(existingFile.id);
-        onMessage("This PDF has already been uploaded. It is selected for splitting.");
+        onMessage("This PDF has already been added to this browser. It is selected for splitting.");
         return;
       }
 
@@ -373,7 +374,7 @@ export function SplitPdfTool({
       };
       await studyDatabase.studyFiles.add(item);
       setSelectedFileId(item.id);
-      onMessage("The PDF was uploaded locally and selected for splitting. Classify the source PDF later in Library from Source if needed.");
+      onMessage("A local PDF copy was added to this browser and selected for splitting. Classify the source PDF later in Library from Source if needed.");
     } catch (error) {
       onMessage(
         error instanceof LocalFilePolicyError
@@ -413,7 +414,8 @@ export function SplitPdfTool({
     event.preventDefault();
     if (!selectedFile || isSplitting) return;
 
-    setRecentSplitCount(0);
+    setRecentSplitFiles([]);
+    setDownloadError("");
     setIsSplitting(true);
     try {
       const sourceBytes = await selectedFile.data.arrayBuffer();
@@ -436,7 +438,7 @@ export function SplitPdfTool({
         : await createRenderedSplitFiles(sourceBytes, validatedRanges, selectedFile.fileName, selectedFile.id);
 
       await studyDatabase.studyFiles.bulkAdd(splitFiles);
-      setRecentSplitCount(splitFiles.length);
+      setRecentSplitFiles((previousFiles) => replaceLatestSplitDownloadBatch(previousFiles, splitFiles));
       const compatibilityNote = canUseVectorEngine ? "" : ` ${RENDERED_SPLIT_NOTE}`;
       onMessage(splitFiles.length === 1
         ? `Created 1 split PDF: ${splitFiles[0].fileName}.${compatibilityNote}`
@@ -448,16 +450,36 @@ export function SplitPdfTool({
     }
   }
 
+  async function downloadRecentSplit(file: LocalStudyFile) {
+    setDownloadError("");
+    try {
+      const fileName = await downloadSplitPdfFile(file);
+      onMessage(`Downloading ${fileName}.`);
+    } catch {
+      setDownloadError(`Could not download "${file.fileName}". The locally saved PDF is unchanged.`);
+    }
+  }
+
+  async function downloadAllRecentSplits() {
+    setDownloadError("");
+    try {
+      const fileNames = await downloadSplitPdfBatch(recentSplitFiles);
+      onMessage(`Started ${fileNames.length} downloads from the latest split.`);
+    } catch {
+      setDownloadError("Could not download all PDFs from the latest split. The locally saved PDFs are unchanged; try each Download button.");
+    }
+  }
+
   return (
     <form className="material-form" onSubmit={(event) => void submit(event)}>
       <div className="button-row">
         <button className="button secondary" disabled={isUploading} onClick={() => uploadInputRef.current?.click()} type="button">
-          {isUploading ? "Uploading PDF..." : "Upload PDF"}
+          {isUploading ? "Adding PDF..." : "Add PDF from this device"}
         </button>
         <input
           ref={uploadInputRef}
           accept=".pdf,application/pdf"
-          aria-label="Upload PDF for splitting"
+          aria-label="Add a PDF to this browser for splitting"
           type="file"
           onChange={(event) => void uploadPdf(event)}
           style={{
@@ -474,8 +496,12 @@ export function SplitPdfTool({
       </div>
 
       <label className="field-label">
-        PDF saved in StudyApp
-        <select required value={selectedFileId} onChange={(event) => { setSelectedFileId(event.target.value); setRecentSplitCount(0); }}>
+        PDF stored in this browser
+        <select required value={selectedFileId} onChange={(event) => {
+          setSelectedFileId(event.target.value);
+          setRecentSplitFiles([]);
+          setDownloadError("");
+        }}>
           <option value="">Choose a local PDF</option>
           {pdfFiles.map((file) => (
             <option key={file.id} value={file.id}>{file.title} · {file.fileName} · {formatFileSize(file.size)}</option>
@@ -562,21 +588,46 @@ export function SplitPdfTool({
         Give each chunk a name and type yourself. For example: Name "Contents" and Type "Contents"; or Name "Chapter 1" and Type "Chapter".
       </p>
 
-      {pdfFiles.length === 0 ? <p className="inline-message">Upload a PDF here or add a source PDF in Library, then split it.</p> : null}
+      {pdfFiles.length === 0 ? <p className="inline-message">Add a PDF here or add a source PDF in Library, then split it.</p> : null}
 
       <button className="button primary" disabled={!selectedFile || !pageCount || Boolean(pageCountError) || isSplitting} type="submit">
         {isSplitting ? "Splitting PDF..." : "Split PDF"}
       </button>
 
-      {recentSplitCount > 0 ? (
-        <div className="stack-md">
+      {recentSplitFiles.length > 0 ? (
+        <section className="template-card stack-md" aria-labelledby="latest-split-downloads-title">
+          <div>
+            <p className="eyebrow">Latest successful split</p>
+            <h4 id="latest-split-downloads-title">Download new split PDFs</h4>
+          </div>
+          <ul className="local-file-list">
+            {recentSplitFiles.map((file) => (
+              <li className="local-file-row" key={file.id}>
+                <div>
+                  <strong>{file.title}</strong>
+                  <span>{file.fileName}{file.pageRangeLabel ? ` · pages ${file.pageRangeLabel}` : ""}</span>
+                </div>
+                <div className="local-file-actions">
+                  <button className="button secondary compact-square" onClick={() => void downloadRecentSplit(file)} type="button">
+                    Download
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {recentSplitFiles.length > 1 ? (
+            <button className="button primary" onClick={() => void downloadAllRecentSplits()} type="button">
+              Download all
+            </button>
+          ) : null}
           <Link className="button secondary" to="/study/theory">
             View split PDFs
           </Link>
           <p className="field-help">
-            {recentSplitCount} new {recentSplitCount === 1 ? "PDF was" : "PDFs were"} saved in Structured Study.
+            {recentSplitFiles.length} new {recentSplitFiles.length === 1 ? "PDF was" : "PDFs were"} saved locally in Structured Study. This list contains only the latest successful split.
           </p>
-        </div>
+          {downloadError ? <p className="inline-message" role="alert">{downloadError}</p> : null}
+        </section>
       ) : null}
     </form>
   );

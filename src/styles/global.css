@@ -245,6 +245,9 @@ th, td { border-bottom: 1px solid var(--slate-300); padding: 0.75rem; text-align
 .field-label input, .field-label select, .field-label textarea { width: 100%; border: 1px solid var(--slate-300); border-radius: var(--radius-sm); padding: var(--field-padding); background: var(--input-background); color: var(--navy-900); }
 .field-help { color: var(--slate-500); font-size: 0.85rem; font-weight: 500; }
 .inline-message { color: var(--slate-600); font-weight: 700; }
+.storage-notice { padding: 1rem 1.1rem; border: 2px solid var(--blue-600); border-radius: var(--radius-md); background: var(--blue-100); color: var(--slate-700); }
+.storage-notice strong { display: block; color: var(--navy-800); }
+.storage-notice p { margin: 0.35rem 0 0; }
 .material-form { display: grid; gap: 1rem; }
 .template-grid, .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
 .template-card { border: 1px solid var(--slate-300); border-radius: var(--radius-md); padding: var(--card-padding); background: var(--page-background); }

@@ -67,11 +67,11 @@ export function LocalPdfForm({
       return;
     }
     if (destination === "library" && !isSourceMaterialType(materialType)) {
-      onMessage("Choose a Library type before uploading the file.");
+      onMessage("Choose a Library type before adding the file to this browser.");
       return;
     }
     if (destination === "structured-study" && !isStructuredStudyType(structuredStudyType)) {
-      onMessage("Choose a Structured Study part before uploading the file.");
+      onMessage("Choose a Structured Study part before adding the file to this browser.");
       return;
     }
 
@@ -87,7 +87,7 @@ export function LocalPdfForm({
       if (existingFile) {
         setUploadedFile(null);
         clearDraft();
-        onMessage("This file has already been uploaded.");
+        onMessage("This file has already been added to this browser.");
         return;
       }
 
@@ -111,8 +111,8 @@ export function LocalPdfForm({
       clearDraft();
       onMessage(
         destination === "structured-study"
-          ? "The study file was uploaded to Structured Study."
-          : "The study file was uploaded to Library.",
+          ? "A local copy was added to Structured Study in this browser."
+          : "A local copy was added to Library in this browser.",
       );
     } catch (error) {
       if (error instanceof LocalFilePolicyError) {
@@ -141,11 +141,11 @@ export function LocalPdfForm({
     lock.current = true;
     try {
       await studyDatabase.studyFiles.delete(uploadedFile.id);
-      onMessage(`Removed uploaded file: ${uploadedFile.title}.`);
+      onMessage(`Removed the local StudyApp copy: ${uploadedFile.title}.`);
       setUploadedFile(null);
       clearDraft();
     } catch {
-      onMessage("The uploaded file could not be removed.");
+      onMessage("The local StudyApp copy could not be removed.");
     } finally {
       lock.current = false;
     }
@@ -208,7 +208,7 @@ export function LocalPdfForm({
           className={uploadedFile ? "button success compact-square" : "button primary compact-square"}
           type={uploadedFile ? "button" : "submit"}
         >
-          {uploadedFile ? "File Uploaded" : "Upload"}
+          {uploadedFile ? "File Added" : "Add file"}
         </button>
         <button
           className={uploadedFile ? "button danger compact-square" : "button secondary compact-square"}
@@ -216,7 +216,7 @@ export function LocalPdfForm({
           onClick={() => void removeSelectionOrUpload()}
           type="button"
         >
-          {uploadedFile ? "Undo upload" : "Clear"}
+          {uploadedFile ? "Undo add" : "Clear"}
         </button>
       </div>
       {uploadedFile ? (

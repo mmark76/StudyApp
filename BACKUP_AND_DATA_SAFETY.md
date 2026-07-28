@@ -4,9 +4,15 @@ _Last updated: 2026-07-28_
 
 ## Local-first principle
 
-StudyApp stores user-created study content, progress, settings, cloud links, and local files in the browser. The app has no backend and no account system by default.
+StudyApp stores user-created or user-imported study content, progress,
+settings, saved external links, and local files in the current browser. The
+app has no backend, server upload, account system, or cloud storage. It does
+not generate chapters, flashcards, quizzes, or other study content
+automatically.
 
-This protects ownership and privacy, but it also means the browser storage is important user data.
+This protects ownership and privacy, but it also means browser storage is
+important user data. StudyApp is not permanent storage, an archive, or a file
+backup.
 
 ## Current backup limitation
 
@@ -18,7 +24,10 @@ The current JSON backup is progress/settings oriented. It includes:
 
 It does not include local file blobs such as uploaded PDFs, Word documents, images, or generated split PDFs. Those files remain stored only in this browser on this device unless a future complete local-file export feature explicitly adds them.
 
-Users should keep the original PDFs and files outside StudyApp as their primary file copies.
+Users should keep the original PDFs, import spreadsheets, and other files
+outside StudyApp as their primary copies. Generated split PDFs can be
+downloaded individually; **Download all** is limited to the outputs from the
+latest successful split.
 
 This is the current v1 behavior. A future complete local-file export/import feature is designed, but it is not implemented yet.
 
@@ -44,6 +53,7 @@ Local browser data may be lost if:
 - the device is replaced;
 - the browser storage quota is exceeded or cleaned;
 - the user uses a different browser or device without export/import support.
+- the application is removed or browser/local storage becomes unavailable.
 
 ## Required wording rule
 
@@ -66,6 +76,10 @@ Included in the current JSON backup. This covers stored app settings, user-added
 Includes files stored in IndexedDB as `Blob` data, such as uploaded source PDFs, documents, images, and generated split PDFs.
 
 These are not included in the current JSON backup. New local file records can store `contentHash` values for safer duplicate detection, but the file blobs themselves still remain only in this browser on this device. Keep original file copies outside StudyApp, especially before clearing browser data, changing browsers, or moving to another device.
+
+Generated split PDFs remain local file blobs until removed. Their Download
+actions create copies outside StudyApp; downloading does not remove the
+IndexedDB record or change its relationship to the source PDF.
 
 ### Cloud links
 
@@ -109,3 +123,7 @@ A future complete local-file archive restore should additionally:
 Until complete local-file export exists, user-facing copy should preserve this meaning:
 
 > Progress backups do not include local file copies. Files saved in StudyApp remain in this browser on this device. Export or keep your original files separately before clearing browser data or changing device.
+
+The full central UI notice also preserves this meaning:
+
+> StudyApp is a local tool for using and studying content, not a permanent-storage or backup service. Files stay only in this browser and can be lost if its data is cleared or becomes unavailable. Always keep your original files and any needed copies somewhere safe.
