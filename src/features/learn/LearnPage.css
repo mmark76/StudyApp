@@ -1,9 +1,15 @@
 .learning-stage-grid.learn-tools-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+}
+
+.learning-stage-grid.learn-tools-grid > .learning-stage-card {
+  min-height: 240px;
 }
 
 @media (max-width: 760px) {
   .learning-stage-grid.learn-tools-grid {
     grid-template-columns: 1fr;
+    grid-auto-rows: auto;
   }
 }
