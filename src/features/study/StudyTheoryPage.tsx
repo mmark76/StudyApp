@@ -16,6 +16,7 @@ import {
   openLocalStudyFile,
 } from "../study-materials/localFilePolicy";
 import { MaterialUploadPanel } from "../study-materials/MaterialUploadPanel";
+import { downloadSplitPdfFile } from "../study-materials/splitPdfDownloads";
 import {
   builtInStudyMaterials,
   normalizeStudyMaterialTitle,
@@ -175,6 +176,19 @@ export function StudyTheoryPage() {
     }
   }
 
+  async function downloadStructuredFile(file: LocalStudyFile) {
+    try {
+      const fileName = await downloadSplitPdfFile(file);
+      setMessage(`Downloading ${fileName}.`);
+    } catch (error) {
+      setMessage(
+        error instanceof LocalFilePolicyError
+          ? error.message
+          : `Could not download "${file.fileName}". The locally saved PDF is unchanged.`,
+      );
+    }
+  }
+
   async function removeStructuredFile(file: LocalStudyFile) {
     const splitPdf = isSplitPdfFile(file);
     const structuredOnly = file.fileSource === "structured-material";
@@ -241,9 +255,9 @@ export function StudyTheoryPage() {
       <section className="content-panel" aria-label="Structured study material">
         <p className="eyebrow">Structured source material</p>
         <h3>Files and links by structured type</h3>
-        <p>Upload material once above. Local files, cloud links and PDF chunks then appear in the matching Structured Study card below.</p>
+        <p>Add material to this browser once above. Local files, saved external links and PDF chunks then appear in the matching Structured Study card below.</p>
         {!hasStructuredMaterial ? (
-          <p className="inline-message">No structured material yet. Upload a file or link above, or use Split PDF Tool to create chapter or section PDFs.</p>
+          <p className="inline-message">No structured material yet. Add a file or link above, or use Split PDF Tool to create chapter or section PDFs.</p>
         ) : null}
       </section>
 
@@ -262,6 +276,7 @@ export function StudyTheoryPage() {
                 </div>
                 <div className="local-file-actions">
                   <button className="button structured-view-action compact-square" onClick={() => void openStructuredFile(file.id)} type="button">View</button>
+                  <button className="button secondary compact-square" onClick={() => void downloadStructuredFile(file)} type="button">Download</button>
                   <button className="button structured-rename-action compact-square" onClick={() => void renameStructuredFile(file)} type="button">Rename</button>
                   <button className="button danger compact-square" onClick={() => void removeStructuredFile(file)} type="button">Remove</button>
                 </div>
@@ -296,6 +311,9 @@ export function StudyTheoryPage() {
                       </div>
                       <div className="local-file-actions">
                         <button className="button structured-view-action compact-square" onClick={() => void openStructuredFile(file.id)} type="button">View</button>
+                        {isSplitPdfFile(file) ? (
+                          <button className="button secondary compact-square" onClick={() => void downloadStructuredFile(file)} type="button">Download</button>
+                        ) : null}
                         <button className="button structured-rename-action compact-square" onClick={() => void renameStructuredFile(file)} type="button">Rename</button>
                         <button className="button danger compact-square" onClick={() => void removeStructuredFile(file)} type="button">Remove</button>
                       </div>

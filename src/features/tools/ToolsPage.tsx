@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
+import {
+  StorageNotice,
+  storageNoticePlacements,
+} from "../../shared/components/StorageNotice";
 import { SplitPdfTool } from "../study-materials/SplitPdfTool";
 
 export function ToolsPage() {
@@ -15,15 +19,17 @@ export function ToolsPage() {
       <header className="page-heading">
         <p className="eyebrow">Local PDF tool</p>
         <h2>Split PDF Tool</h2>
-        <p>Split local PDF files inside this browser without uploading your files.</p>
+        <p>Import and split PDF files inside this browser without sending them to a server.</p>
       </header>
+
+      <StorageNotice kind={storageNoticePlacements.pdfSplitter} />
 
       <section className="content-panel" id="split-pdf" tabIndex={-1}>
         <p className="eyebrow">Local PDF tool</p>
         <h3>Split PDF</h3>
         <p>
           Split a locally saved PDF into smaller PDF files. Processing happens only in this browser,
-          and the generated PDFs are saved as Structured Study material on this device.
+          and the generated PDFs remain saved in Structured Study until you remove them.
         </p>
         <SplitPdfTool files={localFiles} onMessage={setMessage} />
       </section>

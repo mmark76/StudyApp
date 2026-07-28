@@ -2,6 +2,21 @@
 
 _Release gate date: 2026-07-28_
 
+## Release-hardening follow-up
+
+The July 28 follow-up preserves the v1 feature scope while making its limited
+personal-use model explicit:
+
+- visible shared notices now explain local browser storage, data-loss risk,
+  original-file retention, and the exact progress/settings backup boundary;
+- adding a file is described as importing a local browser copy, not sending it
+  to a server;
+- chapters, flashcards, quizzes, and other study content are user-provided;
+  StudyApp does not generate them automatically;
+- each generated split PDF can be downloaded with its stored PDF filename;
+- a successful multi-chunk split offers **Download all** for only that latest
+  result, using separate browser downloads with no ZIP dependency.
+
 ## What v1 includes
 
 - Local-first Library and Structured Study areas for adding, classifying,
@@ -50,6 +65,8 @@ significant type mismatches are rejected.
 ## Known non-blocking limitations
 
 - Complete local-file backup/export is not implemented.
+- Browsers may prompt for permission before allowing several files from
+  **Download all**.
 - Browser storage capacity is not estimated before large PDF work, and
   multi-chunk processing has limited progress/cancellation feedback.
 - Nested split-PDF relationships are not traversed recursively during source

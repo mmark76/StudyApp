@@ -1,5 +1,9 @@
 import { type ChangeEvent, useState } from "react";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
+import {
+  StorageNotice,
+  storageNoticePlacements,
+} from "../../shared/components/StorageNotice";
 import type { StudyUnit } from "../../shared/types/models";
 import { FlashcardForm } from "./FlashcardForm";
 import { mergeImportedFlashcards } from "./flashcardIdentity";
@@ -37,7 +41,7 @@ export function ContentImportPage() {
       for (const topic of spreadsheetTopics) byNumber.set(topic.number, topic);
       const nextTopics = [...byNumber.values()].sort((first, second) => first.number - second.number);
       await studyDatabase.settings.put({ key: IMPORTED_UNITS_SETTING_KEY, value: nextTopics });
-      setMessage(`${spreadsheetTopics.length} chapter${spreadsheetTopics.length === 1 ? "" : "s"} added or updated successfully.`);
+      setMessage(`${spreadsheetTopics.length} chapter${spreadsheetTopics.length === 1 ? "" : "s"} saved in this browser.`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "We could not read the chapters file. Download a fresh template and keep the column headings unchanged.");
     } finally {
@@ -59,7 +63,7 @@ export function ContentImportPage() {
         spreadsheetFlashcards,
       );
       await studyDatabase.settings.put({ key: IMPORTED_FLASHCARDS_SETTING_KEY, value: nextFlashcards });
-      setMessage(`${spreadsheetFlashcards.length} flashcard${spreadsheetFlashcards.length === 1 ? "" : "s"} added or updated successfully.`);
+      setMessage(`${spreadsheetFlashcards.length} flashcard${spreadsheetFlashcards.length === 1 ? "" : "s"} saved in this browser.`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "We could not read the flashcards file. Make sure its chapter numbers match chapters already added to the app.");
     } finally {
@@ -74,7 +78,7 @@ export function ContentImportPage() {
       await studyDatabase.settings.delete(IMPORTED_FLASHCARDS_SETTING_KEY);
       await studyDatabase.cardProgress.bulkDelete(importedFlashcards.map((card) => card.id));
     });
-    setMessage("Your added study content was removed.");
+    setMessage("Your added study content was removed from this browser.");
   }
 
   return (
@@ -82,8 +86,10 @@ export function ContentImportPage() {
       <header className="page-heading">
         <p className="eyebrow">Your content</p>
         <h2>Add study content</h2>
-        <p>Create chapters and flashcards directly in the app, or add many at once with familiar spreadsheet files.</p>
+        <p>Create your own chapters and flashcards in the app, or import many of your items at once with familiar spreadsheet files. StudyApp does not generate them automatically.</p>
       </header>
+
+      <StorageNotice kind={storageNoticePlacements.contentImport} />
 
       <section className="stats-grid" aria-label="Your added content">
         <article className="stat-card"><strong>{importedUnits.length}</strong><span>Chapters added</span></article>

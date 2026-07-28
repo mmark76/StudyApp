@@ -6,6 +6,14 @@ This is the explicit stopping-point backlog after v1.0.0. These items are not
 part of the v1 release and must be handled in separate, focused work. Priority
 reflects reliability impact, not a decision to reopen the v1 scope.
 
+## Release-hardening items completed after v1.0.0
+
+The focused July 28 hardening follow-up added shared local-storage/data-safety
+notices and direct download for generated split PDFs, including a latest-result
+**Download all** action. These items are no longer backlog work. Complete
+local-file archive export/import and broader browser automation remain deferred
+below.
+
 ## P1 — Data and runtime reliability
 
 ### Recursive split-PDF relationship safety

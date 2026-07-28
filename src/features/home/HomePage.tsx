@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  StorageNotice,
+  storageNoticePlacements,
+} from "../../shared/components/StorageNotice";
 
 const homeSpaces = [
   {
@@ -26,7 +30,7 @@ const homeSpaces = [
   {
     eyebrow: "PDF utility",
     title: "Split PDF Tool",
-    description: "Split local PDF files inside this browser without uploading your files.",
+    description: "Split local PDF files inside this browser without sending them to a server.",
     action: "Open split PDF tool",
     to: "/tools#split-pdf",
   },
@@ -72,6 +76,8 @@ export function HomePage() {
 
   return (
     <div className="stack-lg">
+      <StorageNotice kind={storageNoticePlacements.home} />
+
       <section className="learning-stage-grid" aria-label="Home study spaces">
         {homeSpaces.map((space) => (
           <article className="learning-stage-card" key={space.title}>

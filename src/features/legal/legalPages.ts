@@ -17,12 +17,12 @@ export const legalPages = {
   },
   privacy: {
     title: "Privacy",
-    summary: "The application is designed as a local-first study tool.",
-    lastUpdated: "5 July 2026",
+    summary: "StudyApp is a local tool for using and studying user-provided content, not a permanent-storage or backup service.",
+    lastUpdated: "28 July 2026",
     sections: [
-      { heading: "Local data", paragraphs: ["Study progress, preferences, user-added content, saved links, and local study files are stored locally in the browser. The application does not require an account."] },
-      { heading: "Files from your device", paragraphs: ["Files added from your device stay inside this browser on this device. The application does not upload or sync them.", "Local files are not included when you save a copy of your study progress. Clearing browser data may permanently remove them."] },
-      { heading: "Cloud links", paragraphs: ["Cloud files remain with the service chosen by the user, such as Google Drive, OneDrive, or Dropbox. Access and sharing permissions are controlled through that service."] },
+      { heading: "Local data", paragraphs: ["Study progress, preferences, user-provided chapters and flashcards, saved links, and local study files are stored locally in this browser. The application has no account or backend and does not generate study content automatically.", "Browser data can be lost if site data is cleared, the browser or application is removed, the browser profile or device changes, or local storage fails. Keep original files and needed copies outside StudyApp."] },
+      { heading: "Files from your device", paragraphs: ["Adding a file imports a copy into this browser on this device. The application does not upload or sync the file to a server.", "The progress/settings JSON backup does not include uploaded or generated file blobs. Split PDFs remain locally stored until removed and can be downloaded when a copy is needed outside StudyApp."] },
+      { heading: "External links", paragraphs: ["For a saved link, StudyApp stores the generated display name, classification, and URL. The linked file remains with the external service chosen by the user; its access and sharing permissions are controlled through that service."] },
       { heading: "Hosting", paragraphs: ["GitHub Pages and network providers may process technical request information under their own policies."] }
     ]
   },

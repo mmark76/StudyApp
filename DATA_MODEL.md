@@ -141,6 +141,11 @@ Important fields:
 
 `contentHash` is an optional SHA-256 hash for local file content. New local files and generated split PDFs can store it. Legacy records without `contentHash` remain valid and readable.
 
+Downloading a split PDF creates an external browser download from the existing
+`data` Blob. It does not add or change a database record, remove the local Blob,
+rename the stored record, or change `sourceFileId`. The latest-split download
+list is transient React state, not persisted data.
+
 Future complete local-file export/import behavior is designed in [`docs/LOCAL_FILE_EXPORT_DESIGN.md`](docs/LOCAL_FILE_EXPORT_DESIGN.md). That design preserves local file metadata, Blob data, split PDF relationships and `contentHash` values where available.
 
 ## Material classification

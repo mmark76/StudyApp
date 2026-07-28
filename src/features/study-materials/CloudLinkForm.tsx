@@ -49,11 +49,11 @@ export function CloudLinkForm({
     if (lock.current) return;
 
     if (destination === "library" && !isSourceMaterialType(materialType)) {
-      onMessage("Choose a Library type before uploading the link.");
+      onMessage("Choose a Library type before saving the link in this browser.");
       return;
     }
     if (destination === "structured-study" && !isStructuredStudyType(structuredStudyType)) {
-      onMessage("Choose a Structured Study part before uploading the link.");
+      onMessage("Choose a Structured Study part before saving the link in this browser.");
       return;
     }
 
@@ -69,7 +69,7 @@ export function CloudLinkForm({
         ...(isStructuredStudyType(structuredStudyType) ? { structuredStudyType } : {}),
       };
       if (existingLinks.some((link) => link.url === item.url)) {
-        onMessage("This link has already been uploaded.");
+        onMessage("This link has already been saved in this browser.");
         return;
       }
 
@@ -81,8 +81,8 @@ export function CloudLinkForm({
       clearDraft();
       onMessage(
         destination === "structured-study"
-          ? "The cloud link was uploaded to Structured Study."
-          : "The cloud link was uploaded to Library.",
+          ? "The link was saved locally in Structured Study. The linked file remains in its external service."
+          : "The link was saved locally in Library. The linked file remains in its external service.",
       );
     } catch {
       onMessage(
@@ -114,11 +114,11 @@ export function CloudLinkForm({
         key: STUDY_MATERIALS_SETTING_KEY,
         value: currentLinks.filter((link) => link.id !== uploadedLink.id),
       });
-      onMessage(`Removed uploaded link: ${uploadedLink.title}.`);
+      onMessage(`Removed the saved link: ${uploadedLink.title}.`);
       setUploadedLink(null);
       clearDraft();
     } catch {
-      onMessage("The uploaded link could not be removed.");
+      onMessage("The saved link could not be removed.");
     } finally {
       lock.current = false;
     }
@@ -183,7 +183,7 @@ export function CloudLinkForm({
           className={uploadedLink ? "button success compact-square" : "button primary compact-square"}
           type={uploadedLink ? "button" : "submit"}
         >
-          {uploadedLink ? "Uploaded" : "Upload"}
+          {uploadedLink ? "Link Added" : "Add link"}
         </button>
         <button
           className={uploadedLink ? "button danger compact-square" : "button secondary compact-square"}
@@ -191,7 +191,7 @@ export function CloudLinkForm({
           onClick={() => void removeSelectionOrUpload()}
           type="button"
         >
-          {uploadedLink ? "Undo upload" : "Clear"}
+          {uploadedLink ? "Undo add" : "Clear"}
         </button>
       </div>
     </form>

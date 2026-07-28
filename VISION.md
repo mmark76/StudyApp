@@ -6,6 +6,12 @@ StudyApp is intended to become a **local-first personal knowledge and learning s
 
 It should not be understood only as a flashcards app. Flashcards, quizzes, review queues, and spaced repetition are learning tools inside a broader system for organising, understanding, remembering, and recalling knowledge.
 
+For the current personal-use release, all study material and educational
+content is provided or entered by the user. StudyApp does not generate that
+content automatically. It runs locally in the browser without a backend and is
+not a permanent-storage, archive, or backup service; users must retain original
+files and required copies outside the application.
+
 ## Current navigation model
 
 The current product interface has Home plus four clear study areas. Material is
@@ -215,7 +221,7 @@ StudyApp should support more than passive reading. The learning workflow should 
 ## Design principles
 
 1. **Local-first and private by default**  
-   User content, progress, study files, and settings should remain local unless the user explicitly exports or chooses another behaviour.
+   User content, progress, study files, and settings should remain local unless the user explicitly exports or chooses another behaviour. Local browser storage is not permanent storage or a complete backup, so the interface must preserve clear original-file and data-loss guidance.
 
 2. **Clear separation of app areas**  
    Library from Source manages and reads source material. Structured Study

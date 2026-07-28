@@ -10,6 +10,10 @@ import {
   type BackupPreview,
 } from "../../infrastructure/backup/backup";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
+import {
+  StorageNotice,
+  storageNoticePlacements,
+} from "../../shared/components/StorageNotice";
 import type { StudyBackup } from "../../shared/types/models";
 
 interface PendingRestore {
@@ -103,7 +107,7 @@ export function ProgressPage() {
       <section className="content-panel">
         <h3>Keep your progress safe</h3>
         <p>Save a JSON backup of your progress, study sessions and app settings so you can restore them later.</p>
-        <p className="muted">This backup does not include local PDFs, uploaded documents, images or split PDF file copies. Files saved in StudyApp remain only in this browser on this device, so keep your original files somewhere safe.</p>
+        <StorageNotice kind={storageNoticePlacements.progressBackup} />
         <div className="button-row">
           <button className="button primary" disabled={isRestoring} onClick={() => void downloadProgressCopy()}>Save progress and settings backup</button>
           <label className="button secondary file-button">Restore progress and settings<input accept=".json,application/json" disabled={isRestoring} type="file" onChange={(event) => void restoreProgress(event)} /></label>

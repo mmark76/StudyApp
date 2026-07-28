@@ -304,7 +304,7 @@ export function LibraryPage() {
       <section className="content-panel">
         <p className="eyebrow">Boundary</p>
         <h3>What belongs here?</h3>
-        <p>Add material once in the upload panel above, then open or delete it from its Library category.</p>
+        <p>Add material once in the local import panel above, then open or delete it from its Library category.</p>
       </section>
     </div>
   );

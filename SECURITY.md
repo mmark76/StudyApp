@@ -2,7 +2,10 @@
 
 ## Supported model
 
-StudyApp is a local-first browser application. It has no backend, no account system, no first-party analytics, and no intentional cloud sync by default.
+StudyApp is a local-first browser application for using and studying
+user-provided content. It has no backend, no account system, no first-party
+analytics, and no intentional cloud sync. It is not a permanent-storage,
+archive, or backup service.
 
 ## Security and privacy boundaries
 
@@ -15,7 +18,10 @@ StudyApp is a local-first browser application. It has no backend, no account sys
 
 ## Local file handling
 
-Local files are stored in the browser's IndexedDB. Treat these files as private user data.
+Local files are stored in the browser's IndexedDB. Treat these files as private
+user data. They remain there until removed, but browser storage can be cleared,
+lost, or made unavailable. User-facing flows must tell users to retain original
+files outside StudyApp.
 
 All save and open flows must use
 `src/features/study-materials/localFilePolicy.ts`. The v1 allowlist is PDF,
@@ -34,6 +40,22 @@ Changes touching local files should consider:
 - backup/export expectations;
 - deletion confirmation;
 - relationships between source files and split PDFs.
+
+Generated split PDFs may be downloaded through the dedicated split-PDF
+download helper. The helper revalidates the stored PDF, uses a sanitized
+filename and a Blob URL, triggers the browser download, and revokes the URL on
+the next event-loop turn. Batch download must use only the outputs from the
+latest successful split and must not silently include older records.
+
+## Reviewed release-hardening scope
+
+The release-hardening review covers the local-only intended-use wording,
+split-PDF download behavior, backup boundaries, and the existing upload, open,
+delete, split, import, and PWA-update flows exercised by the documented checks.
+It does not establish that the application is free of every security issue.
+Use this wording for the scoped conclusion:
+
+> No known release-blocking security issues were found within the reviewed personal-use scope.
 
 ## PWA updates
 

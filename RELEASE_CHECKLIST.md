@@ -5,6 +5,33 @@ _Last updated: 2026-07-28_
 This is the final v1 stopping gate. It does not imply that the v1.1 backlog is
 part of this release.
 
+## Current release-hardening follow-up
+
+The focused July 28 follow-up is recorded separately in
+[`RELEASE_HARDENING_SMOKE_TEST.md`](RELEASE_HARDENING_SMOKE_TEST.md). It adds
+visible local-storage/data-safety notices and direct downloads for generated
+split PDFs without changing the v1 data model or product scope.
+
+| Current hardening check | Result |
+| --- | --- |
+| `npm ci` | PASS on required rerun with workspace-local cache |
+| `npm run typecheck` | PASS |
+| `npm test` | PASS — 13 files, 99/99 tests |
+| `npm run build` | PASS with the existing bundle-size warning |
+| Single split-PDF download | PASS — downloaded and independently parsed |
+| Latest-result `Download all` | PASS — exactly two current outputs; older output excluded |
+| Critical manual View/rename/delete/source-delete flows | INCOMPLETE — runtime blocked or not tested |
+| Current follow-up decision | **NOT READY** |
+
+The first `npm ci` attempt failed because the sandbox could not write to the
+global npm cache. A later final-gate attempt failed because two stopped
+preview/build processes still held the local Rolldown native module open.
+After stopping only those verified processes, the rerun used a writable
+workspace cache and passed. The production-only npm audit still exits 1 for
+the two known React Router RSC-mode findings, which are outside this
+client-only SPA's runtime path and have no available fix in the installed
+major.
+
 ## Release identity
 
 - Intended release: `1.0.0`.
@@ -85,7 +112,7 @@ as passing.
 - [x] Partial smoke evidence, untested checks, runtime limitations, and the
   owner’s risk acceptance are recorded without changing release history.
 
-## Final decision
+## Historical v1.0.0 decision
 
 **OWNER ACCEPTED FOR PERSONAL USE**
 
@@ -95,3 +122,13 @@ This owner acceptance is not equivalent to a complete production-grade release
 certification. PR #77 was merged before the interactive smoke record was
 completed; this documentation follow-up records the later evidence and waiver
 without asserting that the full manual gate passed.
+
+## Current hardening PR decision
+
+**NOT READY**
+
+The new download flows and automated checks pass, but the connected browser
+runtime did not complete all critical manual flows. No waiver is inferred for
+this follow-up. See
+[`RELEASE_HARDENING_SMOKE_TEST.md`](RELEASE_HARDENING_SMOKE_TEST.md) for exact
+evidence.

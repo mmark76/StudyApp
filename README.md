@@ -4,9 +4,10 @@ A local-first, subject-neutral personal knowledge and learning application.
 
 ## Version 1.0.0
 
-StudyApp v1 provides a practical browser-only workflow for adding study
-material, reading it from source or structure, practising with active recall,
-and keeping progress locally.
+StudyApp v1 provides a practical browser-only workflow for adding
+user-provided study material, reading it from source or structure, practising
+with active recall, and keeping progress locally. It is a content-use and study
+tool, not a content-generation, permanent-storage, archive, or backup service.
 
 The v1 safety gate includes:
 
@@ -22,7 +23,9 @@ The v1 safety gate includes:
 
 See [`RELEASE_NOTES_v1.md`](RELEASE_NOTES_v1.md) for the release summary,
 [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) for the acceptance gate, and
-[`V1_1_BACKLOG.md`](V1_1_BACKLOG.md) for explicitly deferred work.
+[`V1_1_BACKLOG.md`](V1_1_BACKLOG.md) for explicitly deferred work. The focused
+download/storage-notice follow-up is recorded in
+[`RELEASE_HARDENING_SMOKE_TEST.md`](RELEASE_HARDENING_SMOKE_TEST.md).
 
 ## Product areas
 
@@ -36,8 +39,9 @@ Home introduces the workflow. The main work is divided into four areas:
    Bibliography / References, or Images / Diagrams.
 3. **Learn & Practice** — import or use flashcards, complete due reviews, take
    quizzes, and inspect progress.
-4. **Split PDF Tool** — upload a PDF as direct input and split it locally into
-   named structured extracts.
+4. **Split PDF Tool** — import a PDF into the current browser as direct input,
+   split it locally into named structured extracts, and download the generated
+   PDFs when they are needed outside StudyApp.
 
 There is no standalone material-management page. Files and links are managed
 in Library or Structured Study according to their final reading destination.
@@ -51,7 +55,8 @@ The legacy `#/study-materials` URL redirects to Library for compatibility.
 3. Read source material in Library.
 4. Use Split PDF Tool when a source PDF needs smaller focused extracts.
 5. Read those extracts in Structured Study.
-6. Import chapters and flashcards from the supplied CSV templates.
+6. Create or import your own chapters and flashcards from the supplied CSV
+   templates. StudyApp does not generate this study content automatically.
 7. Practise through flashcards, due review, and quizzes.
 8. Inspect progress and regularly export a progress/settings backup.
 
@@ -62,13 +67,20 @@ the browser's IndexedDB. StudyApp has no account system, backend, analytics,
 telemetry, advertising, remote storage, or cloud sync.
 
 Local files stay in the current browser on the current device. Clearing site
-data, removing the browser profile, exhausting browser storage, or changing
-device can remove them. Keep the original files outside StudyApp.
+data, removing the application or browser profile, exhausting or damaging
+browser storage, or changing browser or device can remove them. StudyApp is not
+permanent storage or a file backup. Keep original files and required copies
+outside StudyApp.
 
 The JSON backup includes progress, sessions, supported settings,
 settings-backed imported content, and saved link records. It does **not**
 include uploaded PDFs, documents, images, or generated split-PDF blobs. See
 [`BACKUP_AND_DATA_SAFETY.md`](BACKUP_AND_DATA_SAFETY.md).
+
+Generated split PDFs remain stored in IndexedDB until the user removes them.
+Each split PDF has a **Download** action. After a successful multi-chunk split,
+**Download all** starts one download for each output from that latest split
+only; it does not include older outputs.
 
 ## Supported local files
 
@@ -85,6 +97,8 @@ when a file is saved and when a stored file is opened.
 
 - Local file blobs and split PDFs are not included in the JSON backup.
 - Storage capacity and persistence depend on the browser and device.
+- Browsers may ask the user to allow multiple downloads when **Download all**
+  is used.
 - Existing legacy row-based flashcard IDs are preserved; they are not guessed
   or automatically migrated to content-based IDs.
 - PDF processing, complete local-file export/import, broader browser

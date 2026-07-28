@@ -5,8 +5,10 @@ _Last updated: 2026-07-28_
 ## Summary
 
 StudyApp is a local-first single-page application for organizing, reading,
-practising, and reviewing study material. It is frontend-only and requires no
-account, backend API, analytics service, or cloud sync.
+practising, and reviewing user-provided study material. It is frontend-only
+and requires no account, backend API, analytics service, or cloud sync. It
+does not generate educational content and is not a permanent-storage or backup
+service.
 
 ## Technology stack
 
@@ -70,7 +72,14 @@ progress.
 
 Accepts direct PDF input and splits it locally. Generated chunks are saved as
 local study files with `fileSource: "split-pdf"` and a `sourceFileId` where
-available.
+available. They remain in IndexedDB until removed and can be downloaded
+individually from Structured Study or from the latest split result. A
+multi-output result can start separate downloads for that latest successful
+split only.
+
+`splitPdfDownloads.ts` owns output filenames, exact split-record selection,
+stored-PDF revalidation, Blob download triggering, latest-batch replacement,
+and object-URL revocation. It introduces no server or ZIP dependency.
 
 ## Safety boundaries
 
@@ -84,6 +93,9 @@ available.
 - Destructive file operations require an intentional user choice.
 - PWA updates wait for the user's explicit **Update now** action; an update
   never reloads an active page automatically.
+- Shared visible storage notices keep the local-only, non-backup, original-file
+  retention, and content-import boundaries consistent across the main entry
+  points.
 
 ## High-risk areas
 
