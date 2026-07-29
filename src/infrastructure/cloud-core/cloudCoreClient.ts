@@ -99,7 +99,7 @@ export async function fetchCloudCoreReadiness(
   const fetchImpl = options.fetchImpl ?? fetch;
   const timeoutMs = options.timeoutMs ?? defaultTimeoutMs;
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  const timeout = globalThis.setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const response = await fetchImpl(`${baseUrl}/api/v1/health/ready`, {
@@ -126,6 +126,6 @@ export async function fetchCloudCoreReadiness(
 
     throw new CloudCoreConnectionError("Cloud Core could not be reached.", { cause: error });
   } finally {
-    window.clearTimeout(timeout);
+    globalThis.clearTimeout(timeout);
   }
 }
