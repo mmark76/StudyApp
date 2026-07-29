@@ -6,6 +6,7 @@ import {
   uiDensityOptions,
   type AppearanceSettings,
 } from "./appearanceSettings";
+import { CloudCoreStatus } from "./CloudCoreStatus";
 import { useAppearanceSettings } from "./useAppearanceSettings";
 
 export function AppearanceSettingsPage() {
@@ -105,6 +106,8 @@ export function AppearanceSettingsPage() {
           {isLoading ? "Loading appearance settings…" : "Changes are saved automatically on this device."}
         </p>
       </section>
+
+      <CloudCoreStatus />
     </div>
   );
 }
