@@ -17,13 +17,14 @@ export const legalPages = {
   },
   privacy: {
     title: "Privacy",
-    summary: "StudyApp is a local tool for using and studying user-provided content, not a permanent-storage or backup service.",
-    lastUpdated: "28 July 2026",
+    summary: "StudyApp remains local-first and does not upload study content during its Cloud Core availability check.",
+    lastUpdated: "29 July 2026",
     sections: [
-      { heading: "Local data", paragraphs: ["Study progress, preferences, user-provided chapters and flashcards, saved links, and local study files are stored locally in this browser. The application has no account or backend and does not generate study content automatically.", "Browser data can be lost if site data is cleared, the browser or application is removed, the browser profile or device changes, or local storage fails. Keep original files and needed copies outside StudyApp."] },
+      { heading: "Local data", paragraphs: ["Study progress, preferences, user-provided chapters and flashcards, saved links, and local study files are stored locally in this browser. The application has no account system or cloud sync and does not generate study content automatically.", "Browser data can be lost if site data is cleared, the browser or application is removed, the browser profile or device changes, or local storage fails. Keep original files and needed copies outside StudyApp."] },
+      { heading: "Cloud Core connection", paragraphs: ["The Settings page can check whether Markellos Cloud Core is available. This operational request sends no study material, progress, local files, saved links, or settings.", "Future remote features must identify exactly what will be sent and require an intentional user action before study content leaves the browser."] },
       { heading: "Files from your device", paragraphs: ["Adding a file imports a copy into this browser on this device. The application does not upload or sync the file to a server.", "The progress/settings JSON backup does not include uploaded or generated file blobs. Split PDFs remain locally stored until removed and can be downloaded when a copy is needed outside StudyApp."] },
       { heading: "External links", paragraphs: ["For a saved link, StudyApp stores the generated display name, classification, and URL. The linked file remains with the external service chosen by the user; its access and sharing permissions are controlled through that service."] },
-      { heading: "Hosting", paragraphs: ["GitHub Pages and network providers may process technical request information under their own policies."] }
+      { heading: "Hosting", paragraphs: ["GitHub Pages, Markellos Cloud Core, and network providers may process technical request information under their own policies."] }
     ]
   },
   analytics: {
