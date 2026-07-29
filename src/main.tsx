@@ -11,6 +11,7 @@ import "./styles/onboarding.css";
 import "./styles/studyMaterials.css";
 import "./styles/buildVersion.css";
 import "./styles/appearanceSettings.css";
+import "./styles/assistant.css";
 
 const updateServiceWorker = registerSW({
   immediate: true,
