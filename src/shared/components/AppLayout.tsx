@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { studyConfig } from "../../app/studyConfig";
 import { useAppearanceSettings } from "../../features/appearance/useAppearanceSettings";
+import { AssistantPanel } from "../../features/assistant/AssistantPanel";
 import { PwaUpdateBanner } from "./PwaUpdateBanner";
 
 const mainNavigation = [
@@ -25,6 +27,7 @@ function isActiveMainArea(pathname: string, matches: readonly string[]): boolean
 export function AppLayout() {
   useAppearanceSettings();
   const location = useLocation();
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
 
   return (
     <div className="app-shell">
@@ -35,6 +38,15 @@ export function AppLayout() {
             <h1>{studyConfig.appName}</h1>
           </div>
           <div className="utility-actions" aria-label="Study settings">
+            <button
+              aria-haspopup="dialog"
+              className="assistant-launch-button"
+              onClick={() => setIsAssistantOpen(true)}
+              type="button"
+            >
+              <img alt="" className="assistant-launch-avatar" src="/study-assistant-avatar.svg" />
+              <span>AI Assistant</span>
+            </button>
             <NavLink to="/appearance">Settings</NavLink>
             <a href="mailto:markellos.markides@gmail.com?subject=StudyApp%20Feedback">
               Feedback
@@ -92,6 +104,7 @@ export function AppLayout() {
           {__APP_BUILD_ID__}
         </small>
       </footer>
+      <AssistantPanel open={isAssistantOpen} onClose={() => setIsAssistantOpen(false)} />
     </div>
   );
 }
