@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  CloudCoreConnectionError,
   fetchCloudCoreReadiness,
   normalizeCloudCoreBaseUrl,
 } from "../src/infrastructure/cloud-core/cloudCoreClient";
@@ -85,11 +84,9 @@ describe("fetchCloudCoreReadiness", () => {
         baseUrl: "https://api-test.example.com",
         fetchImpl,
       }),
-    ).rejects.toEqual(
-      expect.objectContaining<Partial<CloudCoreConnectionError>>({
-        name: "CloudCoreConnectionError",
-        message: "Cloud Core health check failed with HTTP 503.",
-      }),
-    );
+    ).rejects.toMatchObject({
+      name: "CloudCoreConnectionError",
+      message: "Cloud Core health check failed with HTTP 503.",
+    });
   });
 });
