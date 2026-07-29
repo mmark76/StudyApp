@@ -35,6 +35,13 @@ const homeSpaces = [
     to: "/tools#split-pdf",
   },
   {
+    eyebrow: "AI study help",
+    title: "How to use the AI Assistant",
+    description: "See what the assistant can do, what you approve before each task and how credits and charges work.",
+    action: "Open AI guide",
+    to: "/ai-assistant-guide",
+  },
+  {
     eyebrow: "Getting started",
     title: "How to work with StudyApp",
     description: "A normal workflow for moving from source material to practice and progress.",
