@@ -1,5 +1,6 @@
 import { createHashRouter, Navigate } from "react-router-dom";
 import { AppearanceSettingsPage } from "../features/appearance/AppearanceSettingsPage";
+import { AssistantGuidePage } from "../features/assistant/AssistantGuidePage";
 import { ContentImportPage } from "../features/content-import/ContentImportPage";
 import { FlashcardsPage } from "../features/flashcards/FlashcardsPage";
 import { HomePage } from "../features/home/HomePage";
@@ -23,6 +24,7 @@ export const router = createHashRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "appearance", element: <AppearanceSettingsPage /> },
+      { path: "ai-assistant-guide", element: <AssistantGuidePage /> },
       { path: "study", element: <StudyLearnPage /> },
       { path: "study/theory", element: <StudyTheoryPage /> },
       { path: "learn", element: <LearnPage /> },
