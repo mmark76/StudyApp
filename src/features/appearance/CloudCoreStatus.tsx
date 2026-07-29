@@ -1,54 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { getConfiguredCloudCoreUrl } from "../../infrastructure/cloud-core/cloudCoreClient";
 import {
-  CloudCoreConnectionError,
-  fetchCloudCoreReadiness,
-  getConfiguredCloudCoreUrl,
-  type CloudCoreHealthResponse,
-} from "../../infrastructure/cloud-core/cloudCoreClient";
-
-type ConnectionState =
-  | { status: "checking" }
-  | { status: "connected"; health: CloudCoreHealthResponse }
-  | { status: "error"; message: string };
-
-function getConnectionMessage(state: ConnectionState): string {
-  if (state.status === "checking") {
-    return "Checking the Cloud Core connection…";
-  }
-
-  if (state.status === "error") {
-    return state.message;
-  }
-
-  const databaseCheck = state.health.checks?.find((check) => check.name === "database");
-  const databaseMessage = databaseCheck
-    ? ` Database: ${databaseCheck.status}${databaseCheck.latencyMs === undefined ? "" : ` (${databaseCheck.latencyMs} ms)`}.`
-    : "";
-
-  return `Connected to ${state.health.service} v${state.health.version}.${databaseMessage}`;
-}
+  getCloudCoreConnectionDescription,
+  useCloudCoreConnection,
+} from "../../infrastructure/cloud-core/useCloudCoreConnection";
 
 export function CloudCoreStatus() {
-  const [state, setState] = useState<ConnectionState>({ status: "checking" });
-
-  const checkConnection = useCallback(async () => {
-    setState({ status: "checking" });
-
-    try {
-      const health = await fetchCloudCoreReadiness();
-      setState({ status: "connected", health });
-    } catch (error) {
-      const message =
-        error instanceof CloudCoreConnectionError
-          ? error.message
-          : "Cloud Core could not be reached.";
-      setState({ status: "error", message });
-    }
-  }, []);
-
-  useEffect(() => {
-    void checkConnection();
-  }, [checkConnection]);
+  const { state, checkConnection } = useCloudCoreConnection();
 
   let endpoint = "Not configured";
   try {
@@ -79,7 +36,7 @@ export function CloudCoreStatus() {
         </button>
       </div>
       <p className="inline-message" role="status" aria-live="polite">
-        {getConnectionMessage(state)}
+        {getCloudCoreConnectionDescription(state)}
       </p>
     </section>
   );

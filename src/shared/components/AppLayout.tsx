@@ -3,6 +3,10 @@ import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { studyConfig } from "../../app/studyConfig";
 import { useAppearanceSettings } from "../../features/appearance/useAppearanceSettings";
 import { AssistantPanel } from "../../features/assistant/AssistantPanel";
+import {
+  getCloudCoreConnectionLabel,
+  useCloudCoreConnection,
+} from "../../infrastructure/cloud-core/useCloudCoreConnection";
 import { PwaUpdateBanner } from "./PwaUpdateBanner";
 
 const mainNavigation = [
@@ -28,6 +32,10 @@ export function AppLayout() {
   useAppearanceSettings();
   const location = useLocation();
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+  const { state: assistantConnectionState, checkConnection } = useCloudCoreConnection({
+    pollIntervalMs: 60_000,
+  });
+  const assistantStatusLabel = getCloudCoreConnectionLabel(assistantConnectionState);
 
   return (
     <div className="app-shell">
@@ -40,12 +48,21 @@ export function AppLayout() {
           <div className="utility-actions" aria-label="Study settings">
             <button
               aria-haspopup="dialog"
+              aria-label={`AI Assistant — ${assistantStatusLabel}`}
               className="assistant-launch-button"
               onClick={() => setIsAssistantOpen(true)}
+              title={`AI Assistant — ${assistantStatusLabel}`}
               type="button"
             >
               <img alt="" className="assistant-launch-avatar" src="/study-assistant-avatar.svg" />
-              <span>AI Assistant</span>
+              <span
+                aria-hidden="true"
+                className={`assistant-service-dot assistant-service-dot-${assistantConnectionState.status}`}
+              />
+              <span className="assistant-launch-copy">
+                <span className="assistant-launch-label">AI Assistant</span>
+                <small>{assistantStatusLabel}</small>
+              </span>
             </button>
             <NavLink to="/appearance">Settings</NavLink>
             <a href="mailto:markellos.markides@gmail.com?subject=StudyApp%20Feedback">
@@ -104,7 +121,12 @@ export function AppLayout() {
           {__APP_BUILD_ID__}
         </small>
       </footer>
-      <AssistantPanel open={isAssistantOpen} onClose={() => setIsAssistantOpen(false)} />
+      <AssistantPanel
+        connectionState={assistantConnectionState}
+        onCheckConnection={checkConnection}
+        open={isAssistantOpen}
+        onClose={() => setIsAssistantOpen(false)}
+      />
     </div>
   );
 }

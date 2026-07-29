@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import {
+  getCloudCoreConnectionLabel,
+  type CloudCoreConnectionState,
+} from "../../infrastructure/cloud-core/useCloudCoreConnection";
+import {
   assistantSources,
   assistantTasks,
   buyTestCredits,
@@ -16,6 +20,8 @@ import {
 type AssistantScreen = "home" | "source" | "review" | "processing" | "result" | "wallet";
 
 interface AssistantPanelProps {
+  connectionState: CloudCoreConnectionState;
+  onCheckConnection: () => Promise<void>;
   open: boolean;
   onClose: () => void;
 }
@@ -31,7 +37,12 @@ function formatCredits(value: number): string {
   return new Intl.NumberFormat("en-GB").format(value);
 }
 
-export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
+export function AssistantPanel({
+  connectionState,
+  onCheckConnection,
+  open,
+  onClose,
+}: AssistantPanelProps) {
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const [screen, setScreen] = useState<AssistantScreen>("home");
   const [taskId, setTaskId] = useState<AssistantTaskId | null>(null);
@@ -42,6 +53,8 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
 
   const task = taskId ? getTask(taskId) : null;
   const source = assistantSources.find((candidate) => candidate.id === sourceId);
+  const serviceStatusLabel = getCloudCoreConnectionLabel(connectionState);
+  const servicesAvailable = connectionState.status === "available";
 
   useEffect(() => {
     window.localStorage.setItem(mockWalletStorageKey, JSON.stringify(wallet));
@@ -64,7 +77,7 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
   }, [onClose, open]);
 
   useEffect(() => {
-    if (screen !== "processing" || !task) return;
+    if (screen !== "processing" || !task || !servicesAvailable) return;
 
     const timeout = window.setTimeout(() => {
       setWallet((currentWallet) => spendTestCredits(currentWallet, task));
@@ -73,11 +86,23 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
     }, 900);
 
     return () => window.clearTimeout(timeout);
-  }, [screen, task]);
+  }, [screen, servicesAvailable, task]);
+
+  useEffect(() => {
+    if (screen === "processing" && connectionState.status === "unavailable") {
+      setScreen("review");
+      setMessage("AI services became unavailable. Your request was not run and no credits were used.");
+    }
+  }, [connectionState.status, screen]);
 
   if (!open) return null;
 
   function selectTask(nextTaskId: AssistantTaskId) {
+    if (!servicesAvailable) {
+      setMessage("AI services are temporarily unavailable. Check the connection and try again.");
+      return;
+    }
+
     setTaskId(nextTaskId);
     setSourceId("paste-text");
     setManualText("");
@@ -87,6 +112,10 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
 
   function startMockTask() {
     if (!task) return;
+    if (!servicesAvailable) {
+      setMessage("AI services are temporarily unavailable. Check the connection and try again.");
+      return;
+    }
     if (wallet.balance < task.estimatedCredits) {
       setMessage("Not enough test credits. Add a mock credit package to continue.");
       setScreen("wallet");
@@ -129,6 +158,13 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
             <div>
               <p className="assistant-kicker">StudyApp</p>
               <h2 id="assistant-title">AI Assistant</h2>
+              <p className="assistant-service-line" role="status" aria-live="polite">
+                <span
+                  aria-hidden="true"
+                  className={`assistant-service-dot assistant-service-dot-${connectionState.status}`}
+                />
+                <span>AI services: {serviceStatusLabel}</span>
+              </p>
             </div>
           </div>
           <button
@@ -149,6 +185,36 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
           </button>
         </div>
 
+        {connectionState.status !== "available" && (
+          <div
+            className={`assistant-service-banner assistant-service-banner-${connectionState.status}`}
+            role="status"
+            aria-live="polite"
+          >
+            <div>
+              <strong>
+                {connectionState.status === "checking"
+                  ? "Checking AI services…"
+                  : "AI services are temporarily unavailable."}
+              </strong>
+              <span>
+                {connectionState.status === "checking"
+                  ? "The assistant will be ready when the connection check completes."
+                  : "The assistant can still open, and your local StudyApp data remains available."}
+              </span>
+            </div>
+            {connectionState.status === "unavailable" && (
+              <button
+                className="button secondary"
+                onClick={() => void onCheckConnection()}
+                type="button"
+              >
+                Check again
+              </button>
+            )}
+          </div>
+        )}
+
         <div className="assistant-content">
           {screen === "home" && (
             <section className="assistant-welcome">
@@ -160,6 +226,7 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
                 {assistantTasks.map((candidate) => (
                   <button
                     className="assistant-task-card"
+                    disabled={!servicesAvailable}
                     key={candidate.id}
                     onClick={() => selectTask(candidate.id)}
                     type="button"
@@ -228,6 +295,7 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
                 <div><dt>Task</dt><dd>{task.label}</dd></div>
                 <div><dt>Material</dt><dd>{source.label}</dd></div>
                 <div><dt>AI mode</dt><dd>Mock</dd></div>
+                <div><dt>Cloud services</dt><dd>{serviceStatusLabel}</dd></div>
                 <div><dt>Estimated cost</dt><dd>Up to {task.estimatedCredits} test credits</dd></div>
                 <div><dt>Current balance</dt><dd>{formatCredits(wallet.balance)} test credits</dd></div>
               </dl>
@@ -236,7 +304,14 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
               </div>
               <div className="assistant-actions">
                 <button className="button secondary" onClick={() => setScreen("source")} type="button">Edit</button>
-                <button className="button primary" onClick={startMockTask} type="button">Run mock task</button>
+                <button
+                  className="button primary"
+                  disabled={!servicesAvailable}
+                  onClick={startMockTask}
+                  type="button"
+                >
+                  Run mock task
+                </button>
               </div>
             </section>
           )}
