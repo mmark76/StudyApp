@@ -1,43 +1,45 @@
 import { Link } from "react-router-dom";
+import { useLanguage } from "../../i18n/LanguageContext";
 import "./LearnPage.css";
 
-const learnTools = [
-  {
-    title: "Flashcards",
-    description: "Use active recall to test whether you can bring an answer back from memory.",
-    action: "Practice with flashcards",
-    to: "/flashcards",
-  },
-  {
-    title: "Review",
-    description: "Return to cards when they are due and strengthen memory over time.",
-    action: "Review due cards",
-    to: "/review",
-  },
-  {
-    title: "Quiz",
-    description: "Answer mixed questions and check how well you can recognise and apply ideas.",
-    action: "Start quiz",
-    to: "/quiz",
-  },
-  {
-    title: "Progress",
-    description: "See sessions, studied cards and weak points that need more attention.",
-    action: "View progress",
-    to: "/progress",
-  },
-] as const;
-
 export function LearnPage() {
+  const { text } = useLanguage();
+  const learnTools = [
+    {
+      title: text("Flashcards", "Κάρτες"),
+      description: text("Practise active recall.", "Εξασκήσου στην ενεργή ανάκληση."),
+      action: text("Open flashcards", "Άνοιγμα καρτών"),
+      to: "/flashcards",
+    },
+    {
+      title: text("Review", "Επανάληψη"),
+      description: text("Review cards when they are due.", "Επανέλαβε τις κάρτες όταν έρθει η ώρα τους."),
+      action: text("Review cards", "Επανάληψη καρτών"),
+      to: "/review",
+    },
+    {
+      title: text("Quiz", "Κουίζ"),
+      description: text("Test your knowledge with mixed questions.", "Δοκίμασε τις γνώσεις σου με μικτές ερωτήσεις."),
+      action: text("Start quiz", "Έναρξη κουίζ"),
+      to: "/quiz",
+    },
+    {
+      title: text("Progress", "Πρόοδος"),
+      description: text("See your study activity.", "Δες τη δραστηριότητα μελέτης σου."),
+      action: text("View progress", "Προβολή προόδου"),
+      to: "/progress",
+    },
+  ];
+
   return (
     <div className="stack-lg">
       <header className="page-heading">
-        <p className="eyebrow">Practice and memory</p>
-        <h2>Learn</h2>
-        <p>Turn structured material into flashcards, review, quizzes and progress.</p>
+        <p className="eyebrow">{text("Practice and memory", "Εξάσκηση και μνήμη")}</p>
+        <h2>{text("Learn", "Μάθηση")}</h2>
+        <p>{text("Practise with flashcards, review and quizzes.", "Εξασκήσου με κάρτες, επανάληψη και κουίζ.")}</p>
       </header>
 
-      <section className="learning-stage-grid learn-tools-grid" aria-label="Learning tools">
+      <section className="learning-stage-grid learn-tools-grid" aria-label={text("Learning tools", "Εργαλεία μάθησης")}>
         {learnTools.map((tool, index) => (
           <article className="learning-stage-card" key={tool.title}>
             <span className="stage-number" aria-hidden="true">{index + 1}</span>

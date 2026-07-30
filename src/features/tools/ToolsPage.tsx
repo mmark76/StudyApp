@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import {
   StorageNotice,
@@ -8,6 +9,7 @@ import {
 import { SplitPdfTool } from "../study-materials/SplitPdfTool";
 
 export function ToolsPage() {
+  const { text } = useLanguage();
   const localFiles = useLiveQuery(
     () => studyDatabase.studyFiles.orderBy("createdAt").reverse().toArray(),
     [],
@@ -17,20 +19,20 @@ export function ToolsPage() {
   return (
     <div className="stack-lg">
       <header className="page-heading">
-        <p className="eyebrow">Local PDF tool</p>
-        <h2>Split PDF Tool</h2>
-        <p>Import and split PDF files inside this browser without sending them to a server.</p>
+        <p className="eyebrow">{text("Local PDF tool", "Τοπικό εργαλείο PDF")}</p>
+        <h2>{text("Split PDF Tool", "Διαχωρισμός PDF")}</h2>
+        <p>{text("Split PDF files locally in your browser.", "Διαχώρισε PDF τοπικά στον browser.")}</p>
       </header>
 
       <StorageNotice kind={storageNoticePlacements.pdfSplitter} />
 
       <section className="content-panel" id="split-pdf" tabIndex={-1}>
-        <p className="eyebrow">Local PDF tool</p>
-        <h3>Split PDF</h3>
-        <p>
-          Split a locally saved PDF into smaller PDF files. Processing happens only in this browser,
-          and the generated PDFs remain saved in Structured Study until you remove them.
-        </p>
+        <p className="eyebrow">{text("Local PDF tool", "Τοπικό εργαλείο PDF")}</p>
+        <h3>{text("Split PDF", "Διαχωρισμός PDF")}</h3>
+        <p>{text(
+          "Create smaller PDF files. Processing stays in this browser.",
+          "Δημιούργησε μικρότερα PDF. Η επεξεργασία παραμένει στον browser.",
+        )}</p>
         <SplitPdfTool files={localFiles} onMessage={setMessage} />
       </section>
 

@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { PDFDocument } from "pdf-lib";
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+import { getStructuredStudyTypeLabel } from "../../i18n/domainLabels";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { LocalStudyFile, StructuredStudyType } from "../../shared/types/models";
 import { createId } from "../../shared/utils/id";
@@ -48,7 +50,6 @@ interface ValidatedRange {
 
 const MAX_SPLIT_RANGES = 50;
 const PDF_RENDER_SCALE = 2;
-const RENDERED_SPLIT_NOTE = "Saved locally as a new Structured Study PDF. You can split each new PDF again if needed.";
 
 function readPdfText(bytes: ArrayBuffer): string {
   return new TextDecoder("latin1").decode(bytes);
@@ -163,10 +164,7 @@ async function createVectorSplitFiles(
 
     const outputBytes = await outputPdf.save();
     const outputBlob = bytesToPdfBlob(outputBytes);
-
-    if (outputBlob.size > MAX_LOCAL_FILE_SIZE) {
-      throw new Error(`The generated PDF for pages ${range.label} is larger than 50 MB.`);
-    }
+    if (outputBlob.size > MAX_LOCAL_FILE_SIZE) throw new Error(`The generated PDF for pages ${range.label} is larger than 50 MB.`);
 
     const contentHash = await computeBlobSha256(outputBlob);
     splitFiles.push({
@@ -233,10 +231,7 @@ async function createRenderedSplitFiles(
 
       const outputBytes = await outputPdf.save();
       const outputBlob = bytesToPdfBlob(outputBytes);
-
-      if (outputBlob.size > MAX_LOCAL_FILE_SIZE) {
-        throw new Error(`The compatibility output for pages ${range.label} is larger than 50 MB. Try a smaller page range.`);
-      }
+      if (outputBlob.size > MAX_LOCAL_FILE_SIZE) throw new Error(`The compatibility output for pages ${range.label} is larger than 50 MB.`);
 
       const contentHash = await computeBlobSha256(outputBlob);
       splitFiles.push({
@@ -269,6 +264,7 @@ export function SplitPdfTool({
   files: readonly LocalStudyFile[];
   onMessage: (message: string) => void;
 }) {
+  const { language, text } = useLanguage();
   const pdfFiles = useMemo(() => files.filter(isPdfStudyFile), [files]);
   const uploadInputRef = useRef<HTMLInputElement>(null);
   const [selectedFileId, setSelectedFileId] = useState("");
@@ -293,9 +289,7 @@ export function SplitPdfTool({
     async function readPageCount(fileToRead: LocalStudyFile) {
       try {
         const validatedFile = await validateStoredLocalStudyFile(fileToRead);
-        if (validatedFile.format !== "pdf") {
-          throw new Error("The saved file is not a valid PDF.");
-        }
+        if (validatedFile.format !== "pdf") throw new Error("The saved file is not a valid PDF.");
         const bytes = await fileToRead.data.arrayBuffer();
         let pdfLibPageCount: number | null = null;
         try {
@@ -320,16 +314,13 @@ export function SplitPdfTool({
           )));
         }
       } catch {
-        if (!cancelled) setPageCountError("The page count could not be read. The PDF may be encrypted or damaged.");
+        if (!cancelled) setPageCountError(text("The page count could not be read.", "Δεν ήταν δυνατή η ανάγνωση των σελίδων."));
       }
     }
 
     if (selectedFile) void readPageCount(selectedFile);
-
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedFile]);
+    return () => { cancelled = true; };
+  }, [selectedFile, text]);
 
   async function uploadPdf(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] ?? null;
@@ -337,7 +328,7 @@ export function SplitPdfTool({
     if (!file || isUploading) return;
 
     if (file.size > MAX_LOCAL_FILE_SIZE) {
-      onMessage("The PDF is larger than 50 MB. Split PDF Tool supports local PDFs up to 50 MB.");
+      onMessage(text("The PDF is larger than 50 MB.", "Το PDF είναι μεγαλύτερο από 50 MB."));
       return;
     }
 
@@ -345,7 +336,7 @@ export function SplitPdfTool({
     try {
       const validatedFile = await validateLocalStudyFile(file);
       if (validatedFile.format !== "pdf") {
-        onMessage("Choose a PDF file to upload for splitting.");
+        onMessage(text("Choose a PDF file.", "Επίλεξε αρχείο PDF."));
         return;
       }
       const contentHash = await computeBlobSha256(file);
@@ -356,7 +347,7 @@ export function SplitPdfTool({
       });
       if (existingFile) {
         setSelectedFileId(existingFile.id);
-        onMessage("This PDF has already been added to this browser. It is selected for splitting.");
+        onMessage(text("This PDF is already saved and has been selected.", "Το PDF είναι ήδη αποθηκευμένο και επιλέχθηκε."));
         return;
       }
 
@@ -374,12 +365,12 @@ export function SplitPdfTool({
       };
       await studyDatabase.studyFiles.add(item);
       setSelectedFileId(item.id);
-      onMessage("A local PDF copy was added to this browser and selected for splitting. Classify the source PDF later in Library from Source if needed.");
+      onMessage(text("PDF added and selected.", "Το PDF προστέθηκε και επιλέχθηκε."));
     } catch (error) {
       onMessage(
-        error instanceof LocalFilePolicyError
+        language === "en" && error instanceof LocalFilePolicyError
           ? error.message
-          : "The PDF could not be saved. Your browser may not have enough storage space.",
+          : text("The PDF could not be saved.", "Το PDF δεν μπορεί να αποθηκευτεί."),
       );
     } finally {
       setIsUploading(false);
@@ -405,9 +396,7 @@ export function SplitPdfTool({
   }
 
   function removeRange(id: string) {
-    setRanges((currentRanges) => currentRanges.length === 1
-      ? currentRanges
-      : currentRanges.filter((range) => range.id !== id));
+    setRanges((currentRanges) => currentRanges.length === 1 ? currentRanges : currentRanges.filter((range) => range.id !== id));
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -439,12 +428,16 @@ export function SplitPdfTool({
 
       await studyDatabase.studyFiles.bulkAdd(splitFiles);
       setRecentSplitFiles((previousFiles) => replaceLatestSplitDownloadBatch(previousFiles, splitFiles));
-      const compatibilityNote = canUseVectorEngine ? "" : ` ${RENDERED_SPLIT_NOTE}`;
-      onMessage(splitFiles.length === 1
-        ? `Created 1 split PDF: ${splitFiles[0].fileName}.${compatibilityNote}`
-        : `Created ${splitFiles.length} split PDFs from ${selectedFile.fileName}.${compatibilityNote}`);
+      onMessage(text(
+        `Created ${splitFiles.length} split PDF${splitFiles.length === 1 ? "" : "s"}.`,
+        `Δημιουργήθηκαν ${splitFiles.length} χωρισμένα PDF.`,
+      ));
     } catch (error) {
-      onMessage(error instanceof Error ? error.message : "The PDF could not be split.");
+      onMessage(
+        language === "en" && error instanceof Error
+          ? error.message
+          : text("The PDF could not be split.", "Το PDF δεν μπορεί να διαχωριστεί."),
+      );
     } finally {
       setIsSplitting(false);
     }
@@ -453,10 +446,10 @@ export function SplitPdfTool({
   async function downloadRecentSplit(file: LocalStudyFile) {
     setDownloadError("");
     try {
-      const fileName = await downloadSplitPdfFile(file);
-      onMessage(`Downloading ${fileName}.`);
+      await downloadSplitPdfFile(file);
+      onMessage(text("Download started.", "Η λήψη ξεκίνησε."));
     } catch {
-      setDownloadError(`Could not download "${file.fileName}". The locally saved PDF is unchanged.`);
+      setDownloadError(text("The PDF could not be downloaded.", "Το PDF δεν μπορεί να κατέβει."));
     }
   }
 
@@ -464,9 +457,9 @@ export function SplitPdfTool({
     setDownloadError("");
     try {
       const fileNames = await downloadSplitPdfBatch(recentSplitFiles);
-      onMessage(`Started ${fileNames.length} downloads from the latest split.`);
+      onMessage(text(`Started ${fileNames.length} downloads.`, `Ξεκίνησαν ${fileNames.length} λήψεις.`));
     } catch {
-      setDownloadError("Could not download all PDFs from the latest split. The locally saved PDFs are unchanged; try each Download button.");
+      setDownloadError(text("The PDFs could not be downloaded.", "Τα PDF δεν μπορούν να κατέβουν."));
     }
   }
 
@@ -474,12 +467,12 @@ export function SplitPdfTool({
     <form className="material-form" onSubmit={(event) => void submit(event)}>
       <div className="button-row">
         <button className="button secondary" disabled={isUploading} onClick={() => uploadInputRef.current?.click()} type="button">
-          {isUploading ? "Adding PDF..." : "Add PDF from this device"}
+          {isUploading ? text("Adding PDF...", "Προσθήκη PDF...") : text("Add PDF from device", "Προσθήκη PDF από τη συσκευή")}
         </button>
         <input
           ref={uploadInputRef}
           accept=".pdf,application/pdf"
-          aria-label="Add a PDF to this browser for splitting"
+          aria-label={text("Add a PDF for splitting", "Προσθήκη PDF για διαχωρισμό")}
           type="file"
           onChange={(event) => void uploadPdf(event)}
           style={{
@@ -496,13 +489,13 @@ export function SplitPdfTool({
       </div>
 
       <label className="field-label">
-        PDF stored in this browser
+        {text("PDF stored in this browser", "PDF αποθηκευμένο στον browser")}
         <select required value={selectedFileId} onChange={(event) => {
           setSelectedFileId(event.target.value);
           setRecentSplitFiles([]);
           setDownloadError("");
         }}>
-          <option value="">Choose a local PDF</option>
+          <option value="">{text("Choose a PDF", "Επίλεξε PDF")}</option>
           {pdfFiles.map((file) => (
             <option key={file.id} value={file.id}>{file.title} · {file.fileName} · {formatFileSize(file.size)}</option>
           ))}
@@ -512,68 +505,48 @@ export function SplitPdfTool({
       {selectedFile ? (
         <div className="stack-md">
           <p className="field-help">
-            {pageCount ? `Detected pages: ${pageCount}.` : "Reading page count..."}
+            {pageCount ? text(`Detected pages: ${pageCount}.`, `Σελίδες: ${pageCount}.`) : text("Reading pages...", "Ανάγνωση σελίδων...")}
             {pageCountError ? ` ${pageCountError}` : ""}
           </p>
-          {hasSplitEngineLimit ? (
-            <p className="inline-message">
-              This PDF has {pageCount} pages. You can split it into up to {MAX_SPLIT_RANGES} chunks at a time. First split the book into chapters. Then choose a chapter PDF and split it again into sections or subchapters.
-            </p>
-          ) : null}
+          {hasSplitEngineLimit ? <p className="inline-message">{text("Split the PDF into smaller chunks first.", "Διαχώρισε πρώτα το PDF σε μικρότερα μέρη.")}</p> : null}
         </div>
       ) : null}
 
       <div className="stack-md">
         {ranges.map((range, index) => (
           <fieldset className="content-panel" key={range.id} style={{ padding: "1rem" }}>
-            <legend>
-              Chunk <span className="tag">{index + 1}</span>
-            </legend>
+            <legend>{text("Chunk", "Μέρος")} <span className="tag">{index + 1}</span></legend>
             <div className="library-grid" style={{ alignItems: "end" }}>
               <label className="field-label">
-                from page
-                <input
-                  min="1"
-                  type="number"
-                  value={range.from}
-                  onChange={(event) => updateRange(range.id, "from", event.target.value)}
-                />
+                {text("From page", "Από σελίδα")}
+                <input min="1" type="number" value={range.from} onChange={(event) => updateRange(range.id, "from", event.target.value)} />
               </label>
               <label className="field-label">
-                to
-                <input
-                  min="1"
-                  type="number"
-                  value={range.to}
-                  onChange={(event) => updateRange(range.id, "to", event.target.value)}
-                />
+                {text("To page", "Έως σελίδα")}
+                <input min="1" type="number" value={range.to} onChange={(event) => updateRange(range.id, "to", event.target.value)} />
               </label>
               <label className="field-label">
-                Name
+                {text("Name", "Όνομα")}
                 <input
                   required
                   maxLength={160}
                   type="text"
                   value={range.name}
                   onChange={(event) => updateRange(range.id, "name", event.target.value)}
-                  placeholder="Example: Contents or Chapter 1"
+                  placeholder={text("Example: Chapter 1", "Παράδειγμα: Κεφάλαιο 1")}
                 />
               </label>
               <label className="field-label">
-                Type
-                <select
-                  required
-                  value={range.materialType}
-                  onChange={(event) => updateRange(range.id, "materialType", event.target.value)}
-                >
-                  <option value="">Choose type</option>
+                {text("Type", "Τύπος")}
+                <select required value={range.materialType} onChange={(event) => updateRange(range.id, "materialType", event.target.value)}>
+                  <option value="">{text("Choose type", "Επίλεξε τύπο")}</option>
                   {structuredStudyTypeOptions.map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
+                    <option key={option.value} value={option.value}>{getStructuredStudyTypeLabel(option.value, language)}</option>
                   ))}
                 </select>
               </label>
               <button className="button secondary" disabled={ranges.length === 1} onClick={() => removeRange(range.id)} type="button">
-                Remove
+                {text("Remove", "Αφαίρεση")}
               </button>
             </div>
           </fieldset>
@@ -581,35 +554,31 @@ export function SplitPdfTool({
       </div>
 
       <button className="button secondary" disabled={ranges.length >= MAX_SPLIT_RANGES} onClick={addRange} type="button">
-        Add Chunk
+        {text("Add chunk", "Προσθήκη μέρους")}
       </button>
 
-      <p className="field-help">
-        Give each chunk a name and type yourself. For example: Name "Contents" and Type "Contents"; or Name "Chapter 1" and Type "Chapter".
-      </p>
-
-      {pdfFiles.length === 0 ? <p className="inline-message">Add a PDF here or add a source PDF in Library, then split it.</p> : null}
+      {pdfFiles.length === 0 ? <p className="inline-message">{text("Add a PDF to begin.", "Πρόσθεσε PDF για να ξεκινήσεις.")}</p> : null}
 
       <button className="button primary" disabled={!selectedFile || !pageCount || Boolean(pageCountError) || isSplitting} type="submit">
-        {isSplitting ? "Splitting PDF..." : "Split PDF"}
+        {isSplitting ? text("Splitting PDF...", "Διαχωρισμός PDF...") : text("Split PDF", "Διαχωρισμός PDF")}
       </button>
 
       {recentSplitFiles.length > 0 ? (
         <section className="template-card stack-md" aria-labelledby="latest-split-downloads-title">
           <div>
-            <p className="eyebrow">Latest successful split</p>
-            <h4 id="latest-split-downloads-title">Download new split PDFs</h4>
+            <p className="eyebrow">{text("Latest split", "Τελευταίος διαχωρισμός")}</p>
+            <h4 id="latest-split-downloads-title">{text("Download new PDFs", "Λήψη νέων PDF")}</h4>
           </div>
           <ul className="local-file-list">
             {recentSplitFiles.map((file) => (
               <li className="local-file-row" key={file.id}>
                 <div>
                   <strong>{file.title}</strong>
-                  <span>{file.fileName}{file.pageRangeLabel ? ` · pages ${file.pageRangeLabel}` : ""}</span>
+                  <span>{file.fileName}{file.pageRangeLabel ? ` · ${text("pages", "σελίδες")} ${file.pageRangeLabel}` : ""}</span>
                 </div>
                 <div className="local-file-actions">
                   <button className="button secondary compact-square" onClick={() => void downloadRecentSplit(file)} type="button">
-                    Download
+                    {text("Download", "Λήψη")}
                   </button>
                 </div>
               </li>
@@ -617,15 +586,10 @@ export function SplitPdfTool({
           </ul>
           {recentSplitFiles.length > 1 ? (
             <button className="button primary" onClick={() => void downloadAllRecentSplits()} type="button">
-              Download all
+              {text("Download all", "Λήψη όλων")}
             </button>
           ) : null}
-          <Link className="button secondary" to="/study/theory">
-            View split PDFs
-          </Link>
-          <p className="field-help">
-            {recentSplitFiles.length} new {recentSplitFiles.length === 1 ? "PDF was" : "PDFs were"} saved locally in Structured Study. This list contains only the latest successful split.
-          </p>
+          <Link className="button secondary" to="/study/theory">{text("View split PDFs", "Προβολή χωρισμένων PDF")}</Link>
           {downloadError ? <p className="inline-message" role="alert">{downloadError}</p> : null}
         </section>
       ) : null}

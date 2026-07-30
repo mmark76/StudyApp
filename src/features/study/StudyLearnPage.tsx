@@ -1,34 +1,56 @@
 import { Link } from "react-router-dom";
-
-const studyLearnAreas = [
-  {
-    title: "Structured Study",
-    label: "Structured reading",
-    description: "Read and understand material by structure: contents, chapters, sections, key concepts, references, images and diagrams.",
-    examples: ["Contents", "Chapters", "Sections", "Key concepts", "References", "Diagrams"],
-    action: "Start structured study",
-    to: "/study/theory",
-  },
-  {
-    title: "Learn & Practice",
-    label: "Practice and memory",
-    description: "Practise active recall with flashcards, due review, quizzes and progress tracking.",
-    examples: ["Flashcards", "Review", "Quiz", "Practice", "Weak points", "Progress"],
-    action: "Start practice",
-    to: "/learn",
-  },
-] as const;
+import { useLanguage } from "../../i18n/LanguageContext";
 
 export function StudyLearnPage() {
+  const { text } = useLanguage();
+  const studyLearnAreas = [
+    {
+      title: text("Structured Study", "Δομημένη Μελέτη"),
+      label: text("Structured reading", "Δομημένη ανάγνωση"),
+      description: text(
+        "Read material by chapters, sections, concepts and diagrams.",
+        "Μελέτησε το υλικό ανά κεφάλαιο, ενότητα, έννοια και διάγραμμα.",
+      ),
+      examples: [
+        text("Contents", "Περιεχόμενα"),
+        text("Chapters", "Κεφάλαια"),
+        text("Sections", "Ενότητες"),
+        text("Key concepts", "Βασικές έννοιες"),
+        text("References", "Αναφορές"),
+        text("Diagrams", "Διαγράμματα"),
+      ],
+      action: text("Start studying", "Έναρξη μελέτης"),
+      to: "/study/theory",
+    },
+    {
+      title: text("Learn & Practice", "Μάθηση & Εξάσκηση"),
+      label: text("Practice and memory", "Εξάσκηση και μνήμη"),
+      description: text(
+        "Practise with flashcards, review, quizzes and progress.",
+        "Εξασκήσου με κάρτες, επανάληψη, κουίζ και παρακολούθηση προόδου.",
+      ),
+      examples: [
+        text("Flashcards", "Κάρτες"),
+        text("Review", "Επανάληψη"),
+        text("Quiz", "Κουίζ"),
+        text("Practice", "Εξάσκηση"),
+        text("Weak points", "Αδύναμα σημεία"),
+        text("Progress", "Πρόοδος"),
+      ],
+      action: text("Start practice", "Έναρξη εξάσκησης"),
+      to: "/learn",
+    },
+  ];
+
   return (
     <div className="stack-lg">
       <header className="page-heading">
-        <p className="eyebrow">Structured reading and practice</p>
-        <h2>Structured Study &amp; Learn</h2>
-        <p>Use Structured Study to read and understand material. Use Learn &amp; Practice to consolidate it.</p>
+        <p className="eyebrow">{text("Study and practice", "Μελέτη και εξάσκηση")}</p>
+        <h2>{text("Structured Study & Learn", "Δομημένη Μελέτη & Μάθηση")}</h2>
+        <p>{text("Study the material, then practise it.", "Μελέτησε το υλικό και μετά εξασκήσου σε αυτό.")}</p>
       </header>
 
-      <section className="learning-stage-grid" aria-label="Structured Study and Learn areas">
+      <section className="learning-stage-grid" aria-label={text("Study areas", "Περιοχές μελέτης")}>
         {studyLearnAreas.map((area, index) => (
           <article className="learning-stage-card study-learn-area-card" key={area.title}>
             <span className="stage-number" aria-hidden="true">{index + 1}</span>
@@ -45,11 +67,13 @@ export function StudyLearnPage() {
 
       <section className="content-panel review-callout">
         <div>
-          <p className="eyebrow">Learning flow</p>
-          <h3>Library from Source → Structured Study → Learn &amp; Practice</h3>
-          <p>Read from source first, study the same material through structure, then practise and consolidate it.</p>
+          <p className="eyebrow">{text("Learning flow", "Ροή μάθησης")}</p>
+          <h3>{text(
+            "Library → Structured Study → Learn & Practice",
+            "Βιβλιοθήκη → Δομημένη Μελέτη → Μάθηση & Εξάσκηση",
+          )}</h3>
         </div>
-        <Link className="button secondary" to="/library">Read from source</Link>
+        <Link className="button secondary" to="/library">{text("Open Library", "Άνοιγμα Βιβλιοθήκης")}</Link>
       </section>
     </div>
   );

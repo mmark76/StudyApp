@@ -1,4 +1,5 @@
 import { type FormEvent, useState } from "react";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { Flashcard, StudyUnit } from "../../shared/types/models";
 import { IMPORTED_FLASHCARDS_SETTING_KEY } from "./importedContent";
@@ -18,6 +19,7 @@ export function FlashcardForm({
   importedFlashcards: readonly Flashcard[];
   onMessage: (message: string) => void;
 }) {
+  const { text } = useLanguage();
   const [unitId, setUnitId] = useState("");
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
@@ -27,7 +29,7 @@ export function FlashcardForm({
     event.preventDefault();
     const selectedUnit = units.find((unit) => unit.id === unitId);
     if (!selectedUnit) {
-      onMessage("Choose a chapter first.");
+      onMessage(text("Choose a chapter first.", "Επίλεξε πρώτα κεφάλαιο."));
       return;
     }
 
@@ -43,7 +45,7 @@ export function FlashcardForm({
     };
 
     if (!nextCard.question || !nextCard.answer) {
-      onMessage("Enter both a question and an answer.");
+      onMessage(text("Enter a question and an answer.", "Γράψε ερώτηση και απάντηση."));
       return;
     }
 
@@ -51,20 +53,35 @@ export function FlashcardForm({
     setQuestion("");
     setAnswer("");
     setTags("");
-    onMessage("The flashcard was added.");
+    onMessage(text("Flashcard added.", "Η κάρτα προστέθηκε."));
   }
 
   if (units.length === 0) {
-    return <p>Add a chapter before creating flashcards.</p>;
+    return <p>{text("Add a chapter before creating flashcards.", "Πρόσθεσε κεφάλαιο πριν δημιουργήσεις κάρτες.")}</p>;
   }
 
   return (
     <form className="material-form" onSubmit={(event) => void submit(event)}>
-      <label className="field-label">Chapter<select required value={unitId} onChange={(event) => setUnitId(event.target.value)}><option value="">Choose a chapter</option>{units.map((unit) => <option key={unit.id} value={unit.id}>{unit.number}. {unit.title}</option>)}</select></label>
-      <label className="field-label">Question<textarea required rows={3} value={question} onChange={(event) => setQuestion(event.target.value)} /></label>
-      <label className="field-label">Answer<textarea required rows={4} value={answer} onChange={(event) => setAnswer(event.target.value)} /></label>
-      <label className="field-label">Keywords (optional)<input value={tags} onChange={(event) => setTags(event.target.value)} placeholder="Separate keywords with commas" /></label>
-      <button className="button primary" type="submit">Add flashcard</button>
+      <label className="field-label">
+        {text("Chapter", "Κεφάλαιο")}
+        <select required value={unitId} onChange={(event) => setUnitId(event.target.value)}>
+          <option value="">{text("Choose a chapter", "Επίλεξε κεφάλαιο")}</option>
+          {units.map((unit) => <option key={unit.id} value={unit.id}>{unit.number}. {unit.title}</option>)}
+        </select>
+      </label>
+      <label className="field-label">
+        {text("Question", "Ερώτηση")}
+        <textarea required rows={3} value={question} onChange={(event) => setQuestion(event.target.value)} />
+      </label>
+      <label className="field-label">
+        {text("Answer", "Απάντηση")}
+        <textarea required rows={4} value={answer} onChange={(event) => setAnswer(event.target.value)} />
+      </label>
+      <label className="field-label">
+        {text("Keywords (optional)", "Λέξεις-κλειδιά (προαιρετικά)")}
+        <input value={tags} onChange={(event) => setTags(event.target.value)} placeholder={text("Separate with commas", "Χώρισε με κόμματα")} />
+      </label>
+      <button className="button primary" type="submit">{text("Add flashcard", "Προσθήκη κάρτας")}</button>
     </form>
   );
 }

@@ -1,107 +1,127 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { useLanguage } from "../../i18n/LanguageContext";
 import {
   StorageNotice,
   storageNoticePlacements,
 } from "../../shared/components/StorageNotice";
 
-const homeSpaces = [
-  {
-    eyebrow: "Read from source",
-    title: "Library",
-    description: "Read primary and source material: books, articles, papers, source notes, my notes and summaries.",
-    action: "Read from source",
-    to: "/library",
-  },
-  {
-    eyebrow: "Structured reading",
-    title: "Structured Study",
-    description: "Read the same material by structure: contents, chapters, sections, key concepts, references and diagrams.",
-    action: "Start structured study",
-    to: "/study/theory",
-  },
-  {
-    eyebrow: "Practice and memory",
-    title: "Learn & Practice",
-    description: "Practise and consolidate with flashcards, review, quizzes and progress.",
-    action: "Start practice",
-    to: "/learn",
-  },
-  {
-    eyebrow: "PDF utility",
-    title: "Split PDF Tool",
-    description: "Split local PDF files inside this browser without sending them to a server.",
-    action: "Open split PDF tool",
-    to: "/tools#split-pdf",
-  },
-  {
-    eyebrow: "AI study help",
-    title: "How to use the AI Assistant",
-    description: "See what the assistant can do, what you approve before each task and how credits and charges work.",
-    action: "Open AI guide",
-    to: "/ai-assistant-guide",
-  },
-  {
-    eyebrow: "Getting started",
-    title: "How to work with StudyApp",
-    description: "A normal workflow for moving from source material to practice and progress.",
-    action: "Open guide",
-    guideSteps: [
-      "Add source material in Library, or add structured material in Structured Study.",
-      "Organize your material: classify files by material type so they are easier to find.",
-      "Split large PDFs: use Split PDF Tool to create smaller focused PDFs from a source PDF.",
-      "Import flashcards: import units and flashcards from CSV using the required headers.",
-      "Review daily: use review mode for spaced repetition.",
-      "Take quizzes: use quiz mode to test knowledge.",
-      "Track progress: use progress and session data to understand study activity.",
-      "Back up progress and settings: use the current backup for progress and settings.",
-      "Keep original files safe: StudyApp is local-first and browser-only. Local files stay in this browser, but the current backup does not include local file blobs, so keep original PDFs and files outside StudyApp.",
-    ],
-  },
-] as const;
+interface HomeSpace {
+  eyebrow: string;
+  title: string;
+  description: string;
+  action: string;
+  to?: string;
+  guideSteps?: string[];
+}
 
 export function HomePage() {
+  const { text } = useLanguage();
   const guideDialogRef = useRef<HTMLDialogElement | null>(null);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
-  const guideSpace = homeSpaces.find((space) => "guideSteps" in space);
+
+  const homeSpaces: HomeSpace[] = [
+    {
+      eyebrow: text("Read from source", "Μελέτη από την πηγή"),
+      title: text("Library", "Βιβλιοθήκη"),
+      description: text(
+        "Read books, articles, papers, notes and summaries.",
+        "Μελέτησε βιβλία, άρθρα, εργασίες, σημειώσεις και περιλήψεις.",
+      ),
+      action: text("Open Library", "Άνοιγμα Βιβλιοθήκης"),
+      to: "/library",
+    },
+    {
+      eyebrow: text("Structured reading", "Δομημένη ανάγνωση"),
+      title: text("Structured Study", "Δομημένη Μελέτη"),
+      description: text(
+        "Study material by chapters, sections, concepts and diagrams.",
+        "Μελέτησε το υλικό ανά κεφάλαιο, ενότητα, έννοια και διάγραμμα.",
+      ),
+      action: text("Start studying", "Έναρξη μελέτης"),
+      to: "/study/theory",
+    },
+    {
+      eyebrow: text("Practice and memory", "Εξάσκηση και μνήμη"),
+      title: text("Learn & Practice", "Μάθηση & Εξάσκηση"),
+      description: text(
+        "Practise with flashcards, review and quizzes.",
+        "Εξασκήσου με κάρτες, επανάληψη και κουίζ.",
+      ),
+      action: text("Start practice", "Έναρξη εξάσκησης"),
+      to: "/learn",
+    },
+    {
+      eyebrow: text("PDF tool", "Εργαλείο PDF"),
+      title: text("Split PDF Tool", "Διαχωρισμός PDF"),
+      description: text(
+        "Split PDF files locally in your browser.",
+        "Διαχώρισε PDF τοπικά στον browser.",
+      ),
+      action: text("Open tool", "Άνοιγμα εργαλείου"),
+      to: "/tools#split-pdf",
+    },
+    {
+      eyebrow: text("AI study help", "Βοήθεια AI"),
+      title: text("AI Assistant guide", "Οδηγός Βοηθού AI"),
+      description: text(
+        "See the available AI options.",
+        "Δες τις διαθέσιμες επιλογές AI.",
+      ),
+      action: text("Open AI guide", "Άνοιγμα οδηγού AI"),
+      to: "/ai-assistant-guide",
+    },
+    {
+      eyebrow: text("Getting started", "Ξεκίνημα"),
+      title: text("How to use StudyApp", "Πώς χρησιμοποιείται το StudyApp"),
+      description: text(
+        "A simple path from source material to practice.",
+        "Μια απλή διαδρομή από το υλικό στην εξάσκηση.",
+      ),
+      action: text("Open guide", "Άνοιγμα οδηγού"),
+      guideSteps: [
+        text("Add material to Library or Structured Study.", "Πρόσθεσε υλικό στη Βιβλιοθήκη ή στη Δομημένη Μελέτη."),
+        text("Classify files so they are easy to find.", "Ταξινόμησε τα αρχεία για να τα βρίσκεις εύκολα."),
+        text("Split large PDFs when needed.", "Διαχώρισε μεγάλα PDF όταν χρειάζεται."),
+        text("Create or import chapters and flashcards.", "Δημιούργησε ή εισήγαγε κεφάλαια και κάρτες."),
+        text("Use review and quizzes regularly.", "Χρησιμοποίησε συχνά την επανάληψη και τα κουίζ."),
+        text("Save a backup of your progress.", "Αποθήκευε backup της προόδου σου."),
+      ],
+    },
+  ];
+
+  const guideSpace = homeSpaces.find((space) => space.guideSteps);
 
   useEffect(() => {
     const dialog = guideDialogRef.current;
-    if (!dialog) {
-      return;
-    }
+    if (!dialog) return;
 
     if (isGuideOpen && !dialog.open) {
       dialog.showModal();
       return;
     }
 
-    if (!isGuideOpen && dialog.open) {
-      dialog.close();
-    }
+    if (!isGuideOpen && dialog.open) dialog.close();
   }, [isGuideOpen]);
 
   return (
     <div className="stack-lg">
-      <section className="learning-stage-grid" aria-label="Home study spaces">
+      <section className="learning-stage-grid" aria-label={text("Home study spaces", "Χώροι μελέτης")}>
         {homeSpaces.map((space) => (
           <article className="learning-stage-card" key={space.title}>
             <p className="eyebrow">{space.eyebrow}</p>
             <h2>{space.title}</h2>
             <p>{space.description}</p>
-            {"guideSteps" in space ? (
+            {space.guideSteps ? (
               <button className="button primary" type="button" onClick={() => setIsGuideOpen(true)}>{space.action}</button>
             ) : (
-              <Link className="button primary" to={space.to}>{space.action}</Link>
+              <Link className="button primary" to={space.to ?? "/"}>{space.action}</Link>
             )}
           </article>
         ))}
       </section>
 
-      <StorageNotice
-        kind={storageNoticePlacements.home}
-        variant="compact"
-      />
+      <StorageNotice kind={storageNoticePlacements.home} variant="compact" />
 
       {guideSpace && (
         <dialog
@@ -114,12 +134,12 @@ export function HomePage() {
           <h2 id="home-guide-title">{guideSpace.title}</h2>
           <p>{guideSpace.description}</p>
           <ol className="learning-stage-steps">
-            {guideSpace.guideSteps.map((step) => (
-              <li key={step}>{step}</li>
-            ))}
+            {guideSpace.guideSteps?.map((step) => <li key={step}>{step}</li>)}
           </ol>
           <div className="home-guide-actions">
-            <button className="button secondary" type="button" onClick={() => setIsGuideOpen(false)}>Close</button>
+            <button className="button secondary" type="button" onClick={() => setIsGuideOpen(false)}>
+              {text("Close", "Κλείσιμο")}
+            </button>
           </div>
         </dialog>
       )}
