@@ -1,4 +1,5 @@
 import { type ChangeEvent, useState } from "react";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import {
   StorageNotice,
@@ -23,6 +24,7 @@ async function readFile(file: File): Promise<string> {
 }
 
 export function ContentImportPage() {
+  const { language, text } = useLanguage();
   const { units, flashcards, importedUnits, importedFlashcards } = useStudyContent();
   const [message, setMessage] = useState("");
 
@@ -41,9 +43,16 @@ export function ContentImportPage() {
       for (const topic of spreadsheetTopics) byNumber.set(topic.number, topic);
       const nextTopics = [...byNumber.values()].sort((first, second) => first.number - second.number);
       await studyDatabase.settings.put({ key: IMPORTED_UNITS_SETTING_KEY, value: nextTopics });
-      setMessage(`${spreadsheetTopics.length} chapter${spreadsheetTopics.length === 1 ? "" : "s"} saved in this browser.`);
+      setMessage(text(
+        `${spreadsheetTopics.length} chapter${spreadsheetTopics.length === 1 ? "" : "s"} saved.`,
+        `Αποθηκεύτηκαν ${spreadsheetTopics.length} κεφάλαια.`,
+      ));
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "We could not read the chapters file. Download a fresh template and keep the column headings unchanged.");
+      setMessage(
+        language === "en" && error instanceof Error
+          ? error.message
+          : text("The chapters file could not be read.", "Το αρχείο κεφαλαίων δεν μπορεί να διαβαστεί."),
+      );
     } finally {
       event.target.value = "";
     }
@@ -54,57 +63,60 @@ export function ContentImportPage() {
     if (!file) return;
 
     try {
-      const spreadsheetFlashcards = await parseFlashcardsSpreadsheet(
-        await readFile(file),
-        units,
-      );
-      const nextFlashcards = mergeImportedFlashcards(
-        importedFlashcards,
-        spreadsheetFlashcards,
-      );
+      const spreadsheetFlashcards = await parseFlashcardsSpreadsheet(await readFile(file), units);
+      const nextFlashcards = mergeImportedFlashcards(importedFlashcards, spreadsheetFlashcards);
       await studyDatabase.settings.put({ key: IMPORTED_FLASHCARDS_SETTING_KEY, value: nextFlashcards });
-      setMessage(`${spreadsheetFlashcards.length} flashcard${spreadsheetFlashcards.length === 1 ? "" : "s"} saved in this browser.`);
+      setMessage(text(
+        `${spreadsheetFlashcards.length} flashcard${spreadsheetFlashcards.length === 1 ? "" : "s"} saved.`,
+        `Αποθηκεύτηκαν ${spreadsheetFlashcards.length} κάρτες.`,
+      ));
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "We could not read the flashcards file. Make sure its chapter numbers match chapters already added to the app.");
+      setMessage(
+        language === "en" && error instanceof Error
+          ? error.message
+          : text("The flashcards file could not be read.", "Το αρχείο καρτών δεν μπορεί να διαβαστεί."),
+      );
     } finally {
       event.target.value = "";
     }
   }
 
   async function clearImportedContent() {
-    if (!window.confirm("Remove all chapters and flashcards that you added?")) return;
+    if (!window.confirm(text(
+      "Remove all chapters and flashcards you added?",
+      "Να διαγραφούν όλα τα κεφάλαια και οι κάρτες που πρόσθεσες;",
+    ))) return;
+
     await studyDatabase.transaction("rw", studyDatabase.settings, studyDatabase.cardProgress, async () => {
       await studyDatabase.settings.delete(IMPORTED_UNITS_SETTING_KEY);
       await studyDatabase.settings.delete(IMPORTED_FLASHCARDS_SETTING_KEY);
       await studyDatabase.cardProgress.bulkDelete(importedFlashcards.map((card) => card.id));
     });
-    setMessage("Your added study content was removed from this browser.");
+    setMessage(text("Added content removed.", "Το περιεχόμενο διαγράφηκε."));
   }
 
   return (
     <div className="stack-lg">
       <header className="page-heading">
-        <p className="eyebrow">Your content</p>
-        <h2>Add study content</h2>
-        <p>Create your own chapters and flashcards in the app, or import many of your items at once with familiar spreadsheet files. StudyApp does not generate them automatically.</p>
+        <p className="eyebrow">{text("Your content", "Το περιεχόμενό σου")}</p>
+        <h2>{text("Add study content", "Προσθήκη περιεχομένου")}</h2>
+        <p>{text("Create chapters and flashcards or import them from CSV.", "Δημιούργησε κεφάλαια και κάρτες ή εισήγαγέ τα από CSV.")}</p>
       </header>
 
       <StorageNotice kind={storageNoticePlacements.contentImport} />
 
-      <section className="stats-grid" aria-label="Your added content">
-        <article className="stat-card"><strong>{importedUnits.length}</strong><span>Chapters added</span></article>
-        <article className="stat-card"><strong>{importedFlashcards.length}</strong><span>Flashcards added</span></article>
+      <section className="stats-grid" aria-label={text("Added content", "Περιεχόμενο που προστέθηκε")}>
+        <article className="stat-card"><strong>{importedUnits.length}</strong><span>{text("Chapters added", "Κεφάλαια")}</span></article>
+        <article className="stat-card"><strong>{importedFlashcards.length}</strong><span>{text("Flashcards added", "Κάρτες")}</span></article>
       </section>
 
       <section className="content-panel">
-        <h3>Add one chapter</h3>
-        <p>Give the chapter a title and add the main learning points. Numbering is handled automatically.</p>
+        <h3>{text("Add one chapter", "Προσθήκη κεφαλαίου")}</h3>
         <UnitForm existingUnits={units} importedUnits={importedUnits} onMessage={setMessage} />
       </section>
 
       <section className="content-panel">
-        <h3>Add one flashcard</h3>
-        <p>Choose its chapter, then enter the question and answer.</p>
+        <h3>{text("Add one flashcard", "Προσθήκη κάρτας")}</h3>
         <FlashcardForm
           units={units}
           existingFlashcards={flashcards}
@@ -114,29 +126,36 @@ export function ContentImportPage() {
       </section>
 
       <section className="content-panel">
-        <h3>Add many items at once</h3>
-        <ol className="friendly-steps">
-          <li>Download the spreadsheet you need.</li>
-          <li>Open it in Excel, Numbers, or Google Sheets and replace the examples.</li>
-          <li>Save it, then choose the completed file below.</li>
-        </ol>
+        <h3>{text("Import CSV files", "Εισαγωγή αρχείων CSV")}</h3>
         <div className="template-grid">
           <div className="template-card">
-            <h4>Chapters</h4>
-            <a className="button secondary" download="chapters-template.csv" href={`${import.meta.env.BASE_URL}templates/units-spreadsheet.csv`}>Download chapters spreadsheet</a>
-            <label className="button primary file-button">Choose completed chapters file<input accept=".csv,text/csv" type="file" onChange={(event) => void importTopics(event)} /></label>
+            <h4>{text("Chapters", "Κεφάλαια")}</h4>
+            <a className="button secondary" download="chapters-template.csv" href={`${import.meta.env.BASE_URL}templates/units-spreadsheet.csv`}>
+              {text("Download template", "Λήψη προτύπου")}
+            </a>
+            <label className="button primary file-button">
+              {text("Choose chapters file", "Επιλογή αρχείου κεφαλαίων")}
+              <input accept=".csv,text/csv" type="file" onChange={(event) => void importTopics(event)} />
+            </label>
           </div>
           <div className="template-card">
-            <h4>Flashcards</h4>
-            <a className="button secondary" download="flashcards-template.csv" href={`${import.meta.env.BASE_URL}templates/flashcards-spreadsheet.csv`}>Download flashcards spreadsheet</a>
-            <label className="button primary file-button">Choose completed flashcards file<input accept=".csv,text/csv" type="file" onChange={(event) => void importFlashcards(event)} /></label>
+            <h4>{text("Flashcards", "Κάρτες")}</h4>
+            <a className="button secondary" download="flashcards-template.csv" href={`${import.meta.env.BASE_URL}templates/flashcards-spreadsheet.csv`}>
+              {text("Download template", "Λήψη προτύπου")}
+            </a>
+            <label className="button primary file-button">
+              {text("Choose flashcards file", "Επιλογή αρχείου καρτών")}
+              <input accept=".csv,text/csv" type="file" onChange={(event) => void importFlashcards(event)} />
+            </label>
           </div>
         </div>
       </section>
 
       <section className="content-panel">
-        <h3>Manage your content</h3>
-        <button className="button danger" onClick={() => void clearImportedContent()}>Remove all content I added</button>
+        <h3>{text("Manage content", "Διαχείριση περιεχομένου")}</h3>
+        <button className="button danger" onClick={() => void clearImportedContent()}>
+          {text("Remove added content", "Διαγραφή περιεχομένου")}
+        </button>
       </section>
 
       <p className="inline-message status-banner" role="status" aria-live="polite">{message}</p>
