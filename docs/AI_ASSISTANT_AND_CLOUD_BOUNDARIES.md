@@ -14,10 +14,15 @@ and its three AI Assistant modes.
 The Companion is a local handoff workflow:
 
 1. the user chooses a task;
-2. the user pastes the exact study text to use;
+2. the user pastes or explicitly imports the exact study text to use;
 3. StudyApp prepares a prompt locally;
-4. the user copies the prompt;
-5. StudyApp opens ChatGPT in a separate tab.
+4. StudyApp copies the prompt to the clipboard when browser permission allows;
+5. StudyApp opens the dedicated **StudyApp AI Assistant** Custom GPT in a separate browser popup;
+6. the user reviews and pastes the prepared request manually.
+
+The Custom GPT share URL is public production configuration through
+`VITE_STUDYAPP_AI_ASSISTANT_URL`. It identifies the destination only; it is not an
+API key, account credential or permission grant.
 
 The Companion does not:
 
@@ -26,7 +31,11 @@ The Companion does not:
 - read the StudyApp library or IndexedDB automatically;
 - send content automatically;
 - use StudyApp credits or payments;
+- automate, embed, scrape or inspect the ChatGPT website;
 - read the ChatGPT response back from the ChatGPT website.
+
+The external ChatGPT service applies its own account, plan, privacy and sharing
+rules. Browser popup settings may affect the window's size or position.
 
 ### 2. ChatGPT App / MCP — coming soon
 
@@ -79,6 +88,9 @@ Any remote AI mode must satisfy all of the following:
 - keep generated results as drafts until the user saves them;
 - do not turn AI processing into hidden storage, backup or sync;
 - do not log study content or secrets by default.
+
+The current Companion remains a manual clipboard handoff. Opening its configured
+Custom GPT page does not itself transmit the prepared study material.
 
 ## Credits and payments
 
