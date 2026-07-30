@@ -13,9 +13,6 @@ export function buildAttachedAssistantPopupFeatures(): string {
   const panelRect = document
     .querySelector<HTMLElement>(".assistant-panel")
     ?.getBoundingClientRect();
-  const progressRect = document
-    .querySelector<HTMLElement>(".assistant-progress")
-    ?.getBoundingClientRect();
 
   const availableWidth = window.screen.availWidth || window.outerWidth;
   const availableHeight = window.screen.availHeight || window.outerHeight;
@@ -36,23 +33,24 @@ export function buildAttachedAssistantPopupFeatures(): string {
   const viewportScreenLeft = window.screenX + horizontalBrowserChrome;
   const viewportScreenTop = window.screenY + verticalBrowserChrome;
 
-  const panelWidth = panelRect?.width ?? 430;
-  const popupWidth = Math.round(clamp(panelWidth - 8, 380, 460));
-  const panelInset = panelRect
-    ? Math.max(0, (panelRect.width - popupWidth) / 2)
-    : 0;
+  // Match the requested visual layout: the popup sits inside the right-hand
+  // assistant panel with an 8 px horizontal inset and starts 200 px below
+  // the panel top, directly beneath the Step 3 heading.
+  const panelWidth = panelRect?.width ?? 500;
+  const popupWidth = Math.round(clamp(panelWidth - 40, 380, 460));
+  const popupHeight = Math.round(
+    clamp((panelRect?.height ?? 870) - 250, 420, 620),
+  );
   const desiredLeft = panelRect
-    ? viewportScreenLeft + panelRect.left + panelInset
-    : viewportScreenLeft + window.innerWidth - popupWidth;
-  const desiredTop = progressRect
-    ? viewportScreenTop + progressRect.bottom + 12
-    : viewportScreenTop + (panelRect?.top ?? 0) + 150;
+    ? viewportScreenLeft + panelRect.left + 8
+    : viewportScreenLeft + window.innerWidth - popupWidth - 8;
+  const desiredTop = panelRect
+    ? viewportScreenTop + panelRect.top + 200
+    : viewportScreenTop + 200;
 
   const left = Math.round(
     clamp(desiredLeft, screenLeft, Math.max(screenLeft, screenRight - popupWidth)),
   );
-  const availablePopupHeight = Math.max(420, screenBottom - desiredTop - 20);
-  const popupHeight = Math.round(clamp(availablePopupHeight, 420, 620));
   const top = Math.round(
     clamp(desiredTop, screenTop, Math.max(screenTop, screenBottom - popupHeight)),
   );
