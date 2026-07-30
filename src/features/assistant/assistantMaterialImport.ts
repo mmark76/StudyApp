@@ -19,6 +19,10 @@ export interface AssistantMaterialImportResult {
   truncated: boolean;
 }
 
+interface PdfLoadingTaskLike {
+  destroy?: () => Promise<void> | void;
+}
+
 export class AssistantMaterialImportError extends Error {
   constructor(message: string) {
     super(message);
@@ -38,6 +42,16 @@ export function limitAssistantMaterialText(text: string): AssistantMaterialImpor
   };
 }
 
+export async function disposePdfLoadingTask(loadingTask: PdfLoadingTaskLike): Promise<void> {
+  if (typeof loadingTask.destroy !== "function") return;
+
+  try {
+    await loadingTask.destroy();
+  } catch {
+    // Cleanup must not replace a successful text extraction with an internal PDF.js error.
+  }
+}
+
 async function loadPdfReader() {
   const [pdfJs, workerModule] = await Promise.all([
     import("pdfjs-dist"),
@@ -50,11 +64,12 @@ async function loadPdfReader() {
 async function extractPdfText(file: File): Promise<string> {
   const getDocument = await loadPdfReader();
   const loadingTask = getDocument({ data: new Uint8Array(await file.arrayBuffer()) });
-  const pdfDocument = await loadingTask.promise;
-  const pages: string[] = [];
-  let extractedLength = 0;
 
   try {
+    const pdfDocument = await loadingTask.promise;
+    const pages: string[] = [];
+    let extractedLength = 0;
+
     for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber += 1) {
       const page = await pdfDocument.getPage(pageNumber);
       const content = await page.getTextContent();
@@ -71,11 +86,11 @@ async function extractPdfText(file: File): Promise<string> {
 
       if (extractedLength > MAX_ASSISTANT_MATERIAL_LENGTH) break;
     }
-  } finally {
-    await pdfDocument.destroy();
-  }
 
-  return pages.join("\n\n");
+    return pages.join("\n\n");
+  } finally {
+    await disposePdfLoadingTask(loadingTask);
+  }
 }
 
 export async function extractAssistantMaterial(file: File): Promise<AssistantMaterialImportResult> {
