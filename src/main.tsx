@@ -14,6 +14,7 @@ import "./styles/appearanceSettings.css";
 import "./styles/assistant.css";
 import "./styles/assistantServiceStatus.css";
 import "./styles/assistantGuide.css";
+import "./styles/language.css";
 
 const updateServiceWorker = registerSW({
   immediate: true,
