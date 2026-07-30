@@ -24,6 +24,7 @@ export const storageNoticeText = {
 } as const;
 
 export type StorageNoticeKind = keyof typeof storageNoticeText;
+export type StorageNoticeVariant = "panel" | "compact";
 
 export const storageNoticePlacements = {
   home: "central",
@@ -33,8 +34,37 @@ export const storageNoticePlacements = {
   progressBackup: "backup",
 } as const satisfies Record<string, StorageNoticeKind>;
 
-export function StorageNotice({ kind }: { kind: StorageNoticeKind }) {
+interface StorageNoticeProps {
+  kind: StorageNoticeKind;
+  variant?: StorageNoticeVariant;
+}
+
+export function StorageNotice({
+  kind,
+  variant = "panel",
+}: StorageNoticeProps) {
   const notice = storageNoticeText[kind];
+
+  if (variant === "compact") {
+    return (
+      <aside
+        className="storage-notice storage-notice--compact"
+        aria-label={STORAGE_NOTICE_LABEL}
+      >
+        <details>
+          <summary>
+            <span className="storage-notice-icon" aria-hidden="true">ⓘ</span>
+            <span>Files are stored only in this browser. Keep your originals safe.</span>
+            <span className="storage-notice-learn-more">Learn more</span>
+          </summary>
+          <div className="storage-notice-details">
+            <strong>{notice.title}</strong>
+            <p>{notice.body}</p>
+          </div>
+        </details>
+      </aside>
+    );
+  }
 
   return (
     <aside className="storage-notice" aria-label={STORAGE_NOTICE_LABEL}>
