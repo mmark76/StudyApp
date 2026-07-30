@@ -6,10 +6,14 @@ import {
   StorageNotice,
   storageNoticePlacements,
   type StorageNoticeKind,
+  type StorageNoticeVariant,
 } from "../src/shared/components/StorageNotice";
 
-function renderNotice(kind: StorageNoticeKind): string {
-  return renderToStaticMarkup(createElement(StorageNotice, { kind }));
+function renderNotice(
+  kind: StorageNoticeKind,
+  variant: StorageNoticeVariant = "panel",
+): string {
+  return renderToStaticMarkup(createElement(StorageNotice, { kind, variant }));
 }
 
 describe("local storage notices", () => {
@@ -30,6 +34,16 @@ describe("local storage notices", () => {
       expect(markup).toContain(`aria-label="${STORAGE_NOTICE_LABEL}"`);
       expect(markup).not.toContain("<details");
     }
+  });
+
+  it("renders a compact home notice with expandable details", () => {
+    const markup = renderNotice("central", "compact");
+
+    expect(markup).toContain("storage-notice--compact");
+    expect(markup).toContain("<details>");
+    expect(markup).toContain("Files are stored only in this browser. Keep your originals safe.");
+    expect(markup).toContain("Learn more");
+    expect(markup).toContain("not a permanent-storage or backup service");
   });
 
   it("states the central storage limitation without calling files temporary", () => {
