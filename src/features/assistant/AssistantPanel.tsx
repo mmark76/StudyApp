@@ -75,41 +75,27 @@ const companionTasks: readonly {
   },
 ] as const;
 
+const STUDYAPP_AI_ASSISTANT_URL =
+  (import.meta.env as Record<string, string | undefined>)
+    .VITE_STUDYAPP_AI_ASSISTANT_URL?.trim() || "https://chatgpt.com/";
+
 export function buildCompanionPrompt(
   taskId: CompanionTaskId,
   material: string,
   language: AppLanguage,
   customRequest = "",
 ): string {
-  const instructions: Record<Exclude<CompanionTaskId, "custom">, { en: string; el: string }> = {
-    explain: {
-      en: "Explain the main ideas in the study material clearly. Use simple language, preserve important terminology, and include one useful example.",
-      el: "Εξήγησε με σαφήνεια τις βασικές ιδέες του υλικού μελέτης. Χρησιμοποίησε απλή γλώσσα, διατήρησε τη σημαντική ορολογία και πρόσθεσε ένα χρήσιμο παράδειγμα.",
-    },
-    summarize: {
-      en: "Summarize the study material using clear headings and concise key points. Include the most important terms and conclusions.",
-      el: "Σύνοψε το υλικό μελέτης με σαφείς τίτλους και σύντομα βασικά σημεία. Συμπερίλαβε τους σημαντικότερους όρους και τα κύρια συμπεράσματα.",
-    },
-    flashcards: {
-      en: "Create 10 concise study flashcards from the material. Use a clear Question / Answer format and avoid repeating the same idea.",
-      el: "Δημιούργησε 10 σύντομες κάρτες μελέτης από το υλικό, σε σαφή μορφή Ερώτηση / Απάντηση, χωρίς επανάληψη της ίδιας ιδέας.",
-    },
-    quiz: {
-      en: "Create a 10-question multiple-choice quiz from the material. Include four options, the correct answer, and a short explanation for each question.",
-      el: "Δημιούργησε κουίζ 10 ερωτήσεων πολλαπλής επιλογής από το υλικό. Πρόσθεσε τέσσερις επιλογές, τη σωστή απάντηση και σύντομη εξήγηση για κάθε ερώτηση.",
-    },
-  };
+  const lines = [
+    `STUDYAPP TASK: ${taskId}`,
+    `RESPONSE LANGUAGE: ${language}`,
+  ];
 
-  const instruction = taskId === "custom"
-    ? customRequest.trim()
-    : instructions[taskId][language];
-  const responseLanguage = language === "el" ? "Απάντησε στα ελληνικά." : "Answer in English.";
-  const sourceBoundary = language === "el"
-    ? "Χρησιμοποίησε μόνο το παρακάτω υλικό. Αν δεν περιέχει αρκετές πληροφορίες, ανέφερέ το καθαρά."
-    : "Use only the study material below. If it does not contain enough information, say so clearly.";
-  const materialHeading = language === "el" ? "ΥΛΙΚΟ ΜΕΛΕΤΗΣ" : "STUDY MATERIAL";
+  if (taskId === "custom") {
+    lines.push("", "CUSTOM REQUEST:", customRequest.trim());
+  }
 
-  return `${instruction}\n\n${responseLanguage}\n${sourceBoundary}\n\n${materialHeading}:\n${material.trim()}`;
+  lines.push("", "STUDY MATERIAL:", material.trim());
+  return lines.join("\n");
 }
 
 export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
@@ -228,34 +214,30 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
     goTo("review");
   }
 
-  async function copyPreparedInstructions(openChatGptAfterCopy = false) {
+  async function copyAndOpenStudyAppAssistant() {
     if (!preparedPrompt.trim()) {
-      setMessage(text("Review the prepared instructions first.", "Έλεγξε πρώτα τις έτοιμες οδηγίες."));
+      setMessage(text("Prepare the study request first.", "Προετοίμασε πρώτα το αίτημα μελέτης."));
       return;
     }
 
+    window.open(
+      STUDYAPP_AI_ASSISTANT_URL,
+      "studyapp-ai-assistant",
+      "popup=yes,width=760,height=860,noopener,noreferrer",
+    );
+
     try {
       await navigator.clipboard.writeText(preparedPrompt.trim());
-      setMessage(openChatGptAfterCopy
-        ? text(
-            "Instructions copied. Paste them into the ChatGPT message box.",
-            "Οι οδηγίες αντιγράφηκαν. Επικόλλησέ τες στο πεδίο μηνύματος του ChatGPT.",
-          )
-        : text(
-            "Instructions copied to your clipboard.",
-            "Οι οδηγίες αντιγράφηκαν στο πρόχειρο.",
-          ));
+      setMessage(text(
+        "Study material copied. Paste it into the StudyApp AI Assistant message box.",
+        "Το υλικό μελέτης αντιγράφηκε. Επικόλλησέ το στο πεδίο μηνύματος του StudyApp AI Assistant.",
+      ));
     } catch {
       setMessage(text(
-        "Copy failed. Select the instructions and copy them manually.",
-        "Η αντιγραφή απέτυχε. Επίλεξε τις οδηγίες και αντέγραψέ τες χειροκίνητα.",
+        "Copy failed. Allow clipboard access and try again.",
+        "Η αντιγραφή απέτυχε. Επίτρεψε την πρόσβαση στο πρόχειρο και δοκίμασε ξανά.",
       ));
     }
-  }
-
-  function copyAndOpenChatGpt() {
-    void copyPreparedInstructions(true);
-    window.open("https://chatgpt.com/", "_blank", "noopener,noreferrer");
   }
 
   return (
@@ -544,47 +526,18 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
                 ← {text("Back", "Πίσω")}
               </button>
               <p className="assistant-progress">{text("Step 3 of 3", "Βήμα 3 από 3")}</p>
-              <h3>{text("Review your ChatGPT instructions", "Έλεγξε τις οδηγίες για το ChatGPT")}</h3>
-              <p className="assistant-step-intro">{selectedTask
-                ? text(
-                    `Goal: ${selectedTask.en}. You can edit the instructions before copying them.`,
-                    `Στόχος: ${selectedTask.el}. Μπορείς να επεξεργαστείς τις οδηγίες πριν τις αντιγράψεις.`,
-                  )
-                : null}</p>
-
-              <label className="field-label assistant-prompt-preview">
-                {text("Prepared instructions", "Έτοιμες οδηγίες")}
-                <textarea
-                  onChange={(event) => {
-                    setPreparedPrompt(event.target.value);
-                    setMessage("");
-                  }}
-                  rows={14}
-                  value={preparedPrompt}
-                />
-              </label>
-
-              <p className="assistant-privacy-note assistant-privacy-note-compact">{text(
-                "The instructions are copied to your clipboard. Paste them into the ChatGPT message box to continue.",
-                "Οι οδηγίες αντιγράφονται στο πρόχειρο. Επικόλλησέ τες στο πεδίο μηνύματος του ChatGPT για να συνεχίσεις.",
-              )}</p>
 
               <div className="assistant-actions">
                 <button
                   className="button primary"
                   disabled={!preparedPrompt.trim()}
-                  onClick={copyAndOpenChatGpt}
+                  onClick={() => void copyAndOpenStudyAppAssistant()}
                   type="button"
                 >
-                  {text("Copy & Open ChatGPT", "Αντιγραφή & άνοιγμα ChatGPT")}
-                </button>
-                <button
-                  className="button secondary"
-                  disabled={!preparedPrompt.trim()}
-                  onClick={() => void copyPreparedInstructions()}
-                  type="button"
-                >
-                  {text("Copy only", "Μόνο αντιγραφή")}
+                  {text(
+                    "Copy & Open StudyApp AI Assistant",
+                    "Αντιγραφή & άνοιγμα StudyApp AI Assistant",
+                  )}
                 </button>
               </div>
             </section>
