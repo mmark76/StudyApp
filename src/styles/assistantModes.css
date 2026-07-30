@@ -73,7 +73,11 @@
 
 .assistant-onboarding-steps {
   display: grid;
-  gap: 0.65rem;
+  background: var(--surface-strong, #ffffff);
+  border: 1px solid color-mix(in srgb, var(--blue-600, #1d4ed8) 14%, transparent);
+  border-radius: 0.9rem;
+  overflow: hidden;
+  gap: 0;
   list-style: none;
   margin: 1rem 0;
   padding: 0;
@@ -81,13 +85,18 @@
 
 .assistant-onboarding-steps li {
   align-items: center;
-  background: var(--surface-strong, #ffffff);
-  border: 1px solid color-mix(in srgb, var(--blue-600, #1d4ed8) 14%, transparent);
-  border-radius: 0.9rem;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
   display: grid;
   gap: 0.75rem;
   grid-template-columns: auto 1fr;
   padding: 0.75rem 0.85rem;
+}
+
+.assistant-onboarding-steps li + li {
+  border-top: 1px solid
+    color-mix(in srgb, var(--blue-600, #1d4ed8) 10%, transparent);
 }
 
 .assistant-onboarding-steps li > span {

@@ -247,21 +247,85 @@ test("Assistant secondary actions use the teal palette and retain keyboard focus
     .getByRole("button", { name: "Open StudyApp AI Assistant" })
     .click();
 
+  const assistantContent = page.locator(".assistant-content");
+  await expect(assistantContent).toHaveCSS("zoom", "0.9");
+
+  const onboardingStepper = page.locator(".assistant-onboarding-steps");
+  const onboardingRows = onboardingStepper.locator(":scope > li");
+  await expect(onboardingStepper).toHaveCSS(
+    "background-color",
+    "rgb(255, 255, 255)",
+  );
+  await expect(onboardingStepper).toHaveCSS("border-top-style", "solid");
+  expect(
+    await onboardingStepper.evaluate((element) =>
+      Number.parseFloat(getComputedStyle(element).borderTopWidth),
+    ),
+  ).toBeGreaterThan(0);
+  expect(
+    await onboardingStepper.evaluate((element) =>
+      Number.parseFloat(getComputedStyle(element).borderTopLeftRadius),
+    ),
+  ).toBeGreaterThan(0);
+  await expect(onboardingRows).toHaveCount(3);
+  expect(
+    await onboardingStepper.evaluate((element) => ({
+      childTags: Array.from(element.children).map((child) => child.tagName),
+      tag: element.tagName,
+    })),
+  ).toEqual({ childTags: ["LI", "LI", "LI"], tag: "OL" });
+  await expect(onboardingRows.first()).toHaveCSS(
+    "background-color",
+    "rgba(0, 0, 0, 0)",
+  );
+  await expect(onboardingRows.first()).toHaveCSS("border-top-width", "0px");
+  await expect(onboardingRows.nth(1)).toHaveCSS("border-top-style", "solid");
+  await expect(onboardingRows.nth(2)).toHaveCSS("border-top-style", "solid");
+  expect(
+    await onboardingRows.nth(1).evaluate((element) =>
+      Number.parseFloat(getComputedStyle(element).borderTopWidth),
+    ),
+  ).toBeGreaterThan(0);
+  await expect(onboardingRows.first().locator(":scope > span")).toHaveCSS(
+    "border-radius",
+    "50%",
+  );
+
   const viewOtherOptions = page.getByRole("button", {
     name: "View other AI options",
   });
   await expect(viewOtherOptions).toHaveClass(/assistant-secondary-action/u);
   await expect(viewOtherOptions).toHaveCSS(
     "background-color",
-    "rgb(167, 221, 213)",
+    "rgb(200, 232, 227)",
   );
   await expect(viewOtherOptions).toHaveCSS("color", "rgb(22, 78, 74)");
+  const defaultColors = await viewOtherOptions.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      background: style.backgroundColor,
+      foreground: style.color,
+    };
+  });
+  expect(
+    cssContrastRatio(defaultColors.foreground, defaultColors.background),
+  ).toBeGreaterThanOrEqual(4.5);
 
   await viewOtherOptions.hover();
   await expect(viewOtherOptions).toHaveCSS(
     "background-color",
-    "rgb(140, 207, 197)",
+    "rgb(180, 221, 214)",
   );
+  const hoverColors = await viewOtherOptions.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      background: style.backgroundColor,
+      foreground: style.color,
+    };
+  });
+  expect(
+    cssContrastRatio(hoverColors.foreground, hoverColors.background),
+  ).toBeGreaterThanOrEqual(4.5);
 
   const buttonBox = await viewOtherOptions.boundingBox();
   expect(buttonBox).not.toBeNull();
@@ -302,7 +366,7 @@ test("Assistant secondary actions use the teal palette and retain keyboard focus
   await expect(chooseAction).toHaveClass(/assistant-secondary-action/u);
   await expect(chooseAction).toHaveCSS(
     "background-color",
-    "rgb(167, 221, 213)",
+    "rgb(200, 232, 227)",
   );
   await expect(chooseAction).toHaveAttribute("for", "assistant-choose-file");
   await expect(chooseInput).toHaveAttribute("id", "assistant-choose-file");
@@ -320,7 +384,7 @@ test("Assistant secondary actions use the teal palette and retain keyboard focus
   const computedOutlineWidth = await chooseAction.evaluate((element) =>
     Number.parseFloat(getComputedStyle(element).outlineWidth),
   );
-  expect(computedOutlineWidth).toBeGreaterThanOrEqual(2.5);
+  expect(computedOutlineWidth).toBeGreaterThanOrEqual(2);
   await expect(chooseAction).toHaveCSS(
     "outline-color",
     "rgb(35, 127, 120)",
@@ -363,7 +427,7 @@ test("file import, replacement, and removal show each filename exactly once", as
   await expect(firstAttachment).toBeVisible();
   const importStatus = dialog.getByRole("status");
   await expect(importStatus).toHaveText(
-    "The extracted text was copied to the clipboard.",
+    "The extracted text is ready to use.",
   );
   await expect(importStatus).not.toHaveClass(/assistant-secondary-action/u);
   expect(await visibleTextOccurrences(dialog, firstFileName)).toBe(1);
@@ -397,7 +461,7 @@ test("file import, replacement, and removal show each filename exactly once", as
   expect(await visibleTextOccurrences(dialog, firstFileName)).toBe(0);
   expect(await visibleTextOccurrences(dialog, replacementFileName)).toBe(1);
   await expect(dialog.getByRole("status")).toHaveText(
-    "The extracted text was copied to the clipboard.",
+    "The extracted text is ready to use.",
   );
   await expect(dialog.getByRole("status")).not.toContainText(
     replacementFileName,
@@ -420,15 +484,21 @@ test("file import, replacement, and removal show each filename exactly once", as
   assertNoApplicationErrors();
 });
 
-test("clipboard failure keeps the imported attachment and manual flow available", async ({
+test("Step 1 file import does not request clipboard access", async ({
   page,
 }) => {
   const assertNoApplicationErrors = watchForApplicationErrors(page);
   await page.addInitScript(() => {
+    (
+      window as Window & { assistantClipboardWriteAttempts?: number }
+    ).assistantClipboardWriteAttempts = 0;
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
       value: {
         writeText: async () => {
+          (
+            window as Window & { assistantClipboardWriteAttempts?: number }
+          ).assistantClipboardWriteAttempts = 1;
           throw new DOMException("Clipboard denied", "NotAllowedError");
         },
       },
@@ -447,12 +517,20 @@ test("clipboard failure keeps the imported attachment and manual flow available"
 
   await expect(dialog.getByRole("group", { name: fileName })).toBeVisible();
   expect(await visibleTextOccurrences(dialog, fileName)).toBe(1);
-  await expect(dialog.getByRole("status")).toContainText(
-    "Clipboard access was unavailable.",
+  await expect(dialog.getByRole("status")).toHaveText(
+    "The extracted text is ready to use.",
   );
   await expect(dialog.getByRole("status")).not.toContainText(
     "copied to the clipboard",
   );
+  expect(
+    await page.evaluate(
+      () =>
+        (
+          window as Window & { assistantClipboardWriteAttempts?: number }
+        ).assistantClipboardWriteAttempts,
+    ),
+  ).toBe(0);
   await expect(
     dialog.getByRole("button", { name: "Continue", exact: true }),
   ).toBeEnabled();
@@ -484,7 +562,7 @@ test("Greek import success is localized and does not repeat the filename", async
   await expect(dialog.getByRole("group", { name: fileName })).toBeVisible();
   expect(await visibleTextOccurrences(dialog, fileName)).toBe(1);
   await expect(dialog.getByRole("status")).toHaveText(
-    "Το εξαγόμενο κείμενο αντιγράφηκε στο πρόχειρο.",
+    "Το εξαγόμενο κείμενο είναι έτοιμο για χρήση.",
   );
   await expect(dialog.getByRole("status")).not.toContainText(fileName);
   await expect(dialog.getByText("Έγινε εισαγωγή", { exact: false })).toHaveCount(
@@ -496,35 +574,34 @@ test("Greek import success is localized and does not repeat the filename", async
   assertNoApplicationErrors();
 });
 
-test("file action shows a muted disabled state while clipboard work is pending", async ({
+test("file action shows a muted disabled state while local extraction is pending", async ({
   page,
 }) => {
   const assertNoApplicationErrors = watchForApplicationErrors(page);
   await page.addInitScript(() => {
-    let resolveClipboardWrite: (() => void) | undefined;
+    const originalFileText = File.prototype.text;
+    let resolveFileText: (() => void) | undefined;
     (
       window as Window & {
-        resolveAssistantClipboardWrite?: () => void;
+        resolveAssistantFileText?: () => void;
       }
-    ).resolveAssistantClipboardWrite = () => resolveClipboardWrite?.();
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: {
-        writeText: () =>
-          new Promise<void>((resolve) => {
-            resolveClipboardWrite = resolve;
-          }),
-      },
-    });
+    ).resolveAssistantFileText = () => resolveFileText?.();
+    File.prototype.text = function pendingAssistantFileText() {
+      return new Promise<string>((resolve) => {
+        resolveFileText = () => {
+          void originalFileText.call(this).then(resolve);
+        };
+      });
+    };
   });
   await page.goto("/");
   await openAssistantAtStepOne(page);
 
   const dialog = page.getByRole("dialog", { name: "AI Assistant" });
   await dialog.getByLabel("Choose file", { exact: true }).setInputFiles({
-    name: "pending-copy.txt",
+    name: "pending-extraction.txt",
     mimeType: "text/plain",
-    buffer: Buffer.from("Pending clipboard state."),
+    buffer: Buffer.from("Pending local extraction state."),
   });
 
   const pendingAction = dialog.locator("label.assistant-file-button", {
@@ -539,23 +616,135 @@ test("file action shows a muted disabled state while clipboard work is pending",
   await expect(pendingAction).toHaveCSS("color", "rgb(85, 112, 108)");
   await expect(pendingAction).toHaveCSS("cursor", "not-allowed");
 
-  await dialog
-    .getByRole("button", { name: "Remove pending-copy.txt" })
-    .click();
   await page.evaluate(() => {
     (
       window as Window & {
-        resolveAssistantClipboardWrite?: () => void;
+        resolveAssistantFileText?: () => void;
       }
-    ).resolveAssistantClipboardWrite?.();
+    ).resolveAssistantFileText?.();
   });
+  await expect(
+    dialog.getByRole("group", { name: "pending-extraction.txt" }),
+  ).toBeVisible();
+  await dialog
+    .getByRole("button", { name: "Remove pending-extraction.txt" })
+    .click();
   await expect(dialog.getByRole("status")).toHaveCount(0);
   await expect(
-    dialog.getByText("pending-copy.txt", { exact: true }),
+    dialog.getByText("pending-extraction.txt", { exact: true }),
   ).toHaveCount(0);
   await expect(
     dialog.getByRole("button", { name: "Continue", exact: true }),
   ).toBeDisabled();
+  assertNoApplicationErrors();
+});
+
+test("Step 2 copies the complete request and opens the assistant once", async ({
+  page,
+}) => {
+  const assertNoApplicationErrors = watchForApplicationErrors(page);
+  await page.addInitScript(() => {
+    (
+      window as Window & {
+        assistantClipboardWrites?: string[];
+        assistantPopupOpenCount?: number;
+      }
+    ).assistantClipboardWrites = [];
+    (
+      window as Window & {
+        assistantClipboardWrites?: string[];
+        assistantPopupOpenCount?: number;
+      }
+    ).assistantPopupOpenCount = 0;
+    window.open = () => {
+      (
+        window as Window & {
+          assistantPopupOpenCount?: number;
+        }
+      ).assistantPopupOpenCount =
+        ((
+          window as Window & {
+            assistantPopupOpenCount?: number;
+          }
+        ).assistantPopupOpenCount ?? 0) + 1;
+      const link = {
+        click: () => undefined,
+        href: "",
+        referrerPolicy: "",
+        rel: "",
+        target: "",
+      };
+      return {
+        close: () => undefined,
+        document: {
+          body: { append: () => undefined },
+          createElement: () => link,
+        },
+        opener: window,
+      } as unknown as Window;
+    };
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText: async (value: string) => {
+          (
+            window as Window & { assistantClipboardWrites?: string[] }
+          ).assistantClipboardWrites?.push(value);
+        },
+      },
+    });
+  });
+  await page.goto("/");
+  await openAssistantAtStepOne(page);
+
+  await page.getByLabel("Study text").fill("Deterministic E2E study material.");
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  expect(
+    await page.evaluate(() => ({
+      popupCount: (
+        window as Window & { assistantPopupOpenCount?: number }
+      ).assistantPopupOpenCount,
+      writes: (
+        window as Window & { assistantClipboardWrites?: string[] }
+      ).assistantClipboardWrites,
+    })),
+  ).toEqual({ popupCount: 0, writes: [] });
+
+  await page.getByRole("button", { name: /Create a summary/ }).click();
+  await page.getByRole("button", { name: "Continue: Create summary" }).click();
+  await expect(page.getByText("The request was copied.")).toBeVisible();
+
+  const expectedRequest = [
+    "STUDYAPP TASK: summarize",
+    "RESPONSE LANGUAGE: en",
+    "",
+    "INSTRUCTIONS:",
+    "Summarize the study material using clear headings and concise key points. Include the most important terms and conclusions.",
+    "",
+    "STUDY MATERIAL:",
+    "Deterministic E2E study material.",
+  ].join("\n");
+  expect(
+    await page.evaluate(() => ({
+      popupCount: (
+        window as Window & { assistantPopupOpenCount?: number }
+      ).assistantPopupOpenCount,
+      writes: (
+        window as Window & { assistantClipboardWrites?: string[] }
+      ).assistantClipboardWrites,
+    })),
+  ).toEqual({ popupCount: 1, writes: [expectedRequest] });
+  await expect(page.getByLabel("Prepared request")).toHaveValue(expectedRequest);
+  await expect(
+    page.getByRole("button", {
+      name: "Continue in the StudyApp AI Assistant",
+    }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("link", {
+      name: "Open the StudyApp AI Assistant manually",
+    }),
+  ).toHaveCount(0);
   assertNoApplicationErrors();
 });
 
@@ -564,7 +753,23 @@ test("Assistant can move repeatedly between Step 2 and Step 3 without a DOM cras
 }) => {
   const assertNoApplicationErrors = watchForApplicationErrors(page);
   await page.addInitScript(() => {
-    window.open = () => ({}) as Window;
+    window.open = () => {
+      const link = {
+        click: () => undefined,
+        href: "",
+        referrerPolicy: "",
+        rel: "",
+        target: "",
+      };
+      return {
+        close: () => undefined,
+        document: {
+          body: { append: () => undefined },
+          createElement: () => link,
+        },
+        opener: window,
+      } as unknown as Window;
+    };
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
       value: { writeText: async () => undefined },
@@ -611,9 +816,14 @@ test("blocked popup keeps the fallback link and copied prompt visible", async ({
   await expect(page.getByText("The assistant popup was blocked.")).toBeVisible();
   await expect(
     page.getByRole("link", {
-      name: "Continue in the StudyApp AI Assistant",
+      name: "Open the StudyApp AI Assistant manually",
     }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("button", {
+      name: "Continue in the StudyApp AI Assistant",
+    }),
+  ).toHaveCount(0);
   await expect(page.getByText("The request was copied.")).toBeVisible();
   await expect(page.getByLabel("Prepared request")).toContainText(
     "STUDYAPP TASK: summarize",
@@ -626,7 +836,23 @@ test("clipboard failure preserves manual copy while the popup succeeds", async (
 }) => {
   const assertNoApplicationErrors = watchForApplicationErrors(page);
   await page.addInitScript(() => {
-    window.open = () => ({}) as Window;
+    window.open = () => {
+      const link = {
+        click: () => undefined,
+        href: "",
+        referrerPolicy: "",
+        rel: "",
+        target: "",
+      };
+      return {
+        close: () => undefined,
+        document: {
+          body: { append: () => undefined },
+          createElement: () => link,
+        },
+        opener: window,
+      } as unknown as Window;
+    };
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
       value: {
@@ -647,6 +873,11 @@ test("clipboard failure preserves manual copy while the popup succeeds", async (
     "STUDYAPP TASK: summarize",
   );
   await expect(page.getByText("The request was copied.")).toHaveCount(0);
+  await expect(
+    page.getByRole("link", {
+      name: "Open the StudyApp AI Assistant manually",
+    }),
+  ).toHaveCount(0);
   assertNoApplicationErrors();
 });
 

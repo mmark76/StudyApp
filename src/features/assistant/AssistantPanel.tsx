@@ -90,6 +90,28 @@ const companionStepSequence: readonly CompanionStepScreen[] = [
   "review",
 ];
 
+const companionTaskInstructions: Record<
+  Exclude<CompanionTaskId, "custom">,
+  Record<AppLanguage, string>
+> = {
+  explain: {
+    en: "Explain the main ideas in the study material clearly. Use simple language, preserve important terminology, and include one useful example.",
+    el: "Εξήγησε με σαφήνεια τις βασικές ιδέες του υλικού μελέτης. Χρησιμοποίησε απλή γλώσσα, διατήρησε τη σημαντική ορολογία και πρόσθεσε ένα χρήσιμο παράδειγμα.",
+  },
+  summarize: {
+    en: "Summarize the study material using clear headings and concise key points. Include the most important terms and conclusions.",
+    el: "Σύνοψε το υλικό μελέτης με σαφείς τίτλους και σύντομα βασικά σημεία. Συμπερίλαβε τους σημαντικότερους όρους και τα κύρια συμπεράσματα.",
+  },
+  flashcards: {
+    en: "Create 10 concise study flashcards from the material. Use a clear Question / Answer format and avoid repeating the same idea.",
+    el: "Δημιούργησε 10 σύντομες κάρτες μελέτης από το υλικό, σε σαφή μορφή Ερώτηση / Απάντηση, χωρίς επανάληψη της ίδιας ιδέας.",
+  },
+  quiz: {
+    en: "Create a 10-question multiple-choice quiz from the material. Include four options, the correct answer, and a short explanation for each question.",
+    el: "Δημιούργησε κουίζ 10 ερωτήσεων πολλαπλής επιλογής από το υλικό. Πρόσθεσε τέσσερις επιλογές, τη σωστή απάντηση και σύντομη εξήγηση για κάθε ερώτηση.",
+  },
+};
+
 export function moveCompanionStep(
   current: CompanionStepScreen,
   direction: "back" | "next",
@@ -110,14 +132,17 @@ export function buildCompanionPrompt(
   language: AppLanguage,
   customRequest = "",
 ): string {
+  const instruction =
+    taskId === "custom"
+      ? customRequest.trim()
+      : companionTaskInstructions[taskId][language];
   const lines = [
     `STUDYAPP TASK: ${taskId}`,
     `RESPONSE LANGUAGE: ${language}`,
+    "",
+    "INSTRUCTIONS:",
+    instruction,
   ];
-
-  if (taskId === "custom") {
-    lines.push("", "CUSTOM REQUEST:", customRequest.trim());
-  }
 
   lines.push("", "STUDY MATERIAL:", material.trim());
   return lines.join("\n");
@@ -197,6 +222,13 @@ export function getAssistantPopupStatusMessage(
     );
   }
 
+  if (popupResult.status === "failed") {
+    return text(
+      "The assistant could not be opened. Use the fallback link below.",
+      "Ο βοηθός δεν μπόρεσε να ανοίξει. Χρησιμοποίησε τον σύνδεσμο παρακάτω.",
+    );
+  }
+
   return text(
     "The StudyApp AI Assistant popup opened.",
     "Το αναδυόμενο παράθυρο του StudyApp AI Assistant άνοιξε.",
@@ -219,25 +251,17 @@ export function getAssistantClipboardStatusMessage(
 }
 
 export function getAssistantImportStatusMessage(
-  copied: boolean,
   truncated: boolean,
   text: AssistantText,
 ): string {
-  if (copied) {
-    return text(
-      "The extracted text was copied to the clipboard.",
-      "Το εξαγόμενο κείμενο αντιγράφηκε στο πρόχειρο.",
-    );
-  }
-
   return truncated
     ? text(
-        "Clipboard access was unavailable. The first 12,000 extracted characters are ready and can still be used.",
-        "Δεν ήταν διαθέσιμη η πρόσβαση στο πρόχειρο. Οι πρώτοι 12.000 χαρακτήρες του εξαγόμενου κειμένου είναι έτοιμοι και μπορούν να χρησιμοποιηθούν.",
+        "The first 12,000 extracted characters are ready to use.",
+        "Οι πρώτοι 12.000 χαρακτήρες του εξαγόμενου κειμένου είναι έτοιμοι για χρήση.",
       )
     : text(
-        "Clipboard access was unavailable. The extracted text is ready and can still be used.",
-        "Δεν ήταν διαθέσιμη η πρόσβαση στο πρόχειρο. Το εξαγόμενο κείμενο είναι έτοιμο και μπορεί να χρησιμοποιηθεί.",
+        "The extracted text is ready to use.",
+        "Το εξαγόμενο κείμενο είναι έτοιμο για χρήση.",
       );
 }
 
@@ -295,14 +319,14 @@ export function AssistantReviewStep({
 
         {popupFailed ? (
           <a
-            className="button secondary assistant-secondary-action assistant-popup-fallback"
+            className="assistant-popup-fallback"
             href={popupResult.url}
             rel="noopener noreferrer"
             target="_blank"
           >
             {text(
-              "Continue in the StudyApp AI Assistant",
-              "Συνέχισε στο StudyApp AI Assistant",
+              "Open the StudyApp AI Assistant manually",
+              "Άνοιξε το StudyApp AI Assistant χειροκίνητα",
             )}
           </a>
         ) : null}
@@ -421,10 +445,7 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
 
       setMaterial(result.text);
       setImportedFileName(file.name);
-      const copied = await copyToClipboard(result.text);
-      if (importAttemptRef.current !== importAttempt) return;
-
-      setMessage(getAssistantImportStatusMessage(copied, result.truncated, text));
+      setMessage(getAssistantImportStatusMessage(result.truncated, text));
     } catch (error) {
       if (importAttemptRef.current !== importAttempt) return;
 
@@ -452,24 +473,13 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
     setIsImporting(false);
   }
 
-  async function continueFromMaterial() {
+  function continueFromMaterial() {
     if (!material.trim()) {
       setMessage(text("Add study text first.", "Πρόσθεσε πρώτα υλικό μελέτης."));
       return;
     }
 
-    const copied = await copyToClipboard(material);
-    setMessage(
-      copied
-        ? text(
-            "Study material copied to the clipboard.",
-            "Το υλικό μελέτης αντιγράφηκε στο πρόχειρο.",
-          )
-        : text(
-            "Clipboard access was unavailable. You can still continue.",
-            "Δεν ήταν διαθέσιμη η πρόσβαση στο πρόχειρο. Μπορείς να συνεχίσεις.",
-          ),
-    );
+    setMessage("");
     setScreen(moveCompanionStep("material", "next"));
   }
 
@@ -567,16 +577,16 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
               <ol className="assistant-onboarding-steps">
                 {[
                   text(
-                    "Add or import the study text you choose.",
-                    "Πρόσθεσε ή εισήγαγε το υλικό μελέτης που επιλέγεις.",
+                    "Add or import the study material you want to use.",
+                    "Πρόσθεσε ή εισήγαγε το υλικό μελέτης που θέλεις να χρησιμοποιήσεις.",
                   ),
                   text(
-                    "Choose what you want ChatGPT to do.",
-                    "Επίλεξε τι θέλεις να κάνει το ChatGPT.",
+                    "Choose what you want the StudyApp AI Assistant to do.",
+                    "Επίλεξε τι θέλεις να κάνει το StudyApp AI Assistant.",
                   ),
                   text(
-                    "Open the StudyApp AI Assistant and paste the prepared request.",
-                    "Άνοιξε το StudyApp AI Assistant και επικόλλησε το έτοιμο αίτημα.",
+                    "Paste the prepared request into the StudyApp AI Assistant.",
+                    "Επικόλλησε το έτοιμο αίτημα στο StudyApp AI Assistant.",
                   ),
                 ].map((step, index) => (
                   <li key={step}>
@@ -806,7 +816,7 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
                 <button
                   className="button primary"
                   disabled={!material.trim() || isImporting}
-                  onClick={() => void continueFromMaterial()}
+                  onClick={continueFromMaterial}
                   type="button"
                 >
                   {text("Continue", "Συνέχεια")}
