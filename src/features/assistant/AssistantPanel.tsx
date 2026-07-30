@@ -1,64 +1,74 @@
-import { useEffect, useRef, useState } from "react";
-import {
-  getCloudCoreConnectionLabel,
-  type CloudCoreConnectionState,
-} from "../../infrastructure/cloud-core/useCloudCoreConnection";
-import {
-  assistantSources,
-  assistantTasks,
-  buyTestCredits,
-  creditPackages,
-  getTask,
-  mockWalletStorageKey,
-  parseStoredMockWallet,
-  spendTestCredits,
-  type AssistantSourceId,
-  type AssistantTaskId,
-  type MockWallet,
-} from "./mockAssistant";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLanguage, type AppLanguage } from "../../i18n/LanguageContext";
 
-type AssistantScreen = "home" | "source" | "review" | "processing" | "result" | "wallet";
+type AssistantScreen = "modes" | "tasks" | "companion";
+type CompanionTaskId = "ask" | "flashcards" | "quiz" | "summarize" | "explain";
 
 interface AssistantPanelProps {
-  connectionState: CloudCoreConnectionState;
-  onCheckConnection: () => Promise<void>;
   open: boolean;
   onClose: () => void;
 }
 
-function readWallet(): MockWallet {
-  if (typeof window === "undefined") {
-    return parseStoredMockWallet(null);
-  }
-  return parseStoredMockWallet(window.localStorage.getItem(mockWalletStorageKey));
+const companionTasks: readonly {
+  id: CompanionTaskId;
+  en: string;
+  el: string;
+}[] = [
+  { id: "ask", en: "Ask a question", el: "Κάνε μια ερώτηση" },
+  { id: "flashcards", en: "Create flashcards", el: "Δημιούργησε κάρτες" },
+  { id: "quiz", en: "Create a quiz", el: "Δημιούργησε κουίζ" },
+  { id: "summarize", en: "Summarize", el: "Κάνε περίληψη" },
+  { id: "explain", en: "Explain a concept", el: "Εξήγησε μια έννοια" },
+] as const;
+
+function buildCompanionPrompt(
+  taskId: CompanionTaskId,
+  material: string,
+  language: AppLanguage,
+): string {
+  const instructions: Record<CompanionTaskId, { en: string; el: string }> = {
+    ask: {
+      en: "Answer my question using only the study material below. If information is missing, say so clearly.",
+      el: "Απάντησε στην ερώτησή μου χρησιμοποιώντας μόνο το παρακάτω υλικό. Αν λείπουν πληροφορίες, ανέφερέ το καθαρά.",
+    },
+    flashcards: {
+      en: "Create 10 concise study flashcards from the material below. Use a clear Question / Answer format.",
+      el: "Δημιούργησε 10 σύντομες κάρτες μελέτης από το παρακάτω υλικό, σε μορφή Ερώτηση / Απάντηση.",
+    },
+    quiz: {
+      en: "Create a 10-question multiple-choice quiz from the material below. Include the correct answer and a short explanation.",
+      el: "Δημιούργησε κουίζ 10 ερωτήσεων πολλαπλής επιλογής από το παρακάτω υλικό. Πρόσθεσε τη σωστή απάντηση και σύντομη εξήγηση.",
+    },
+    summarize: {
+      en: "Summarize the study material below into clear headings and key points.",
+      el: "Σύνοψε το παρακάτω υλικό με σαφείς τίτλους και βασικά σημεία.",
+    },
+    explain: {
+      en: "Explain the main concept in the study material below simply, with one useful example.",
+      el: "Εξήγησε απλά τη βασική έννοια του παρακάτω υλικού και δώσε ένα χρήσιμο παράδειγμα.",
+    },
+  };
+
+  const instruction = instructions[taskId][language];
+  const responseLanguage = language === "el"
+    ? "Απάντησε στα ελληνικά."
+    : "Answer in English.";
+
+  return `${instruction}\n\n${responseLanguage}\n\nSTUDY MATERIAL:\n${material.trim()}`;
 }
 
-function formatCredits(value: number): string {
-  return new Intl.NumberFormat("en-GB").format(value);
-}
-
-export function AssistantPanel({
-  connectionState,
-  onCheckConnection,
-  open,
-  onClose,
-}: AssistantPanelProps) {
+export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
+  const { language, text } = useLanguage();
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
-  const [screen, setScreen] = useState<AssistantScreen>("home");
-  const [taskId, setTaskId] = useState<AssistantTaskId | null>(null);
-  const [sourceId, setSourceId] = useState<AssistantSourceId>("paste-text");
-  const [manualText, setManualText] = useState("");
-  const [wallet, setWallet] = useState<MockWallet>(readWallet);
+  const [screen, setScreen] = useState<AssistantScreen>("modes");
+  const [taskId, setTaskId] = useState<CompanionTaskId>("ask");
+  const [material, setMaterial] = useState("");
   const [message, setMessage] = useState("");
 
-  const task = taskId ? getTask(taskId) : null;
-  const source = assistantSources.find((candidate) => candidate.id === sourceId);
-  const serviceStatusLabel = getCloudCoreConnectionLabel(connectionState);
-  const servicesAvailable = connectionState.status === "available";
-
-  useEffect(() => {
-    window.localStorage.setItem(mockWalletStorageKey, JSON.stringify(wallet));
-  }, [wallet]);
+  const prompt = useMemo(
+    () => material.trim() ? buildCompanionPrompt(taskId, material, language) : "",
+    [language, material, taskId],
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -76,72 +86,38 @@ export function AssistantPanel({
     };
   }, [onClose, open]);
 
-  useEffect(() => {
-    if (screen !== "processing" || !task || !servicesAvailable) return;
-
-    const timeout = window.setTimeout(() => {
-      setWallet((currentWallet) => spendTestCredits(currentWallet, task));
-      setScreen("result");
-      setMessage(`${task.estimatedCredits} test credits used. No real AI request was made.`);
-    }, 900);
-
-    return () => window.clearTimeout(timeout);
-  }, [screen, servicesAvailable, task]);
-
-  useEffect(() => {
-    if (screen === "processing" && connectionState.status === "unavailable") {
-      setScreen("review");
-      setMessage("AI services became unavailable. Your request was not run and no credits were used.");
-    }
-  }, [connectionState.status, screen]);
-
   if (!open) return null;
 
-  function selectTask(nextTaskId: AssistantTaskId) {
-    if (!servicesAvailable) {
-      setMessage("AI services are temporarily unavailable. Check the connection and try again.");
-      return;
-    }
-
-    setTaskId(nextTaskId);
-    setSourceId("paste-text");
-    setManualText("");
-    setMessage("");
-    setScreen("source");
-  }
-
-  function startMockTask() {
-    if (!task) return;
-    if (!servicesAvailable) {
-      setMessage("AI services are temporarily unavailable. Check the connection and try again.");
-      return;
-    }
-    if (wallet.balance < task.estimatedCredits) {
-      setMessage("Not enough test credits. Add a mock credit package to continue.");
-      setScreen("wallet");
-      return;
-    }
-    setMessage("");
-    setScreen("processing");
-  }
-
-  function purchase(euroAmount: number) {
-    const creditPackage = creditPackages.find((candidate) => candidate.euroAmount === euroAmount);
-    if (!creditPackage) return;
-    setWallet((currentWallet) => buyTestCredits(currentWallet, creditPackage));
+  function showComingSoon(isPaid = false) {
     setMessage(
-      `Mock purchase completed: €${creditPackage.euroAmount} added ${formatCredits(creditPackage.testCredits)} test credits.`,
+      isPaid
+        ? text("Coming soon — no charges yet.", "Σύντομα — δεν γίνεται χρέωση ακόμη.")
+        : text("Coming soon.", "Σύντομα."),
     );
   }
 
-  async function copyResult() {
-    if (!task) return;
-    try {
-      await navigator.clipboard.writeText(`${task.resultTitle}\n\n${task.resultBody}`);
-      setMessage("Mock result copied.");
-    } catch {
-      setMessage("The browser could not copy the mock result.");
+  function selectTask(nextTaskId: CompanionTaskId) {
+    setTaskId(nextTaskId);
+    setMessage("");
+    setScreen("companion");
+  }
+
+  async function copyPrompt() {
+    if (!prompt) {
+      setMessage(text("Add study text first.", "Πρόσθεσε πρώτα υλικό μελέτης."));
+      return;
     }
+
+    try {
+      await navigator.clipboard.writeText(prompt);
+      setMessage(text("Prompt copied.", "Το prompt αντιγράφηκε."));
+    } catch {
+      setMessage(text("Copy failed.", "Η αντιγραφή απέτυχε."));
+    }
+  }
+
+  function openChatGpt() {
+    window.open("https://chatgpt.com/", "_blank", "noopener,noreferrer");
   }
 
   return (
@@ -154,21 +130,14 @@ export function AssistantPanel({
       >
         <header className="assistant-header">
           <div className="assistant-identity">
-            <img alt="Study Assistant" className="assistant-avatar-small" src="/study-assistant-avatar.svg" />
+            <img alt="" className="assistant-avatar-small" src="/study-assistant-avatar.svg" />
             <div>
               <p className="assistant-kicker">StudyApp</p>
-              <h2 id="assistant-title">AI Assistant</h2>
-              <p className="assistant-service-line" role="status" aria-live="polite">
-                <span
-                  aria-hidden="true"
-                  className={`assistant-service-dot assistant-service-dot-${connectionState.status}`}
-                />
-                <span>AI services: {serviceStatusLabel}</span>
-              </p>
+              <h2 id="assistant-title">{text("AI Assistant", "Βοηθός AI")}</h2>
             </div>
           </div>
           <button
-            aria-label="Close AI Assistant"
+            aria-label={text("Close AI Assistant", "Κλείσιμο Βοηθού AI")}
             className="assistant-close"
             onClick={onClose}
             ref={closeButtonRef}
@@ -178,216 +147,94 @@ export function AssistantPanel({
           </button>
         </header>
 
-        <div className="assistant-toolbar">
-          <span className="assistant-test-badge">TEST MODE · NO REAL CHARGE</span>
-          <button className="assistant-balance" onClick={() => setScreen("wallet")} type="button">
-            {formatCredits(wallet.balance)} test credits
-          </button>
-        </div>
-
-        {connectionState.status !== "available" && (
-          <div
-            className={`assistant-service-banner assistant-service-banner-${connectionState.status}`}
-            role="status"
-            aria-live="polite"
-          >
-            <div>
-              <strong>
-                {connectionState.status === "checking"
-                  ? "Checking AI services…"
-                  : "AI services are temporarily unavailable."}
-              </strong>
-              <span>
-                {connectionState.status === "checking"
-                  ? "The assistant will be ready when the connection check completes."
-                  : "The assistant can still open, and your local StudyApp data remains available."}
-              </span>
-            </div>
-            {connectionState.status === "unavailable" && (
-              <button
-                className="button secondary"
-                onClick={() => void onCheckConnection()}
-                type="button"
-              >
-                Check again
-              </button>
-            )}
-          </div>
-        )}
-
         <div className="assistant-content">
-          {screen === "home" && (
+          {screen === "modes" && (
             <section className="assistant-welcome">
-              <img alt="Study Assistant waving" className="assistant-avatar-hero" src="/study-assistant-avatar.svg" />
-              <p className="eyebrow">Free reception</p>
-              <h3>Hello! I’m your Study Assistant.</h3>
-              <p>Choose what you want to preview. This version uses mock AI and mock payments only.</p>
+              <img alt="" className="assistant-avatar-hero" src="/study-assistant-avatar.svg" />
+              <p className="eyebrow">{text("Choose mode", "Επίλεξε τρόπο")}</p>
+              <h3>{text("How do you want to use AI?", "Πώς θέλεις να χρησιμοποιήσεις το AI;")}</h3>
+
+              <div className="assistant-mode-grid">
+                <button className="assistant-mode-card" onClick={() => { setMessage(""); setScreen("tasks"); }} type="button">
+                  <span className="assistant-mode-status available">{text("Available", "Διαθέσιμο")}</span>
+                  <strong>ChatGPT Companion</strong>
+                  <small>{text("Copy a prompt and open ChatGPT.", "Αντιγραφή prompt και άνοιγμα ChatGPT.")}</small>
+                </button>
+
+                <button className="assistant-mode-card" onClick={() => showComingSoon()} type="button">
+                  <span className="assistant-mode-status soon">{text("Coming soon", "Σύντομα")}</span>
+                  <strong>ChatGPT App / MCP</strong>
+                  <small>{text("Use StudyApp inside ChatGPT.", "Χρήση του StudyApp μέσα στο ChatGPT.")}</small>
+                </button>
+
+                <button className="assistant-mode-card" onClick={() => showComingSoon(true)} type="button">
+                  <span className="assistant-mode-status soon">{text("Coming soon", "Σύντομα")}</span>
+                  <strong>StudyApp AI</strong>
+                  <small>{text("Automatic AI with StudyApp credits.", "Αυτόματο AI με credits του StudyApp.")}</small>
+                </button>
+              </div>
+            </section>
+          )}
+
+          {screen === "tasks" && (
+            <section>
+              <button className="assistant-back" onClick={() => setScreen("modes")} type="button">
+                ← {text("Back", "Πίσω")}
+              </button>
+              <p className="eyebrow">ChatGPT Companion</p>
+              <h3>{text("Choose a task", "Επίλεξε εργασία")}</h3>
               <div className="assistant-task-grid">
-                {assistantTasks.map((candidate) => (
+                {companionTasks.map((task) => (
                   <button
                     className="assistant-task-card"
-                    disabled={!servicesAvailable}
-                    key={candidate.id}
-                    onClick={() => selectTask(candidate.id)}
+                    key={task.id}
+                    onClick={() => selectTask(task.id)}
                     type="button"
                   >
-                    <strong>{candidate.label}</strong>
-                    <span>{candidate.description}</span>
-                    <small>Up to {candidate.estimatedCredits} test credits</small>
+                    <strong>{text(task.en, task.el)}</strong>
                   </button>
                 ))}
               </div>
-              <button className="button secondary" onClick={() => setScreen("wallet")} type="button">
-                Credits & mock payments
-              </button>
             </section>
           )}
 
-          {screen === "source" && task && (
+          {screen === "companion" && (
             <section>
-              <button className="assistant-back" onClick={() => setScreen("home")} type="button">← Back</button>
-              <p className="eyebrow">Choose material</p>
-              <h3>{task.label}</h3>
-              <p>Only material you explicitly choose will be eligible for a future AI request.</p>
-              <fieldset className="assistant-source-list">
-                <legend>Use</legend>
-                {assistantSources.map((candidate) => (
-                  <label className="assistant-source-option" key={candidate.id}>
-                    <input
-                      checked={sourceId === candidate.id}
-                      name="assistant-source"
-                      onChange={() => setSourceId(candidate.id)}
-                      type="radio"
-                    />
-                    <span>
-                      <strong>{candidate.label}</strong>
-                      <small>{candidate.description}</small>
-                    </span>
-                  </label>
-                ))}
-              </fieldset>
-              {sourceId === "paste-text" && (
-                <label className="field-label assistant-paste-field">
-                  Text for the UI preview
-                  <textarea
-                    maxLength={6_000}
-                    onChange={(event) => setManualText(event.target.value)}
-                    placeholder="Paste a short passage, or leave empty to use placeholder text in this mock preview."
-                    rows={6}
-                    value={manualText}
-                  />
-                  <span className="field-help">Nothing entered here is sent to the server in mock mode.</span>
+              <button className="assistant-back" onClick={() => setScreen("tasks")} type="button">
+                ← {text("Back", "Πίσω")}
+              </button>
+              <p className="eyebrow">ChatGPT Companion</p>
+              <h3>{text(
+                companionTasks.find((task) => task.id === taskId)?.en ?? "Task",
+                companionTasks.find((task) => task.id === taskId)?.el ?? "Εργασία",
+              )}</h3>
+
+              <label className="field-label assistant-paste-field">
+                {text("Study text", "Υλικό μελέτης")}
+                <textarea
+                  maxLength={12_000}
+                  onChange={(event) => setMaterial(event.target.value)}
+                  placeholder={text("Paste the text you want to use", "Επικόλλησε το κείμενο που θέλεις να χρησιμοποιήσεις")}
+                  rows={8}
+                  value={material}
+                />
+              </label>
+
+              {prompt && (
+                <label className="field-label assistant-prompt-preview">
+                  {text("Prepared prompt", "Έτοιμο prompt")}
+                  <textarea readOnly rows={10} value={prompt} />
                 </label>
               )}
-              <div className="assistant-actions">
-                <button className="button secondary" onClick={() => setScreen("home")} type="button">Cancel</button>
-                <button className="button primary" onClick={() => setScreen("review")} type="button">Review request</button>
-              </div>
-            </section>
-          )}
 
-          {screen === "review" && task && source && (
-            <section>
-              <button className="assistant-back" onClick={() => setScreen("source")} type="button">← Back</button>
-              <p className="eyebrow">Confirm mock request</p>
-              <h3>Review before continuing</h3>
-              <dl className="assistant-review-list">
-                <div><dt>Task</dt><dd>{task.label}</dd></div>
-                <div><dt>Material</dt><dd>{source.label}</dd></div>
-                <div><dt>AI mode</dt><dd>Mock</dd></div>
-                <div><dt>Cloud services</dt><dd>{serviceStatusLabel}</dd></div>
-                <div><dt>Estimated cost</dt><dd>Up to {task.estimatedCredits} test credits</dd></div>
-                <div><dt>Current balance</dt><dd>{formatCredits(wallet.balance)} test credits</dd></div>
-              </dl>
-              <div className="assistant-privacy-note">
-                <strong>Mock preview:</strong> no real AI call, payment or study-content upload will occur.
-              </div>
               <div className="assistant-actions">
-                <button className="button secondary" onClick={() => setScreen("source")} type="button">Edit</button>
-                <button
-                  className="button primary"
-                  disabled={!servicesAvailable}
-                  onClick={startMockTask}
-                  type="button"
-                >
-                  Run mock task
+                <button className="button primary" onClick={() => void copyPrompt()} type="button">
+                  {text("Copy prompt", "Αντιγραφή prompt")}
+                </button>
+                <button className="button secondary" onClick={openChatGpt} type="button">
+                  {text("Open ChatGPT", "Άνοιγμα ChatGPT")}
                 </button>
               </div>
-            </section>
-          )}
-
-          {screen === "processing" && task && (
-            <section className="assistant-processing" aria-live="polite">
-              <img alt="" className="assistant-avatar-processing" src="/study-assistant-avatar.svg" />
-              <div className="assistant-spinner" aria-hidden="true" />
-              <p className="eyebrow">Mock processing</p>
-              <h3>{task.label}</h3>
-              <p>Preparing a sample result without contacting a real AI provider.</p>
-              <button className="button secondary" onClick={() => setScreen("review")} type="button">Cancel</button>
-            </section>
-          )}
-
-          {screen === "result" && task && (
-            <section>
-              <p className="eyebrow">Mock result</p>
-              <h3>{task.resultTitle}</h3>
-              <article className="assistant-result-card">
-                <p>{task.resultBody}</p>
-                {manualText.trim() && (
-                  <blockquote>{manualText.trim().slice(0, 240)}{manualText.trim().length > 240 ? "…" : ""}</blockquote>
-                )}
-              </article>
-              <div className="assistant-result-actions">
-                <button className="button primary" onClick={() => setMessage(`${task.saveLabel} selected. No local data was changed in this UI preview.`)} type="button">
-                  {task.saveLabel}
-                </button>
-                <button className="button secondary" onClick={() => void copyResult()} type="button">Copy</button>
-                <button className="button secondary" onClick={() => setScreen("source")} type="button">Try again</button>
-                <button className="button secondary" onClick={() => { setTaskId(null); setScreen("home"); }} type="button">New task</button>
-              </div>
-            </section>
-          )}
-
-          {screen === "wallet" && (
-            <section>
-              <button className="assistant-back" onClick={() => setScreen(task ? "review" : "home")} type="button">← Back</button>
-              <p className="eyebrow">Credits & payments</p>
-              <h3>{formatCredits(wallet.balance)} test credits</h3>
-              <div className="assistant-privacy-note">
-                <strong>TEST MODE — NO REAL CHARGE.</strong> No card, subscription or automatic renewal is used.
-              </div>
-              <p className="assistant-wallet-explainer">
-                Packages below simulate the final purchase flow. Test credits include the agreed 15% safety reserve; mock provider fee is €0.
-              </p>
-              <div className="assistant-package-grid">
-                {creditPackages.map((creditPackage) => (
-                  <button
-                    className="assistant-package-card"
-                    key={creditPackage.euroAmount}
-                    onClick={() => purchase(creditPackage.euroAmount)}
-                    type="button"
-                  >
-                    <strong>€{creditPackage.euroAmount}</strong>
-                    <span>{formatCredits(creditPackage.testCredits)} test credits</span>
-                    <small>Simulate purchase</small>
-                  </button>
-                ))}
-              </div>
-              <h4>Recent test activity</h4>
-              {wallet.ledger.length === 0 ? (
-                <p>No mock purchases or AI usage yet.</p>
-              ) : (
-                <ul className="assistant-ledger">
-                  {wallet.ledger.slice(0, 8).map((entry) => (
-                    <li key={entry.id}>
-                      <span>{entry.description}</span>
-                      <strong className={entry.credits >= 0 ? "credit-positive" : "credit-negative"}>
-                        {entry.credits >= 0 ? "+" : ""}{formatCredits(entry.credits)}
-                      </strong>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </section>
           )}
 
