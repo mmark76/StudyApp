@@ -33,6 +33,9 @@ The Companion:
 - does not send content automatically;
 - does not access the StudyApp library or local database;
 - does not charge StudyApp credits;
+- validates the configured destination before opening it;
+- keeps the prepared request visible for manual copy when clipboard or popup
+  access fails;
 - requires the user to paste the prepared request into ChatGPT.
 
 ### ChatGPT App / MCP — coming soon
@@ -71,6 +74,10 @@ The JSON backup includes progress, sessions, supported settings, imported
 chapters and flashcards, and saved links. It does **not** include uploaded or
 generated file blobs. See [`BACKUP_AND_DATA_SAFETY.md`](BACKUP_AND_DATA_SAFETY.md).
 
+Flashcard and review progress, session counters and their internal idempotency
+records are committed together in IndexedDB transactions. A failed write leaves
+the last successfully committed study state available for retry.
+
 ## Supported local files
 
 StudyApp accepts PDF, DOC, DOCX, TXT, Markdown, CSV, PNG, JPEG, WebP and GIF after
@@ -85,7 +92,8 @@ significantly mismatched file types are rejected.
 - Browser popup settings may affect the size or position of the assistant window.
 - ChatGPT App / MCP is not active yet.
 - StudyApp AI, real credits and payments are not active yet.
-- Complete local-file export/import and broader browser tests remain future work.
+- Complete local-file export/import and broader cross-browser coverage remain
+  future work.
 
 ## Project guidance
 

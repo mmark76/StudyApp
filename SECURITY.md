@@ -48,11 +48,15 @@ The Companion must not:
 
 The Custom GPT URL is public configuration through
 `VITE_STUDYAPP_AI_ASSISTANT_URL`. It must be an approved HTTPS ChatGPT share URL
-and must not contain credentials, tokens or private query data.
+and must not contain credentials, tokens or private query data. Runtime
+validation rejects other protocols, hostnames, embedded credentials and custom
+ports before `window.open` is called.
 
 Clipboard and popup failures must be handled with short user-facing messages.
-The user remains responsible for reviewing and pasting the prepared request into
-ChatGPT.
+Their outcomes remain independent: neither clipboard success nor popup success
+may imply the other. The prepared prompt remains visible for manual copying, and
+blocked or invalid popup destinations retain a safe fallback link. The user
+remains responsible for reviewing and pasting the prepared request into ChatGPT.
 
 ## ChatGPT App / MCP security gate
 
@@ -156,6 +160,14 @@ browser-storage warnings visible.
 - Do not imply that AI or Cloud Core provides backup or sync.
 - Do not include local file blobs unless the schema and interface say so.
 - Never upload a backup as an AI implementation shortcut.
+
+## Study progress integrity
+
+- Card progress, session counters and idempotency records must be written in one
+  IndexedDB transaction.
+- Stable operation IDs must make retries safe after ambiguous client results.
+- Completion UI must follow a committed result, never an optimistic counter.
+- Failed writes must preserve the last committed progress and active session.
 
 ## PWA updates
 

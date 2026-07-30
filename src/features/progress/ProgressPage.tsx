@@ -98,10 +98,17 @@ export function ProgressPage() {
 
   async function resetProgress() {
     if (!window.confirm(text("Remove all study progress from this device?", "Να διαγραφεί όλη η πρόοδος από αυτή τη συσκευή;"))) return;
-    await studyDatabase.transaction("rw", studyDatabase.cardProgress, studyDatabase.studySessions, async () => {
-      await studyDatabase.cardProgress.clear();
-      await studyDatabase.studySessions.clear();
-    });
+    await studyDatabase.transaction(
+      "rw",
+      studyDatabase.cardProgress,
+      studyDatabase.studyOperations,
+      studyDatabase.studySessions,
+      async () => {
+        await studyDatabase.cardProgress.clear();
+        await studyDatabase.studyOperations.clear();
+        await studyDatabase.studySessions.clear();
+      },
+    );
     setMessage(text("Study progress removed.", "Η πρόοδος διαγράφηκε."));
   }
 

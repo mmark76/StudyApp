@@ -10,8 +10,13 @@ import {
   ASSISTANT_IMPORT_ACCEPT,
   extractAssistantMaterial,
 } from "./assistantMaterialImport";
+import {
+  openStudyAppAssistant,
+  type AssistantPopupResult,
+} from "./assistantPopupPositioning";
 
-type AssistantScreen = "intro" | "modes" | "material" | "goal" | "review";
+type AssistantScreen = "intro" | "modes" | CompanionStepScreen;
+export type CompanionStepScreen = "material" | "goal" | "review";
 type CompanionTaskId = "explain" | "summarize" | "flashcards" | "quiz" | "custom";
 
 interface AssistantPanelProps {
@@ -79,6 +84,26 @@ const STUDYAPP_AI_ASSISTANT_URL =
   (import.meta.env as Record<string, string | undefined>)
     .VITE_STUDYAPP_AI_ASSISTANT_URL?.trim() || "https://chatgpt.com/";
 
+const companionStepSequence: readonly CompanionStepScreen[] = [
+  "material",
+  "goal",
+  "review",
+];
+
+export function moveCompanionStep(
+  current: CompanionStepScreen,
+  direction: "back" | "next",
+): CompanionStepScreen {
+  const currentIndex = companionStepSequence.indexOf(current);
+  const offset = direction === "next" ? 1 : -1;
+  const nextIndex = Math.min(
+    companionStepSequence.length - 1,
+    Math.max(0, currentIndex + offset),
+  );
+
+  return companionStepSequence[nextIndex];
+}
+
 export function buildCompanionPrompt(
   taskId: CompanionTaskId,
   material: string,
@@ -98,82 +123,220 @@ export function buildCompanionPrompt(
   return lines.join("\n");
 }
 
-function openAttachedStudyAppAssistant(): void {
-  const availableWidth = window.screen.availWidth || window.outerWidth;
-  const availableHeight = window.screen.availHeight || window.outerHeight;
-  const popupWidth = Math.min(560, Math.max(360, availableWidth - 40));
-  const popupHeight = Math.min(720, Math.max(480, availableHeight - 80));
-  const panelRect = document
-    .querySelector<HTMLElement>(".assistant-panel")
-    ?.getBoundingClientRect();
+type ClipboardWriter = (value: string) => Promise<void>;
 
-  const horizontalBrowserChrome = Math.max(
-    0,
-    (window.outerWidth - window.innerWidth) / 2,
-  );
-  const verticalBrowserChrome = Math.max(
-    0,
-    window.outerHeight - window.innerHeight - horizontalBrowserChrome,
-  );
-  const viewportScreenLeft = window.screenX + horizontalBrowserChrome;
-  const viewportScreenTop = window.screenY + verticalBrowserChrome;
-  const gap = 12;
-
-  const desiredLeft = panelRect
-    ? viewportScreenLeft + panelRect.left - popupWidth - gap
-    : viewportScreenLeft + window.innerWidth - popupWidth - 420 - gap;
-  const desiredTop = panelRect
-    ? viewportScreenTop + panelRect.top
-    : viewportScreenTop + 24;
-
-  const positionedScreen = window.screen as Screen & {
-    availLeft?: number;
-    availTop?: number;
-  };
-  const minimumLeft = positionedScreen.availLeft ?? 0;
-  const minimumTop = positionedScreen.availTop ?? 0;
-  const maximumLeft = Math.max(
-    minimumLeft,
-    minimumLeft + availableWidth - popupWidth,
-  );
-  const maximumTop = Math.max(
-    minimumTop,
-    minimumTop + availableHeight - popupHeight,
-  );
-  const left = Math.round(
-    Math.min(maximumLeft, Math.max(minimumLeft, desiredLeft)),
-  );
-  const top = Math.round(
-    Math.min(maximumTop, Math.max(minimumTop, desiredTop)),
-  );
-
-  window.open(
-    STUDYAPP_AI_ASSISTANT_URL,
-    "studyapp-ai-assistant",
-    [
-      "popup=yes",
-      `width=${popupWidth}`,
-      `height=${popupHeight}`,
-      `left=${left}`,
-      `top=${top}`,
-      "noopener",
-      "noreferrer",
-    ].join(","),
-  );
-}
-
-async function copyToClipboard(value: string): Promise<boolean> {
+export async function copyToClipboard(
+  value: string,
+  writeText: ClipboardWriter = (text) => navigator.clipboard.writeText(text),
+): Promise<boolean> {
   try {
-    await navigator.clipboard.writeText(value.trim());
+    await writeText(value.trim());
     return true;
   } catch {
     return false;
   }
 }
 
+type AssistantText = (english: string, greek: string) => string;
+export type ClipboardOutcome = "idle" | "copied" | "failed";
+type AssistantFileAction = "choose" | "replace";
+
+interface AssistantFileButtonProps {
+  action: AssistantFileAction;
+  isImporting: boolean;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  text: AssistantText;
+}
+
+export function AssistantFileButton({
+  action,
+  isImporting,
+  onChange,
+  text,
+}: AssistantFileButtonProps) {
+  const inputId = `assistant-${action}-file`;
+  const actionLabel =
+    action === "replace"
+      ? text("Replace file", "Αντικατάσταση αρχείου")
+      : text("Choose file", "Επιλογή αρχείου");
+
+  return (
+    <label
+      aria-busy={isImporting}
+      aria-disabled={isImporting}
+      className="button secondary assistant-secondary-action assistant-file-button"
+      htmlFor={inputId}
+    >
+      {isImporting ? text("Reading...", "Ανάγνωση...") : actionLabel}
+      <input
+        accept={ASSISTANT_IMPORT_ACCEPT}
+        disabled={isImporting}
+        id={inputId}
+        type="file"
+        onChange={onChange}
+      />
+    </label>
+  );
+}
+
+export function getAssistantPopupStatusMessage(
+  popupResult: AssistantPopupResult,
+  text: AssistantText,
+): string {
+  if (popupResult.status === "invalid-url") {
+    return text(
+      "The configured assistant link is not allowed, so no popup was opened. Use the safe fallback link below.",
+      "Ο ρυθμισμένος σύνδεσμος του βοηθού δεν επιτρέπεται και δεν άνοιξε αναδυόμενο παράθυρο. Χρησιμοποίησε τον ασφαλή σύνδεσμο παρακάτω.",
+    );
+  }
+
+  if (popupResult.status === "blocked") {
+    return text(
+      "The assistant popup was blocked. Use the fallback link below.",
+      "Το αναδυόμενο παράθυρο του βοηθού αποκλείστηκε. Χρησιμοποίησε τον σύνδεσμο παρακάτω.",
+    );
+  }
+
+  return text(
+    "The StudyApp AI Assistant popup opened.",
+    "Το αναδυόμενο παράθυρο του StudyApp AI Assistant άνοιξε.",
+  );
+}
+
+export function getAssistantClipboardStatusMessage(
+  clipboardOutcome: Exclude<ClipboardOutcome, "idle">,
+  text: AssistantText,
+): string {
+  return clipboardOutcome === "copied"
+    ? text(
+        "The request was copied. Paste it into the assistant window.",
+        "Το αίτημα αντιγράφηκε. Επικόλλησέ το στο παράθυρο του βοηθού.",
+      )
+    : text(
+        "Clipboard access failed. The prepared request remains available below for manual copy and paste.",
+        "Η πρόσβαση στο πρόχειρο απέτυχε. Το έτοιμο αίτημα παραμένει διαθέσιμο παρακάτω για χειροκίνητη αντιγραφή και επικόλληση.",
+      );
+}
+
+export function getAssistantImportStatusMessage(
+  copied: boolean,
+  truncated: boolean,
+  text: AssistantText,
+): string {
+  if (copied) {
+    return text(
+      "The extracted text was copied to the clipboard.",
+      "Το εξαγόμενο κείμενο αντιγράφηκε στο πρόχειρο.",
+    );
+  }
+
+  return truncated
+    ? text(
+        "Clipboard access was unavailable. The first 12,000 extracted characters are ready and can still be used.",
+        "Δεν ήταν διαθέσιμη η πρόσβαση στο πρόχειρο. Οι πρώτοι 12.000 χαρακτήρες του εξαγόμενου κειμένου είναι έτοιμοι και μπορούν να χρησιμοποιηθούν.",
+      )
+    : text(
+        "Clipboard access was unavailable. The extracted text is ready and can still be used.",
+        "Δεν ήταν διαθέσιμη η πρόσβαση στο πρόχειρο. Το εξαγόμενο κείμενο είναι έτοιμο και μπορεί να χρησιμοποιηθεί.",
+      );
+}
+
+interface AssistantReviewStepProps {
+  clipboardOutcome: ClipboardOutcome;
+  onBack: () => void;
+  popupResult: AssistantPopupResult;
+  preparedPrompt: string;
+  text: AssistantText;
+}
+
+export function AssistantReviewStep({
+  clipboardOutcome,
+  onBack,
+  popupResult,
+  preparedPrompt,
+  text,
+}: AssistantReviewStepProps) {
+  const popupFailed = popupResult.status !== "opened";
+
+  return (
+    <>
+      <section>
+        <button
+          className="assistant-back"
+          onClick={onBack}
+          type="button"
+        >
+          ←{" "}
+          {text(
+            "Back to previous step",
+            "Πίσω στο προηγούμενο βήμα",
+          )}
+        </button>
+        <p className="assistant-progress">
+          {text("Step 3 of 3", "Βήμα 3 από 3")}
+        </p>
+        <h3 className="assistant-review-heading">
+          {text(
+            "Continue in the StudyApp AI Assistant",
+            "Συνέχισε στο StudyApp AI Assistant",
+          )}
+        </h3>
+        <p className="assistant-step-intro">
+          {popupFailed
+            ? text(
+                "Open the assistant with the safe link below, then paste the prepared request manually.",
+                "Άνοιξε τον βοηθό από τον ασφαλή σύνδεσμο παρακάτω και μετά επικόλλησε χειροκίνητα το έτοιμο αίτημα.",
+              )
+            : text(
+                "The assistant window opened beside this panel. Paste the copied request into its message box.",
+                "Το παράθυρο του βοηθού άνοιξε δίπλα σε αυτό το panel. Επικόλλησε το αντιγραμμένο αίτημα στο πεδίο μηνύματός του.",
+              )}
+        </p>
+
+        {popupFailed ? (
+          <a
+            className="button secondary assistant-secondary-action assistant-popup-fallback"
+            href={popupResult.url}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            {text(
+              "Continue in the StudyApp AI Assistant",
+              "Συνέχισε στο StudyApp AI Assistant",
+            )}
+          </a>
+        ) : null}
+
+        <label className="field-label assistant-prompt-preview">
+          {text("Prepared request", "Έτοιμο αίτημα")}
+          <textarea readOnly rows={10} value={preparedPrompt} />
+          <small>
+            {text(
+              "You can always select, copy and paste this request manually.",
+              "Μπορείς πάντα να επιλέξεις, να αντιγράψεις και να επικολλήσεις αυτό το αίτημα χειροκίνητα.",
+            )}
+          </small>
+        </label>
+      </section>
+
+      <p className="assistant-status" role="status" aria-live="polite">
+        {getAssistantPopupStatusMessage(popupResult, text)}
+      </p>
+
+      {clipboardOutcome !== "idle" ? (
+        <p className="assistant-status" role="status" aria-live="polite">
+          {getAssistantClipboardStatusMessage(clipboardOutcome, text)}
+        </p>
+      ) : null}
+    </>
+  );
+}
+
 export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
   const { language, text } = useLanguage();
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const importAttemptRef = useRef(0);
+  const reviewAttemptRef = useRef(0);
   const [screen, setScreen] = useState<AssistantScreen>("intro");
   const [taskId, setTaskId] = useState<CompanionTaskId | null>(null);
   const [material, setMaterial] = useState("");
@@ -181,6 +344,12 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
   const [isImporting, setIsImporting] = useState(false);
   const [customRequest, setCustomRequest] = useState("");
   const [message, setMessage] = useState("");
+  const [popupResult, setPopupResult] = useState<AssistantPopupResult | null>(
+    null,
+  );
+  const [clipboardOutcome, setClipboardOutcome] =
+    useState<ClipboardOutcome>("idle");
+  const [preparedPrompt, setPreparedPrompt] = useState("");
 
   const selectedTask = useMemo(
     () => companionTasks.find((task) => task.id === taskId) ?? null,
@@ -209,8 +378,23 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
   if (!open) return null;
 
   function goTo(nextScreen: AssistantScreen) {
+    reviewAttemptRef.current += 1;
     setMessage("");
+    setPopupResult(null);
+    setClipboardOutcome("idle");
     setScreen(nextScreen);
+  }
+
+  function moveStep(direction: "back" | "next") {
+    reviewAttemptRef.current += 1;
+    setMessage("");
+    setPopupResult(null);
+    setClipboardOutcome("idle");
+    setScreen((current) =>
+      current === "material" || current === "goal" || current === "review"
+        ? moveCompanionStep(current, direction)
+        : current,
+    );
   }
 
   function showComingSoon(isPaid = false) {
@@ -226,35 +410,24 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
     const file = input.files?.[0];
     if (!file || isImporting) return;
 
+    const importAttempt = importAttemptRef.current + 1;
+    importAttemptRef.current = importAttempt;
     setIsImporting(true);
     setMessage(text("Reading the file locally...", "Ανάγνωση του αρχείου τοπικά..."));
 
     try {
       const result = await extractAssistantMaterial(file);
-      const copied = await copyToClipboard(result.text);
+      if (importAttemptRef.current !== importAttempt) return;
 
       setMaterial(result.text);
       setImportedFileName(file.name);
-      setMessage(
-        result.truncated
-          ? text(
-              copied
-                ? `Imported ${file.name}. The first 12,000 extracted characters were copied to the clipboard.`
-                : `Imported ${file.name}. The first 12,000 extracted characters will be used, but clipboard access was unavailable.`,
-              copied
-                ? `Έγινε εισαγωγή του ${file.name}. Οι πρώτοι 12.000 χαρακτήρες που εξήχθησαν αντιγράφηκαν στο πρόχειρο.`
-                : `Έγινε εισαγωγή του ${file.name}. Θα χρησιμοποιηθούν οι πρώτοι 12.000 χαρακτήρες, αλλά δεν ήταν διαθέσιμη η πρόσβαση στο πρόχειρο.`,
-            )
-          : text(
-              copied
-                ? `Imported ${file.name}. The extracted text was copied to the clipboard.`
-                : `Imported ${file.name}. The extracted text is ready, but clipboard access was unavailable.`,
-              copied
-                ? `Έγινε εισαγωγή του ${file.name}. Το εξαγόμενο κείμενο αντιγράφηκε στο πρόχειρο.`
-                : `Έγινε εισαγωγή του ${file.name}. Το εξαγόμενο κείμενο είναι έτοιμο, αλλά δεν ήταν διαθέσιμη η πρόσβαση στο πρόχειρο.`,
-            ),
-      );
+      const copied = await copyToClipboard(result.text);
+      if (importAttemptRef.current !== importAttempt) return;
+
+      setMessage(getAssistantImportStatusMessage(copied, result.truncated, text));
     } catch (error) {
+      if (importAttemptRef.current !== importAttempt) return;
+
       setMessage(
         language === "en" && error instanceof Error
           ? error.message
@@ -265,14 +438,18 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
       );
     } finally {
       input.value = "";
-      setIsImporting(false);
+      if (importAttemptRef.current === importAttempt) {
+        setIsImporting(false);
+      }
     }
   }
 
   function clearImportedMaterial() {
+    importAttemptRef.current += 1;
     setImportedFileName(null);
     setMaterial("");
-    setMessage(text("Imported material removed.", "Το εισαγόμενο υλικό αφαιρέθηκε."));
+    setMessage("");
+    setIsImporting(false);
   }
 
   async function continueFromMaterial() {
@@ -293,7 +470,7 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
             "Δεν ήταν διαθέσιμη η πρόσβαση στο πρόχειρο. Μπορείς να συνεχίσεις.",
           ),
     );
-    setScreen("goal");
+    setScreen(moveCompanionStep("material", "next"));
   }
 
   function continueToReview() {
@@ -320,21 +497,19 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
       customRequest,
     );
 
-    setScreen("review");
-    openAttachedStudyAppAssistant();
+    const reviewAttempt = reviewAttemptRef.current + 1;
+    reviewAttemptRef.current = reviewAttempt;
+    const nextPopupResult = openStudyAppAssistant(
+      STUDYAPP_AI_ASSISTANT_URL,
+    );
+    setPreparedPrompt(prompt);
+    setPopupResult(nextPopupResult);
+    setClipboardOutcome("idle");
+    setScreen(moveCompanionStep("goal", "next"));
 
     void copyToClipboard(prompt).then((copied) => {
-      setMessage(
-        copied
-          ? text(
-              "The request was copied. Paste it into the StudyApp AI Assistant window.",
-              "Το αίτημα αντιγράφηκε. Επικόλλησέ το στο παράθυρο του StudyApp AI Assistant.",
-            )
-          : text(
-              "The StudyApp AI Assistant opened, but copying failed. Allow clipboard access and return to the previous step to try again.",
-              "Το StudyApp AI Assistant άνοιξε, αλλά η αντιγραφή απέτυχε. Επίτρεψε την πρόσβαση στο πρόχειρο και επέστρεψε στο προηγούμενο βήμα για νέα προσπάθεια.",
-            ),
-      );
+      if (reviewAttemptRef.current !== reviewAttempt) return;
+      setClipboardOutcome(copied ? "copied" : "failed");
     });
   }
 
@@ -427,7 +602,7 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
                   {text("Start", "Έναρξη")}
                 </button>
                 <button
-                  className="button secondary"
+                  className="button secondary assistant-secondary-action"
                   onClick={() => goTo("modes")}
                   type="button"
                 >
@@ -526,7 +701,11 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
 
               {importedFileName ? (
                 <div className="assistant-imported-material">
-                  <div className="assistant-imported-file">
+                  <div
+                    aria-labelledby="assistant-imported-file-name"
+                    className="assistant-imported-file"
+                    role="group"
+                  >
                     <div className="assistant-imported-file-info">
                       <span
                         aria-hidden="true"
@@ -535,7 +714,10 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
                         FILE
                       </span>
                       <span>
-                        <strong title={importedFileName}>
+                        <strong
+                          id="assistant-imported-file-name"
+                          title={importedFileName}
+                        >
                           {importedFileName}
                         </strong>
                         <small>
@@ -547,6 +729,10 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
                       </span>
                     </div>
                     <button
+                      aria-label={text(
+                        `Remove ${importedFileName}`,
+                        `Αφαίρεση ${importedFileName}`,
+                      )}
                       className="text-link"
                       onClick={clearImportedMaterial}
                       type="button"
@@ -556,17 +742,12 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
                   </div>
 
                   <div className="assistant-import-controls assistant-import-replace">
-                    <label className="button secondary assistant-file-button">
-                      {isImporting
-                        ? text("Reading...", "Ανάγνωση...")
-                        : text("Replace file", "Αντικατάσταση αρχείου")}
-                      <input
-                        accept={ASSISTANT_IMPORT_ACCEPT}
-                        disabled={isImporting}
-                        type="file"
-                        onChange={(event) => void importMaterialFile(event)}
-                      />
-                    </label>
+                    <AssistantFileButton
+                      action="replace"
+                      isImporting={isImporting}
+                      onChange={(event) => void importMaterialFile(event)}
+                      text={text}
+                    />
                     <small>
                       {text(
                         "The extracted text will be used in the next steps.",
@@ -605,17 +786,12 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
                   </div>
 
                   <div className="assistant-import-controls">
-                    <label className="button secondary assistant-file-button">
-                      {isImporting
-                        ? text("Reading...", "Ανάγνωση...")
-                        : text("Choose file", "Επιλογή αρχείου")}
-                      <input
-                        accept={ASSISTANT_IMPORT_ACCEPT}
-                        disabled={isImporting}
-                        type="file"
-                        onChange={(event) => void importMaterialFile(event)}
-                      />
-                    </label>
+                    <AssistantFileButton
+                      action="choose"
+                      isImporting={isImporting}
+                      onChange={(event) => void importMaterialFile(event)}
+                      text={text}
+                    />
                     <small>
                       {text(
                         "PDF, TXT, Markdown, or CSV • up to 50 MB",
@@ -643,7 +819,7 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
             <section>
               <button
                 className="assistant-back"
-                onClick={() => goTo("material")}
+                onClick={() => moveStep("back")}
                 type="button"
               >
                 ← {text("Back", "Πίσω")}
@@ -731,34 +907,17 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
             </section>
           )}
 
-          {screen === "review" && (
-            <section>
-              <button
-                className="assistant-back"
-                onClick={() => goTo("goal")}
-                type="button"
-              >
-                ← {text("Back", "Πίσω")}
-              </button>
-              <p className="assistant-progress">
-                {text("Step 3 of 3", "Βήμα 3 από 3")}
-              </p>
-              <h3>
-                {text(
-                  "Continue in the StudyApp AI Assistant",
-                  "Συνέχισε στο StudyApp AI Assistant",
-                )}
-              </h3>
-              <p className="assistant-step-intro">
-                {text(
-                  "The assistant window opened beside this panel. Paste the copied request into its message box.",
-                  "Το παράθυρο του βοηθού άνοιξε δίπλα σε αυτό το panel. Επικόλλησε το αντιγραμμένο αίτημα στο πεδίο μηνύματός του.",
-                )}
-              </p>
-            </section>
+          {screen === "review" && popupResult && (
+            <AssistantReviewStep
+              clipboardOutcome={clipboardOutcome}
+              onBack={() => moveStep("back")}
+              popupResult={popupResult}
+              preparedPrompt={preparedPrompt}
+              text={text}
+            />
           )}
 
-          {message && (
+          {screen !== "review" && message && (
             <p
               className="assistant-status"
               role="status"
