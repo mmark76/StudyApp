@@ -11,7 +11,7 @@ import {
 
 function renderNotice(
   kind: StorageNoticeKind,
-  variant: StorageNoticeVariant = "panel",
+  variant?: StorageNoticeVariant,
 ): string {
   return renderToStaticMarkup(createElement(StorageNotice, { kind, variant }));
 }
@@ -27,23 +27,30 @@ describe("local storage notices", () => {
     });
   });
 
-  it("renders notices as labelled, visible asides", () => {
+  it("renders important storage notices as compact expandable asides by default", () => {
     for (const kind of Object.values(storageNoticePlacements)) {
       const markup = renderNotice(kind);
       expect(markup).toContain("<aside");
       expect(markup).toContain(`aria-label="${STORAGE_NOTICE_LABEL}"`);
-      expect(markup).not.toContain("<details");
+      expect(markup).toContain("storage-notice--compact");
+      expect(markup).toContain("<details>");
+      expect(markup).toContain("Learn more");
     }
   });
 
-  it("renders a compact home notice with expandable details", () => {
-    const markup = renderNotice("central", "compact");
+  it("keeps the full panel variant available when explicitly requested", () => {
+    const markup = renderNotice("upload", "panel");
 
-    expect(markup).toContain("storage-notice--compact");
-    expect(markup).toContain("<details>");
-    expect(markup).toContain("Files are stored only in this browser. Keep your originals safe.");
-    expect(markup).toContain("Learn more");
-    expect(markup).toContain("not a permanent-storage or backup service");
+    expect(markup).not.toContain("storage-notice--compact");
+    expect(markup).not.toContain("<details");
+    expect(markup).toContain("Files are added to this browser");
+  });
+
+  it("renders a short context-specific summary with expandable details", () => {
+    expect(renderNotice("upload")).toContain("Files are stored only in this browser.");
+    expect(renderNotice("contentImport")).toContain("Study content is stored only in this browser.");
+    expect(renderNotice("splitter")).toContain("Split PDFs are stored only in this browser.");
+    expect(renderNotice("backup")).toContain("The backup does not include uploaded files.");
   });
 
   it("states the central storage limitation without calling files temporary", () => {
