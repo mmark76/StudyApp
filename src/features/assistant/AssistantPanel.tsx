@@ -1,5 +1,16 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  type ChangeEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useLanguage, type AppLanguage } from "../../i18n/LanguageContext";
+import {
+  ASSISTANT_IMPORT_ACCEPT,
+  AssistantMaterialImportError,
+  extractAssistantMaterial,
+} from "./assistantMaterialImport";
 
 type AssistantScreen = "intro" | "modes" | "material" | "goal" | "review";
 type CompanionTaskId = "explain" | "summarize" | "flashcards" | "quiz" | "custom";
@@ -81,9 +92,7 @@ export function buildCompanionPrompt(
   const instruction = taskId === "custom"
     ? customRequest.trim()
     : instructions[taskId][language];
-  const responseLanguage = language === "el"
-    ? "Απάντησε στα ελληνικά."
-    : "Answer in English.";
+  const responseLanguage = language === "el" ? "Απάντησε στα ελληνικά." : "Answer in English.";
   const sourceBoundary = language === "el"
     ? "Χρησιμοποίησε μόνο το παρακάτω υλικό. Αν δεν περιέχει αρκετές πληροφορίες, ανέφερέ το καθαρά."
     : "Use only the study material below. If it does not contain enough information, say so clearly.";
@@ -98,6 +107,8 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
   const [screen, setScreen] = useState<AssistantScreen>("intro");
   const [taskId, setTaskId] = useState<CompanionTaskId>("explain");
   const [material, setMaterial] = useState("");
+  const [importedFileName, setImportedFileName] = useState<string | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
   const [customRequest, setCustomRequest] = useState("");
   const [preparedPrompt, setPreparedPrompt] = useState("");
   const [message, setMessage] = useState("");
@@ -139,6 +150,51 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
     );
   }
 
+  async function importMaterialFile(event: ChangeEvent<HTMLInputElement>) {
+    const input = event.currentTarget;
+    const file = input.files?.[0];
+    if (!file || isImporting) return;
+
+    setIsImporting(true);
+    setMessage(text("Reading the file locally...", "Ανάγνωση του αρχείου τοπικά..."));
+
+    try {
+      const result = await extractAssistantMaterial(file);
+      setMaterial(result.text);
+      setImportedFileName(file.name);
+      setPreparedPrompt("");
+      setMessage(result.truncated
+        ? text(
+            `Imported ${file.name}. Only the first 12,000 characters are shown; review and edit them before continuing.`,
+            `Έγινε εισαγωγή του ${file.name}. Εμφανίζονται μόνο οι πρώτοι 12.000 χαρακτήρες· έλεγξέ τους πριν συνεχίσεις.`,
+          )
+        : text(
+            `Imported ${file.name}. Review or edit the extracted text before continuing.`,
+            `Έγινε εισαγωγή του ${file.name}. Έλεγξε ή επεξεργάσου το κείμενο πριν συνεχίσεις.`,
+          ));
+    } catch (error) {
+      setImportedFileName(null);
+      setMessage(
+        language === "en" && error instanceof Error
+          ? error.message
+          : text(
+              "The file could not be imported. Choose a PDF, TXT, Markdown, or CSV file.",
+              "Το αρχείο δεν μπορεί να εισαχθεί. Επίλεξε PDF, TXT, Markdown ή CSV.",
+            ),
+      );
+    } finally {
+      input.value = "";
+      setIsImporting(false);
+    }
+  }
+
+  function clearImportedMaterial() {
+    setImportedFileName(null);
+    setMaterial("");
+    setPreparedPrompt("");
+    setMessage(text("Imported material removed.", "Το εισαγόμενο υλικό αφαιρέθηκε."));
+  }
+
   function continueToReview() {
     if (!material.trim()) {
       setScreen("material");
@@ -163,17 +219,15 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
 
     try {
       await navigator.clipboard.writeText(preparedPrompt.trim());
-      setMessage(
-        openChatGptAfterCopy
-          ? text(
-              "Instructions copied. Paste them into the ChatGPT message box.",
-              "Οι οδηγίες αντιγράφηκαν. Επικόλλησέ τες στο πεδίο μηνύματος του ChatGPT.",
-            )
-          : text(
-              "Instructions copied to your clipboard.",
-              "Οι οδηγίες αντιγράφηκαν στο πρόχειρο.",
-            ),
-      );
+      setMessage(openChatGptAfterCopy
+        ? text(
+            "Instructions copied. Paste them into the ChatGPT message box.",
+            "Οι οδηγίες αντιγράφηκαν. Επικόλλησέ τες στο πεδίο μηνύματος του ChatGPT.",
+          )
+        : text(
+            "Instructions copied to your clipboard.",
+            "Οι οδηγίες αντιγράφηκαν στο πρόχειρο.",
+          ));
     } catch {
       setMessage(text(
         "Copy failed. Select the instructions and copy them manually.",
@@ -189,12 +243,7 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
 
   return (
     <div className="assistant-overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <aside
-        aria-labelledby="assistant-title"
-        aria-modal="true"
-        className="assistant-panel"
-        role="dialog"
-      >
+      <aside aria-labelledby="assistant-title" aria-modal="true" className="assistant-panel" role="dialog">
         <header className="assistant-header">
           <div className="assistant-identity">
             <img alt="" className="assistant-avatar-small" src="/study-assistant-avatar.svg" />
@@ -227,7 +276,7 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
 
               <ol className="assistant-onboarding-steps">
                 {[
-                  text("Add the study text you choose.", "Πρόσθεσε το υλικό μελέτης που επιλέγεις."),
+                  text("Add or import the study text you choose.", "Πρόσθεσε ή εισήγαγε το υλικό μελέτης που επιλέγεις."),
                   text("Choose what you want ChatGPT to do.", "Επίλεξε τι θέλεις να κάνει το ChatGPT."),
                   text("Review the instructions, then copy them and continue in ChatGPT.", "Έλεγξε τις οδηγίες, αντέγραψέ τες και συνέχισε στο ChatGPT."),
                 ].map((step, index) => (
@@ -239,8 +288,8 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
               </ol>
 
               <p className="assistant-privacy-note assistant-privacy-note-compact">{text(
-                "StudyApp does not automatically read your library. Only text you paste here is used to prepare the instructions.",
-                "Το StudyApp δεν διαβάζει αυτόματα τη βιβλιοθήκη σου. Χρησιμοποιείται μόνο το κείμενο που επικολλάς εδώ για την προετοιμασία των οδηγιών.",
+                "StudyApp does not automatically read your library. Only text you paste or explicitly import here is used to prepare the instructions.",
+                "Το StudyApp δεν διαβάζει αυτόματα τη βιβλιοθήκη σου. Χρησιμοποιείται μόνο το κείμενο που επικολλάς ή εισάγεις ρητά εδώ.",
               )}</p>
 
               <div className="assistant-actions">
@@ -295,16 +344,19 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
               <p className="assistant-progress">{text("Step 1 of 3", "Βήμα 1 από 3")}</p>
               <h3>{text("Add study material", "Πρόσθεσε υλικό μελέτης")}</h3>
               <p className="assistant-step-intro">{text(
-                "Paste only the text you want to use in this study session.",
-                "Επικόλλησε μόνο το κείμενο που θέλεις να χρησιμοποιήσεις σε αυτή τη μελέτη.",
+                "Paste text below, or import a local file. Imported text stays in this browser and remains editable.",
+                "Επικόλλησε κείμενο ή εισήγαγε τοπικό αρχείο. Το εισαγόμενο κείμενο παραμένει στον browser και μπορείς να το επεξεργαστείς.",
               )}</p>
 
               <label className="field-label assistant-paste-field">
-                {text("Study text", "Υλικό μελέτης")}
+                {importedFileName
+                  ? text("Imported text (editable)", "Εισαγόμενο κείμενο (επεξεργάσιμο)")
+                  : text("Study text", "Υλικό μελέτης")}
                 <textarea
                   maxLength={12_000}
                   onChange={(event) => {
                     setMaterial(event.target.value);
+                    setPreparedPrompt("");
                     setMessage("");
                   }}
                   placeholder={text(
@@ -319,10 +371,39 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
                 </small>
               </label>
 
+              <div className="assistant-import-divider">
+                <span>{text("or import a file", "ή εισήγαγε αρχείο")}</span>
+              </div>
+
+              <div className="assistant-import-controls">
+                <label className="button secondary assistant-file-button">
+                  {isImporting ? text("Reading...", "Ανάγνωση...") : text("Choose file", "Επιλογή αρχείου")}
+                  <input
+                    accept={ASSISTANT_IMPORT_ACCEPT}
+                    disabled={isImporting}
+                    type="file"
+                    onChange={(event) => void importMaterialFile(event)}
+                  />
+                </label>
+                <small>{text(
+                  "PDF, TXT, Markdown, or CSV • up to 50 MB",
+                  "PDF, TXT, Markdown ή CSV • έως 50 MB",
+                )}</small>
+              </div>
+
+              {importedFileName ? (
+                <div className="assistant-imported-file">
+                  <span title={importedFileName}>{importedFileName}</span>
+                  <button className="text-link" onClick={clearImportedMaterial} type="button">
+                    {text("Remove", "Αφαίρεση")}
+                  </button>
+                </div>
+              ) : null}
+
               <div className="assistant-actions">
                 <button
                   className="button primary"
-                  disabled={!material.trim()}
+                  disabled={!material.trim() || isImporting}
                   onClick={() => goTo("goal")}
                   type="button"
                 >
