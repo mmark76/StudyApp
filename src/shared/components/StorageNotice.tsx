@@ -3,6 +3,7 @@ import { useLanguage } from "../../i18n/LanguageContext";
 export const STORAGE_NOTICE_LABEL = "Local storage and data safety";
 
 export type StorageNoticeKind = "central" | "upload" | "contentImport" | "splitter" | "backup";
+export type StorageNoticeVariant = "panel" | "compact";
 
 type StorageNoticeCopy = Record<StorageNoticeKind, { title: string; body: string }>;
 
@@ -17,15 +18,15 @@ export const storageNoticeText: StorageNoticeCopy = {
   },
   contentImport: {
     title: "Your study content stays in this browser",
-    body: "You create or import the chapters and flashcards used by StudyApp. Imported content is saved only in this browser. Keep the source spreadsheets or another copy elsewhere.",
+    body: "You create or import the chapters and flashcards used by StudyApp; the app does not generate study content automatically. Imported content is saved only in this browser and can be lost if its data is cleared. Keep the source spreadsheets or another copy elsewhere.",
   },
   splitter: {
     title: "Download split PDFs you need elsewhere",
-    body: "Splitting happens only in this browser. Generated PDFs remain stored here until you remove them, but browser data can be lost. Download any split PDF you need outside StudyApp.",
+    body: "Splitting happens only in this browser. Generated PDFs remain stored here until you remove them, but browser data can be lost. Download any split PDF you need outside StudyApp and keep the original source PDF somewhere safe.",
   },
   backup: {
     title: "This is not a complete file backup",
-    body: "The backup includes progress, sessions, settings, imported chapters, flashcards and saved links. It does not include uploaded or generated files.",
+    body: "The backup includes progress, sessions, settings, imported chapters, flashcards and saved links. It does not include uploaded or generated file copies.",
   },
 };
 
@@ -60,12 +61,39 @@ export const storageNoticePlacements = {
   progressBackup: "backup",
 } as const satisfies Record<string, StorageNoticeKind>;
 
-export function StorageNotice({ kind }: { kind: StorageNoticeKind }) {
+interface StorageNoticeProps {
+  kind: StorageNoticeKind;
+  variant?: StorageNoticeVariant;
+}
+
+export function StorageNotice({ kind, variant = "panel" }: StorageNoticeProps) {
   const { language, text } = useLanguage();
   const notice = language === "el" ? greekStorageNoticeText[kind] : storageNoticeText[kind];
+  const label = text(STORAGE_NOTICE_LABEL, "Τοπική αποθήκευση και ασφάλεια δεδομένων");
+
+  if (variant === "compact") {
+    return (
+      <aside className="storage-notice storage-notice--compact" aria-label={label}>
+        <details>
+          <summary>
+            <span className="storage-notice-icon" aria-hidden="true">ⓘ</span>
+            <span>{text(
+              "Files are stored only in this browser. Keep your originals safe.",
+              "Τα αρχεία αποθηκεύονται μόνο σε αυτόν τον browser. Κράτησε τα πρωτότυπα ασφαλή.",
+            )}</span>
+            <span className="storage-notice-learn-more">{text("Learn more", "Περισσότερα")}</span>
+          </summary>
+          <div className="storage-notice-details">
+            <strong>{notice.title}</strong>
+            <p>{notice.body}</p>
+          </div>
+        </details>
+      </aside>
+    );
+  }
 
   return (
-    <aside className="storage-notice" aria-label={text(STORAGE_NOTICE_LABEL, "Τοπική αποθήκευση και ασφάλεια δεδομένων")}>
+    <aside className="storage-notice" aria-label={label}>
       <strong>{notice.title}</strong>
       <p>{notice.body}</p>
     </aside>
