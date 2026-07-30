@@ -1,4 +1,9 @@
 import { type ChangeEvent, type FormEvent, useRef, useState } from "react";
+import {
+  getSourceMaterialTypeLabel,
+  getStructuredStudyTypeLabel,
+} from "../../i18n/domainLabels";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { LocalStudyFile, SourceMaterialType, StructuredStudyType } from "../../shared/types/models";
 import { createId } from "../../shared/utils/id";
@@ -34,16 +39,14 @@ export function LocalPdfForm({
   files: readonly LocalStudyFile[];
   onMessage: (message: string) => void;
 }) {
+  const { language, text } = useLanguage();
   const [file, setFile] = useState<File | null>(null);
   const [materialType, setMaterialType] = useState<SourceMaterialType | "">("");
   const [structuredStudyType, setStructuredStudyType] = useState<StructuredStudyType | "">("");
   const [uploadedFile, setUploadedFile] = useState<UploadedLocalFile | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const lock = useRef(false);
-  const canRemove = Boolean(uploadedFile)
-    || Boolean(file)
-    || materialType.length > 0
-    || structuredStudyType.length > 0;
+  const canRemove = Boolean(uploadedFile) || Boolean(file) || materialType.length > 0 || structuredStudyType.length > 0;
 
   function clearDraft() {
     setFile(null);
@@ -53,8 +56,7 @@ export function LocalPdfForm({
   }
 
   function chooseFile(event: ChangeEvent<HTMLInputElement>) {
-    const selected = event.target.files?.[0] ?? null;
-    setFile(selected);
+    setFile(event.target.files?.[0] ?? null);
     setUploadedFile(null);
   }
 
@@ -63,15 +65,15 @@ export function LocalPdfForm({
     if (!file || lock.current) return;
 
     if (file.size > MAX_LOCAL_FILE_SIZE) {
-      onMessage("The file is larger than 50 MB. Use a cloud link for larger files.");
+      onMessage(text("The file is larger than 50 MB.", "Το αρχείο είναι μεγαλύτερο από 50 MB."));
       return;
     }
     if (destination === "library" && !isSourceMaterialType(materialType)) {
-      onMessage("Choose a Library type before adding the file to this browser.");
+      onMessage(text("Choose a Library type.", "Επίλεξε τύπο Βιβλιοθήκης."));
       return;
     }
     if (destination === "structured-study" && !isStructuredStudyType(structuredStudyType)) {
-      onMessage("Choose a Structured Study part before adding the file to this browser.");
+      onMessage(text("Choose a Structured Study type.", "Επίλεξε τύπο Δομημένης Μελέτης."));
       return;
     }
 
@@ -87,14 +89,13 @@ export function LocalPdfForm({
       if (existingFile) {
         setUploadedFile(null);
         clearDraft();
-        onMessage("This file has already been added to this browser.");
+        onMessage(text("This file is already saved.", "Το αρχείο είναι ήδη αποθηκευμένο."));
         return;
       }
 
-      const title = titleFromFileName(file.name);
       const item: LocalStudyFile = {
         id: createId("file"),
-        title,
+        title: titleFromFileName(file.name),
         fileName: file.name,
         size: file.size,
         createdAt: new Date().toISOString(),
@@ -109,21 +110,13 @@ export function LocalPdfForm({
       await studyDatabase.studyFiles.add(item);
       setUploadedFile({ id: item.id, title: item.title, fileName: item.fileName });
       clearDraft();
-      onMessage(
-        destination === "structured-study"
-          ? "A local copy was added to Structured Study in this browser."
-          : "A local copy was added to Library in this browser.",
-      );
+      onMessage(text("File added.", "Το αρχείο προστέθηκε."));
     } catch (error) {
-      if (error instanceof LocalFilePolicyError) {
-        onMessage(error.message);
-      } else {
-        onMessage(
-          destination === "structured-study"
-            ? "Choose a Structured Study part. The file also needs enough browser storage space."
-            : "Choose a Library type. The file also needs enough browser storage space.",
-        );
-      }
+      onMessage(
+        language === "en" && error instanceof LocalFilePolicyError
+          ? error.message
+          : text("The file could not be added.", "Το αρχείο δεν μπορεί να προστεθεί."),
+      );
     } finally {
       lock.current = false;
     }
@@ -134,30 +127,32 @@ export function LocalPdfForm({
 
     if (!uploadedFile) {
       clearDraft();
-      onMessage("The selected file was cleared.");
+      onMessage(text("Selection cleared.", "Η επιλογή καθαρίστηκε."));
       return;
     }
 
     lock.current = true;
     try {
       await studyDatabase.studyFiles.delete(uploadedFile.id);
-      onMessage(`Removed the local StudyApp copy: ${uploadedFile.title}.`);
+      onMessage(text(`Removed ${uploadedFile.title}.`, `Διαγράφηκε το ${uploadedFile.title}.`));
       setUploadedFile(null);
       clearDraft();
     } catch {
-      onMessage("The local StudyApp copy could not be removed.");
+      onMessage(text("The file could not be removed.", "Το αρχείο δεν μπορεί να διαγραφεί."));
     } finally {
       lock.current = false;
     }
   }
 
-  const destinationLabel = destination === "structured-study" ? "Structured Study" : "Library";
+  const destinationLabel = destination === "structured-study"
+    ? text("Structured Study", "Δομημένη Μελέτη")
+    : text("Library", "Βιβλιοθήκη");
 
   return (
     <form className="material-form" onSubmit={(event) => void submit(event)}>
       {destination === "library" ? (
         <label className="field-label">
-          Library type
+          {text("Library type", "Τύπος Βιβλιοθήκης")}
           <select
             required={!uploadedFile}
             value={materialType}
@@ -166,15 +161,15 @@ export function LocalPdfForm({
               setUploadedFile(null);
             }}
           >
-            <option value="">Choose Library type</option>
+            <option value="">{text("Choose type", "Επίλεξε τύπο")}</option>
             {sourceMaterialTypeOptions.map((option) => (
-              <option key={option.value} value={option.value}>{option.label}</option>
+              <option key={option.value} value={option.value}>{getSourceMaterialTypeLabel(option.value, language)}</option>
             ))}
           </select>
         </label>
       ) : (
         <label className="field-label">
-          Structured part
+          {text("Structured type", "Τύπος Δομημένης Μελέτης")}
           <select
             required={!uploadedFile}
             value={structuredStudyType}
@@ -183,16 +178,16 @@ export function LocalPdfForm({
               setUploadedFile(null);
             }}
           >
-            <option value="">Choose Structured part</option>
+            <option value="">{text("Choose type", "Επίλεξε τύπο")}</option>
             {structuredStudyTypeOptions.map((option) => (
-              <option key={option.value} value={option.value}>{option.label}</option>
+              <option key={option.value} value={option.value}>{getStructuredStudyTypeLabel(option.value, language)}</option>
             ))}
           </select>
         </label>
       )}
 
       <label className="field-label">
-        Choose local file
+        {text("Choose local file", "Επιλογή τοπικού αρχείου")}
         <input
           ref={inputRef}
           required={!uploadedFile}
@@ -202,13 +197,13 @@ export function LocalPdfForm({
           onChange={chooseFile}
         />
       </label>
-      <p className="field-help">The display name is created automatically from the file name. One private browser copy is stored in {destinationLabel}.</p>
+      <p className="field-help">{text(
+        `A private browser copy will be stored in ${destinationLabel}.`,
+        `Ένα τοπικό αντίγραφο θα αποθηκευτεί στη ${destinationLabel}.`,
+      )}</p>
       <div className="button-row">
-        <button
-          className={uploadedFile ? "button success compact-square" : "button primary compact-square"}
-          type={uploadedFile ? "button" : "submit"}
-        >
-          {uploadedFile ? "File Added" : "Add file"}
+        <button className={uploadedFile ? "button success compact-square" : "button primary compact-square"} type={uploadedFile ? "button" : "submit"}>
+          {uploadedFile ? text("File added", "Προστέθηκε") : text("Add file", "Προσθήκη αρχείου")}
         </button>
         <button
           className={uploadedFile ? "button danger compact-square" : "button secondary compact-square"}
@@ -216,12 +211,10 @@ export function LocalPdfForm({
           onClick={() => void removeSelectionOrUpload()}
           type="button"
         >
-          {uploadedFile ? "Undo add" : "Clear"}
+          {uploadedFile ? text("Undo", "Αναίρεση") : text("Clear", "Καθαρισμός")}
         </button>
       </div>
-      {uploadedFile ? (
-        <p className="field-help uploaded-file-name">{uploadedFile.fileName}</p>
-      ) : null}
+      {uploadedFile ? <p className="field-help uploaded-file-name">{uploadedFile.fileName}</p> : null}
     </form>
   );
 }
