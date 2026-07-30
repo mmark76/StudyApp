@@ -24,14 +24,16 @@ The AI Assistant presents three clearly separated options.
 ### ChatGPT Companion — available
 
 StudyApp prepares a prompt from text deliberately pasted by the user. The user
-can copy the prompt and open ChatGPT in a separate tab.
+can copy the prompt and open the dedicated **StudyApp AI Assistant** Custom GPT in
+a separate browser popup.
 
 The Companion:
 
 - does not use the StudyApp OpenAI API key;
 - does not send content automatically;
 - does not access the StudyApp library or local database;
-- does not charge StudyApp credits.
+- does not charge StudyApp credits;
+- requires the user to paste the prepared request into ChatGPT.
 
 ### ChatGPT App / MCP — coming soon
 
@@ -79,7 +81,8 @@ significantly mismatched file types are rejected.
 
 - Local file blobs are not included in the JSON backup.
 - Storage capacity depends on the browser and device.
-- ChatGPT Companion requires manual copy/open interaction.
+- ChatGPT Companion requires manual copy/paste interaction and a ChatGPT account.
+- Browser popup settings may affect the size or position of the assistant window.
 - ChatGPT App / MCP is not active yet.
 - StudyApp AI, real credits and payments are not active yet.
 - Complete local-file export/import and broader browser tests remain future work.
@@ -104,3 +107,7 @@ npm run typecheck
 npm test
 npm run build
 ```
+
+The production build reads the public `VITE_STUDYAPP_AI_ASSISTANT_URL` setting
+from `.env.production` to open the dedicated StudyApp Custom GPT. Vite environment
+variables are public configuration and must never contain secrets.
