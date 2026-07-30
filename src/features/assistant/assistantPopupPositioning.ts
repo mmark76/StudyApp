@@ -9,6 +9,25 @@ function clamp(value: number, minimum: number, maximum: number): number {
   return Math.min(maximum, Math.max(minimum, value));
 }
 
+function removeStepThreeHelperMessages(): void {
+  const panel = document.querySelector<HTMLElement>(".assistant-panel");
+  const progressText = panel
+    ?.querySelector<HTMLElement>(".assistant-progress")
+    ?.textContent?.trim();
+
+  const isStepThree =
+    progressText === "Step 3 of 3" || progressText === "Βήμα 3 από 3";
+
+  if (!panel || !isStepThree) return;
+
+  panel
+    .querySelector<HTMLElement>("section .assistant-step-intro")
+    ?.remove();
+  panel
+    .querySelectorAll<HTMLElement>(".assistant-status")
+    .forEach((status) => status.remove());
+}
+
 export function buildAttachedAssistantPopupFeatures(): string {
   const panelRect = document
     .querySelector<HTMLElement>(".assistant-panel")
@@ -68,6 +87,12 @@ export function buildAttachedAssistantPopupFeatures(): string {
 
 export function installAssistantPopupPositioning(): void {
   const nativeOpen = window.open.bind(window);
+  const observer = new MutationObserver(removeStepThreeHelperMessages);
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
 
   window.open = ((
     url?: string | URL,
@@ -78,6 +103,7 @@ export function installAssistantPopupPositioning(): void {
       return nativeOpen(url, target, features);
     }
 
+    removeStepThreeHelperMessages();
     return nativeOpen(url, target, buildAttachedAssistantPopupFeatures());
   }) as typeof window.open;
 }
