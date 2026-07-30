@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLanguage, type AppLanguage } from "../../i18n/LanguageContext";
 
-type AssistantScreen = "modes" | "tasks" | "companion";
-type CompanionTaskId = "ask" | "flashcards" | "quiz" | "summarize" | "explain";
+type AssistantScreen = "intro" | "modes" | "material" | "goal" | "review";
+type CompanionTaskId = "explain" | "summarize" | "flashcards" | "quiz" | "custom";
 
 interface AssistantPanelProps {
   open: boolean;
@@ -13,61 +13,99 @@ const companionTasks: readonly {
   id: CompanionTaskId;
   en: string;
   el: string;
+  descriptionEn: string;
+  descriptionEl: string;
 }[] = [
-  { id: "ask", en: "Ask a question", el: "Κάνε μια ερώτηση" },
-  { id: "flashcards", en: "Create flashcards", el: "Δημιούργησε κάρτες" },
-  { id: "quiz", en: "Create a quiz", el: "Δημιούργησε κουίζ" },
-  { id: "summarize", en: "Summarize", el: "Κάνε περίληψη" },
-  { id: "explain", en: "Explain a concept", el: "Εξήγησε μια έννοια" },
+  {
+    id: "explain",
+    en: "Explain the material",
+    el: "Εξήγηση του υλικού",
+    descriptionEn: "Clarify the main ideas with an example.",
+    descriptionEl: "Αποσαφήνισε τις βασικές ιδέες με παράδειγμα.",
+  },
+  {
+    id: "summarize",
+    en: "Create a summary",
+    el: "Δημιουργία περίληψης",
+    descriptionEn: "Organize the content into headings and key points.",
+    descriptionEl: "Οργάνωσε το περιεχόμενο σε τίτλους και βασικά σημεία.",
+  },
+  {
+    id: "flashcards",
+    en: "Create flashcards",
+    el: "Δημιουργία καρτών",
+    descriptionEn: "Turn the material into concise question-and-answer cards.",
+    descriptionEl: "Μετέτρεψε το υλικό σε σύντομες κάρτες ερώτησης και απάντησης.",
+  },
+  {
+    id: "quiz",
+    en: "Create a quiz",
+    el: "Δημιουργία κουίζ",
+    descriptionEn: "Prepare multiple-choice questions with explanations.",
+    descriptionEl: "Ετοίμασε ερωτήσεις πολλαπλής επιλογής με επεξηγήσεις.",
+  },
+  {
+    id: "custom",
+    en: "Custom request",
+    el: "Προσαρμοσμένο αίτημα",
+    descriptionEn: "Write exactly what you want ChatGPT to do.",
+    descriptionEl: "Γράψε ακριβώς τι θέλεις να κάνει το ChatGPT.",
+  },
 ] as const;
 
-function buildCompanionPrompt(
+export function buildCompanionPrompt(
   taskId: CompanionTaskId,
   material: string,
   language: AppLanguage,
+  customRequest = "",
 ): string {
-  const instructions: Record<CompanionTaskId, { en: string; el: string }> = {
-    ask: {
-      en: "Answer my question using only the study material below. If information is missing, say so clearly.",
-      el: "Απάντησε στην ερώτησή μου χρησιμοποιώντας μόνο το παρακάτω υλικό. Αν λείπουν πληροφορίες, ανέφερέ το καθαρά.",
-    },
-    flashcards: {
-      en: "Create 10 concise study flashcards from the material below. Use a clear Question / Answer format.",
-      el: "Δημιούργησε 10 σύντομες κάρτες μελέτης από το παρακάτω υλικό, σε μορφή Ερώτηση / Απάντηση.",
-    },
-    quiz: {
-      en: "Create a 10-question multiple-choice quiz from the material below. Include the correct answer and a short explanation.",
-      el: "Δημιούργησε κουίζ 10 ερωτήσεων πολλαπλής επιλογής από το παρακάτω υλικό. Πρόσθεσε τη σωστή απάντηση και σύντομη εξήγηση.",
+  const instructions: Record<Exclude<CompanionTaskId, "custom">, { en: string; el: string }> = {
+    explain: {
+      en: "Explain the main ideas in the study material clearly. Use simple language, preserve important terminology, and include one useful example.",
+      el: "Εξήγησε με σαφήνεια τις βασικές ιδέες του υλικού μελέτης. Χρησιμοποίησε απλή γλώσσα, διατήρησε τη σημαντική ορολογία και πρόσθεσε ένα χρήσιμο παράδειγμα.",
     },
     summarize: {
-      en: "Summarize the study material below into clear headings and key points.",
-      el: "Σύνοψε το παρακάτω υλικό με σαφείς τίτλους και βασικά σημεία.",
+      en: "Summarize the study material using clear headings and concise key points. Include the most important terms and conclusions.",
+      el: "Σύνοψε το υλικό μελέτης με σαφείς τίτλους και σύντομα βασικά σημεία. Συμπερίλαβε τους σημαντικότερους όρους και τα κύρια συμπεράσματα.",
     },
-    explain: {
-      en: "Explain the main concept in the study material below simply, with one useful example.",
-      el: "Εξήγησε απλά τη βασική έννοια του παρακάτω υλικού και δώσε ένα χρήσιμο παράδειγμα.",
+    flashcards: {
+      en: "Create 10 concise study flashcards from the material. Use a clear Question / Answer format and avoid repeating the same idea.",
+      el: "Δημιούργησε 10 σύντομες κάρτες μελέτης από το υλικό, σε σαφή μορφή Ερώτηση / Απάντηση, χωρίς επανάληψη της ίδιας ιδέας.",
+    },
+    quiz: {
+      en: "Create a 10-question multiple-choice quiz from the material. Include four options, the correct answer, and a short explanation for each question.",
+      el: "Δημιούργησε κουίζ 10 ερωτήσεων πολλαπλής επιλογής από το υλικό. Πρόσθεσε τέσσερις επιλογές, τη σωστή απάντηση και σύντομη εξήγηση για κάθε ερώτηση.",
     },
   };
 
-  const instruction = instructions[taskId][language];
+  const instruction = taskId === "custom"
+    ? customRequest.trim()
+    : instructions[taskId][language];
   const responseLanguage = language === "el"
     ? "Απάντησε στα ελληνικά."
     : "Answer in English.";
+  const sourceBoundary = language === "el"
+    ? "Χρησιμοποίησε μόνο το παρακάτω υλικό. Αν δεν περιέχει αρκετές πληροφορίες, ανέφερέ το καθαρά."
+    : "Use only the study material below. If it does not contain enough information, say so clearly.";
+  const materialHeading = language === "el" ? "ΥΛΙΚΟ ΜΕΛΕΤΗΣ" : "STUDY MATERIAL";
 
-  return `${instruction}\n\n${responseLanguage}\n\nSTUDY MATERIAL:\n${material.trim()}`;
+  return `${instruction}\n\n${responseLanguage}\n${sourceBoundary}\n\n${materialHeading}:\n${material.trim()}`;
 }
 
 export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
   const { language, text } = useLanguage();
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
-  const [screen, setScreen] = useState<AssistantScreen>("modes");
-  const [taskId, setTaskId] = useState<CompanionTaskId>("ask");
+  const [screen, setScreen] = useState<AssistantScreen>("intro");
+  const [taskId, setTaskId] = useState<CompanionTaskId>("explain");
   const [material, setMaterial] = useState("");
+  const [customRequest, setCustomRequest] = useState("");
+  const [preparedPrompt, setPreparedPrompt] = useState("");
   const [message, setMessage] = useState("");
 
-  const prompt = useMemo(
-    () => material.trim() ? buildCompanionPrompt(taskId, material, language) : "",
-    [language, material, taskId],
+  const canContinueFromGoal = taskId !== "custom" || Boolean(customRequest.trim());
+  const selectedTask = useMemo(
+    () => companionTasks.find((task) => task.id === taskId) ?? companionTasks[0],
+    [taskId],
   );
 
   useEffect(() => {
@@ -88,6 +126,11 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
 
   if (!open) return null;
 
+  function goTo(nextScreen: AssistantScreen) {
+    setMessage("");
+    setScreen(nextScreen);
+  }
+
   function showComingSoon(isPaid = false) {
     setMessage(
       isPaid
@@ -96,27 +139,51 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
     );
   }
 
-  function selectTask(nextTaskId: CompanionTaskId) {
-    setTaskId(nextTaskId);
-    setMessage("");
-    setScreen("companion");
-  }
-
-  async function copyPrompt() {
-    if (!prompt) {
+  function continueToReview() {
+    if (!material.trim()) {
+      setScreen("material");
       setMessage(text("Add study text first.", "Πρόσθεσε πρώτα υλικό μελέτης."));
       return;
     }
 
+    if (!canContinueFromGoal) {
+      setMessage(text("Write your custom request first.", "Γράψε πρώτα το προσαρμοσμένο αίτημά σου."));
+      return;
+    }
+
+    setPreparedPrompt(buildCompanionPrompt(taskId, material, language, customRequest));
+    goTo("review");
+  }
+
+  async function copyPreparedInstructions(openChatGptAfterCopy = false) {
+    if (!preparedPrompt.trim()) {
+      setMessage(text("Review the prepared instructions first.", "Έλεγξε πρώτα τις έτοιμες οδηγίες."));
+      return;
+    }
+
     try {
-      await navigator.clipboard.writeText(prompt);
-      setMessage(text("Prompt copied.", "Το prompt αντιγράφηκε."));
+      await navigator.clipboard.writeText(preparedPrompt.trim());
+      setMessage(
+        openChatGptAfterCopy
+          ? text(
+              "Instructions copied. Paste them into the ChatGPT message box.",
+              "Οι οδηγίες αντιγράφηκαν. Επικόλλησέ τες στο πεδίο μηνύματος του ChatGPT.",
+            )
+          : text(
+              "Instructions copied to your clipboard.",
+              "Οι οδηγίες αντιγράφηκαν στο πρόχειρο.",
+            ),
+      );
     } catch {
-      setMessage(text("Copy failed.", "Η αντιγραφή απέτυχε."));
+      setMessage(text(
+        "Copy failed. Select the instructions and copy them manually.",
+        "Η αντιγραφή απέτυχε. Επίλεξε τις οδηγίες και αντέγραψέ τες χειροκίνητα.",
+      ));
     }
   }
 
-  function openChatGpt() {
+  function copyAndOpenChatGpt() {
+    void copyPreparedInstructions(true);
     window.open("https://chatgpt.com/", "_blank", "noopener,noreferrer");
   }
 
@@ -148,17 +215,61 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
         </header>
 
         <div className="assistant-content">
-          {screen === "modes" && (
-            <section className="assistant-welcome">
+          {screen === "intro" && (
+            <section className="assistant-welcome assistant-onboarding">
               <img alt="" className="assistant-avatar-hero" src="/study-assistant-avatar.svg" />
-              <p className="eyebrow">{text("Choose mode", "Επίλεξε τρόπο")}</p>
-              <h3>{text("How do you want to use AI?", "Πώς θέλεις να χρησιμοποιήσεις το AI;")}</h3>
+              <p className="eyebrow">{text("Available now", "Διαθέσιμο τώρα")}</p>
+              <h3>{text("Study with ChatGPT", "Μελέτη με το ChatGPT")}</h3>
+              <p className="assistant-onboarding-copy">{text(
+                "StudyApp will guide you through three clear steps. You will always see and control what is copied.",
+                "Το StudyApp θα σε καθοδηγήσει σε τρία σαφή βήματα. Θα βλέπεις και θα ελέγχεις πάντα τι αντιγράφεται.",
+              )}</p>
+
+              <ol className="assistant-onboarding-steps">
+                {[
+                  text("Add the study text you choose.", "Πρόσθεσε το υλικό μελέτης που επιλέγεις."),
+                  text("Choose what you want ChatGPT to do.", "Επίλεξε τι θέλεις να κάνει το ChatGPT."),
+                  text("Review the instructions, then copy them and continue in ChatGPT.", "Έλεγξε τις οδηγίες, αντέγραψέ τες και συνέχισε στο ChatGPT."),
+                ].map((step, index) => (
+                  <li key={step}>
+                    <span aria-hidden="true">{index + 1}</span>
+                    <strong>{step}</strong>
+                  </li>
+                ))}
+              </ol>
+
+              <p className="assistant-privacy-note assistant-privacy-note-compact">{text(
+                "StudyApp does not automatically read your library. Only text you paste here is used to prepare the instructions.",
+                "Το StudyApp δεν διαβάζει αυτόματα τη βιβλιοθήκη σου. Χρησιμοποιείται μόνο το κείμενο που επικολλάς εδώ για την προετοιμασία των οδηγιών.",
+              )}</p>
+
+              <div className="assistant-actions">
+                <button className="button primary" onClick={() => goTo("material")} type="button">
+                  {text("Start", "Έναρξη")}
+                </button>
+                <button className="button secondary" onClick={() => goTo("modes")} type="button">
+                  {text("View other AI options", "Προβολή άλλων επιλογών AI")}
+                </button>
+              </div>
+            </section>
+          )}
+
+          {screen === "modes" && (
+            <section>
+              <button className="assistant-back" onClick={() => goTo("intro")} type="button">
+                ← {text("Back", "Πίσω")}
+              </button>
+              <p className="eyebrow">{text("AI options", "Επιλογές AI")}</p>
+              <h3>{text("Choose how to continue", "Επίλεξε πώς θέλεις να συνεχίσεις")}</h3>
 
               <div className="assistant-mode-grid">
-                <button className="assistant-mode-card" onClick={() => { setMessage(""); setScreen("tasks"); }} type="button">
+                <button className="assistant-mode-card" onClick={() => goTo("material")} type="button">
                   <span className="assistant-mode-status available">{text("Available", "Διαθέσιμο")}</span>
                   <strong>ChatGPT Companion</strong>
-                  <small>{text("Copy a prompt and open ChatGPT.", "Αντιγραφή prompt και άνοιγμα ChatGPT.")}</small>
+                  <small>{text(
+                    "Follow guided steps to prepare your study session in ChatGPT.",
+                    "Ακολούθησε καθοδηγούμενα βήματα για να προετοιμάσεις τη μελέτη σου στο ChatGPT.",
+                  )}</small>
                 </button>
 
                 <button className="assistant-mode-card" onClick={() => showComingSoon()} type="button">
@@ -176,63 +287,158 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
             </section>
           )}
 
-          {screen === "tasks" && (
+          {screen === "material" && (
             <section>
-              <button className="assistant-back" onClick={() => setScreen("modes")} type="button">
+              <button className="assistant-back" onClick={() => goTo("intro")} type="button">
                 ← {text("Back", "Πίσω")}
               </button>
-              <p className="eyebrow">ChatGPT Companion</p>
-              <h3>{text("Choose a task", "Επίλεξε εργασία")}</h3>
-              <div className="assistant-task-grid">
-                {companionTasks.map((task) => (
-                  <button
-                    className="assistant-task-card"
-                    key={task.id}
-                    onClick={() => selectTask(task.id)}
-                    type="button"
-                  >
-                    <strong>{text(task.en, task.el)}</strong>
-                  </button>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {screen === "companion" && (
-            <section>
-              <button className="assistant-back" onClick={() => setScreen("tasks")} type="button">
-                ← {text("Back", "Πίσω")}
-              </button>
-              <p className="eyebrow">ChatGPT Companion</p>
-              <h3>{text(
-                companionTasks.find((task) => task.id === taskId)?.en ?? "Task",
-                companionTasks.find((task) => task.id === taskId)?.el ?? "Εργασία",
-              )}</h3>
+              <p className="assistant-progress">{text("Step 1 of 3", "Βήμα 1 από 3")}</p>
+              <h3>{text("Add study material", "Πρόσθεσε υλικό μελέτης")}</h3>
+              <p className="assistant-step-intro">{text(
+                "Paste only the text you want to use in this study session.",
+                "Επικόλλησε μόνο το κείμενο που θέλεις να χρησιμοποιήσεις σε αυτή τη μελέτη.",
+              )}</p>
 
               <label className="field-label assistant-paste-field">
                 {text("Study text", "Υλικό μελέτης")}
                 <textarea
                   maxLength={12_000}
-                  onChange={(event) => setMaterial(event.target.value)}
-                  placeholder={text("Paste the text you want to use", "Επικόλλησε το κείμενο που θέλεις να χρησιμοποιήσεις")}
-                  rows={8}
+                  onChange={(event) => {
+                    setMaterial(event.target.value);
+                    setMessage("");
+                  }}
+                  placeholder={text(
+                    "Paste a chapter, notes, or another text excerpt",
+                    "Επικόλλησε ένα κεφάλαιο, σημειώσεις ή άλλο απόσπασμα κειμένου",
+                  )}
+                  rows={10}
                   value={material}
                 />
+                <small className="assistant-character-count">
+                  {material.length.toLocaleString(language === "el" ? "el-GR" : "en-US")} / 12,000
+                </small>
               </label>
 
-              {prompt && (
-                <label className="field-label assistant-prompt-preview">
-                  {text("Prepared prompt", "Έτοιμο prompt")}
-                  <textarea readOnly rows={10} value={prompt} />
+              <div className="assistant-actions">
+                <button
+                  className="button primary"
+                  disabled={!material.trim()}
+                  onClick={() => goTo("goal")}
+                  type="button"
+                >
+                  {text("Continue", "Συνέχεια")}
+                </button>
+              </div>
+            </section>
+          )}
+
+          {screen === "goal" && (
+            <section>
+              <button className="assistant-back" onClick={() => goTo("material")} type="button">
+                ← {text("Back", "Πίσω")}
+              </button>
+              <p className="assistant-progress">{text("Step 2 of 3", "Βήμα 2 από 3")}</p>
+              <h3>{text("Choose a study goal", "Επίλεξε στόχο μελέτης")}</h3>
+              <p className="assistant-step-intro">{text(
+                "Select what you want ChatGPT to do with the text.",
+                "Επίλεξε τι θέλεις να κάνει το ChatGPT με το κείμενο.",
+              )}</p>
+
+              <div className="assistant-task-grid">
+                {companionTasks.map((task) => (
+                  <button
+                    aria-pressed={task.id === taskId}
+                    className={`assistant-task-card${task.id === taskId ? " selected" : ""}`}
+                    key={task.id}
+                    onClick={() => {
+                      setTaskId(task.id);
+                      setMessage("");
+                    }}
+                    type="button"
+                  >
+                    <strong>{text(task.en, task.el)}</strong>
+                    <small>{text(task.descriptionEn, task.descriptionEl)}</small>
+                  </button>
+                ))}
+              </div>
+
+              {taskId === "custom" && (
+                <label className="field-label assistant-custom-field">
+                  {text("Your request", "Το αίτημά σου")}
+                  <textarea
+                    maxLength={1_000}
+                    onChange={(event) => {
+                      setCustomRequest(event.target.value);
+                      setMessage("");
+                    }}
+                    placeholder={text(
+                      "Example: Compare the two main theories and show their differences in a table.",
+                      "Παράδειγμα: Σύγκρινε τις δύο βασικές θεωρίες και παρουσίασε τις διαφορές τους σε πίνακα.",
+                    )}
+                    rows={4}
+                    value={customRequest}
+                  />
                 </label>
               )}
 
               <div className="assistant-actions">
-                <button className="button primary" onClick={() => void copyPrompt()} type="button">
-                  {text("Copy prompt", "Αντιγραφή prompt")}
+                <button
+                  className="button primary"
+                  disabled={!canContinueFromGoal}
+                  onClick={continueToReview}
+                  type="button"
+                >
+                  {text("Review instructions", "Έλεγχος οδηγιών")}
                 </button>
-                <button className="button secondary" onClick={openChatGpt} type="button">
-                  {text("Open ChatGPT", "Άνοιγμα ChatGPT")}
+              </div>
+            </section>
+          )}
+
+          {screen === "review" && (
+            <section>
+              <button className="assistant-back" onClick={() => goTo("goal")} type="button">
+                ← {text("Back", "Πίσω")}
+              </button>
+              <p className="assistant-progress">{text("Step 3 of 3", "Βήμα 3 από 3")}</p>
+              <h3>{text("Review your ChatGPT instructions", "Έλεγξε τις οδηγίες για το ChatGPT")}</h3>
+              <p className="assistant-step-intro">{text(
+                `Goal: ${selectedTask.en}. You can edit the instructions before copying them.`,
+                `Στόχος: ${selectedTask.el}. Μπορείς να επεξεργαστείς τις οδηγίες πριν τις αντιγράψεις.`,
+              )}</p>
+
+              <label className="field-label assistant-prompt-preview">
+                {text("Prepared instructions", "Έτοιμες οδηγίες")}
+                <textarea
+                  onChange={(event) => {
+                    setPreparedPrompt(event.target.value);
+                    setMessage("");
+                  }}
+                  rows={14}
+                  value={preparedPrompt}
+                />
+              </label>
+
+              <p className="assistant-privacy-note assistant-privacy-note-compact">{text(
+                "The instructions are copied to your clipboard. Paste them into the ChatGPT message box to continue.",
+                "Οι οδηγίες αντιγράφονται στο πρόχειρο. Επικόλλησέ τες στο πεδίο μηνύματος του ChatGPT για να συνεχίσεις.",
+              )}</p>
+
+              <div className="assistant-actions">
+                <button
+                  className="button primary"
+                  disabled={!preparedPrompt.trim()}
+                  onClick={copyAndOpenChatGpt}
+                  type="button"
+                >
+                  {text("Copy & Open ChatGPT", "Αντιγραφή & άνοιγμα ChatGPT")}
+                </button>
+                <button
+                  className="button secondary"
+                  disabled={!preparedPrompt.trim()}
+                  onClick={() => void copyPreparedInstructions()}
+                  type="button"
+                >
+                  {text("Copy only", "Μόνο αντιγραφή")}
                 </button>
               </div>
             </section>
