@@ -51,7 +51,8 @@ export const legalPages = {
       {
         heading: copy("AI Assistant", "Βοηθός AI"),
         paragraphs: [
-          copy("ChatGPT Companion copies a prompt only when you choose. StudyApp AI and ChatGPT App are not active yet.", "Το ChatGPT Companion αντιγράφει prompt μόνο όταν το επιλέξεις. Το StudyApp AI και το ChatGPT App δεν είναι ακόμη ενεργά."),
+          copy("ChatGPT Companion prepares a prompt only from text you choose. If clipboard or popup access fails, the prompt remains visible for manual copy and is not sent automatically.", "Το ChatGPT Companion ετοιμάζει prompt μόνο από κείμενο που επιλέγεις. Αν αποτύχει η πρόσβαση στο πρόχειρο ή στο αναδυόμενο παράθυρο, το prompt παραμένει ορατό για χειροκίνητη αντιγραφή και δεν αποστέλλεται αυτόματα."),
+          copy("StudyApp AI and ChatGPT App are not active yet.", "Το StudyApp AI και το ChatGPT App δεν είναι ακόμη ενεργά."),
           copy("No paid AI request or charge is currently available.", "Δεν είναι ακόμη διαθέσιμη επί πληρωμή κλήση AI ή χρέωση."),
         ],
       },

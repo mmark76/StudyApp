@@ -87,11 +87,24 @@ export function ContentImportPage() {
       "Να διαγραφούν όλα τα κεφάλαια και οι κάρτες που πρόσθεσες;",
     ))) return;
 
-    await studyDatabase.transaction("rw", studyDatabase.settings, studyDatabase.cardProgress, async () => {
-      await studyDatabase.settings.delete(IMPORTED_UNITS_SETTING_KEY);
-      await studyDatabase.settings.delete(IMPORTED_FLASHCARDS_SETTING_KEY);
-      await studyDatabase.cardProgress.bulkDelete(importedFlashcards.map((card) => card.id));
-    });
+    const importedCardIds = importedFlashcards.map((card) => card.id);
+    await studyDatabase.transaction(
+      "rw",
+      studyDatabase.settings,
+      studyDatabase.cardProgress,
+      studyDatabase.studyOperations,
+      async () => {
+        await studyDatabase.settings.delete(IMPORTED_UNITS_SETTING_KEY);
+        await studyDatabase.settings.delete(IMPORTED_FLASHCARDS_SETTING_KEY);
+        await studyDatabase.cardProgress.bulkDelete(importedCardIds);
+        if (importedCardIds.length > 0) {
+          await studyDatabase.studyOperations
+            .where("cardId")
+            .anyOf(importedCardIds)
+            .delete();
+        }
+      },
+    );
     setMessage(text("Added content removed.", "Το περιεχόμενο διαγράφηκε."));
   }
 

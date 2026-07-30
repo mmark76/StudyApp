@@ -13,6 +13,7 @@ import type {
   AppSetting,
   CardProgress,
   StudyBackup,
+  StudyOperation,
   StudySession,
 } from "../src/shared/types/models";
 
@@ -281,11 +282,22 @@ describe("transactional backup restore", () => {
       uiDensity: "spacious",
     },
   };
+  const existingOperation: StudyOperation = {
+    id: "existing-operation",
+    kind: "quiz-completion",
+    mode: "quiz",
+    sessionId: existingSession.id,
+    committedAt: existingSession.completedAt ?? existingSession.startedAt,
+    completesSession: true,
+    reviewedCards: existingSession.reviewedCards,
+    correctAnswers: existingSession.correctAnswers,
+  };
 
   beforeEach(async () => {
     await studyDatabase.delete();
     await studyDatabase.open();
     await studyDatabase.cardProgress.add(existingProgress);
+    await studyDatabase.studyOperations.add(existingOperation);
     await studyDatabase.studySessions.add(existingSession);
     await studyDatabase.settings.add(existingSetting);
   });
@@ -306,6 +318,7 @@ describe("transactional backup restore", () => {
     await expect(studyDatabase.studySessions.toArray()).resolves.toEqual(
       backup.studySessions,
     );
+    await expect(studyDatabase.studyOperations.count()).resolves.toBe(0);
     await expect(studyDatabase.settings.count()).resolves.toBe(
       backup.settings.length,
     );
@@ -326,6 +339,9 @@ describe("transactional backup restore", () => {
     await expect(studyDatabase.studySessions.toArray()).resolves.toEqual([
       existingSession,
     ]);
+    await expect(studyDatabase.studyOperations.toArray()).resolves.toEqual([
+      existingOperation,
+    ]);
     await expect(studyDatabase.settings.toArray()).resolves.toEqual([
       existingSetting,
     ]);
@@ -344,6 +360,9 @@ describe("transactional backup restore", () => {
     ]);
     await expect(studyDatabase.studySessions.toArray()).resolves.toEqual([
       existingSession,
+    ]);
+    await expect(studyDatabase.studyOperations.toArray()).resolves.toEqual([
+      existingOperation,
     ]);
     await expect(studyDatabase.settings.toArray()).resolves.toEqual([
       existingSetting,

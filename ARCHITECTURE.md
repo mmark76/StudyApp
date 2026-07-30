@@ -31,7 +31,8 @@ No production AI request, real credit operation or payment is currently enabled.
 IndexedDB contains:
 
 - `cardProgress` — spaced-repetition state;
-- `studySessions` — completed study and quiz sessions;
+- `studySessions` — active and completed study and quiz sessions;
+- `studyOperations` — internal idempotency records for committed study actions;
 - `settings` — appearance, imported content and saved links;
 - `studyFiles` — local file metadata and blobs.
 
@@ -62,7 +63,10 @@ send the text, automate ChatGPT or read the ChatGPT response. The user pastes th
 prepared request manually.
 
 The production URL is public Vite configuration in `.env.production`; it is not a
-secret and must not contain credentials or tokens.
+secret and must not contain credentials or tokens. Runtime validation permits
+only the approved HTTPS `chatgpt.com` destination without embedded credentials
+or a custom port. Popup and clipboard outcomes are independent React state, and
+the prepared request remains visible for manual copy and paste.
 
 #### ChatGPT App / MCP
 
@@ -126,6 +130,22 @@ Supported IndexedDB records → validated JSON export
 Valid backup JSON → preview → confirmation → one IndexedDB replacement transaction
 ```
 
+Internal `studyOperations` records are not exported. Restore clears them inside
+the same replacement transaction so restored progress and sessions cannot be
+matched to stale operation IDs.
+
+### Study-operation flow
+
+```text
+Stable operation ID
+→ one Dexie transaction
+→ progress + active/completed session + idempotency record
+→ committed result returned to the UI
+```
+
+Retries reuse the operation ID. Existing committed operations return their
+stored logical result without applying scheduling or quiz counters again.
+
 ### Companion flow
 
 ```text
@@ -174,6 +194,9 @@ No automatic library scan and no automatic result save are allowed.
 
 Existing unit and IndexedDB tests cover local study logic, files, imports,
 backups and updates.
+
+Playwright Chromium tests cover the Companion navigation/failure paths and
+transaction failure/retry behaviour for flashcards, quizzes and review.
 
 This change also requires coverage for:
 

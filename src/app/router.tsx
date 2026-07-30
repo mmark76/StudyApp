@@ -16,6 +16,10 @@ import { StudyTheoryPage } from "../features/study/StudyTheoryPage";
 import { ToolsPage } from "../features/tools/ToolsPage";
 import { UnitsPage } from "../features/units/UnitsPage";
 import { AppLayout } from "../shared/components/AppLayout";
+import { createE2EStudyFailureInjectors } from "./e2eStudyFailureInjection";
+
+const e2eFailureInjectors =
+  import.meta.env.MODE === "e2e" ? createE2EStudyFailureInjectors() : null;
 
 export const router = createHashRouter([
   {
@@ -30,9 +34,24 @@ export const router = createHashRouter([
       { path: "learn", element: <LearnPage /> },
       { path: "library", element: <LibraryPage /> },
       { path: "units", element: <UnitsPage /> },
-      { path: "flashcards", element: <FlashcardsPage /> },
-      { path: "review", element: <ReviewPage /> },
-      { path: "quiz", element: <QuizPage /> },
+      {
+        path: "flashcards",
+        element: (
+          <FlashcardsPage
+            failureInjector={e2eFailureInjectors?.flashcards}
+          />
+        ),
+      },
+      {
+        path: "review",
+        element: (
+          <ReviewPage failureInjector={e2eFailureInjectors?.review} />
+        ),
+      },
+      {
+        path: "quiz",
+        element: <QuizPage failureInjector={e2eFailureInjectors?.quiz} />,
+      },
       { path: "progress", element: <ProgressPage /> },
       { path: "import", element: <ContentImportPage /> },
       { path: "study-materials", element: <Navigate replace to="/library" /> },

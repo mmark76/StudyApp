@@ -3,17 +3,19 @@ import type {
   AppSetting,
   CardProgress,
   LocalStudyFile,
+  StudyOperation,
   StudySession,
 } from "../../shared/types/models";
 
-class StudyDatabase extends Dexie {
+export class StudyDatabase extends Dexie {
   cardProgress!: EntityTable<CardProgress, "cardId">;
+  studyOperations!: EntityTable<StudyOperation, "id">;
   studySessions!: EntityTable<StudySession, "id">;
   settings!: EntityTable<AppSetting, "key">;
   studyFiles!: EntityTable<LocalStudyFile, "id">;
 
-  constructor() {
-    super("generic-study-app");
+  constructor(databaseName = "generic-study-app") {
+    super(databaseName);
     this.version(1).stores({
       cardProgress: "&cardId,nextReviewAt,score",
       studySessions: "&id,mode,startedAt,completedAt",
@@ -21,6 +23,13 @@ class StudyDatabase extends Dexie {
     });
     this.version(2).stores({
       cardProgress: "&cardId,nextReviewAt,score",
+      studySessions: "&id,mode,startedAt,completedAt",
+      settings: "&key",
+      studyFiles: "&id,createdAt,title"
+    });
+    this.version(3).stores({
+      cardProgress: "&cardId,nextReviewAt,score",
+      studyOperations: "&id,sessionId,mode,cardId,committedAt",
       studySessions: "&id,mode,startedAt,completedAt",
       settings: "&key",
       studyFiles: "&id,createdAt,title"

@@ -455,10 +455,12 @@ export async function importBackup(value: unknown): Promise<void> {
   await studyDatabase.transaction(
     "rw",
     studyDatabase.cardProgress,
+    studyDatabase.studyOperations,
     studyDatabase.studySessions,
     studyDatabase.settings,
     async () => {
       await studyDatabase.cardProgress.clear();
+      await studyDatabase.studyOperations.clear();
       await studyDatabase.studySessions.clear();
       await studyDatabase.settings.clear();
       await studyDatabase.cardProgress.bulkAdd(backup.cardProgress);

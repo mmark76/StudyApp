@@ -12,6 +12,7 @@ Current tables:
 
 - `cardProgress`
 - `studySessions`
+- `studyOperations`
 - `settings`
 - `studyFiles`
 
@@ -89,7 +90,9 @@ Review logic must avoid skipping or repeating cards because of live query update
 
 ### StudySession
 
-A study session records a completed learning activity.
+A study session records committed activity. Flashcard and review sessions are
+created on the first committed card and receive `completedAt` only when the
+final card commits successfully.
 
 Important fields:
 
@@ -100,7 +103,24 @@ Important fields:
 - `reviewedCards`
 - `correctAnswers`
 
-Avoid duplicate session records from rapid repeated UI actions.
+Session counters are updated in the same transaction as card progress. Avoid
+duplicate session records from rapid repeated UI actions.
+
+### StudyOperation
+
+`studyOperations` is an internal idempotency ledger keyed by a stable operation
+ID. It records:
+
+- operation kind and study mode;
+- session ID;
+- card ID and rating when applicable;
+- committed counters and timestamp;
+- whether the operation completes the session.
+
+The record is written in the same transaction as progress and session changes.
+A retry with the same ID returns the already committed logical result and does
+not apply scheduling or quiz counters again. These internal records are cleared
+during backup restore and progress reset; they are not part of the JSON backup.
 
 ### AppSetting
 
@@ -174,6 +194,7 @@ Do not silently guess a material type. Untyped records should remain unclassifie
 
 - A `Flashcard.unitId` should point to an existing unit.
 - A `CardProgress.cardId` should point to an existing flashcard, or be cleaned when the corresponding imported card is removed.
+- A `StudyOperation.sessionId` should point to its active or completed session.
 - A split PDF `sourceFileId` may point to an original source file.
 - Source deletion must handle related split PDFs intentionally.
 - `contentHash` should be preferred for duplicate local-file detection when available.
@@ -188,6 +209,9 @@ When changing persisted data:
 4. Add Dexie migrations for required schema/index changes.
 5. Add tests for old and new records.
 6. Document backup/export impact.
+
+Schema version 3 adds `studyOperations` without transforming or deleting the
+version 2 progress, sessions, settings or local files.
 
 ## Future fields to consider
 

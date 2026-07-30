@@ -16,9 +16,13 @@ The Companion is a local handoff workflow:
 1. the user chooses a task;
 2. the user pastes or explicitly imports the exact study text to use;
 3. StudyApp prepares a prompt locally;
-4. StudyApp copies the prompt to the clipboard when browser permission allows;
-5. StudyApp opens the dedicated **StudyApp AI Assistant** Custom GPT in a separate browser popup;
-6. the user reviews and pastes the prepared request manually.
+4. StudyApp keeps the prepared prompt visible and copies it when browser
+   permission allows;
+5. StudyApp validates and opens the dedicated **StudyApp AI Assistant** Custom
+   GPT in a separate browser popup;
+6. if clipboard or popup access fails, StudyApp shows the independent failure
+   state and a safe manual fallback;
+7. the user reviews and pastes the prepared request manually.
 
 The Custom GPT share URL is public production configuration through
 `VITE_STUDYAPP_AI_ASSISTANT_URL`. It identifies the destination only; it is not an
@@ -36,6 +40,9 @@ The Companion does not:
 
 The external ChatGPT service applies its own account, plan, privacy and sharing
 rules. Browser popup settings may affect the window's size or position.
+StudyApp accepts only the approved HTTPS `chatgpt.com` destination without
+embedded credentials or a custom port. It does not access or zoom the external
+cross-origin page.
 
 ### 2. ChatGPT App / MCP — coming soon
 

@@ -43,6 +43,21 @@ export interface StudySession {
   correctAnswers: number;
 }
 
+export type StudyOperationKind = "card-rating" | "quiz-completion";
+
+export interface StudyOperation {
+  id: string;
+  kind: StudyOperationKind;
+  mode: StudyMode;
+  sessionId: string;
+  cardId?: string;
+  rating?: Rating;
+  committedAt: string;
+  completesSession: boolean;
+  reviewedCards?: number;
+  correctAnswers?: number;
+}
+
 export interface LocalStudyFile {
   id: string;
   title: string;
