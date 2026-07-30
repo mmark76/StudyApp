@@ -9,7 +9,7 @@ features run in the browser and store data in IndexedDB.
 
 The AI Assistant now exposes three separate modes:
 
-- ChatGPT Companion — active local prompt handoff;
+- ChatGPT Companion — active local prompt handoff to the dedicated StudyApp AI Assistant Custom GPT;
 - ChatGPT App / MCP — visible but inactive;
 - StudyApp AI — visible but inactive paid/API mode.
 
@@ -53,11 +53,16 @@ the user is not translated automatically.
 #### ChatGPT Companion
 
 ```text
-Pasted text → local prompt builder → clipboard → user opens ChatGPT
+Pasted text → local prompt builder → clipboard → dedicated StudyApp AI Assistant Custom GPT popup
 ```
 
-The prompt is built entirely in the browser. The application does not send the
-text, automate ChatGPT or read the ChatGPT response.
+The prompt is built entirely in the browser. The application opens the public
+Custom GPT URL configured through `VITE_STUDYAPP_AI_ASSISTANT_URL`, but it does not
+send the text, automate ChatGPT or read the ChatGPT response. The user pastes the
+prepared request manually.
+
+The production URL is public Vite configuration in `.env.production`; it is not a
+secret and must not contain credentials or tokens.
 
 #### ChatGPT App / MCP
 
@@ -118,16 +123,18 @@ User file → runtime validation → IndexedDB blob → safe open or download
 
 ```text
 Supported IndexedDB records → validated JSON export
-Validated JSON import → preview → confirmation → transaction
+Valid backup JSON → preview → confirmation → one IndexedDB replacement transaction
 ```
 
 ### Companion flow
 
 ```text
-User-pasted text → local prompt → clipboard
+User-pasted or explicitly imported text → local prompt → clipboard
+→ user-controlled Custom GPT popup → manual paste
 ```
 
-No network request is made by the Companion itself.
+No study material is sent by the Companion itself. Opening the configured ChatGPT
+page is a normal external navigation controlled by the user.
 
 ### Future remote AI flow
 
@@ -147,6 +154,7 @@ No automatic library scan and no automatic result save are allowed.
 - Real credits and ledgers must be server-authoritative and idempotent.
 - Mode availability must be represented independently.
 - English and Greek wording must communicate the same material facts.
+- The Companion does not inspect, automate or embed the ChatGPT website.
 
 ## High-risk areas
 

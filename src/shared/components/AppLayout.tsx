@@ -66,10 +66,10 @@ export function AppLayout() {
             <button
               aria-describedby="assistant-internet-status"
               aria-haspopup="dialog"
-              aria-label={text("Open AI Assistant", "Άνοιγμα Βοηθού AI")}
+              aria-label={text("Open StudyApp AI Assistant", "Άνοιγμα Βοηθού AI του StudyApp")}
               className="assistant-launch-button"
               onClick={() => setIsAssistantOpen(true)}
-              title={text("AI Assistant", "Βοηθός AI")}
+              title={text("StudyApp AI Assistant", "Βοηθός AI του StudyApp")}
               type="button"
             >
               <span className="assistant-launch-avatar-wrap" title={internetStatusLabel}>
@@ -80,7 +80,9 @@ export function AppLayout() {
                 />
               </span>
               <span className="assistant-launch-copy">
-                <span className="assistant-launch-label">{text("AI Assistant", "Βοηθός AI")}</span>
+                <span className="assistant-launch-label">
+                  {text("StudyApp AI Assistant", "Βοηθός AI του StudyApp")}
+                </span>
               </span>
             </button>
             <span
