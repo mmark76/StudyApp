@@ -10,7 +10,10 @@ export function AssistantGuidePage() {
         <div>
           <p className="eyebrow">{text("AI options", "Επιλογές AI")}</p>
           <h2>{text("AI Assistant", "Βοηθός AI")}</h2>
-          <p>{text("Choose the option that suits you.", "Επίλεξε τον τρόπο που σε εξυπηρετεί.")}</p>
+          <p>{text(
+            "Start with a guided ChatGPT study session or review the options planned for later.",
+            "Ξεκίνησε μια καθοδηγούμενη μελέτη με το ChatGPT ή δες τις επιλογές που σχεδιάζονται για αργότερα.",
+          )}</p>
           <div className="button-row">
             <Link className="button secondary" to="/">{text("Back to Home", "Πίσω στην Αρχική")}</Link>
           </div>
@@ -22,7 +25,10 @@ export function AssistantGuidePage() {
         <article className="assistant-guide-card">
           <p className="eyebrow">{text("Available", "Διαθέσιμο")}</p>
           <h3>ChatGPT Companion</h3>
-          <p>{text("Prepare a prompt and open ChatGPT.", "Ετοίμασε ένα prompt και άνοιξε το ChatGPT.")}</p>
+          <p>{text(
+            "Follow guided steps to prepare your study instructions and continue in ChatGPT.",
+            "Ακολούθησε καθοδηγούμενα βήματα για να ετοιμάσεις τις οδηγίες μελέτης και να συνεχίσεις στο ChatGPT.",
+          )}</p>
         </article>
 
         <article className="assistant-guide-card">
@@ -43,10 +49,10 @@ export function AssistantGuidePage() {
         <h3>{text("How it works", "Πώς λειτουργεί")}</h3>
         <ol className="assistant-guide-steps">
           {[
-            text("Choose a task.", "Επίλεξε εργασία."),
-            text("Paste your study text.", "Επικόλλησε το υλικό μελέτης."),
-            text("Copy the prompt.", "Αντέγραψε το prompt."),
-            text("Open ChatGPT.", "Άνοιξε το ChatGPT."),
+            text("Paste the study text you choose.", "Επικόλλησε το υλικό μελέτης που επιλέγεις."),
+            text("Choose what you want ChatGPT to do.", "Επίλεξε τι θέλεις να κάνει το ChatGPT."),
+            text("Review and edit the prepared instructions.", "Έλεγξε και επεξεργάσου τις έτοιμες οδηγίες."),
+            text("Copy the instructions and continue in ChatGPT.", "Αντέγραψε τις οδηγίες και συνέχισε στο ChatGPT."),
           ].map((step, index) => (
             <li key={step}>
               <span aria-hidden="true">{index + 1}</span>
@@ -54,6 +60,10 @@ export function AssistantGuidePage() {
             </li>
           ))}
         </ol>
+        <p className="assistant-privacy-note">{text(
+          "StudyApp does not automatically read your library. Only text you deliberately paste into the Assistant is used to prepare the instructions.",
+          "Το StudyApp δεν διαβάζει αυτόματα τη βιβλιοθήκη σου. Χρησιμοποιείται μόνο το κείμενο που επικολλάς σκόπιμα στον Βοηθό για την προετοιμασία των οδηγιών.",
+        )}</p>
       </section>
     </div>
   );
