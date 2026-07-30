@@ -6,6 +6,7 @@ import {
   announcePwaUpdate,
   setPwaUpdateHandler,
 } from "./app/pwaUpdate";
+import { installAssistantPopupPositioning } from "./features/assistant/assistantPopupPositioning";
 import "./styles/global.css";
 import "./styles/storageNotice.css";
 import "./styles/onboarding.css";
@@ -18,6 +19,8 @@ import "./styles/assistantServiceStatus.css";
 import "./styles/assistantGuide.css";
 import "./styles/assistantModes.css";
 import "./styles/language.css";
+
+installAssistantPopupPositioning();
 
 const updateServiceWorker = registerSW({
   immediate: true,
