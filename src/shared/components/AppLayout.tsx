@@ -3,25 +3,33 @@ import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { studyConfig } from "../../app/studyConfig";
 import { useAppearanceSettings } from "../../features/appearance/useAppearanceSettings";
 import { AssistantPanel } from "../../features/assistant/AssistantPanel";
-import {
-  getCloudCoreConnectionLabel,
-  useCloudCoreConnection,
-} from "../../infrastructure/cloud-core/useCloudCoreConnection";
+import { useLanguage } from "../../i18n/LanguageContext";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import { PwaUpdateBanner } from "./PwaUpdateBanner";
 
 const mainNavigation = [
-  { to: "/", label: "Home", matches: ["/"] },
-  { to: "/library", label: "Library", matches: ["/library"] },
-  { to: "/study/theory", label: "Structured Study", matches: ["/study", "/study/theory", "/units", "/import"] },
-  { to: "/learn", label: "Learn & Practice", matches: ["/learn", "/flashcards", "/review", "/quiz", "/progress"] },
-  { to: "/tools#split-pdf", label: "Split PDF Tool", matches: ["/tools"] },
+  { to: "/", en: "Home", el: "Αρχική", matches: ["/"] },
+  { to: "/library", en: "Library", el: "Βιβλιοθήκη", matches: ["/library"] },
+  {
+    to: "/study/theory",
+    en: "Structured Study",
+    el: "Δομημένη Μελέτη",
+    matches: ["/study", "/study/theory", "/units", "/import"],
+  },
+  {
+    to: "/learn",
+    en: "Learn & Practice",
+    el: "Μάθηση & Εξάσκηση",
+    matches: ["/learn", "/flashcards", "/review", "/quiz", "/progress"],
+  },
+  { to: "/tools#split-pdf", en: "Split PDF Tool", el: "Διαχωρισμός PDF", matches: ["/tools"] },
 ] as const;
 
 const footerNavigation = [
-  ["/legal/license", "License"],
-  ["/legal/privacy", "Privacy"],
-  ["/legal/analytics", "Analytics choices"],
-  ["/legal/copyright", "Copyright protected"]
+  ["/legal/license", "License", "Άδεια"],
+  ["/legal/privacy", "Privacy", "Απόρρητο"],
+  ["/legal/analytics", "Analytics choices", "Αναλυτικά στοιχεία"],
+  ["/legal/copyright", "Copyright protected", "Πνευματικά δικαιώματα"],
 ] as const;
 
 function isActiveMainArea(pathname: string, matches: readonly string[]): boolean {
@@ -31,42 +39,35 @@ function isActiveMainArea(pathname: string, matches: readonly string[]): boolean
 export function AppLayout() {
   useAppearanceSettings();
   const location = useLocation();
+  const { text } = useLanguage();
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
-  const { state: assistantConnectionState, checkConnection } = useCloudCoreConnection({
-    pollIntervalMs: 60_000,
-  });
-  const assistantStatusLabel = getCloudCoreConnectionLabel(assistantConnectionState);
 
   return (
     <div className="app-shell">
       <header className="app-header">
         <div className="app-header-top">
           <div>
-            <p className="eyebrow">Your private study space</p>
+            <p className="eyebrow">{text("Your private study space", "Ο προσωπικός σου χώρος μελέτης")}</p>
             <h1>{studyConfig.appName}</h1>
           </div>
-          <div className="utility-actions" aria-label="Study settings">
+          <div className="utility-actions" aria-label={text("Study settings", "Ρυθμίσεις μελέτης")}>
             <button
               aria-haspopup="dialog"
-              aria-label={`AI Assistant — ${assistantStatusLabel}`}
+              aria-label={text("Open AI Assistant", "Άνοιγμα Βοηθού AI")}
               className="assistant-launch-button"
               onClick={() => setIsAssistantOpen(true)}
-              title={`AI Assistant — ${assistantStatusLabel}`}
+              title={text("AI Assistant", "Βοηθός AI")}
               type="button"
             >
               <img alt="" className="assistant-launch-avatar" src="/study-assistant-avatar.svg" />
-              <span
-                aria-hidden="true"
-                className={`assistant-service-dot assistant-service-dot-${assistantConnectionState.status}`}
-              />
               <span className="assistant-launch-copy">
-                <span className="assistant-launch-label">AI Assistant</span>
-                <small>{assistantStatusLabel}</small>
+                <span className="assistant-launch-label">{text("AI Assistant", "Βοηθός AI")}</span>
               </span>
             </button>
-            <NavLink to="/appearance">Settings</NavLink>
+            <LanguageSwitcher />
+            <NavLink to="/appearance">{text("Settings", "Ρυθμίσεις")}</NavLink>
             <a href="mailto:markellos.markides@gmail.com?subject=StudyApp%20Feedback">
-              Feedback
+              {text("Feedback", "Σχόλια")}
             </a>
             <a
               className="text-link"
@@ -80,15 +81,15 @@ export function AppLayout() {
                 color: "var(--blue-600)",
                 padding: 0,
                 textDecoration: "underline",
-                textUnderlineOffset: "0.2em"
+                textUnderlineOffset: "0.2em",
               }}
             >
-              Back to markellosecosystem
+              {text("Back to markellosecosystem", "Πίσω στο markellosecosystem")}
             </a>
           </div>
         </div>
         <div className="navigation-row">
-          <nav className="main-nav" aria-label="Main navigation">
+          <nav className="main-nav" aria-label={text("Main navigation", "Κύρια πλοήγηση")}>
             {mainNavigation.map((item) => {
               const isActive = isActiveMainArea(location.pathname, item.matches);
               return (
@@ -98,7 +99,7 @@ export function AppLayout() {
                   key={item.to}
                   to={item.to}
                 >
-                  {item.label}
+                  {text(item.en, item.el)}
                 </Link>
               );
             })}
@@ -110,23 +111,21 @@ export function AppLayout() {
         <Outlet />
       </main>
       <footer className="app-footer">
-        <p>© 2026 Markellos Markides. All rights reserved.</p>
-        <nav className="footer-meta" aria-label="Legal information">
-          {footerNavigation.map(([to, label]) => <NavLink key={to} to={to}>{label}</NavLink>)}
+        <p>© 2026 Markellos Markides. {text("All rights reserved.", "Με επιφύλαξη παντός δικαιώματος.")}</p>
+        <nav className="footer-meta" aria-label={text("Legal information", "Νομικές πληροφορίες")}>
+          {footerNavigation.map(([to, en, el]) => <NavLink key={to} to={to}>{text(en, el)}</NavLink>)}
         </nav>
         <small
           className="build-version"
-          title="Version · Cyprus build date (YYYYMMDD) and local time · commit reference"
+          title={text(
+            "Version · Cyprus build date and local time · commit reference",
+            "Έκδοση · ημερομηνία και τοπική ώρα Κύπρου · αναφορά commit",
+          )}
         >
           {__APP_BUILD_ID__}
         </small>
       </footer>
-      <AssistantPanel
-        connectionState={assistantConnectionState}
-        onCheckConnection={checkConnection}
-        open={isAssistantOpen}
-        onClose={() => setIsAssistantOpen(false)}
-      />
+      <AssistantPanel open={isAssistantOpen} onClose={() => setIsAssistantOpen(false)} />
     </div>
   );
 }

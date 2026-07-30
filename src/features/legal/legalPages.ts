@@ -1,45 +1,90 @@
-export type LegalPageContent = {
-  title: string;
-  summary: string;
-  lastUpdated: string;
-  sections: readonly { heading: string; paragraphs: readonly string[] }[];
+export type LocalizedLegalText = {
+  en: string;
+  el: string;
 };
+
+export type LegalPageContent = {
+  title: LocalizedLegalText;
+  summary: LocalizedLegalText;
+  lastUpdated: LocalizedLegalText;
+  sections: readonly {
+    heading: LocalizedLegalText;
+    paragraphs: readonly LocalizedLegalText[];
+  }[];
+};
+
+function copy(en: string, el: string): LocalizedLegalText {
+  return { en, el };
+}
 
 export const legalPages = {
   license: {
-    title: "License",
-    summary: "This project is publicly visible but is not open source.",
-    lastUpdated: "25 June 2026",
+    title: copy("License", "Άδεια"),
+    summary: copy("The project is publicly visible but is not open source.", "Το έργο είναι δημόσια ορατό αλλά δεν είναι ανοικτού κώδικα."),
+    lastUpdated: copy("30 July 2026", "30 Ιουλίου 2026"),
     sections: [
-      { heading: "All Rights Reserved", paragraphs: ["Copyright © 2026 Markellos Markides. All rights reserved.", "No permission is granted to copy, modify, distribute, rehost, sublicense, sell, or otherwise reuse the project without prior written permission."] },
-      { heading: "Third-party material", paragraphs: ["Third-party software and materials remain subject to their respective licences and rights."] }
-    ]
+      {
+        heading: copy("All Rights Reserved", "Με επιφύλαξη παντός δικαιώματος"),
+        paragraphs: [
+          copy("Copyright © 2026 Markellos Markides. All rights reserved.", "Copyright © 2026 Markellos Markides. Με επιφύλαξη παντός δικαιώματος."),
+          copy("Copying, modifying, distributing or selling the project requires prior written permission.", "Η αντιγραφή, τροποποίηση, διανομή ή πώληση απαιτεί προηγούμενη γραπτή άδεια."),
+        ],
+      },
+      {
+        heading: copy("Third-party material", "Υλικό τρίτων"),
+        paragraphs: [copy("Third-party software and material remain subject to their own licences.", "Το λογισμικό και το υλικό τρίτων διέπονται από τις δικές τους άδειες.")],
+      },
+    ],
   },
   privacy: {
-    title: "Privacy",
-    summary: "StudyApp remains local-first and does not upload study content during its Cloud Core availability check.",
-    lastUpdated: "29 July 2026",
+    title: copy("Privacy", "Απόρρητο"),
+    summary: copy("StudyApp is local-first and sends no study content automatically.", "Το StudyApp είναι local-first και δεν αποστέλλει αυτόματα υλικό μελέτης."),
+    lastUpdated: copy("30 July 2026", "30 Ιουλίου 2026"),
     sections: [
-      { heading: "Local data", paragraphs: ["Study progress, preferences, user-provided chapters and flashcards, saved links, and local study files are stored locally in this browser. The application has no account system or cloud sync and does not generate study content automatically.", "Browser data can be lost if site data is cleared, the browser or application is removed, the browser profile or device changes, or local storage fails. Keep original files and needed copies outside StudyApp."] },
-      { heading: "Cloud Core connection", paragraphs: ["The Settings page can check whether Markellos Cloud Core is available. This operational request sends no study material, progress, local files, saved links, or settings.", "Future remote features must identify exactly what will be sent and require an intentional user action before study content leaves the browser."] },
-      { heading: "Files from your device", paragraphs: ["Adding a file imports a copy into this browser on this device. The application does not upload or sync the file to a server.", "The progress/settings JSON backup does not include uploaded or generated file blobs. Split PDFs remain locally stored until removed and can be downloaded when a copy is needed outside StudyApp."] },
-      { heading: "External links", paragraphs: ["For a saved link, StudyApp stores the generated display name, classification, and URL. The linked file remains with the external service chosen by the user; its access and sharing permissions are controlled through that service."] },
-      { heading: "Hosting", paragraphs: ["GitHub Pages, Markellos Cloud Core, and network providers may process technical request information under their own policies."] }
-    ]
+      {
+        heading: copy("Local data", "Τοπικά δεδομένα"),
+        paragraphs: [
+          copy("Progress, settings, chapters, flashcards, links and local files are stored in this browser.", "Η πρόοδος, οι ρυθμίσεις, τα κεφάλαια, οι κάρτες, οι σύνδεσμοι και τα τοπικά αρχεία αποθηκεύονται σε αυτόν τον browser."),
+          copy("Browser data can be lost. Keep original files and backups somewhere safe.", "Τα δεδομένα του browser μπορεί να χαθούν. Κράτησε τα πρωτότυπα αρχεία και τα backup σε ασφαλές σημείο."),
+        ],
+      },
+      {
+        heading: copy("AI Assistant", "Βοηθός AI"),
+        paragraphs: [
+          copy("ChatGPT Companion copies a prompt only when you choose. StudyApp AI and ChatGPT App are not active yet.", "Το ChatGPT Companion αντιγράφει prompt μόνο όταν το επιλέξεις. Το StudyApp AI και το ChatGPT App δεν είναι ακόμη ενεργά."),
+          copy("No paid AI request or charge is currently available.", "Δεν είναι ακόμη διαθέσιμη επί πληρωμή κλήση AI ή χρέωση."),
+        ],
+      },
+      {
+        heading: copy("External links", "Εξωτερικοί σύνδεσμοι"),
+        paragraphs: [copy("External services apply their own privacy and sharing rules.", "Οι εξωτερικές υπηρεσίες εφαρμόζουν τους δικούς τους κανόνες απορρήτου και κοινοποίησης.")],
+      },
+    ],
   },
   analytics: {
-    title: "Analytics choices",
-    summary: "The application does not include its own analytics preference or advertising system.",
-    lastUpdated: "25 June 2026",
-    sections: [{ heading: "Current behaviour", paragraphs: ["The application does not install a first-party analytics tracker. Infrastructure providers may still produce operational statistics."] }]
+    title: copy("Analytics choices", "Αναλυτικά στοιχεία"),
+    summary: copy("StudyApp does not include its own analytics or advertising system.", "Το StudyApp δεν περιλαμβάνει δικό του σύστημα analytics ή διαφημίσεων."),
+    lastUpdated: copy("30 July 2026", "30 Ιουλίου 2026"),
+    sections: [
+      {
+        heading: copy("Current behaviour", "Τρέχουσα λειτουργία"),
+        paragraphs: [copy("The application does not install a first-party analytics tracker.", "Η εφαρμογή δεν εγκαθιστά tracker analytics πρώτου μέρους.")],
+      },
+    ],
   },
   copyright: {
-    title: "Copyright protected",
-    summary: "The project's original work is protected under an All Rights Reserved position.",
-    lastUpdated: "25 June 2026",
+    title: copy("Copyright protected", "Πνευματικά δικαιώματα"),
+    summary: copy("The original project work is protected.", "Το πρωτότυπο έργο προστατεύεται."),
+    lastUpdated: copy("30 July 2026", "30 Ιουλίου 2026"),
     sections: [
-      { heading: "Protected material", paragraphs: ["The original source code, interface, documentation, and educational content are protected. Public visibility is not permission for reuse."] },
-      { heading: "User-added material", paragraphs: ["Books, notes, PDFs, documents, links, images, and other materials added by a user remain subject to their original copyright and licence terms. Users are responsible for having permission to use them."] }
-    ]
-  }
+      {
+        heading: copy("Protected material", "Προστατευόμενο υλικό"),
+        paragraphs: [copy("The source code, interface, documentation and original content are protected.", "Ο πηγαίος κώδικας, η διεπαφή, η τεκμηρίωση και το πρωτότυπο περιεχόμενο προστατεύονται.")],
+      },
+      {
+        heading: copy("User-added material", "Υλικό χρήστη"),
+        paragraphs: [copy("Users are responsible for having permission to use material they add.", "Οι χρήστες είναι υπεύθυνοι για το δικαίωμα χρήσης του υλικού που προσθέτουν.")],
+      },
+    ],
+  },
 } as const satisfies Record<string, LegalPageContent>;

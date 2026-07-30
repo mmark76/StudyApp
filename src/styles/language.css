@@ -1,0 +1,31 @@
+.language-switcher {
+  align-items: center;
+  background: color-mix(in srgb, var(--surface-strong, #ffffff) 90%, var(--blue-600, #1d4ed8));
+  border: 1px solid color-mix(in srgb, var(--blue-600, #1d4ed8) 24%, transparent);
+  border-radius: 999px;
+  display: inline-flex;
+  padding: 0.18rem;
+}
+
+.language-switcher button {
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 800;
+  min-width: 2.35rem;
+  padding: 0.38rem 0.5rem;
+}
+
+.language-switcher button.active {
+  background: var(--blue-600, #1d4ed8);
+  color: #ffffff;
+}
+
+.language-switcher button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--blue-600, #1d4ed8) 42%, transparent);
+  outline-offset: 2px;
+}

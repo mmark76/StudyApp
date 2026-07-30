@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
+import { getFileKindLabel } from "../../i18n/domainLabels";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { LocalStudyFile, SourceMaterialType } from "../../shared/types/models";
 import {
@@ -8,7 +10,6 @@ import {
   type LocalFileDeletionChoice,
 } from "./localFileDeletion";
 import {
-  formatFileKind,
   formatFileSize,
   getSourceMaterialType,
   isSourceMaterialFile,
@@ -25,116 +26,70 @@ import {
   type StudyMaterialLink,
 } from "../study-materials/studyMaterials";
 
-const libraryCategories = [
-  {
-    id: "books",
-    materialType: "book",
-    title: "Books",
-    description: "Read textbooks, manuals, chapters and longer reference works from the original source.",
-  },
-  {
-    id: "articles",
-    materialType: "article",
-    title: "Articles",
-    description: "Read web articles, magazine pieces and focused explanatory resources from the source.",
-  },
-  {
-    id: "papers",
-    materialType: "paper",
-    title: "Papers",
-    description: "Read research papers, reports and evidence-based material from the original document.",
-  },
-  {
-    id: "outsource-notes",
-    materialType: "outsource-note",
-    title: "Outsource Notes",
-    description: "Read external lecture notes, uploaded notes, PDFs or source files used as study material.",
-  },
-  {
-    id: "my-notes",
-    materialType: "my-note",
-    title: "My Notes",
-    description: "Read your own important points, observations and study notes from the material you have structured.",
-  },
-  {
-    id: "summaries",
-    materialType: "summary",
-    title: "Summaries",
-    description: "Read condensed chapter summaries, learning objectives and key terms before practice.",
-  },
-] as const satisfies readonly {
-  id: string;
-  materialType: SourceMaterialType;
-  title: string;
-  description: string;
-}[];
-
 function getLinkMaterialType(link: StudyMaterialLink): SourceMaterialType | null {
   return link.materialType ?? null;
 }
 
 export function LibraryPage() {
+  const { language, text } = useLanguage();
   const allLocalFiles = useLiveQuery(
     () => studyDatabase.studyFiles.orderBy("createdAt").toArray(),
     [],
   ) ?? [];
-  const localFiles = useMemo(
-    () => allLocalFiles.filter(isSourceMaterialFile),
-    [allLocalFiles],
-  );
-  const setting = useLiveQuery(
-    () => studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY),
-    [],
-  );
-  const savedLinks = useMemo(
-    () => parseStoredStudyMaterials(setting?.value),
-    [setting?.value],
-  );
+  const localFiles = useMemo(() => allLocalFiles.filter(isSourceMaterialFile), [allLocalFiles]);
+  const setting = useLiveQuery(() => studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY), []);
+  const savedLinks = useMemo(() => parseStoredStudyMaterials(setting?.value), [setting?.value]);
   const [message, setMessage] = useState("");
   const allLinks = [...builtInStudyMaterials, ...savedLinks];
-  const sourceLinks = allLinks.filter(
-    (link) => getLinkMaterialType(link) !== null || !link.structuredStudyType,
-  );
+  const sourceLinks = allLinks.filter((link) => getLinkMaterialType(link) !== null || !link.structuredStudyType);
   const savedLinkIds = new Set(savedLinks.map((link) => link.id));
   const unclassifiedFiles = localFiles.filter((file) => getSourceMaterialType(file) === null);
   const unclassifiedLinks = sourceLinks.filter((link) => getLinkMaterialType(link) === null);
+
+  const libraryCategories: readonly {
+    id: string;
+    materialType: SourceMaterialType;
+    title: string;
+    description: string;
+  }[] = [
+    { id: "books", materialType: "book", title: text("Books", "Βιβλία"), description: text("Textbooks and longer references.", "Συγγράμματα και μεγαλύτερες πηγές.") },
+    { id: "articles", materialType: "article", title: text("Articles", "Άρθρα"), description: text("Articles and focused resources.", "Άρθρα και στοχευμένες πηγές.") },
+    { id: "papers", materialType: "paper", title: text("Papers", "Εργασίες"), description: text("Research papers and reports.", "Ερευνητικές εργασίες και αναφορές.") },
+    { id: "outsource-notes", materialType: "outsource-note", title: text("External Notes", "Εξωτερικές σημειώσεις"), description: text("Shared or external notes.", "Κοινόχρηστες ή εξωτερικές σημειώσεις.") },
+    { id: "my-notes", materialType: "my-note", title: text("My Notes", "Οι σημειώσεις μου"), description: text("Your personal notes.", "Οι προσωπικές σου σημειώσεις.") },
+    { id: "summaries", materialType: "summary", title: text("Summaries", "Περιλήψεις"), description: text("Short study summaries.", "Σύντομες περιλήψεις μελέτης.") },
+  ];
 
   async function openLocalFile(fileId: string) {
     const file = localFiles.find((item) => item.id === fileId);
     if (!file) return;
     try {
       const openMode = await openLocalStudyFile(file);
-      if (openMode === "download") {
-        setMessage("This file was downloaded because it cannot be safely previewed in the browser.");
-      }
+      if (openMode === "download") setMessage(text("The file was downloaded.", "Το αρχείο κατέβηκε."));
     } catch (error) {
       setMessage(
-        error instanceof LocalFilePolicyError
+        language === "en" && error instanceof LocalFilePolicyError
           ? error.message
-          : "The file could not be opened.",
+          : text("The file could not be opened.", "Το αρχείο δεν μπορεί να ανοίξει."),
       );
     }
   }
 
-  function chooseDeletionForRelatedSplitPdfs(file: LocalStudyFile, relatedSplitPdfs: readonly LocalStudyFile[]): LocalFileDeletionChoice {
-    const splitList = relatedSplitPdfs.map((item) => `- ${item.title}`).join("\n");
-    const response = window.prompt(
-      [
-        `"${file.title}" has ${relatedSplitPdfs.length} related split PDF${relatedSplitPdfs.length === 1 ? "" : "s"}.`,
-        "Type DELETE ALL to delete the source file and the related split PDFs.",
-        "Type KEEP SPLITS to delete only the source file and keep the split PDFs in Structured Study without the original source file.",
-        "Press Cancel to keep everything.",
-        "",
-        splitList,
-      ].join("\n"),
-    );
+  function chooseDeletionForRelatedSplitPdfs(
+    file: LocalStudyFile,
+    relatedSplitPdfs: readonly LocalStudyFile[],
+  ): LocalFileDeletionChoice {
+    const response = window.prompt(text(
+      `"${file.title}" has ${relatedSplitPdfs.length} related PDF files. Type DELETE ALL to remove all, or KEEP SPLITS to keep the split PDFs.`,
+      `Το «${file.title}» έχει ${relatedSplitPdfs.length} σχετικά PDF. Γράψε DELETE ALL για διαγραφή όλων ή KEEP SPLITS για διατήρηση των χωρισμένων PDF.`,
+    ));
     if (response === null) return "cancel";
 
     const normalized = response.trim().toLocaleLowerCase();
     if (normalized === "delete all") return "delete-source-and-splits";
     if (normalized === "keep splits") return "delete-source-only";
 
-    window.alert("Nothing was deleted. Type DELETE ALL, KEEP SPLITS, or press Cancel.");
+    window.alert(text("Nothing was deleted.", "Δεν διαγράφηκε τίποτα."));
     return "cancel";
   }
 
@@ -144,14 +99,12 @@ export function LibraryPage() {
     const relatedSplitPdfs = findRelatedSplitPdfFiles(fileId, allLocalFiles);
 
     if (relatedSplitPdfs.length === 0) {
-      const shouldDelete = window.confirm(`Delete "${file.title}" from StudyApp? This cannot be undone.`);
-      if (!shouldDelete) return;
-
+      if (!window.confirm(text(`Delete "${file.title}"?`, `Να διαγραφεί το «${file.title}»;`))) return;
       try {
         await studyDatabase.studyFiles.delete(fileId);
-        setMessage(`Deleted "${file.title}".`);
+        setMessage(text(`Deleted "${file.title}".`, `Διαγράφηκε το «${file.title}».`));
       } catch {
-        setMessage(`Could not delete "${file.title}".`);
+        setMessage(text("The file could not be deleted.", "Το αρχείο δεν μπορεί να διαγραφεί."));
       }
       return;
     }
@@ -159,7 +112,7 @@ export function LibraryPage() {
     const choice = chooseDeletionForRelatedSplitPdfs(file, relatedSplitPdfs);
     const deletionIds = getLocalFileDeletionIds(fileId, relatedSplitPdfs, choice);
     if (deletionIds.length === 0) {
-      setMessage("Nothing was deleted.");
+      setMessage(text("Nothing was deleted.", "Δεν διαγράφηκε τίποτα."));
       return;
     }
 
@@ -167,24 +120,15 @@ export function LibraryPage() {
       await studyDatabase.transaction("rw", studyDatabase.studyFiles, async () => {
         await studyDatabase.studyFiles.bulkDelete(deletionIds);
       });
-
-      setMessage(
-        choice === "delete-source-and-splits"
-          ? `Deleted "${file.title}" and ${relatedSplitPdfs.length} related split PDF${relatedSplitPdfs.length === 1 ? "" : "s"}.`
-          : `Deleted "${file.title}". ${relatedSplitPdfs.length} split PDF${relatedSplitPdfs.length === 1 ? "" : "s"} kept in Structured Study without the original source file by your choice.`,
-      );
+      setMessage(text("Files deleted.", "Τα αρχεία διαγράφηκαν."));
     } catch {
-      setMessage(`Could not delete "${file.title}".`);
+      setMessage(text("The files could not be deleted.", "Τα αρχεία δεν μπορούν να διαγραφούν."));
     }
   }
 
   async function deleteSavedLink(link: StudyMaterialLink) {
     if (!savedLinkIds.has(link.id)) return;
-
-    const shouldDelete = window.confirm(
-      `Delete "${link.title}" from StudyApp? The original cloud file will not be deleted.`,
-    );
-    if (!shouldDelete) return;
+    if (!window.confirm(text(`Delete "${link.title}" from StudyApp?`, `Να διαγραφεί το «${link.title}» από το StudyApp;`))) return;
 
     try {
       const currentSetting = await studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY);
@@ -193,18 +137,18 @@ export function LibraryPage() {
         key: STUDY_MATERIALS_SETTING_KEY,
         value: currentLinks.filter((item) => item.id !== link.id),
       });
-      setMessage(`Deleted "${link.title}" from StudyApp.`);
+      setMessage(text("Link deleted.", "Ο σύνδεσμος διαγράφηκε."));
     } catch {
-      setMessage(`Could not delete "${link.title}".`);
+      setMessage(text("The link could not be deleted.", "Ο σύνδεσμος δεν μπορεί να διαγραφεί."));
     }
   }
 
   return (
     <div className="stack-lg">
       <header className="page-heading">
-        <p className="eyebrow">Read from source</p>
-        <h2>Library</h2>
-        <p>Read primary and source material only: books, articles, papers, outsource notes, personal notes and summaries.</p>
+        <p className="eyebrow">{text("Read from source", "Μελέτη από την πηγή")}</p>
+        <h2>{text("Library", "Βιβλιοθήκη")}</h2>
+        <p>{text("Books, articles, papers, notes and summaries.", "Βιβλία, άρθρα, εργασίες, σημειώσεις και περιλήψεις.")}</p>
       </header>
 
       <MaterialUploadPanel
@@ -219,32 +163,25 @@ export function LibraryPage() {
 
       {(unclassifiedFiles.length > 0 || unclassifiedLinks.length > 0) ? (
         <section className="content-panel" id="unclassified-source-material" tabIndex={-1}>
-          <p className="eyebrow">Needs placement</p>
-          <h3>Unclassified source material</h3>
-          <p>These legacy items have no Library type yet. You can open or delete them here.</p>
+          <p className="eyebrow">{text("Needs placement", "Χρειάζεται ταξινόμηση")}</p>
+          <h3>{text("Unclassified material", "Αταξινόμητο υλικό")}</h3>
           <ul className="local-file-list">
             {unclassifiedFiles.map((file) => (
               <li className="local-file-row" key={file.id}>
-                <div>
-                  <strong>{file.title}</strong>
-                  <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)}</span>
-                </div>
+                <div><strong>{file.title}</strong><span>{getFileKindLabel(file.fileKind, language)} · {formatFileSize(file.size)}</span></div>
                 <div className="local-file-actions">
-                  <button className="button secondary compact-square" onClick={() => void openLocalFile(file.id)} type="button">View</button>
-                  <button className="button danger compact-square" onClick={() => void deleteLocalFile(file.id)} type="button">Delete</button>
+                  <button className="button secondary compact-square" onClick={() => void openLocalFile(file.id)} type="button">{text("View", "Προβολή")}</button>
+                  <button className="button danger compact-square" onClick={() => void deleteLocalFile(file.id)} type="button">{text("Delete", "Διαγραφή")}</button>
                 </div>
               </li>
             ))}
             {unclassifiedLinks.map((link) => (
               <li className="local-file-row" key={link.id}>
-                <div>
-                  <strong>{link.title}</strong>
-                  <span>{link.url}</span>
-                </div>
+                <div><strong>{link.title}</strong><span>{link.url}</span></div>
                 <div className="local-file-actions">
-                  <a className="button secondary compact-square" href={link.url} rel="noopener noreferrer" target="_blank">Open</a>
+                  <a className="button secondary compact-square" href={link.url} rel="noopener noreferrer" target="_blank">{text("Open", "Άνοιγμα")}</a>
                   {savedLinkIds.has(link.id) ? (
-                    <button className="button danger compact-square" onClick={() => void deleteSavedLink(link)} type="button">Delete</button>
+                    <button className="button danger compact-square" onClick={() => void deleteSavedLink(link)} type="button">{text("Delete", "Διαγραφή")}</button>
                   ) : null}
                 </div>
               </li>
@@ -253,14 +190,14 @@ export function LibraryPage() {
         </section>
       ) : null}
 
-      <section className="learning-stage-grid" aria-label="Library source reading categories">
+      <section className="learning-stage-grid" aria-label={text("Library categories", "Κατηγορίες Βιβλιοθήκης")}>
         {libraryCategories.map((category, index) => {
           const categoryFiles = localFiles.filter((file) => getSourceMaterialType(file) === category.materialType);
           const categoryLinks = sourceLinks.filter((link) => getLinkMaterialType(link) === category.materialType);
           const hasItems = categoryFiles.length > 0 || categoryLinks.length > 0;
 
           return (
-            <article className="learning-stage-card" id={category.id} key={category.title} tabIndex={-1}>
+            <article className="learning-stage-card" id={category.id} key={category.id} tabIndex={-1}>
               <span className="stage-number" aria-hidden="true">{index + 1}</span>
               <h3>{category.title}</h3>
               <p>{category.description}</p>
@@ -268,43 +205,29 @@ export function LibraryPage() {
                 <ul className="local-file-list">
                   {categoryFiles.map((file) => (
                     <li className="local-file-row" key={file.id}>
-                      <div>
-                        <strong>{file.title}</strong>
-                        <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)}</span>
-                      </div>
+                      <div><strong>{file.title}</strong><span>{getFileKindLabel(file.fileKind, language)} · {formatFileSize(file.size)}</span></div>
                       <div className="local-file-actions">
-                        <button className="button secondary compact-square" onClick={() => void openLocalFile(file.id)} type="button">View</button>
-                        <button className="button danger compact-square" onClick={() => void deleteLocalFile(file.id)} type="button">Delete</button>
+                        <button className="button secondary compact-square" onClick={() => void openLocalFile(file.id)} type="button">{text("View", "Προβολή")}</button>
+                        <button className="button danger compact-square" onClick={() => void deleteLocalFile(file.id)} type="button">{text("Delete", "Διαγραφή")}</button>
                       </div>
                     </li>
                   ))}
                   {categoryLinks.map((link) => (
                     <li className="local-file-row" key={link.id}>
-                      <div>
-                        <strong>{link.title}</strong>
-                        <span>{link.url}</span>
-                      </div>
+                      <div><strong>{link.title}</strong><span>{link.url}</span></div>
                       <div className="local-file-actions">
-                        <a className="button secondary compact-square" href={link.url} rel="noopener noreferrer" target="_blank">Open</a>
+                        <a className="button secondary compact-square" href={link.url} rel="noopener noreferrer" target="_blank">{text("Open", "Άνοιγμα")}</a>
                         {savedLinkIds.has(link.id) ? (
-                          <button className="button danger compact-square" onClick={() => void deleteSavedLink(link)} type="button">Delete</button>
+                          <button className="button danger compact-square" onClick={() => void deleteSavedLink(link)} type="button">{text("Delete", "Διαγραφή")}</button>
                         ) : null}
                       </div>
                     </li>
                   ))}
                 </ul>
-              ) : (
-                <p className="field-help">No {category.title.toLowerCase()} saved yet.</p>
-              )}
+              ) : <p className="field-help">{text("No items yet.", "Δεν υπάρχουν στοιχεία.")}</p>}
             </article>
           );
         })}
-      </section>
-
-      <section className="content-panel">
-        <p className="eyebrow">Boundary</p>
-        <h3>What belongs here?</h3>
-        <p>Add material once in the local import panel above, then open or delete it from its Library category.</p>
       </section>
     </div>
   );

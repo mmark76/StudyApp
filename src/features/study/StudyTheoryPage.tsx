@@ -1,9 +1,13 @@
 import { useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
+import {
+  getFileKindLabel,
+  getStructuredStudyTypeLabel,
+} from "../../i18n/domainLabels";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { LocalStudyFile, StructuredStudyType } from "../../shared/types/models";
 import {
-  formatFileKind,
   formatFileSize,
   getStructuredStudyType,
   isSplitPdfFile,
@@ -26,62 +30,19 @@ import {
 } from "../study-materials/studyMaterials";
 import "./StructuredFileActions.css";
 
-const sourceStructure = [
-  {
-    id: "contents",
-    materialType: "contents",
-    title: "Contents",
-    description: "Read the table of contents and the high-level map of the material.",
-  },
-  {
-    id: "chapters",
-    materialType: "chapter",
-    title: "Chapters",
-    description: "Read the material as major learning blocks inside a book, paper or PDF.",
-  },
-  {
-    id: "sections-paragraphs",
-    materialType: "section",
-    title: "Sections / Paragraphs",
-    description: "Read smaller parts inside chapters for focused study and review.",
-  },
-  {
-    id: "key-concepts",
-    materialType: "key-concept",
-    title: "Key Concepts",
-    description: "Read the important ideas, definitions and principles that need to be understood.",
-  },
-  {
-    id: "bibliography-references",
-    materialType: "bibliography-reference",
-    title: "Bibliography / References",
-    description: "Read references and source trails connected to the material they support.",
-  },
-  {
-    id: "images-diagrams",
-    materialType: "image-diagram",
-    title: "Images / Diagrams",
-    description: "Read visual evidence, figures, diagrams, processes and relationships.",
-  },
-] as const satisfies readonly {
-  id: string;
-  materialType: StructuredStudyType;
-  title: string;
-  description: string;
-}[];
-
 function getLinkStructuredStudyType(link: StudyMaterialLink): StructuredStudyType | null {
   return isStructuredStudyType(link.structuredStudyType) ? link.structuredStudyType : null;
 }
 
 function StructuredFilePlacementEditor({ file }: { file: LocalStudyFile }) {
+  const { language, text } = useLanguage();
   const [title, setTitle] = useState(file.title);
   const [materialType, setMaterialType] = useState<StructuredStudyType | "">(getStructuredStudyType(file) ?? "");
   const [message, setMessage] = useState("");
 
   async function savePlacement() {
     if (!isStructuredStudyType(materialType)) {
-      setMessage("Choose a structured type.");
+      setMessage(text("Choose a type.", "Επίλεξε τύπο."));
       return;
     }
 
@@ -90,134 +51,125 @@ function StructuredFilePlacementEditor({ file }: { file: LocalStudyFile }) {
         title: normalizeStudyMaterialTitle(title),
         ...(isSplitPdfFile(file) ? { materialType } : { structuredStudyType: materialType }),
       });
-      setMessage("Saved.");
+      setMessage(text("Saved.", "Αποθηκεύτηκε."));
     } catch {
-      setMessage("Could not save placement.");
+      setMessage(text("Could not save.", "Δεν αποθηκεύτηκε."));
     }
   }
 
   return (
     <div className="library-grid" style={{ alignItems: "end" }}>
       <label className="field-label">
-        Name
+        {text("Name", "Όνομα")}
         <input maxLength={160} type="text" value={title} onChange={(event) => setTitle(event.target.value)} />
       </label>
       <label className="field-label">
-        Type
+        {text("Type", "Τύπος")}
         <select value={materialType} onChange={(event) => setMaterialType(event.target.value as StructuredStudyType | "")}>
-          <option value="">Unclassified</option>
+          <option value="">{text("Unclassified", "Αταξινόμητο")}</option>
           {structuredStudyTypeOptions.map((option) => (
-            <option key={option.value} value={option.value}>{option.label}</option>
+            <option key={option.value} value={option.value}>{getStructuredStudyTypeLabel(option.value, language)}</option>
           ))}
         </select>
       </label>
-      <button className="button primary compact-square" onClick={() => void savePlacement()} type="button">Change name or type</button>
+      <button className="button primary compact-square" onClick={() => void savePlacement()} type="button">
+        {text("Save", "Αποθήκευση")}
+      </button>
       {message ? <p className="field-help" role="status">{message}</p> : null}
     </div>
   );
 }
 
 export function StudyTheoryPage() {
+  const { language, text } = useLanguage();
   const localFiles = useLiveQuery(
     () => studyDatabase.studyFiles.orderBy("createdAt").toArray(),
     [],
   ) ?? [];
-  const setting = useLiveQuery(
-    () => studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY),
-    [],
-  );
-  const savedLinks = useMemo(
-    () => parseStoredStudyMaterials(setting?.value),
-    [setting?.value],
-  );
+  const setting = useLiveQuery(() => studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY), []);
+  const savedLinks = useMemo(() => parseStoredStudyMaterials(setting?.value), [setting?.value]);
   const allLinks = [...builtInStudyMaterials, ...savedLinks];
-  const structuredFiles = useMemo(
-    () => localFiles.filter(isStructuredStudyFile),
-    [localFiles],
-  );
+  const structuredFiles = useMemo(() => localFiles.filter(isStructuredStudyFile), [localFiles]);
   const structuredLinks = allLinks.filter((link) => getLinkStructuredStudyType(link) !== null);
-  const unclassifiedFiles = structuredFiles.filter(
-    (file) => isSplitPdfFile(file) && getStructuredStudyType(file) === null,
-  );
+  const unclassifiedFiles = structuredFiles.filter((file) => isSplitPdfFile(file) && getStructuredStudyType(file) === null);
   const [message, setMessage] = useState("");
+
+  const sourceStructure: readonly {
+    id: string;
+    materialType: StructuredStudyType;
+    title: string;
+    description: string;
+  }[] = [
+    { id: "contents", materialType: "contents", title: text("Contents", "Περιεχόμενα"), description: text("The map of the material.", "Ο χάρτης του υλικού.") },
+    { id: "chapters", materialType: "chapter", title: text("Chapters", "Κεφάλαια"), description: text("Major learning blocks.", "Μεγάλες ενότητες μάθησης.") },
+    { id: "sections-paragraphs", materialType: "section", title: text("Sections / Paragraphs", "Ενότητες / Παράγραφοι"), description: text("Smaller focused parts.", "Μικρότερα στοχευμένα μέρη.") },
+    { id: "key-concepts", materialType: "key-concept", title: text("Key Concepts", "Βασικές έννοιες"), description: text("Important ideas and definitions.", "Σημαντικές ιδέες και ορισμοί.") },
+    { id: "bibliography-references", materialType: "bibliography-reference", title: text("Bibliography / References", "Βιβλιογραφία / Αναφορές"), description: text("Sources and references.", "Πηγές και αναφορές.") },
+    { id: "images-diagrams", materialType: "image-diagram", title: text("Images / Diagrams", "Εικόνες / Διαγράμματα"), description: text("Figures and visual material.", "Σχήματα και οπτικό υλικό.") },
+  ];
 
   async function openStructuredFile(fileId: string) {
     const file = structuredFiles.find((item) => item.id === fileId);
     if (!file) return;
     try {
       const openMode = await openLocalStudyFile(file);
-      if (openMode === "download") {
-        setMessage("This file was downloaded because it cannot be safely previewed in the browser.");
-      }
+      if (openMode === "download") setMessage(text("The file was downloaded.", "Το αρχείο κατέβηκε."));
     } catch (error) {
       setMessage(
-        error instanceof LocalFilePolicyError
+        language === "en" && error instanceof LocalFilePolicyError
           ? error.message
-          : "The file could not be opened.",
+          : text("The file could not be opened.", "Το αρχείο δεν μπορεί να ανοίξει."),
       );
     }
   }
 
   async function renameStructuredFile(file: LocalStudyFile) {
-    const nextTitle = window.prompt("Rename this file:", file.title);
+    const nextTitle = window.prompt(text("Rename this file:", "Νέο όνομα αρχείου:"), file.title);
     if (nextTitle === null) return;
 
     try {
       const normalizedTitle = normalizeStudyMaterialTitle(nextTitle);
       if (normalizedTitle === file.title) {
-        setMessage("The file name was not changed.");
+        setMessage(text("The name was not changed.", "Το όνομα δεν άλλαξε."));
         return;
       }
-
       await studyDatabase.studyFiles.update(file.id, { title: normalizedTitle });
-      setMessage(`Renamed "${file.title}" to "${normalizedTitle}".`);
+      setMessage(text("File renamed.", "Το αρχείο μετονομάστηκε."));
     } catch {
-      setMessage("Enter a valid file name of up to 160 characters.");
+      setMessage(text("Enter a valid name.", "Γράψε έγκυρο όνομα."));
     }
   }
 
   async function downloadStructuredFile(file: LocalStudyFile) {
     try {
-      const fileName = await downloadSplitPdfFile(file);
-      setMessage(`Downloading ${fileName}.`);
-    } catch (error) {
-      setMessage(
-        error instanceof LocalFilePolicyError
-          ? error.message
-          : `Could not download "${file.fileName}". The locally saved PDF is unchanged.`,
-      );
+      await downloadSplitPdfFile(file);
+      setMessage(text("Download started.", "Η λήψη ξεκίνησε."));
+    } catch {
+      setMessage(text("The PDF could not be downloaded.", "Το PDF δεν μπορεί να κατέβει."));
     }
   }
 
   async function removeStructuredFile(file: LocalStudyFile) {
-    const splitPdf = isSplitPdfFile(file);
-    const structuredOnly = file.fileSource === "structured-material";
-    const deleteWholeFile = splitPdf || structuredOnly;
-    const confirmed = window.confirm(
-      deleteWholeFile
-        ? `Remove "${file.title}" from StudyApp? This cannot be undone.`
-        : `Remove "${file.title}" from Structured Study? The original file will remain in Library.`,
-    );
-    if (!confirmed) return;
+    const deleteWholeFile = isSplitPdfFile(file) || file.fileSource === "structured-material";
+    if (!window.confirm(text(
+      deleteWholeFile ? `Remove "${file.title}"?` : `Remove "${file.title}" from Structured Study?`,
+      deleteWholeFile ? `Να διαγραφεί το «${file.title}»;` : `Να αφαιρεθεί το «${file.title}» από τη Δομημένη Μελέτη;`,
+    ))) return;
 
     try {
       if (deleteWholeFile) {
         await studyDatabase.studyFiles.delete(file.id);
-        setMessage(`Removed ${file.title}.`);
       } else {
         await studyDatabase.studyFiles.update(file.id, { structuredStudyType: null });
-        setMessage(`Removed ${file.title} from Structured Study. The original remains in Library.`);
       }
+      setMessage(text("Material removed.", "Το υλικό αφαιρέθηκε."));
     } catch {
-      setMessage("The file could not be removed from Structured Study.");
+      setMessage(text("The material could not be removed.", "Το υλικό δεν μπορεί να αφαιρεθεί."));
     }
   }
 
   async function removeStructuredLink(link: StudyMaterialLink) {
-    const confirmed = window.confirm(
-      `Remove "${link.title}" from StudyApp? The original cloud file will not be deleted.`,
-    );
-    if (!confirmed) return;
+    if (!window.confirm(text(`Remove "${link.title}"?`, `Να αφαιρεθεί το «${link.title}»;`))) return;
 
     try {
       const currentSetting = await studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY);
@@ -226,9 +178,9 @@ export function StudyTheoryPage() {
         key: STUDY_MATERIALS_SETTING_KEY,
         value: currentLinks.filter((item) => item.id !== link.id),
       });
-      setMessage(`Removed ${link.title} from Structured Study.`);
+      setMessage(text("Link removed.", "Ο σύνδεσμος αφαιρέθηκε."));
     } catch {
-      setMessage("The cloud link could not be removed from Structured Study.");
+      setMessage(text("The link could not be removed.", "Ο σύνδεσμος δεν μπορεί να αφαιρεθεί."));
     }
   }
 
@@ -237,9 +189,9 @@ export function StudyTheoryPage() {
   return (
     <div className="stack-lg">
       <header className="page-heading">
-        <p className="eyebrow">Structured reading</p>
-        <h2>Structured Study</h2>
-        <p>Read and understand the same material through contents, chapters, sections, concepts, references and diagrams.</p>
+        <p className="eyebrow">{text("Structured reading", "Δομημένη ανάγνωση")}</p>
+        <h2>{text("Structured Study", "Δομημένη Μελέτη")}</h2>
+        <p>{text("Study material by structure and level.", "Μελέτησε το υλικό ανά δομή και επίπεδο.")}</p>
       </header>
 
       <MaterialUploadPanel
@@ -252,33 +204,29 @@ export function StudyTheoryPage() {
 
       {message ? <p className="inline-message status-banner" role="status" aria-live="polite">{message}</p> : null}
 
-      <section className="content-panel" aria-label="Structured study material">
-        <p className="eyebrow">Structured source material</p>
-        <h3>Files and links by structured type</h3>
-        <p>Add material to this browser once above. Local files, saved external links and PDF chunks then appear in the matching Structured Study card below.</p>
-        {!hasStructuredMaterial ? (
-          <p className="inline-message">No structured material yet. Add a file or link above, or use Split PDF Tool to create chapter or section PDFs.</p>
-        ) : null}
+      <section className="content-panel" aria-label={text("Structured material", "Δομημένο υλικό")}>
+        <p className="eyebrow">{text("Structured material", "Δομημένο υλικό")}</p>
+        <h3>{text("Files and links by type", "Αρχεία και σύνδεσμοι ανά τύπο")}</h3>
+        {!hasStructuredMaterial ? <p className="inline-message">{text("No structured material yet.", "Δεν υπάρχει ακόμη δομημένο υλικό.")}</p> : null}
       </section>
 
       {unclassifiedFiles.length > 0 ? (
         <section className="content-panel" id="unclassified-structured-study" tabIndex={-1}>
-          <p className="eyebrow">Needs placement</p>
-          <h3>Unclassified split PDFs</h3>
-          <p>These split PDFs have no structured type yet. Choose the final Structured Study placement yourself.</p>
+          <p className="eyebrow">{text("Needs placement", "Χρειάζεται ταξινόμηση")}</p>
+          <h3>{text("Unclassified split PDFs", "Αταξινόμητα χωρισμένα PDF")}</h3>
           <ul className="local-file-list">
             {unclassifiedFiles.map((file) => (
               <li className="local-file-row" key={file.id}>
                 <div>
                   <strong>{file.title}</strong>
-                  <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)}</span>
+                  <span>{getFileKindLabel(file.fileKind, language)} · {formatFileSize(file.size)}</span>
                   <StructuredFilePlacementEditor file={file} />
                 </div>
                 <div className="local-file-actions">
-                  <button className="button structured-view-action compact-square" onClick={() => void openStructuredFile(file.id)} type="button">View</button>
-                  <button className="button secondary compact-square" onClick={() => void downloadStructuredFile(file)} type="button">Download</button>
-                  <button className="button structured-rename-action compact-square" onClick={() => void renameStructuredFile(file)} type="button">Rename</button>
-                  <button className="button danger compact-square" onClick={() => void removeStructuredFile(file)} type="button">Remove</button>
+                  <button className="button structured-view-action compact-square" onClick={() => void openStructuredFile(file.id)} type="button">{text("View", "Προβολή")}</button>
+                  <button className="button secondary compact-square" onClick={() => void downloadStructuredFile(file)} type="button">{text("Download", "Λήψη")}</button>
+                  <button className="button structured-rename-action compact-square" onClick={() => void renameStructuredFile(file)} type="button">{text("Rename", "Μετονομασία")}</button>
+                  <button className="button danger compact-square" onClick={() => void removeStructuredFile(file)} type="button">{text("Remove", "Αφαίρεση")}</button>
                 </div>
               </li>
             ))}
@@ -286,18 +234,14 @@ export function StudyTheoryPage() {
         </section>
       ) : null}
 
-      <section
-        className="learning-stage-grid"
-        style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}
-        aria-label="Structured Study reading levels"
-      >
+      <section className="learning-stage-grid" style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }} aria-label={text("Structured Study levels", "Επίπεδα Δομημένης Μελέτης")}>
         {sourceStructure.map((item, index) => {
           const filesForType = structuredFiles.filter((file) => getStructuredStudyType(file) === item.materialType);
           const linksForType = structuredLinks.filter((link) => getLinkStructuredStudyType(link) === item.materialType);
           const hasItems = filesForType.length > 0 || linksForType.length > 0;
 
           return (
-            <article className="learning-stage-card" id={item.id} key={item.title} tabIndex={-1}>
+            <article className="learning-stage-card" id={item.id} key={item.id} tabIndex={-1}>
               <span className="stage-number" aria-hidden="true">{index + 1}</span>
               <h3>{item.title}</h3>
               <p>{item.description}</p>
@@ -305,36 +249,26 @@ export function StudyTheoryPage() {
                 <ul className="local-file-list">
                   {filesForType.map((file) => (
                     <li className="local-file-row" key={file.id}>
-                      <div>
-                        <strong>{file.title}</strong>
-                        <span>{formatFileKind(file.fileKind)} · {formatFileSize(file.size)}</span>
-                      </div>
+                      <div><strong>{file.title}</strong><span>{getFileKindLabel(file.fileKind, language)} · {formatFileSize(file.size)}</span></div>
                       <div className="local-file-actions">
-                        <button className="button structured-view-action compact-square" onClick={() => void openStructuredFile(file.id)} type="button">View</button>
-                        {isSplitPdfFile(file) ? (
-                          <button className="button secondary compact-square" onClick={() => void downloadStructuredFile(file)} type="button">Download</button>
-                        ) : null}
-                        <button className="button structured-rename-action compact-square" onClick={() => void renameStructuredFile(file)} type="button">Rename</button>
-                        <button className="button danger compact-square" onClick={() => void removeStructuredFile(file)} type="button">Remove</button>
+                        <button className="button structured-view-action compact-square" onClick={() => void openStructuredFile(file.id)} type="button">{text("View", "Προβολή")}</button>
+                        {isSplitPdfFile(file) ? <button className="button secondary compact-square" onClick={() => void downloadStructuredFile(file)} type="button">{text("Download", "Λήψη")}</button> : null}
+                        <button className="button structured-rename-action compact-square" onClick={() => void renameStructuredFile(file)} type="button">{text("Rename", "Μετονομασία")}</button>
+                        <button className="button danger compact-square" onClick={() => void removeStructuredFile(file)} type="button">{text("Remove", "Αφαίρεση")}</button>
                       </div>
                     </li>
                   ))}
                   {linksForType.map((link) => (
                     <li className="local-file-row" key={link.id}>
-                      <div>
-                        <strong>{link.title}</strong>
-                        <span>{link.url}</span>
-                      </div>
+                      <div><strong>{link.title}</strong><span>{link.url}</span></div>
                       <div className="local-file-actions">
-                        <a className="button secondary compact-square" href={link.url} rel="noopener noreferrer" target="_blank">Open</a>
-                        <button className="button danger compact-square" onClick={() => void removeStructuredLink(link)} type="button">Remove</button>
+                        <a className="button secondary compact-square" href={link.url} rel="noopener noreferrer" target="_blank">{text("Open", "Άνοιγμα")}</a>
+                        <button className="button danger compact-square" onClick={() => void removeStructuredLink(link)} type="button">{text("Remove", "Αφαίρεση")}</button>
                       </div>
                     </li>
                   ))}
                 </ul>
-              ) : (
-                <p className="field-help">No {item.title.toLowerCase()} saved yet.</p>
-              )}
+              ) : <p className="field-help">{text("No items yet.", "Δεν υπάρχουν στοιχεία.")}</p>}
             </article>
           );
         })}
