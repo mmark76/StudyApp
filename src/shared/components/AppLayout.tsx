@@ -4,6 +4,7 @@ import { studyConfig } from "../../app/studyConfig";
 import { useAppearanceSettings } from "../../features/appearance/useAppearanceSettings";
 import { AssistantPanel } from "../../features/assistant/AssistantPanel";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { useInternetConnectivity } from "../hooks/useInternetConnectivity";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { PwaUpdateBanner } from "./PwaUpdateBanner";
 
@@ -40,7 +41,18 @@ export function AppLayout() {
   useAppearanceSettings();
   const location = useLocation();
   const { text } = useLanguage();
+  const internetStatus = useInternetConnectivity();
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+  const internetStatusLabel = internetStatus === "online"
+    ? text("Internet connection: Online", "Σύνδεση στο διαδίκτυο: Online")
+    : internetStatus === "offline"
+      ? text("Internet connection: Offline", "Σύνδεση στο διαδίκτυο: Offline")
+      : text("Checking internet connection", "Έλεγχος σύνδεσης στο διαδίκτυο");
+  const internetStatusClass = internetStatus === "online"
+    ? "assistant-service-dot-available"
+    : internetStatus === "offline"
+      ? "assistant-service-dot-unavailable"
+      : "assistant-service-dot-checking";
 
   return (
     <div className="app-shell">
@@ -52,6 +64,7 @@ export function AppLayout() {
           </div>
           <div className="utility-actions" aria-label={text("Study settings", "Ρυθμίσεις μελέτης")}>
             <button
+              aria-describedby="assistant-internet-status"
               aria-haspopup="dialog"
               aria-label={text("Open AI Assistant", "Άνοιγμα Βοηθού AI")}
               className="assistant-launch-button"
@@ -59,11 +72,25 @@ export function AppLayout() {
               title={text("AI Assistant", "Βοηθός AI")}
               type="button"
             >
-              <img alt="" className="assistant-launch-avatar" src="/study-assistant-avatar.svg" />
+              <span className="assistant-launch-avatar-wrap" title={internetStatusLabel}>
+                <img alt="" className="assistant-launch-avatar" src="/study-assistant-avatar.svg" />
+                <span
+                  aria-hidden="true"
+                  className={`assistant-service-dot assistant-launch-connectivity-dot ${internetStatusClass}`}
+                />
+              </span>
               <span className="assistant-launch-copy">
                 <span className="assistant-launch-label">{text("AI Assistant", "Βοηθός AI")}</span>
               </span>
             </button>
+            <span
+              aria-live="polite"
+              className="assistant-connectivity-live"
+              id="assistant-internet-status"
+              role="status"
+            >
+              {internetStatusLabel}
+            </span>
             <LanguageSwitcher />
             <NavLink to="/appearance">{text("Settings", "Ρυθμίσεις")}</NavLink>
             <a href="mailto:markellos.markides@gmail.com?subject=StudyApp%20Feedback">
