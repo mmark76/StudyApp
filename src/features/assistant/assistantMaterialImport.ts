@@ -14,9 +14,17 @@ export const ASSISTANT_IMPORT_ACCEPT = [
   "text/csv",
 ].join(",");
 
+const MAX_PDF_EXTRACTION_LENGTH = MAX_ASSISTANT_MATERIAL_LENGTH + 4_000;
+
 export interface AssistantMaterialImportResult {
   text: string;
   truncated: boolean;
+  preparedInstructionsRemoved?: boolean;
+}
+
+export interface PreparedInstructionsUnwrapResult {
+  text: string;
+  removed: boolean;
 }
 
 interface PdfLoadingTaskLike {
@@ -30,11 +38,51 @@ export class AssistantMaterialImportError extends Error {
   }
 }
 
-export function limitAssistantMaterialText(text: string): AssistantMaterialImportResult {
-  const normalized = text
+function normalizeAssistantMaterialText(text: string): string {
+  return text
     .replace(/\r\n?/gu, "\n")
     .replace(/\u0000/gu, "")
     .trim();
+}
+
+export function unwrapStudyAppPreparedInstructions(text: string): PreparedInstructionsUnwrapResult {
+  const normalized = normalizeAssistantMaterialText(text);
+  const wrappers = [
+    {
+      heading: /STUDY\s+MATERIAL\s*:\s*/u,
+      markers: ["Answer in English", "Use only the study material below"],
+    },
+    {
+      heading: /ΥΛΙΚΟ\s+ΜΕΛΕΤΗΣ\s*:\s*/u,
+      markers: ["Απάντησε στα ελληνικά", "Χρησιμοποίησε μόνο το παρακάτω υλικό"],
+    },
+  ] as const;
+
+  for (const wrapper of wrappers) {
+    const headingMatch = wrapper.heading.exec(normalized);
+    if (!headingMatch || headingMatch.index === undefined) continue;
+
+    const prefix = normalized.slice(0, headingMatch.index);
+    if (!wrapper.markers.every((marker) => prefix.includes(marker))) continue;
+
+    const materialStart = headingMatch.index + headingMatch[0].length;
+    const unwrappedMaterial = normalized.slice(materialStart).trim();
+    if (!unwrappedMaterial) continue;
+
+    return {
+      text: unwrappedMaterial,
+      removed: true,
+    };
+  }
+
+  return {
+    text: normalized,
+    removed: false,
+  };
+}
+
+export function limitAssistantMaterialText(text: string): AssistantMaterialImportResult {
+  const normalized = normalizeAssistantMaterialText(text);
 
   return {
     text: normalized.slice(0, MAX_ASSISTANT_MATERIAL_LENGTH),
@@ -84,7 +132,7 @@ async function extractPdfText(file: File): Promise<string> {
         extractedLength += pageText.length + 2;
       }
 
-      if (extractedLength > MAX_ASSISTANT_MATERIAL_LENGTH) break;
+      if (extractedLength > MAX_PDF_EXTRACTION_LENGTH) break;
     }
 
     return pages.join("\n\n");
@@ -115,12 +163,16 @@ export async function extractAssistantMaterial(file: File): Promise<AssistantMat
     );
   }
 
-  const result = limitAssistantMaterialText(extractedText);
+  const unwrapped = unwrapStudyAppPreparedInstructions(extractedText);
+  const result = limitAssistantMaterialText(unwrapped.text);
   if (!result.text) {
     throw new AssistantMaterialImportError(
       "No readable text was found in this file. Paste the text manually instead.",
     );
   }
 
-  return result;
+  return {
+    ...result,
+    preparedInstructionsRemoved: unwrapped.removed,
+  };
 }
