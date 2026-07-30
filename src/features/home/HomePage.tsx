@@ -83,8 +83,6 @@ export function HomePage() {
 
   return (
     <div className="stack-lg">
-      <StorageNotice kind={storageNoticePlacements.home} />
-
       <section className="learning-stage-grid" aria-label="Home study spaces">
         {homeSpaces.map((space) => (
           <article className="learning-stage-card" key={space.title}>
@@ -99,6 +97,11 @@ export function HomePage() {
           </article>
         ))}
       </section>
+
+      <StorageNotice
+        kind={storageNoticePlacements.home}
+        variant="compact"
+      />
 
       {guideSpace && (
         <dialog
