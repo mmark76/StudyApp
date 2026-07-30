@@ -3,7 +3,6 @@ export const ASSISTANT_POPUP_HEIGHT = 600;
 export const SAFE_COMPANION_FALLBACK_URL = "https://chatgpt.com/";
 
 const ASSISTANT_POPUP_MARGIN = 20;
-const STUDYAPP_ASSISTANT_WINDOW_NAME = "studyapp-ai-assistant";
 const APPROVED_COMPANION_HOSTNAMES = new Set(["chatgpt.com"]);
 
 export interface AssistantPopupScreen {
@@ -18,6 +17,7 @@ export interface AssistantPopupScreen {
 export type AssistantPopupResult =
   | { status: "opened"; url: string }
   | { status: "blocked"; url: string }
+  | { status: "failed"; url: string }
   | { status: "invalid-url"; url: typeof SAFE_COMPANION_FALLBACK_URL };
 
 type PopupOpener = (
@@ -106,9 +106,28 @@ export function calculateCenteredPopupFeatures(
     `height=${popupHeight}`,
     `left=${left}`,
     `top=${top}`,
-    "noopener",
-    "noreferrer",
   ].join(",");
+}
+
+function navigatePopupSecurely(popup: WindowProxy, url: string): boolean {
+  try {
+    popup.opener = null;
+    const link = popup.document.createElement("a");
+    link.href = url;
+    link.target = "_self";
+    link.rel = "noopener noreferrer";
+    link.referrerPolicy = "no-referrer";
+    popup.document.body.append(link);
+    link.click();
+    return true;
+  } catch {
+    try {
+      popup.close();
+    } catch {
+      // The safe fallback remains available when the blank popup cannot close.
+    }
+    return false;
+  }
 }
 
 export function openStudyAppAssistant(
@@ -122,12 +141,18 @@ export function openStudyAppAssistant(
   }
 
   const popup = openPopup(
-    validatedUrl,
-    STUDYAPP_ASSISTANT_WINDOW_NAME,
+    "",
+    "_blank",
     calculateCenteredPopupFeatures(screen),
   );
 
-  return popup === null
-    ? { status: "blocked", url: validatedUrl }
-    : { status: "opened", url: validatedUrl };
+  if (popup === null) {
+    return { status: "blocked", url: validatedUrl };
+  }
+
+  if (!navigatePopupSecurely(popup, validatedUrl)) {
+    return { status: "failed", url: validatedUrl };
+  }
+
+  return { status: "opened", url: validatedUrl };
 }

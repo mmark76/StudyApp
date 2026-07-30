@@ -86,9 +86,13 @@ describe("ChatGPT Companion step flow", () => {
 
     expect(markup).toContain("Back to previous step");
     expect(markup.match(/Continue in the StudyApp AI Assistant/g)).toHaveLength(
-      2,
+      1,
     );
     expect(markup).toContain("assistant-popup-fallback");
+    expect(markup).toContain("Open the StudyApp AI Assistant manually");
+    expect(markup).not.toContain(
+      'class="button secondary assistant-secondary-action assistant-popup-fallback"',
+    );
     expect(markup).toContain("assistant popup was blocked");
     expect(markup).toContain("The request was copied");
     expect(markup).toContain("STUDYAPP TASK: summarize");
@@ -109,6 +113,9 @@ describe("ChatGPT Companion step flow", () => {
     expect(markup).toContain("Clipboard access failed");
     expect(markup).toContain("Prepared request");
     expect(markup).not.toContain("assistant-popup-fallback");
+    expect(markup.match(/Continue in the StudyApp AI Assistant/g)).toHaveLength(
+      1,
+    );
   });
 
   it("keeps a safe fallback link and manual prompt for an invalid URL", () => {
@@ -141,6 +148,12 @@ describe("ChatGPT Companion step flow", () => {
         englishText,
       ),
     ).toContain("not allowed");
+    expect(
+      getAssistantPopupStatusMessage(
+        { status: "failed", url: "https://chatgpt.com/" },
+        englishText,
+      ),
+    ).toContain("could not be opened");
     expect(getAssistantClipboardStatusMessage("copied", englishText)).toContain(
       "copied",
     );
@@ -189,46 +202,32 @@ describe("ChatGPT Companion step flow", () => {
     expect(markup).toContain("Reading...");
   });
 
-  it("uses filename-free localized import and clipboard messages", () => {
+  it("uses filename-free localized import messages without claiming a copy", () => {
     const fileName = "Synopsi_Kefalaiou_1_Gnostiki_Psychologia.pdf";
-    const englishSuccess = getAssistantImportStatusMessage(
-      true,
-      false,
-      englishText,
-    );
-    const greekSuccess = getAssistantImportStatusMessage(
-      true,
-      false,
-      greekText,
-    );
-    const englishFailure = getAssistantImportStatusMessage(
-      false,
-      false,
-      englishText,
-    );
+    const englishMessage = getAssistantImportStatusMessage(false, englishText);
+    const greekMessage = getAssistantImportStatusMessage(false, greekText);
 
-    expect(englishSuccess).toBe(
-      "The extracted text was copied to the clipboard.",
+    expect(englishMessage).toBe("The extracted text is ready to use.");
+    expect(greekMessage).toBe(
+      "Το εξαγόμενο κείμενο είναι έτοιμο για χρήση.",
     );
-    expect(greekSuccess).toBe(
-      "Το εξαγόμενο κείμενο αντιγράφηκε στο πρόχειρο.",
-    );
-    expect(englishFailure).toContain("Clipboard access was unavailable.");
-    expect(englishFailure).not.toContain("copied to the clipboard");
-    expect([englishSuccess, greekSuccess, englishFailure]).not.toContain(
+    expect([englishMessage, greekMessage]).not.toContain(
       expect.stringContaining(fileName),
     );
-    expect([englishSuccess, greekSuccess, englishFailure].join(" ")).not.toContain(
+    expect([englishMessage, greekMessage].join(" ")).not.toContain(
+      "clipboard",
+    );
+    expect([englishMessage, greekMessage].join(" ")).not.toContain(
       "Imported",
     );
   });
 
-  it("keeps truncation information in the clipboard failure state", () => {
+  it("keeps truncation information in the import-ready state", () => {
     expect(
-      getAssistantImportStatusMessage(false, true, englishText),
+      getAssistantImportStatusMessage(true, englishText),
     ).toContain("first 12,000 extracted characters");
     expect(
-      getAssistantImportStatusMessage(false, true, greekText),
+      getAssistantImportStatusMessage(true, greekText),
     ).toContain("πρώτοι 12.000 χαρακτήρες");
   });
 });

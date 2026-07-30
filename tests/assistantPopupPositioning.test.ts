@@ -17,6 +17,29 @@ const desktopScreen: AssistantPopupScreen = {
   availWidth: 1_440,
 };
 
+function createPopupDouble() {
+  const link = {
+    click: vi.fn(),
+    href: "",
+    referrerPolicy: "",
+    rel: "",
+    target: "",
+  };
+  const append = vi.fn();
+  const createElement = vi.fn(() => link);
+  const close = vi.fn();
+  const popup = {
+    close,
+    document: {
+      body: { append },
+      createElement,
+    },
+    opener: {},
+  } as unknown as WindowProxy;
+
+  return { append, close, createElement, link, popup };
+}
+
 describe("StudyApp AI Assistant popup", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -32,8 +55,6 @@ describe("StudyApp AI Assistant popup", () => {
         "height=600",
         "left=590",
         "top=190",
-        "noopener",
-        "noreferrer",
       ].join(","),
     );
   });
@@ -79,7 +100,7 @@ describe("StudyApp AI Assistant popup", () => {
   });
 
   it("reports success when window.open returns a Window-like object", () => {
-    const popup = {} as WindowProxy;
+    const { append, createElement, link, popup } = createPopupDouble();
     const openPopup = vi.fn(() => popup);
 
     expect(
@@ -90,10 +111,43 @@ describe("StudyApp AI Assistant popup", () => {
       ),
     ).toEqual({ status: "opened", url: "https://chatgpt.com/" });
     expect(openPopup).toHaveBeenCalledWith(
-      "https://chatgpt.com/",
-      "studyapp-ai-assistant",
+      "",
+      "_blank",
       expect.stringContaining("height=600"),
     );
+    expect((popup as Window).opener).toBeNull();
+    expect(createElement).toHaveBeenCalledWith("a");
+    expect(link).toMatchObject({
+      href: "https://chatgpt.com/",
+      referrerPolicy: "no-referrer",
+      rel: "noopener noreferrer",
+      target: "_self",
+    });
+    expect(append).toHaveBeenCalledWith(link);
+    expect(link.click).toHaveBeenCalledOnce();
+  });
+
+  it("reports a genuine failure when the blank popup cannot navigate safely", () => {
+    const close = vi.fn();
+    const popup = {
+      close,
+      document: {
+        createElement: vi.fn(() => {
+          throw new DOMException("Navigation unavailable");
+        }),
+      },
+      opener: {},
+    } as unknown as WindowProxy;
+
+    expect(
+      openStudyAppAssistant(
+        "https://chatgpt.com/",
+        vi.fn(() => popup),
+        desktopScreen,
+      ),
+    ).toEqual({ status: "failed", url: "https://chatgpt.com/" });
+    expect((popup as Window).opener).toBeNull();
+    expect(close).toHaveBeenCalledOnce();
   });
 
   it("does not call window.open for an invalid configured URL", () => {
