@@ -5,25 +5,25 @@ import {
   getPwaUpdateState,
   subscribeToPwaUpdate,
 } from "../../app/pwaUpdate";
+import { useLanguage } from "../../i18n/LanguageContext";
 
 export function PwaUpdateBanner() {
+  const { text } = useLanguage();
   const updateState = useSyncExternalStore(
     subscribeToPwaUpdate,
     getPwaUpdateState,
     getPwaUpdateState,
   );
 
-  if (!updateState.isAvailable) {
-    return null;
-  }
+  if (!updateState.isAvailable) return null;
 
   return (
     <aside className="pwa-update-banner" aria-labelledby="pwa-update-title">
       <div>
-        <strong id="pwa-update-title">A StudyApp update is ready.</strong>
+        <strong id="pwa-update-title">{text("A StudyApp update is ready.", "Υπάρχει νέα έκδοση του StudyApp.")}</strong>
         <p role="status" aria-live="polite">
           {updateState.errorMessage
-            ?? "Apply it when you have finished your current input. StudyApp will reload only after you choose Update now."}
+            ?? text("Update when you finish your current work.", "Κάνε ενημέρωση όταν ολοκληρώσεις την τρέχουσα εργασία.")}
         </p>
       </div>
       <div className="button-row">
@@ -33,7 +33,9 @@ export function PwaUpdateBanner() {
           type="button"
           onClick={() => void applyPwaUpdate()}
         >
-          {updateState.isApplying ? "Updating..." : "Update now"}
+          {updateState.isApplying
+            ? text("Updating...", "Ενημέρωση...")
+            : text("Update now", "Ενημέρωση τώρα")}
         </button>
         <button
           className="button secondary compact"
@@ -41,7 +43,7 @@ export function PwaUpdateBanner() {
           type="button"
           onClick={dismissPwaUpdate}
         >
-          Later
+          {text("Later", "Αργότερα")}
         </button>
       </div>
     </aside>
