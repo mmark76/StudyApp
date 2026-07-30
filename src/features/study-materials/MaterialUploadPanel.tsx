@@ -1,3 +1,4 @@
+import { useLanguage } from "../../i18n/LanguageContext";
 import type { LocalStudyFile } from "../../shared/types/models";
 import {
   StorageNotice,
@@ -21,32 +22,34 @@ export function MaterialUploadPanel({
   existingLinks: readonly StudyMaterialLink[];
   onMessage: (message: string) => void;
 }) {
-  const destinationLabel = destination === "structured-study" ? "Structured Study" : "Library";
-  const typeLabel = destination === "structured-study" ? "structured part" : "Library type";
+  const { text } = useLanguage();
+  const destinationLabel = destination === "structured-study"
+    ? text("Structured Study", "Δομημένη Μελέτη")
+    : text("Library", "Βιβλιοθήκη");
 
   return (
-    <section className="content-panel" aria-label={`Add new ${destinationLabel} material to this browser`}>
-      <p className="eyebrow">Local import</p>
-      <h3>Add material to this browser</h3>
-      <p>Choose a {typeLabel}, then add either one local file to this browser or one link. The material is saved locally in {destinationLabel}; a local file is not sent to a server.</p>
+    <section className="content-panel" aria-label={text(`Add material to ${destinationLabel}`, `Προσθήκη υλικού στη ${destinationLabel}`)}>
+      <p className="eyebrow">{text("Local import", "Τοπική εισαγωγή")}</p>
+      <h3>{text("Add material", "Προσθήκη υλικού")}</h3>
+      <p>{text("Add a local file or save a link.", "Πρόσθεσε τοπικό αρχείο ή αποθήκευσε σύνδεσμο.")}</p>
 
       <StorageNotice kind={storageNoticePlacements.materialUpload} />
 
       <div className="library-grid" style={{ alignItems: "stretch" }}>
         <section className="template-card" style={{ display: "grid", gap: "1rem", alignContent: "start", height: "100%" }}>
           <div>
-            <p className="eyebrow">Option 1</p>
-            <h4>Local file</h4>
-            <p>PDF, Word, text, CSV and image files up to 50 MB are stored privately in this browser.</p>
+            <p className="eyebrow">{text("Option 1", "Επιλογή 1")}</p>
+            <h4>{text("Local file", "Τοπικό αρχείο")}</h4>
+            <p>{text("PDF, Word, text, CSV and images up to 50 MB.", "PDF, Word, κείμενο, CSV και εικόνες έως 50 MB.")}</p>
           </div>
           <LocalPdfForm destination={destination} files={files} onMessage={onMessage} />
         </section>
 
         <section className="template-card" style={{ display: "grid", gap: "1rem", alignContent: "start", height: "100%" }}>
           <div>
-            <p className="eyebrow">Option 2</p>
-            <h4>Cloud link</h4>
-            <p>Save a link for material that remains in your external service. StudyApp stores the name, type and URL, not the linked file.</p>
+            <p className="eyebrow">{text("Option 2", "Επιλογή 2")}</p>
+            <h4>{text("Cloud link", "Σύνδεσμος")}</h4>
+            <p>{text("Save a link to material stored elsewhere.", "Αποθήκευσε σύνδεσμο προς υλικό που βρίσκεται αλλού.")}</p>
           </div>
           <CloudLinkForm
             destination={destination}
