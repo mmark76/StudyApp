@@ -9,12 +9,28 @@ function clamp(value: number, minimum: number, maximum: number): number {
   return Math.min(maximum, Math.max(minimum, value));
 }
 
+function removeStepThreeHelperMessages(): void {
+  const panel = document.querySelector<HTMLElement>(".assistant-panel");
+  const progressText = panel
+    ?.querySelector<HTMLElement>(".assistant-progress")
+    ?.textContent?.trim();
+
+  const isStepThree =
+    progressText === "Step 3 of 3" || progressText === "Βήμα 3 από 3";
+
+  if (!panel || !isStepThree) return;
+
+  panel
+    .querySelector<HTMLElement>("section .assistant-step-intro")
+    ?.remove();
+  panel
+    .querySelectorAll<HTMLElement>(".assistant-status")
+    .forEach((status) => status.remove());
+}
+
 export function buildAttachedAssistantPopupFeatures(): string {
   const panelRect = document
     .querySelector<HTMLElement>(".assistant-panel")
-    ?.getBoundingClientRect();
-  const progressRect = document
-    .querySelector<HTMLElement>(".assistant-progress")
     ?.getBoundingClientRect();
 
   const availableWidth = window.screen.availWidth || window.outerWidth;
@@ -36,23 +52,24 @@ export function buildAttachedAssistantPopupFeatures(): string {
   const viewportScreenLeft = window.screenX + horizontalBrowserChrome;
   const viewportScreenTop = window.screenY + verticalBrowserChrome;
 
-  const panelWidth = panelRect?.width ?? 430;
-  const popupWidth = Math.round(clamp(panelWidth - 8, 380, 460));
-  const panelInset = panelRect
-    ? Math.max(0, (panelRect.width - popupWidth) / 2)
-    : 0;
+  // Match the requested visual layout: the popup sits inside the right-hand
+  // assistant panel with an 8 px horizontal inset and starts 200 px below
+  // the panel top, directly beneath the Step 3 heading.
+  const panelWidth = panelRect?.width ?? 500;
+  const popupWidth = Math.round(clamp(panelWidth - 40, 380, 460));
+  const popupHeight = Math.round(
+    clamp((panelRect?.height ?? 870) - 250, 420, 620),
+  );
   const desiredLeft = panelRect
-    ? viewportScreenLeft + panelRect.left + panelInset
-    : viewportScreenLeft + window.innerWidth - popupWidth;
-  const desiredTop = progressRect
-    ? viewportScreenTop + progressRect.bottom + 12
-    : viewportScreenTop + (panelRect?.top ?? 0) + 150;
+    ? viewportScreenLeft + panelRect.left + 8
+    : viewportScreenLeft + window.innerWidth - popupWidth - 8;
+  const desiredTop = panelRect
+    ? viewportScreenTop + panelRect.top + 200
+    : viewportScreenTop + 200;
 
   const left = Math.round(
     clamp(desiredLeft, screenLeft, Math.max(screenLeft, screenRight - popupWidth)),
   );
-  const availablePopupHeight = Math.max(420, screenBottom - desiredTop - 20);
-  const popupHeight = Math.round(clamp(availablePopupHeight, 420, 620));
   const top = Math.round(
     clamp(desiredTop, screenTop, Math.max(screenTop, screenBottom - popupHeight)),
   );
@@ -70,6 +87,12 @@ export function buildAttachedAssistantPopupFeatures(): string {
 
 export function installAssistantPopupPositioning(): void {
   const nativeOpen = window.open.bind(window);
+  const observer = new MutationObserver(removeStepThreeHelperMessages);
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
 
   window.open = ((
     url?: string | URL,
@@ -80,6 +103,7 @@ export function installAssistantPopupPositioning(): void {
       return nativeOpen(url, target, features);
     }
 
+    removeStepThreeHelperMessages();
     return nativeOpen(url, target, buildAttachedAssistantPopupFeatures());
   }) as typeof window.open;
 }
