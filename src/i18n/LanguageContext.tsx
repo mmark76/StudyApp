@@ -18,7 +18,13 @@ interface LanguageContextValue {
 }
 
 const LANGUAGE_STORAGE_KEY = "studyapp.language.v1";
-const LanguageContext = createContext<LanguageContextValue | null>(null);
+const defaultLanguageContext: LanguageContextValue = {
+  language: "en",
+  locale: "en-GB",
+  setLanguage: () => undefined,
+  text: (english) => english,
+};
+const LanguageContext = createContext<LanguageContextValue>(defaultLanguageContext);
 
 function readInitialLanguage(): AppLanguage {
   if (typeof window === "undefined") return "en";
@@ -55,7 +61,5 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 }
 
 export function useLanguage(): LanguageContextValue {
-  const context = useContext(LanguageContext);
-  if (!context) throw new Error("useLanguage must be used inside LanguageProvider.");
-  return context;
+  return useContext(LanguageContext);
 }
