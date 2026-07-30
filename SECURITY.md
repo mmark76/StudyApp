@@ -9,7 +9,7 @@ files, links, progress, sessions and settings remain in the current browser.
 
 The AI Assistant has three modes:
 
-- ChatGPT Companion — active local prompt handoff;
+- ChatGPT Companion — active local prompt handoff to the dedicated StudyApp AI Assistant Custom GPT;
 - ChatGPT App / MCP — inactive and marked Coming soon;
 - StudyApp AI — inactive and marked Coming soon.
 
@@ -26,26 +26,33 @@ No real AI request, credit purchase or charge is currently enabled.
 - Keep external links protected with `noopener noreferrer`.
 - Never commit secrets, tokens, private URLs, backups, database exports or payment credentials.
 - Provider and payment secrets must remain server-side.
+- Vite environment variables are public configuration and must not contain secrets.
 
 ## ChatGPT Companion
 
 The Companion may:
 
-- use text pasted deliberately by the user;
+- use text pasted or explicitly imported by the user;
 - prepare a prompt locally;
 - copy the prompt to the clipboard;
-- open ChatGPT in a separate tab.
+- open the dedicated StudyApp AI Assistant Custom GPT in a separate browser popup.
 
 The Companion must not:
 
 - call the OpenAI API;
 - read the StudyApp library or IndexedDB automatically;
 - send content automatically;
-- automate, scrape or inspect the ChatGPT website;
+- automate, scrape, embed or inspect the ChatGPT website;
 - read the user's ChatGPT session or response;
 - use or simulate a real StudyApp balance.
 
+The Custom GPT URL is public configuration through
+`VITE_STUDYAPP_AI_ASSISTANT_URL`. It must be an approved HTTPS ChatGPT share URL
+and must not contain credentials, tokens or private query data.
+
 Clipboard and popup failures must be handled with short user-facing messages.
+The user remains responsible for reviewing and pasting the prepared request into
+ChatGPT.
 
 ## ChatGPT App / MCP security gate
 
