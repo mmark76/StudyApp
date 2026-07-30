@@ -6,6 +6,7 @@ export type StorageNoticeKind = "central" | "upload" | "contentImport" | "splitt
 export type StorageNoticeVariant = "panel" | "compact";
 
 type StorageNoticeCopy = Record<StorageNoticeKind, { title: string; body: string }>;
+type StorageNoticeSummaryCopy = Record<StorageNoticeKind, string>;
 
 export const storageNoticeText: StorageNoticeCopy = {
   central: {
@@ -28,6 +29,14 @@ export const storageNoticeText: StorageNoticeCopy = {
     title: "This is not a complete file backup",
     body: "The backup includes progress, sessions, settings, imported chapters, flashcards and saved links. It does not include uploaded or generated file copies.",
   },
+};
+
+const compactStorageNoticeText: StorageNoticeSummaryCopy = {
+  central: "Files are stored only in this browser.",
+  upload: "Files are stored only in this browser.",
+  contentImport: "Study content is stored only in this browser.",
+  splitter: "Split PDFs are stored only in this browser.",
+  backup: "The backup does not include uploaded files.",
 };
 
 const greekStorageNoticeText: StorageNoticeCopy = {
@@ -53,6 +62,14 @@ const greekStorageNoticeText: StorageNoticeCopy = {
   },
 };
 
+const greekCompactStorageNoticeText: StorageNoticeSummaryCopy = {
+  central: "Τα αρχεία αποθηκεύονται μόνο σε αυτόν τον browser.",
+  upload: "Τα αρχεία αποθηκεύονται μόνο σε αυτόν τον browser.",
+  contentImport: "Το υλικό μελέτης αποθηκεύεται μόνο σε αυτόν τον browser.",
+  splitter: "Τα διαχωρισμένα PDF αποθηκεύονται μόνο σε αυτόν τον browser.",
+  backup: "Το backup δεν περιλαμβάνει τα αρχεία που ανέβηκαν.",
+};
+
 export const storageNoticePlacements = {
   home: "central",
   materialUpload: "upload",
@@ -66,9 +83,12 @@ interface StorageNoticeProps {
   variant?: StorageNoticeVariant;
 }
 
-export function StorageNotice({ kind, variant = "panel" }: StorageNoticeProps) {
+export function StorageNotice({ kind, variant = "compact" }: StorageNoticeProps) {
   const { language, text } = useLanguage();
   const notice = language === "el" ? greekStorageNoticeText[kind] : storageNoticeText[kind];
+  const compactText = language === "el"
+    ? greekCompactStorageNoticeText[kind]
+    : compactStorageNoticeText[kind];
   const label = text(STORAGE_NOTICE_LABEL, "Τοπική αποθήκευση και ασφάλεια δεδομένων");
 
   if (variant === "compact") {
@@ -77,10 +97,7 @@ export function StorageNotice({ kind, variant = "panel" }: StorageNoticeProps) {
         <details>
           <summary>
             <span className="storage-notice-icon" aria-hidden="true">ⓘ</span>
-            <span>{text(
-              "Files are stored only in this browser. Keep your originals safe.",
-              "Τα αρχεία αποθηκεύονται μόνο σε αυτόν τον browser. Κράτησε τα πρωτότυπα ασφαλή.",
-            )}</span>
+            <span>{compactText}</span>
             <span className="storage-notice-learn-more">{text("Learn more", "Περισσότερα")}</span>
           </summary>
           <div className="storage-notice-details">
