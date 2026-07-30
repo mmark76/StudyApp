@@ -1,8 +1,4 @@
-import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
-import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { validateLocalStudyFile } from "../study-materials/localFilePolicy";
-
-GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 export const MAX_ASSISTANT_MATERIAL_LENGTH = 12_000;
 export const MAX_ASSISTANT_IMPORT_FILE_SIZE = 50 * 1024 * 1024;
@@ -42,7 +38,17 @@ export function limitAssistantMaterialText(text: string): AssistantMaterialImpor
   };
 }
 
+async function loadPdfReader() {
+  const [pdfJs, workerModule] = await Promise.all([
+    import("pdfjs-dist"),
+    import("pdfjs-dist/build/pdf.worker.min.mjs?url"),
+  ]);
+  pdfJs.GlobalWorkerOptions.workerSrc = workerModule.default;
+  return pdfJs.getDocument;
+}
+
 async function extractPdfText(file: File): Promise<string> {
+  const getDocument = await loadPdfReader();
   const loadingTask = getDocument({ data: new Uint8Array(await file.arrayBuffer()) });
   const pdfDocument = await loadingTask.promise;
   const pages: string[] = [];
