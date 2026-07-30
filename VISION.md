@@ -1,42 +1,89 @@
 # StudyApp Vision
 
+_Last updated: 2026-07-30_
+
 ## One-sentence vision
 
-StudyApp is intended to become a **local-first personal knowledge and learning system**: a private workspace where a user can add study material, read it from source, study it through structure, practise it through active recall, and retrieve knowledge through meaningful filters.
+StudyApp is intended to become a **local-first personal knowledge and learning
+system**: a private workspace where a user can add study material, read it from
+source, study it through structure, practise it through active recall, retrieve
+knowledge through meaningful filters, and optionally request clearly controlled
+AI assistance for material the user deliberately selects.
 
-It should not be understood only as a flashcards app. Flashcards, quizzes, review queues, and spaced repetition are learning tools inside a broader system for organising, understanding, remembering, and recalling knowledge.
+It should not be understood only as a flashcards app or as an AI chat interface.
+Flashcards, quizzes, review queues, spaced repetition, source reading,
+structured study, and optional AI assistance are tools inside a broader system
+for organising, understanding, remembering, and recalling knowledge.
 
-For the current personal-use release, all study material and educational
-content is provided or entered by the user. StudyApp does not generate that
-content automatically. It runs locally in the browser without a backend and is
-not a permanent-storage, archive, or backup service; users must retain original
-files and required copies outside the application.
+## Current product reality
+
+StudyApp currently has two deliberately separated layers.
+
+### Local-first study workflow
+
+The released study workflow runs in the browser. Study material, local files,
+links, progress, sessions, and settings remain local by default. There is no
+user account, cloud storage, cloud sync, analytics, advertising, or telemetry.
+Browser storage is not permanent storage or a complete backup, so users must
+retain original files and required copies outside StudyApp.
+
+### AI Assistant preview
+
+The current AI Assistant is a test-mode workflow preview. It demonstrates task
+selection, material selection, service availability, estimated cost,
+confirmation, result review, and a local-save decision. It uses mock results and
+test credits. It does not currently send study content to an AI model, perform a
+real AI request, or make a real charge.
+
+StudyApp may check Markellos Cloud Core readiness so the interface can show
+whether future AI services appear available. That operational request is not
+cloud sync and must not contain study material or other user study data.
+
+The intended production AI model is documented in
+[`docs/AI_ASSISTANT_AND_CLOUD_BOUNDARIES.md`](docs/AI_ASSISTANT_AND_CLOUD_BOUNDARIES.md).
+
+## Product direction
+
+The long-term product remains **local-first, private by default, and
+user-controlled**. Optional cloud-assisted AI may help the user transform or
+understand selected material, but it must not quietly become a general cloud
+learning platform, automatic library scanner, cloud backup, or remote content
+store.
+
+The user, not the assistant, controls:
+
+- which task is requested;
+- which text, document, chapter, or pasted content is used;
+- whether the request is sent;
+- whether the result is trusted, edited, discarded, or saved;
+- whether any future paid credit is spent.
 
 ## Current navigation model
 
-The current product interface has Home plus four clear study areas. Material is
-added or removed at the destination where it will be read, while each area keeps
-a distinct learning purpose.
+The product interface has Home plus four clear study areas. Material is added or
+removed at the destination where it will be read, while each area keeps a
+distinct learning purpose.
 
 ```text
 Library from Source   = add, read, classify, and remove original/source material
 Structured Study      = add, read, classify, and remove material by structure and level
 Learn & Practice      = practise and consolidate knowledge
 Split PDF Tool        = upload a PDF as direct input and split it in the browser
+AI Assistant preview  = support selected study work without becoming a material store
 ```
 
 ### Library from Source
 
 Purpose: **manage and read source material**.
 
-This area is for reading primary/source material and reference material, such as:
+This area is for primary and reference material, such as:
 
-- Books
-- Articles
-- Papers
-- Source or external notes
-- My Notes
-- Summaries
+- Books;
+- Articles;
+- Papers;
+- Source or external notes;
+- My Notes;
+- Summaries.
 
 Source files and links are added, classified, opened, corrected, and removed
 here so their management remains beside their final reading destination.
@@ -45,14 +92,14 @@ here so their management remains beside their final reading destination.
 
 Purpose: **read and understand material through structure**.
 
-This area is for studying the same source material by levels and structures, such as:
+This area is for studying material through levels such as:
 
-- Contents
-- Chapters
-- Sections / Paragraphs
-- Key Concepts
-- Bibliography / References
-- Images / Diagrams
+- Contents;
+- Chapters;
+- Sections / Paragraphs;
+- Key Concepts;
+- Bibliography / References;
+- Images / Diagrams.
 
 It stays focused on structured reading and understanding. Structured files and
 links may be added, classified, opened, corrected, and removed here.
@@ -61,24 +108,40 @@ links may be added, classified, opened, corrected, and removed here.
 
 Purpose: **practise and consolidate**.
 
-This area is for active learning and memory work:
+This area is for:
 
-- Flashcards
-- Due review
-- Quizzes
-- Practice
-- Progress
+- Flashcards;
+- Due review;
+- Quizzes;
+- Practice;
+- Progress.
 
-This area transforms studied material into recall, review and testing.
+It transforms studied material into recall, review, testing, and measurable
+learning.
 
 ### Split PDF Tool
 
-Purpose: **PDF utility only**, with one explicit exception.
+Purpose: **PDF utility only**, with direct PDF input for splitting.
 
-This area contains the local browser-only PDF splitting tool. Its **Upload PDF**
-action uploads a PDF directly as input for splitting. It should not become a
-general material manager and should not add support for non-PDF uploads, cloud
-links, or general remove/manage workflows.
+It must not become a general material manager or add non-PDF uploads, cloud-link
+uploads, or general remove/manage workflows.
+
+### AI Assistant
+
+Purpose: **optional assistance on material the user chooses**.
+
+The assistant may eventually help the user:
+
+- ask questions about selected material;
+- create draft flashcards;
+- create draft quizzes;
+- summarise selected material;
+- explain difficult concepts;
+- suggest connections, examples, comparisons, or study prompts.
+
+It must not automatically read the full library, silently save its output,
+replace source reading, hide uncertainty, or make irreversible study or payment
+decisions for the user.
 
 ## Machine-readable summary
 
@@ -87,80 +150,49 @@ project_identity:
   name: StudyApp
   category: local-first personal knowledge and learning system
   primary_user_goal: understand, organise, remember, review, and retrieve knowledge from study material
-  not_only: flashcards app
-  privacy_model: local-first, offline-ready, no account, no backend by default
+  not_only:
+    - flashcards_app
+    - ai_chat_interface
+  privacy_model: local-first and private by default
+  current_account_system: none
+  current_cloud_storage: none
+  current_cloud_sync: none
+
+current_capability_layers:
+  local_study:
+    status: released
+    storage: browser_indexeddb
+    offline_ready: true
+  ai_assistant:
+    status: preview_test_mode
+    results: mock
+    credits: test_only
+    real_ai_request: false
+    real_payment: false
+  cloud_core_readiness:
+    status: operational_health_check
+    may_send_study_content: false
 
 current_navigation_areas:
   library_from_source:
     purpose: manage and read original/source material
-    allowed_actions:
-      - add_source_material
-      - read
-      - classify_source_material
-      - remove_source_material
   structured_study:
     purpose: manage, read, and understand material by structure and level
-    allowed_actions:
-      - add_structured_material
-      - read
-      - study_by_structure
-      - classify_structured_material
-      - remove_structured_material
   learn_and_practice:
     purpose: practise and consolidate knowledge
-    allowed_actions:
-      - flashcards
-      - review
-      - quiz
-      - progress
   split_pdf_tool:
     purpose: split local PDFs in browser
-    allowed_actions:
-      - upload_pdf_for_splitting
-      - split_pdf
-    not_for:
-      - add_non_pdf_material
-      - add_cloud_link
-      - remove_material
-      - manage_general_material
 
-source_material_types:
-  - pdf
-  - word_document
-  - text_file
-  - csv
-  - image
-  - diagram
-  - chart
-  - web_link
-  - cloud_link
-  - bibliography
-  - reference
-
-structured_study_levels:
-  - source
-  - table_of_contents
-  - chapter
-  - section
-  - paragraph
-  - concept
-  - image
-  - diagram
-  - chart
-  - bibliography_item
-  - reference
-
-learning_methods:
-  - active_recall
-  - spaced_repetition
-  - flashcards
-  - quizzes
-  - summaries
-  - concept_mapping
-  - comparison
-  - classification
-  - visual_learning
-  - metacognitive_review
+future_ai_principles:
+  - explicit_task_selection
+  - explicit_material_selection
+  - explicit_confirmation
+  - data_minimisation
+  - visible_cost_before_start
+  - review_before_local_save
+  - no_hidden_sync
+  - no_automatic_library_scan
+  - failure_without_silent_charge
 ```
 
 ## Core product model
@@ -185,107 +217,154 @@ Source Material
 Split PDF Tool
 └── Upload PDF for direct split input
     └── Split PDF into local PDF files
+
+Optional AI Assistant
+└── User selects task and exact material
+    └── User reviews scope and estimated cost
+        └── User confirms remote task
+            └── User reviews result
+                └── User chooses whether to save locally
 ```
 
-This means source material is not only stored. It should become structured knowledge that can be studied, tested, connected, reviewed, and recalled.
+Source material is not only stored. It should become structured knowledge that
+can be studied, tested, connected, reviewed, and recalled. AI assistance may
+accelerate selected transformations, but it must preserve source traceability
+and user judgement.
 
-## What the user wants to be able to do
+## What the user should be able to do
 
 The application should help the user study a topic deeply and systematically.
-
-The user should be able to add or save anything that may help with a subject, including PDFs, Word documents, links, images, diagrams, charts, notes, bibliographic items, and references.
+The user should be able to add or save PDFs, Word documents, links, images,
+diagrams, charts, notes, bibliographic items, and references.
 
 The user should then be able to:
 
 1. read original/source material in **Library from Source**;
-2. read and understand the same material through structure in **Structured Study**;
+2. read and understand the same material through structure in
+   **Structured Study**;
 3. practise and consolidate knowledge in **Learn & Practice**;
 4. add or remove source material in **Library from Source**;
 5. add or remove structured material in **Structured Study**;
-6. upload and split a PDF directly in **Split PDF Tool** when needed.
+6. upload and split a PDF directly in **Split PDF Tool**;
+7. optionally ask for AI assistance on deliberately selected material;
+8. review AI output before deciding whether it becomes local study content;
+9. understand the maximum estimated cost before any future paid task starts.
 
 ## Cognitive learning goal
 
-StudyApp should support more than passive reading. The learning workflow should use many cognitive functions, including:
+StudyApp should support more than passive reading. The learning workflow should
+use:
 
-- attention: helping the user focus on what matters;
-- perception: using text, images, diagrams, charts, and visual structure;
-- comprehension: moving from source reading to structured reading and then to practice;
-- memory encoding: creating meaningful concepts, associations, examples, and summaries;
-- active recall: requiring the user to retrieve knowledge before seeing the answer;
-- spaced repetition: revisiting material at the right time;
-- classification: organising knowledge by source, chapter, concept and type;
-- metacognition: showing what is known, weak, forgotten, due, or improving;
-- application: turning knowledge into questions, problems, examples, and practice.
+- attention — helping the user focus on what matters;
+- perception — using text, images, diagrams, charts, and visual structure;
+- comprehension — moving from source reading to structured reading and practice;
+- memory encoding — creating meaningful concepts, associations, examples, and
+  summaries;
+- active recall — requiring retrieval before showing the answer;
+- spaced repetition — revisiting material at the right time;
+- classification — organising knowledge by source, chapter, concept, and type;
+- metacognition — showing what is known, weak, forgotten, due, or improving;
+- application — turning knowledge into questions, problems, examples, and
+  practice;
+- critical judgement — reviewing generated suggestions rather than accepting
+  them automatically.
 
 ## Design principles
 
 1. **Local-first and private by default**  
-   User content, progress, study files, and settings should remain local unless the user explicitly exports or chooses another behaviour. Local browser storage is not permanent storage or a complete backup, so the interface must preserve clear original-file and data-loss guidance.
+   Core study data remains local unless the user deliberately chooses an
+   approved remote action. Local browser storage is not permanent storage or a
+   complete backup.
 
 2. **Clear separation of app areas**  
-   Library from Source manages and reads source material. Structured Study
-   manages and reads material by structure. Learn & Practice is for active
-   learning. Split PDF Tool is a PDF-only splitting utility.
+   Library manages source material, Structured Study manages material by
+   structure, Learn & Practice supports active learning, and Split PDF Tool is a
+   PDF-only utility. AI Assistant supports selected work without becoming a new
+   material store.
 
-3. **Source material must remain useful after import**  
-   It is not enough to upload a file or save a link. The user must be able to find it, open it, read it, structure it, connect it to concepts, and use it for study.
+3. **Explicit remote use**  
+   A future AI request must use only material the user selects and confirms.
+   Opening a document, visiting a page, or checking service health is not
+   consent to upload content.
 
-4. **Multiple depths of reading**  
-   The app should support movement from source material to structured levels such as contents, chapters, sections, concepts, references and diagrams.
+4. **Source material remains primary**  
+   AI output must not replace source reading or remove traceability to the
+   original material.
 
-5. **Structured knowledge over scattered notes**  
-   Books and topics should be decomposed into meaningful units: chapters, sections, concepts, examples, images, diagrams, bibliography, and references.
+5. **Multiple depths of reading**  
+   Support movement from source material to contents, chapters, sections,
+   concepts, references, diagrams, and practice.
 
-6. **Active learning over passive storage**  
-   The final purpose of stored material is learning: recall, review, quiz, repetition, understanding, and long-term retention.
+6. **Structured knowledge over scattered notes**  
+   Decompose books and topics into meaningful units and relationships.
 
-7. **Traceability to sources**  
-   Flashcards, notes, summaries, and concepts should be able to point back to the source material, chapter, page, paragraph, image, or reference where practical.
+7. **Active learning over passive storage**  
+   The final purpose is recall, review, quiz, repetition, understanding, and
+   long-term retention.
 
-8. **Data integrity before feature speed**  
-   Imports, backups, restores, migrations, deletion, and progress tracking must protect user data from silent loss or corruption.
+8. **Traceability to sources**  
+   Flashcards, notes, summaries, concepts, and AI-assisted drafts should point
+   back to their source where practical.
 
-9. **Progress should reflect real learning**  
-   Statistics should not only count activity. They should help the user see knowledge strength, weak areas, due reviews, forgotten material, and improvement over time.
+9. **Review before persistence**  
+   Generated content remains a draft until the user reviews and saves it.
 
-## Feature implications
+10. **Data integrity before feature speed**  
+    Imports, backups, restores, migrations, deletion, remote tasks, and progress
+    tracking must protect user data from silent loss or corruption.
 
-A feature is aligned with the product vision if it helps the user do at least one of these:
+11. **Transparent cost and failure**  
+    A future paid task must show its maximum estimated cost before confirmation
+    and must not silently charge after failure or cancellation.
 
-- add or remove useful study material at its Library or Structured Study destination;
-- upload a PDF directly inside Split PDF Tool only for immediate split use;
-- read source material where its classification and lifecycle remain visible;
-- understand material at a deeper or clearer level through structure;
+12. **Progress reflects real learning**  
+    Statistics should reveal knowledge strength, weak areas, due reviews,
+    forgotten material, and improvement—not merely activity volume.
+
+## Feature alignment
+
+A feature is aligned when it helps the user:
+
+- add, classify, read, or remove useful material at the correct destination;
+- understand material through structure;
 - connect concepts to sources, examples, diagrams, or references;
 - create or improve active recall;
 - schedule review at the right time;
 - identify weak knowledge;
 - retrieve information through useful filters;
-- protect local data and privacy.
+- protect local data and privacy;
+- request optional assistance with explicit scope and control;
+- review generated output critically before saving it.
 
-A feature is probably not aligned if it:
+A feature is probably not aligned when it:
 
-- makes the five main areas overlap in purpose beyond the explicit Upload PDF exception in Split PDF Tool;
-- turns the app into a generic cloud learning platform;
-- treats uploaded material as dead file storage;
-- makes the app depend on accounts, backend storage, analytics, or telemetry by default;
-- optimises only for flashcard quantity without preserving source structure and understanding;
-- hides source traceability;
-- risks silent data loss;
-- makes the learning model less understandable to the user.
+- makes the main study areas overlap without a clear reason;
+- turns StudyApp into a generic cloud learning platform;
+- treats uploaded material as dead storage;
+- makes accounts, backend storage, analytics, or telemetry mandatory for core
+  study use;
+- scans or uploads study material automatically;
+- hides what content is sent remotely;
+- saves AI output without review;
+- optimises only for content quantity;
+- hides source traceability or uncertainty;
+- risks silent data loss or duplicate charging;
+- makes the learning model less understandable.
 
-## Agent alignment checklist
+## Alignment checklist
 
-Before making significant changes, human contributors and AI agents should ask:
+Before significant changes, contributors should ask:
 
-1. Does this change preserve the separation between Library from Source, Structured Study, Learn & Practice, and Split PDF Tool?
-2. Does material management stay at its reading destination, with only PDF input in Split PDF Tool?
-3. Does it support the broader knowledge-and-learning vision, not only a narrow UI task?
-4. Does it preserve local-first privacy?
-5. Does it help the user move between source reading, structure, concept, and recall?
-6. Does it protect imported material, progress, and backups from silent loss?
-7. Does it keep source material usable after import?
-8. Does it keep the system understandable to the user?
+1. Does the change preserve the separation of the four study areas?
+2. Does material management stay at its reading destination?
+3. Does it support the broader knowledge-and-learning vision?
+4. Does it preserve local-first privacy for core use?
+5. Does it help movement between source, structure, concept, and recall?
+6. Does it protect imported material, progress, and backups?
+7. Does it keep source material usable and traceable?
+8. For remote work, is the selected data exact, minimal, visible, and confirmed?
+9. Is generated output reviewed before local save?
+10. Are cost, failure, cancellation, and retry semantics understandable?
+11. Does the system remain understandable to the user?
 
-If the answer to these questions is unclear, prefer documenting the assumption before implementing the change.
+When an answer is unclear, document the assumption before implementation.
