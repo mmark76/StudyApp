@@ -1,6 +1,6 @@
 # AI Assistant and Cloud Boundaries
 
-_Last updated: 2026-07-30_
+_Last updated: 2026-07-31_
 
 ## Purpose
 
@@ -9,40 +9,37 @@ and its three AI Assistant modes.
 
 ## Current modes
 
-### 1. ChatGPT Companion — available
+### 1. StudyApp AI Assistant — available
 
-The Companion is a local handoff workflow:
+The StudyApp AI Assistant is a minimal external handoff:
 
-1. the user chooses a task;
-2. the user pastes or explicitly imports the exact study text to use;
-3. StudyApp prepares a prompt locally;
-4. StudyApp keeps the prepared prompt visible and copies it when browser
-   permission allows;
-5. StudyApp validates and opens the dedicated **StudyApp AI Assistant** Custom
-   GPT in a separate browser popup;
-6. if clipboard or popup access fails, StudyApp shows the independent failure
-   state and a safe manual fallback;
-7. the user reviews and pastes the prepared request manually.
+1. StudyApp validates the configured dedicated **StudyApp AI Assistant** Custom
+   GPT destination;
+2. the interface renders it as a normal external link;
+3. the user activates the link and works directly in ChatGPT.
 
 The Custom GPT share URL is public production configuration through
 `VITE_STUDYAPP_AI_ASSISTANT_URL`. It identifies the destination only; it is not an
 API key, account credential or permission grant.
 
-The Companion does not:
+The StudyApp AI Assistant link does not:
 
 - call the OpenAI API;
 - use the StudyApp server-side API key;
-- read the StudyApp library or IndexedDB automatically;
+- read the StudyApp library or IndexedDB;
+- read, copy or send study material;
+- use the clipboard;
 - send content automatically;
 - use StudyApp credits or payments;
+- use `window.open` or scripted popup positioning;
 - automate, embed, scrape or inspect the ChatGPT website;
 - read the ChatGPT response back from the ChatGPT website.
 
 The external ChatGPT service applies its own account, plan, privacy and sharing
-rules. Browser popup settings may affect the window's size or position.
-StudyApp accepts only the approved HTTPS `chatgpt.com` destination without
-embedded credentials or a custom port. It does not access or zoom the external
-cross-origin page.
+rules. StudyApp accepts only the exact approved HTTPS `chatgpt.com` Custom GPT
+destination without embedded credentials, a custom port, query parameters or a
+fragment. The link uses `noopener noreferrer`. StudyApp does not access or zoom
+the external cross-origin page.
 
 ### 2. ChatGPT App / MCP — coming soon
 
@@ -68,9 +65,10 @@ bundle.
 This option is visible but inactive. The current application performs no paid AI
 request, credit purchase, reservation or charge.
 
-## Shared task boundary
+## Future task boundary
 
-All three modes should use a common task model for:
+The current StudyApp AI Assistant leaves task selection inside ChatGPT. Future remote modes
+should use a common StudyApp task model for:
 
 - asking questions;
 - creating flashcards;
@@ -78,8 +76,8 @@ All three modes should use a common task model for:
 - summarising;
 - explaining concepts.
 
-Common result validation and review may be reused, but each mode must keep its
-transport, availability and charging rules separate.
+Common result validation and review may be reused by future modes, but each mode
+must keep its transport, availability and charging rules separate.
 
 ## Non-negotiable data boundaries
 
@@ -96,8 +94,8 @@ Any remote AI mode must satisfy all of the following:
 - do not turn AI processing into hidden storage, backup or sync;
 - do not log study content or secrets by default.
 
-The current Companion remains a manual clipboard handoff. Opening its configured
-Custom GPT page does not itself transmit the prepared study material.
+The current StudyApp AI Assistant is an external-link handoff. Opening its configured Custom
+GPT page does not itself read or transmit StudyApp study material.
 
 ## Credits and payments
 

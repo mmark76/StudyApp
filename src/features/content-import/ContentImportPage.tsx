@@ -1,6 +1,7 @@
 import { type ChangeEvent, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
+import type { LocalWriteFailureInjector } from "../../infrastructure/database/localWriteFailureInjector";
 import {
   StorageNotice,
   storageNoticePlacements,
@@ -23,7 +24,13 @@ async function readFile(file: File): Promise<string> {
   return file.text();
 }
 
-export function ContentImportPage() {
+interface ContentImportPageProps {
+  failureInjector?: LocalWriteFailureInjector;
+}
+
+export function ContentImportPage({
+  failureInjector,
+}: ContentImportPageProps = {}) {
   const { language, text } = useLanguage();
   const { units, flashcards, importedUnits, importedFlashcards } = useStudyContent();
   const [message, setMessage] = useState("");
@@ -125,7 +132,12 @@ export function ContentImportPage() {
 
       <section className="content-panel">
         <h3>{text("Add one chapter", "Προσθήκη κεφαλαίου")}</h3>
-        <UnitForm existingUnits={units} importedUnits={importedUnits} onMessage={setMessage} />
+        <UnitForm
+          existingUnits={units}
+          failureInjector={failureInjector}
+          importedUnits={importedUnits}
+          onMessage={setMessage}
+        />
       </section>
 
       <section className="content-panel">
@@ -133,6 +145,7 @@ export function ContentImportPage() {
         <FlashcardForm
           units={units}
           existingFlashcards={flashcards}
+          failureInjector={failureInjector}
           importedFlashcards={importedFlashcards}
           onMessage={setMessage}
         />

@@ -1,6 +1,6 @@
 # Backup and Data Safety
 
-_Last updated: 2026-07-28_
+_Last updated: 2026-07-31_
 
 ## Local-first principle
 
@@ -11,7 +11,8 @@ not generate chapters, flashcards, quizzes, or other study content
 automatically.
 
 This protects ownership and privacy, but it also means browser storage is
-important user data. StudyApp is not permanent storage, an archive, or a file
+important user data whose capacity and availability depend on the browser and
+device. StudyApp is not permanent storage, an archive, or a complete file
 backup.
 
 ## Current backup limitation
@@ -49,8 +50,8 @@ the existing data unchanged. Local file blobs are neither imported nor changed.
 Local browser data may be lost if:
 
 - the user clears site data;
-- the browser profile is removed;
-- the device is replaced;
+- the browser profile is removed or the browser fails;
+- the device is replaced or fails;
 - the browser storage quota is exceeded or cleaned;
 - the user uses a different browser or device without export/import support.
 - the application is removed or browser/local storage becomes unavailable.
@@ -120,10 +121,11 @@ A future complete local-file archive restore should additionally:
 
 ## User-facing warning to preserve
 
-Until complete local-file export exists, user-facing copy should preserve this meaning:
+Until complete local-file export exists, English user-facing copy should
+preserve this meaning:
 
-> Progress backups do not include local file copies. Files saved in StudyApp remain in this browser on this device. Export or keep your original files separately before clearing browser data or changing device.
+> StudyApp stores data locally in this browser and device. Data can be lost if site data is cleared or the browser or device fails. StudyApp is not permanent storage or a complete backup service. Keep original files and required copies outside StudyApp. The JSON backup does not include uploaded or generated file copies, and available storage depends on the browser and device.
 
-The full central UI notice also preserves this meaning:
+Greek user-facing copy must communicate the same material facts:
 
-> StudyApp is a local tool for using and studying content, not a permanent-storage or backup service. Files stay only in this browser and can be lost if its data is cleared or becomes unavailable. Always keep your original files and any needed copies somewhere safe.
+> Το StudyApp αποθηκεύει δεδομένα τοπικά σε αυτόν τον browser και τη συσκευή. Τα δεδομένα μπορεί να χαθούν αν διαγραφούν τα δεδομένα ιστοτόπου ή αν παρουσιαστεί βλάβη στον browser ή στη συσκευή. Το StudyApp δεν είναι υπηρεσία μόνιμης αποθήκευσης ούτε πλήρης υπηρεσία backup. Κράτησε τα πρωτότυπα αρχεία και τα απαραίτητα αντίγραφα εκτός StudyApp. Το JSON backup δεν περιλαμβάνει αρχεία που προστέθηκαν ή δημιουργήθηκαν και ο διαθέσιμος χώρος εξαρτάται από τον browser και τη συσκευή.

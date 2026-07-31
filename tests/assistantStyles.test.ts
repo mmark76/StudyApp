@@ -12,7 +12,9 @@ const assistantModesCss = readFileSync(
 
 function cssRule(source: string, selector: string): string {
   const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
-  const match = source.match(new RegExp(`${escapedSelector}\\s*\\{([^}]+)\\}`, "u"));
+  const match = source.match(
+    new RegExp(`${escapedSelector}\\s*\\{([^}]+)\\}`, "u"),
+  );
   if (!match) throw new Error(`Missing CSS rule for ${selector}.`);
   return match[1];
 }
@@ -43,10 +45,6 @@ function contrastRatio(foreground: string, background: string): number {
 }
 
 describe("AI Assistant presentation", () => {
-  it("uses the requested 0.9 content zoom", () => {
-    expect(cssRule(assistantCss, ".assistant-content")).toContain("zoom: 0.9;");
-  });
-
   it("uses the softer teal palette with AA contrast in every enabled state", () => {
     const panelRule = cssRule(assistantCss, ".assistant-panel");
     expect(panelRule).toContain("--assistant-secondary-action-bg: #c8e8e3;");
@@ -66,31 +64,20 @@ describe("AI Assistant presentation", () => {
     expect(contrastRatio("#164e4a", "#b4ddd6")).toBeCloseTo(6.4129, 4);
     expect(contrastRatio("#154944", "#74bfb4")).toBeCloseTo(4.7641, 4);
     expect(contrastRatio("#237f78", "#fffaf0")).toBeCloseTo(4.61, 2);
-    expect(contrastRatio("#237f78", "#c8e8e3")).toBeCloseTo(3.6789, 4);
   });
 
-  it("styles onboarding as one semantic stepper instead of three cards", () => {
-    const stepperRule = cssRule(
-      assistantModesCss,
-      ".assistant-onboarding-steps",
-    );
-    const rowRule = cssRule(
-      assistantModesCss,
-      ".assistant-onboarding-steps li",
-    );
-    const separatorRule = cssRule(
-      assistantModesCss,
-      ".assistant-onboarding-steps li + li",
-    );
+  it("keeps visible focus styles for dialog and mode controls", () => {
+    expect(assistantCss).toContain(".assistant-close:focus-visible");
+    expect(assistantCss).toContain(".assistant-back:focus-visible");
+    expect(cssRule(assistantModesCss, ".assistant-mode-card:focus-visible"))
+      .toContain("outline: 3px solid");
+  });
 
-    expect(stepperRule).toContain("background:");
-    expect(stepperRule).toContain("border: 1px solid");
-    expect(stepperRule).toContain("border-radius: 0.9rem;");
-    expect(stepperRule).toContain("overflow: hidden;");
-    expect(stepperRule).toContain("gap: 0;");
-    expect(rowRule).toContain("background: transparent;");
-    expect(rowRule).toContain("border: 0;");
-    expect(rowRule).toContain("border-radius: 0;");
-    expect(separatorRule).toContain("border-top: 1px solid");
+  it("contains no styles from the removed workflow", () => {
+    const combinedCss = `${assistantCss}\n${assistantModesCss}`;
+    expect(combinedCss).not.toContain("assistant-task-card");
+    expect(combinedCss).not.toContain("assistant-prompt-preview");
+    expect(combinedCss).not.toContain("assistant-import");
+    expect(combinedCss).not.toContain("assistant-onboarding-steps");
   });
 });

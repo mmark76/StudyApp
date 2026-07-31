@@ -13,7 +13,6 @@ import "./styles/studyMaterials.css";
 import "./styles/buildVersion.css";
 import "./styles/appearanceSettings.css";
 import "./styles/assistant.css";
-import "./styles/assistantImport.css";
 import "./styles/assistantServiceStatus.css";
 import "./styles/assistantGuide.css";
 import "./styles/assistantModes.css";

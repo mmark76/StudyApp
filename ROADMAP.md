@@ -1,6 +1,6 @@
 # StudyApp Roadmap
 
-_Last updated: 2026-07-30_
+_Last updated: 2026-07-31_
 
 ## v1.0.0 — Complete
 
@@ -24,23 +24,19 @@ A focused post-gate follow-up added explicit local-storage/non-backup notices an
 download actions for generated split PDFs. It did not add content generation,
 cloud storage, authentication, billing, or a new persisted data model.
 
-## Post-v1 AI Assistant preview — Current `main`
+## Post-v1 AI Assistant simplification — Current `main`
 
-The repository now includes a clearly labelled test-mode AI Assistant workflow
-preview. Completed preview work includes:
+The repository now includes a two-screen AI Assistant:
 
-1. mock tasks for questions, flashcards, quizzes, summaries, and explanations;
-2. deliberate source selection and confirmation screens;
-3. mock results and a locally stored test-credit wallet;
-4. planned one-time credit-package presentation with no real purchase;
-5. Cloud Core readiness status in the application and assistant;
-6. unavailable/offline handling that prevents mock task execution;
-7. a user guide explaining the preview, privacy boundary, and planned charging
-   model.
+1. **Study with ChatGPT** opens the approved dedicated StudyApp AI Assistant
+   Custom GPT through a normal external link;
+2. **Other AI options** shows the same available link and keeps ChatGPT App /
+   MCP and integrated StudyApp AI visibly inactive.
 
-This work is not production AI. It does not send study material to a model, make
-a real AI request, create a real account, synchronise study data, or charge the
-user.
+StudyApp does not prepare or copy a prompt, read the Library or IndexedDB, import
+files into the Assistant, transfer local study material, make an OpenAI API or
+Cloud Core request, operate credits, or charge the user. The user chooses and
+shares material directly in ChatGPT.
 
 The current and future boundary is defined in
 [`docs/AI_ASSISTANT_AND_CLOUD_BOUNDARIES.md`](docs/AI_ASSISTANT_AND_CLOUD_BOUNDARIES.md).
@@ -61,24 +57,22 @@ Continue the existing v1.1 backlog for:
 - browser integration and accessibility coverage;
 - deterministic build and deployment hardening.
 
-### Track B — AI preview hardening
+### Track B — AI Assistant handoff quality
 
-Before production integration, improve the preview itself:
+Continue focused quality work for the current external handoff:
 
-- keep mock/test labels impossible to miss;
-- test keyboard, screen-reader, narrow-layout, offline, timeout, retry, and
-  interrupted-flow behaviour;
-- define draft result schemas for answers, flashcards, quizzes, summaries, and
-  explanations;
-- define traceability from every generated item back to selected source
-  material;
-- define review, edit, discard, and transactional local-save behaviour;
-- remove any ambiguity between service health and task success.
+- test screen-reader output, 200% zoom, narrow layouts, and PWA updates while
+  the dialog is open;
+- keep the approved destination validation and safe external-link attributes
+  covered by automated tests;
+- preserve concise, equivalent English and Greek availability and privacy copy;
+- keep future remote modes visibly distinct and inactive.
 
 ### Track C — Production Cloud Core and AI design
 
-Production AI must not begin as a direct replacement of mock functions. First
-complete design and review for:
+Production AI must begin as a separately reviewed feature, not as an
+incremental activation of retained client code. First complete design and review
+for:
 
 - authentication and authorisation;
 - exact request/response contracts;
@@ -111,7 +105,7 @@ Historical release documents such as `RELEASE_NOTES_v1.md`,
 release gate. Living documents must describe current `main` and distinguish:
 
 1. the released local-first workflow;
-2. the current test-mode AI Assistant preview;
+2. the current external StudyApp AI Assistant handoff;
 3. planned production cloud-assisted capabilities.
 
 ## Work selection rule

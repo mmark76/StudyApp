@@ -6,12 +6,6 @@
   text-align: left;
 }
 
-.assistant-launch-copy small {
-  color: var(--text-muted, #64748b);
-  font-size: 0.68rem;
-  font-weight: 700;
-}
-
 .assistant-launch-avatar-wrap {
   display: inline-flex;
   flex: 0 0 auto;
@@ -62,59 +56,6 @@
   background: #94a3b8;
 }
 
-.assistant-service-line {
-  align-items: center;
-  color: var(--text-muted, #64748b);
-  display: flex;
-  font-size: 0.78rem;
-  font-weight: 700;
-  gap: 0.4rem;
-  margin: 0.2rem 0 0;
-}
-
-.assistant-service-banner {
-  align-items: center;
-  border-bottom: 1px solid;
-  display: flex;
-  gap: 0.8rem;
-  justify-content: space-between;
-  padding: 0.75rem 1rem;
-}
-
-.assistant-service-banner > div {
-  display: grid;
-  gap: 0.15rem;
-}
-
-.assistant-service-banner span {
-  font-size: 0.82rem;
-}
-
-.assistant-service-banner-checking {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #475569;
-}
-
-.assistant-service-banner-unavailable {
-  background: #fef2f2;
-  border-color: #fecaca;
-  color: #991b1b;
-}
-
-.assistant-service-banner .button {
-  flex: 0 0 auto;
-  margin: 0;
-}
-
-.assistant-task-card:disabled {
-  border-color: rgba(100, 116, 139, 0.18);
-  box-shadow: none;
-  cursor: not-allowed;
-  opacity: 0.55;
-  transform: none;
-}
-
 @keyframes assistant-status-pulse {
   0%,
   100% {
@@ -129,15 +70,6 @@
 @media (max-width: 760px) {
   .assistant-launch-button .assistant-service-dot {
     display: inline-block;
-  }
-
-  .assistant-service-banner {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .assistant-service-banner .button {
-    align-self: flex-start;
   }
 }
 

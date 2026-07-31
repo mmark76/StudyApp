@@ -1,5 +1,9 @@
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useRef, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
+import {
+  injectLocalWriteFailure,
+  type LocalWriteFailureInjector,
+} from "../../infrastructure/database/localWriteFailureInjector";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { Flashcard, StudyUnit } from "../../shared/types/models";
 import { IMPORTED_FLASHCARDS_SETTING_KEY } from "./importedContent";
@@ -11,11 +15,13 @@ function splitCommaList(value: string): string[] {
 export function FlashcardForm({
   units,
   existingFlashcards,
+  failureInjector,
   importedFlashcards,
   onMessage,
 }: {
   units: readonly StudyUnit[];
   existingFlashcards: readonly Flashcard[];
+  failureInjector?: LocalWriteFailureInjector;
   importedFlashcards: readonly Flashcard[];
   onMessage: (message: string) => void;
 }) {
@@ -24,9 +30,13 @@ export function FlashcardForm({
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [tags, setTags] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const submissionPendingRef = useRef(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submissionPendingRef.current) return;
+
     const selectedUnit = units.find((unit) => unit.id === unitId);
     if (!selectedUnit) {
       onMessage(text("Choose a chapter first.", "Επίλεξε πρώτα κεφάλαιο."));
@@ -49,11 +59,31 @@ export function FlashcardForm({
       return;
     }
 
-    await studyDatabase.settings.put({ key: IMPORTED_FLASHCARDS_SETTING_KEY, value: [...importedFlashcards, nextCard] });
-    setQuestion("");
-    setAnswer("");
-    setTags("");
-    onMessage(text("Flashcard added.", "Η κάρτα προστέθηκε."));
+    submissionPendingRef.current = true;
+    setIsSubmitting(true);
+    onMessage("");
+
+    try {
+      await injectLocalWriteFailure(failureInjector, "flashcard");
+      await studyDatabase.settings.put({
+        key: IMPORTED_FLASHCARDS_SETTING_KEY,
+        value: [...importedFlashcards, nextCard],
+      });
+      setQuestion("");
+      setAnswer("");
+      setTags("");
+      onMessage(text("Flashcard added.", "Η κάρτα προστέθηκε."));
+    } catch {
+      onMessage(
+        text(
+          "The flashcard could not be saved on this device. Your entries are still here. Try again.",
+          "Η κάρτα δεν μπόρεσε να αποθηκευτεί σε αυτή τη συσκευή. Οι καταχωρίσεις σου παραμένουν στη φόρμα. Δοκίμασε ξανά.",
+        ),
+      );
+    } finally {
+      submissionPendingRef.current = false;
+      setIsSubmitting(false);
+    }
   }
 
   if (units.length === 0) {
@@ -61,27 +91,35 @@ export function FlashcardForm({
   }
 
   return (
-    <form className="material-form" onSubmit={(event) => void submit(event)}>
+    <form
+      aria-busy={isSubmitting}
+      className="material-form"
+      onSubmit={(event) => void submit(event)}
+    >
       <label className="field-label">
         {text("Chapter", "Κεφάλαιο")}
-        <select required value={unitId} onChange={(event) => setUnitId(event.target.value)}>
+        <select disabled={isSubmitting} required value={unitId} onChange={(event) => setUnitId(event.target.value)}>
           <option value="">{text("Choose a chapter", "Επίλεξε κεφάλαιο")}</option>
           {units.map((unit) => <option key={unit.id} value={unit.id}>{unit.number}. {unit.title}</option>)}
         </select>
       </label>
       <label className="field-label">
         {text("Question", "Ερώτηση")}
-        <textarea required rows={3} value={question} onChange={(event) => setQuestion(event.target.value)} />
+        <textarea disabled={isSubmitting} required rows={3} value={question} onChange={(event) => setQuestion(event.target.value)} />
       </label>
       <label className="field-label">
         {text("Answer", "Απάντηση")}
-        <textarea required rows={4} value={answer} onChange={(event) => setAnswer(event.target.value)} />
+        <textarea disabled={isSubmitting} required rows={4} value={answer} onChange={(event) => setAnswer(event.target.value)} />
       </label>
       <label className="field-label">
         {text("Keywords (optional)", "Λέξεις-κλειδιά (προαιρετικά)")}
-        <input value={tags} onChange={(event) => setTags(event.target.value)} placeholder={text("Separate with commas", "Χώρισε με κόμματα")} />
+        <input disabled={isSubmitting} value={tags} onChange={(event) => setTags(event.target.value)} placeholder={text("Separate with commas", "Χώρισε με κόμματα")} />
       </label>
-      <button className="button primary" type="submit">{text("Add flashcard", "Προσθήκη κάρτας")}</button>
+      <button className="button primary" disabled={isSubmitting} type="submit">
+        {isSubmitting
+          ? text("Saving flashcard…", "Αποθήκευση κάρτας…")
+          : text("Add flashcard", "Προσθήκη κάρτας")}
+      </button>
     </form>
   );
 }

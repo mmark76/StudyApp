@@ -1,9 +1,9 @@
 # StudyApp v1.1 Backlog
 
-_Last updated: 2026-07-30_
+_Last updated: 2026-07-31_
 
 This is the explicit stopping-point backlog after v1.0.0 plus the post-v1 AI
-Assistant preview. Items must be handled in separate, focused work. Priority
+Assistant changes. Items must be handled in separate, focused work. Priority
 reflects reliability, security, privacy, and financial risk; it is not a decision
 to reopen the historical v1 release scope.
 
@@ -13,7 +13,7 @@ The focused July 28 release-hardening follow-up added shared
 local-storage/data-safety notices and direct download for generated split PDFs,
 including a latest-result **Download all** action.
 
-The July 29–30 post-v1 preview work added:
+The short-lived July 29–30 post-v1 preview formerly included:
 
 - mock AI Assistant tasks and sample results;
 - deliberate source selection and confirmation screens;
@@ -21,9 +21,20 @@ The July 29–30 post-v1 preview work added:
 - Cloud Core readiness checking and assistant availability status;
 - a user-facing AI Assistant guide.
 
-These preview features do not perform production AI requests or real charges.
-The governing boundary is
+Those mock tasks, test credits, package presentation and readiness UI were
+removed by the July 31 simplification. They never performed production AI
+requests or real charges. The governing boundary is
 [`docs/AI_ASSISTANT_AND_CLOUD_BOUNDARIES.md`](docs/AI_ASSISTANT_AND_CLOUD_BOUNDARIES.md).
+
+The July 31 simplification replaced the Companion's local import, prompt,
+clipboard and scripted-popup workflow with a two-screen Assistant and a normal
+external link to the approved Custom GPT. It also added focus trapping,
+background inertness, Escape close and launcher focus restoration.
+
+The July 31 minimum audit remediation also aligned the English and Greek local
+storage notices. Both now explain browser/device-local storage, realistic loss
+conditions, storage availability, the incomplete JSON file-backup boundary and
+the need to keep original files and required copies outside StudyApp.
 
 ## P0 — Production AI and financial safety gates
 
@@ -113,9 +124,11 @@ prevent partial or duplicate session history.
 
 ### Persistence failure states
 
-Make UI advancement depend on successful IndexedDB writes, add retry/recovery
-messages, and inject write failures in tests for flashcards, reviews, quizzes,
-content management, settings, and future generated-content saves.
+Chapter creation, flashcard creation and appearance settings now await local
+writes, lock duplicate submissions, retain input on failure and expose
+bilingual failure feedback with deterministic browser tests. Continue this
+pattern for the remaining content-management/settings writes and future
+generated-content saves.
 
 ### Corrupt stored-content recovery
 
@@ -123,18 +136,20 @@ Replace silent fallback-to-empty behaviour with validated error states and
 recovery/export choices so corrupt imported content cannot look like an
 intentional empty collection.
 
-### AI preview accessibility and interruption safety
+### AI Assistant accessibility and interruption safety
 
-Add browser tests for keyboard operation, focus trapping and restoration,
-screen-reader status, 200% zoom, narrow layouts, offline/online transitions,
-service timeout, repeated connection checks, interrupted processing, and PWA
-updates while confirmation or result review is open.
+Focus trapping and restoration, inert background, Escape close and bilingual
+Assistant navigation now have browser coverage. Add the remaining browser tests
+for screen-reader output, 200% zoom, narrow layouts and PWA updates while the
+dialog is open.
 
-### Service-status state correctness
+### Future remote service-status state correctness
 
-Test race conditions between focus, browser online/offline events, manual retry,
-unmount, slow responses, and stale responses. Distinguish service readiness from
-task availability and task success in both code and wording.
+If a future remote mode exposes service status, test race conditions between
+browser online/offline events, manual retry, unmount, slow responses, and stale
+responses. Distinguish service readiness from task availability and task
+success in both code and wording. No readiness check is active in the current
+Assistant handoff.
 
 ## P2 — Import, storage, platform, and AI design hardening
 
@@ -189,7 +204,7 @@ major/downgrade without a focused compatibility review.
 
 Add focused browser tests for uploads, unsafe-file rejection, restore rollback,
 IndexedDB persistence, PDF split flows, keyboard navigation, live regions, 200%
-zoom, narrow/mobile layouts, and the AI preview states.
+zoom, narrow/mobile layouts, and the current Assistant handoff states.
 
 ## P3 — Maintainability and product polish
 
@@ -204,8 +219,8 @@ zoom, narrow/mobile layouts, and the AI preview states.
 - Consolidate historical audit/update documents without removing traceability.
 - Add a visible build/environment label so test, staging, and future production
   AI configurations cannot be confused.
-- Review all AI and credit wording for consistent use of preview, test mode,
-  readiness, estimate, reservation, charge, release, and refund.
+- Keep current Assistant availability wording distinct from future remote
+  readiness, credit estimate, reservation, charge, release, and refund wording.
 
 ## Documentation rule
 
@@ -213,7 +228,7 @@ Historical v1 documents may retain their release-gate statements. Living
 product and engineering documents must distinguish:
 
 1. released local-first functionality;
-2. current AI Assistant preview and readiness check;
+2. current AI Assistant external handoff and inactive future modes;
 3. future production AI, account, payment, or cloud capabilities.
 
 Update legal, privacy, security, architecture, user guide, and data-safety text

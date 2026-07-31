@@ -39,19 +39,19 @@ export const legalPages = {
   privacy: {
     title: copy("Privacy", "Απόρρητο"),
     summary: copy("StudyApp is local-first and sends no study content automatically.", "Το StudyApp είναι local-first και δεν αποστέλλει αυτόματα υλικό μελέτης."),
-    lastUpdated: copy("30 July 2026", "30 Ιουλίου 2026"),
+    lastUpdated: copy("31 July 2026", "31 Ιουλίου 2026"),
     sections: [
       {
         heading: copy("Local data", "Τοπικά δεδομένα"),
         paragraphs: [
-          copy("Progress, settings, chapters, flashcards, links and local files are stored in this browser.", "Η πρόοδος, οι ρυθμίσεις, τα κεφάλαια, οι κάρτες, οι σύνδεσμοι και τα τοπικά αρχεία αποθηκεύονται σε αυτόν τον browser."),
-          copy("Browser data can be lost. Keep original files and backups somewhere safe.", "Τα δεδομένα του browser μπορεί να χαθούν. Κράτησε τα πρωτότυπα αρχεία και τα backup σε ασφαλές σημείο."),
+          copy("Progress, settings, chapters, flashcards, links and local files are stored locally in this browser and device. Available storage depends on the browser and device.", "Η πρόοδος, οι ρυθμίσεις, τα κεφάλαια, οι κάρτες, οι σύνδεσμοι και τα τοπικά αρχεία αποθηκεύονται τοπικά σε αυτόν τον browser και τη συσκευή. Ο διαθέσιμος χώρος εξαρτάται από τον browser και τη συσκευή."),
+          copy("Data can be lost if site data is cleared or the browser or device fails. StudyApp is not permanent storage or a complete backup service. Keep original files and required copies outside StudyApp. The JSON backup does not include uploaded or generated file copies.", "Τα δεδομένα μπορεί να χαθούν αν διαγραφούν τα δεδομένα ιστοτόπου ή αν παρουσιαστεί βλάβη στον browser ή στη συσκευή. Το StudyApp δεν είναι υπηρεσία μόνιμης αποθήκευσης ούτε πλήρης υπηρεσία backup. Κράτησε τα πρωτότυπα αρχεία και τα απαραίτητα αντίγραφα εκτός StudyApp. Το JSON backup δεν περιλαμβάνει αρχεία που προστέθηκαν ή δημιουργήθηκαν."),
         ],
       },
       {
         heading: copy("AI Assistant", "Βοηθός AI"),
         paragraphs: [
-          copy("ChatGPT Companion prepares a prompt only from text you choose. If clipboard or popup access fails, the prompt remains visible for manual copy and is not sent automatically.", "Το ChatGPT Companion ετοιμάζει prompt μόνο από κείμενο που επιλέγεις. Αν αποτύχει η πρόσβαση στο πρόχειρο ή στο αναδυόμενο παράθυρο, το prompt παραμένει ορατό για χειροκίνητη αντιγραφή και δεν αποστέλλεται αυτόματα."),
+          copy("StudyApp AI Assistant provides a normal external link to the dedicated Custom GPT. You provide study material directly in ChatGPT; StudyApp does not read, copy or send your library or study material for this handoff.", "Ο Βοηθός AI του StudyApp παρέχει έναν κανονικό εξωτερικό σύνδεσμο προς το ειδικό Custom GPT. Προσθέτεις το υλικό μελέτης απευθείας στο ChatGPT· το StudyApp δεν διαβάζει, δεν αντιγράφει και δεν στέλνει τη βιβλιοθήκη ή το υλικό μελέτης σου για αυτή τη μετάβαση."),
           copy("StudyApp AI and ChatGPT App are not active yet.", "Το StudyApp AI και το ChatGPT App δεν είναι ακόμη ενεργά."),
           copy("No paid AI request or charge is currently available.", "Δεν είναι ακόμη διαθέσιμη επί πληρωμή κλήση AI ή χρέωση."),
         ],

@@ -1,4 +1,5 @@
 import { useLanguage } from "../../i18n/LanguageContext";
+import type { LocalWriteFailureInjector } from "../../infrastructure/database/localWriteFailureInjector";
 import {
   backgroundToneOptions,
   colorSchemeOptions,
@@ -33,14 +34,23 @@ const greekOptionCopy: Record<string, { label: string; description: string }> = 
   "density:spacious": { label: "Ευρύχωρο", description: "Περισσότερος χώρος." },
 };
 
-export function AppearanceSettingsPage() {
+interface AppearanceSettingsPageProps {
+  failureInjector?: LocalWriteFailureInjector;
+}
+
+export function AppearanceSettingsPage({
+  failureInjector,
+}: AppearanceSettingsPageProps = {}) {
   const { language, text } = useLanguage();
   const {
     isLoading,
+    isSaving,
+    retryAppearanceSettings,
+    saveStatus,
     settings,
     updateAppearanceSettings,
     resetAppearanceSettings,
-  } = useAppearanceSettings();
+  } = useAppearanceSettings(failureInjector);
 
   function update<K extends keyof AppearanceSettings>(key: K, value: AppearanceSettings[K]) {
     void updateAppearanceSettings({ [key]: value } as Partial<AppearanceSettings>);
@@ -68,7 +78,7 @@ export function AppearanceSettingsPage() {
         <div className="settings-grid appearance-settings-grid">
           <label className="field-label">
             {text("Accent colour", "Χρώμα έμφασης")}
-            <select value={settings.colorScheme} onChange={(event) => update("colorScheme", event.target.value as AppearanceSettings["colorScheme"])}>
+            <select disabled={isLoading || isSaving} value={settings.colorScheme} onChange={(event) => update("colorScheme", event.target.value as AppearanceSettings["colorScheme"])}>
               {colorSchemeOptions.map((option) => <option key={option.value} value={option.value}>{optionLabel("color", option)}</option>)}
             </select>
             <span className="field-help">{optionDescription("color", colorSchemeOptions.find((option) => option.value === settings.colorScheme) ?? colorSchemeOptions[0])}</span>
@@ -76,7 +86,7 @@ export function AppearanceSettingsPage() {
 
           <label className="field-label">
             {text("Background colour", "Χρώμα φόντου")}
-            <select value={settings.backgroundTone} onChange={(event) => update("backgroundTone", event.target.value as AppearanceSettings["backgroundTone"])}>
+            <select disabled={isLoading || isSaving} value={settings.backgroundTone} onChange={(event) => update("backgroundTone", event.target.value as AppearanceSettings["backgroundTone"])}>
               {backgroundToneOptions.map((option) => <option key={option.value} value={option.value}>{optionLabel("background", option)}</option>)}
             </select>
             <span className="field-help">{optionDescription("background", backgroundToneOptions.find((option) => option.value === settings.backgroundTone) ?? backgroundToneOptions[0])}</span>
@@ -84,7 +94,7 @@ export function AppearanceSettingsPage() {
 
           <label className="field-label">
             {text("Font", "Γραμματοσειρά")}
-            <select value={settings.fontChoice} onChange={(event) => update("fontChoice", event.target.value as AppearanceSettings["fontChoice"])}>
+            <select disabled={isLoading || isSaving} value={settings.fontChoice} onChange={(event) => update("fontChoice", event.target.value as AppearanceSettings["fontChoice"])}>
               {fontChoiceOptions.map((option) => <option key={option.value} value={option.value}>{optionLabel("font", option)}</option>)}
             </select>
             <span className="field-help">{optionDescription("font", fontChoiceOptions.find((option) => option.value === settings.fontChoice) ?? fontChoiceOptions[0])}</span>
@@ -92,7 +102,7 @@ export function AppearanceSettingsPage() {
 
           <label className="field-label">
             {text("Text size", "Μέγεθος κειμένου")}
-            <select value={settings.textSize} onChange={(event) => update("textSize", event.target.value as AppearanceSettings["textSize"])}>
+            <select disabled={isLoading || isSaving} value={settings.textSize} onChange={(event) => update("textSize", event.target.value as AppearanceSettings["textSize"])}>
               {textSizeOptions.map((option) => <option key={option.value} value={option.value}>{optionLabel("text", option)}</option>)}
             </select>
             <span className="field-help">{optionDescription("text", textSizeOptions.find((option) => option.value === settings.textSize) ?? textSizeOptions[0])}</span>
@@ -100,7 +110,7 @@ export function AppearanceSettingsPage() {
 
           <label className="field-label">
             {text("Spacing", "Αποστάσεις")}
-            <select value={settings.uiDensity} onChange={(event) => update("uiDensity", event.target.value as AppearanceSettings["uiDensity"])}>
+            <select disabled={isLoading || isSaving} value={settings.uiDensity} onChange={(event) => update("uiDensity", event.target.value as AppearanceSettings["uiDensity"])}>
               {uiDensityOptions.map((option) => <option key={option.value} value={option.value}>{optionLabel("density", option)}</option>)}
             </select>
             <span className="field-help">{optionDescription("density", uiDensityOptions.find((option) => option.value === settings.uiDensity) ?? uiDensityOptions[0])}</span>
@@ -108,14 +118,39 @@ export function AppearanceSettingsPage() {
         </div>
 
         <div className="button-row appearance-actions" style={{ marginTop: "1.5rem" }}>
-          <button className="button secondary" type="button" onClick={() => void resetAppearanceSettings()}>
+          <button className="button secondary" disabled={isLoading || isSaving} type="button" onClick={() => void resetAppearanceSettings()}>
             {text("Reset appearance", "Επαναφορά εμφάνισης")}
           </button>
+          {saveStatus === "error" ? (
+            <button
+              className="button primary"
+              disabled={isSaving}
+              onClick={() => void retryAppearanceSettings()}
+              type="button"
+            >
+              {text("Retry saving", "Νέα προσπάθεια αποθήκευσης")}
+            </button>
+          ) : null}
         </div>
         <p className="inline-message" role="status" aria-live="polite">
           {isLoading
             ? text("Loading settings…", "Φόρτωση ρυθμίσεων…")
-            : text("Changes are saved automatically.", "Οι αλλαγές αποθηκεύονται αυτόματα.")}
+            : saveStatus === "saving"
+              ? text("Saving changes…", "Αποθήκευση αλλαγών…")
+              : saveStatus === "error"
+                ? text(
+                    "Changes could not be saved. Your latest selection is still shown. Try again.",
+                    "Οι αλλαγές δεν μπόρεσαν να αποθηκευτούν. Η τελευταία επιλογή σου παραμένει ορατή. Δοκίμασε ξανά.",
+                  )
+                : saveStatus === "saved"
+                  ? text(
+                      "Changes saved on this device.",
+                      "Οι αλλαγές αποθηκεύτηκαν σε αυτή τη συσκευή.",
+                    )
+                  : text(
+                      "Settings are stored locally on this device.",
+                      "Οι ρυθμίσεις αποθηκεύονται τοπικά σε αυτή τη συσκευή.",
+                    )}
         </p>
       </section>
     </div>

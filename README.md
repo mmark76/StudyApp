@@ -21,22 +21,22 @@ The core study workflow is available:
 
 The AI Assistant presents three clearly separated options.
 
-### ChatGPT Companion — available
+### StudyApp AI Assistant — available
 
-StudyApp prepares a prompt from text deliberately pasted by the user. The user
-can copy the prompt and open the dedicated **StudyApp AI Assistant** Custom GPT in
-a separate browser popup.
+StudyApp provides a normal external link to the dedicated **StudyApp AI
+Assistant** Custom GPT. The link opens in a new browser tab. The user chooses and
+shares any study material directly in ChatGPT.
 
-The Companion:
+The available StudyApp AI Assistant link:
 
 - does not use the StudyApp OpenAI API key;
-- does not send content automatically;
+- does not read, copy or send study content;
 - does not access the StudyApp library or local database;
+- does not use the clipboard;
 - does not charge StudyApp credits;
-- validates the configured destination before opening it;
-- keeps the prepared request visible for manual copy when clipboard or popup
-  access fails;
-- requires the user to paste the prepared request into ChatGPT.
+- validates the public production configuration against the exact approved
+  HTTPS ChatGPT destination;
+- does not automate, position, scrape or inspect the ChatGPT tab.
 
 ### ChatGPT App / MCP — coming soon
 
@@ -59,16 +59,18 @@ See [`docs/AI_ASSISTANT_AND_CLOUD_BOUNDARIES.md`](docs/AI_ASSISTANT_AND_CLOUD_BO
 2. **Structured Study** — contents, chapters, sections, concepts, references and diagrams.
 3. **Learn & Practice** — flashcards, due review, quizzes and progress.
 4. **Split PDF Tool** — local PDF splitting and download.
-5. **AI Assistant** — Companion now; ChatGPT App/MCP and paid StudyApp AI later.
+5. **AI Assistant** — StudyApp AI Assistant now; ChatGPT App/MCP and paid StudyApp AI later.
 
 ## Local-first storage and privacy
 
 Study content, progress, settings, links and uploaded file blobs are stored in
-the browser. StudyApp currently has no account, cloud storage, cloud sync,
-first-party analytics, telemetry or advertising.
+the current browser and device. StudyApp currently has no account, cloud
+storage, cloud sync, first-party analytics, telemetry or advertising.
 
-Local browser data can be lost. Keep original files and required copies outside
-StudyApp.
+Local browser data can be lost if site data is cleared or the browser or device
+fails. StudyApp is not a permanent-storage service or a complete backup
+service. Keep original files and required copies outside StudyApp. Available
+storage depends on the browser and device.
 
 The JSON backup includes progress, sessions, supported settings, imported
 chapters and flashcards, and saved links. It does **not** include uploaded or
@@ -77,6 +79,12 @@ generated file blobs. See [`BACKUP_AND_DATA_SAFETY.md`](BACKUP_AND_DATA_SAFETY.m
 Flashcard and review progress, session counters and their internal idempotency
 records are committed together in IndexedDB transactions. A failed write leaves
 the last successfully committed study state available for retry.
+
+Chapter and flashcard creation report success only after the local IndexedDB
+write completes. While a write is pending, duplicate submission is disabled; if
+it fails, the entered values remain in the form with a bilingual error message.
+Appearance settings likewise distinguish saving, saved and failed states, and
+retain the latest visible selection after a failed write.
 
 ## Supported local files
 
@@ -87,9 +95,9 @@ significantly mismatched file types are rejected.
 ## Current limitations
 
 - Local file blobs are not included in the JSON backup.
-- Storage capacity depends on the browser and device.
-- ChatGPT Companion requires manual copy/paste interaction and a ChatGPT account.
-- Browser popup settings may affect the size or position of the assistant window.
+- Browser and device storage capacity and availability are not guaranteed.
+- StudyApp AI Assistant opens an external ChatGPT page; ChatGPT applies its own
+  account, plan, privacy and sharing rules.
 - ChatGPT App / MCP is not active yet.
 - StudyApp AI, real credits and payments are not active yet.
 - Complete local-file export/import and broader cross-browser coverage remain
@@ -117,5 +125,7 @@ npm run build
 ```
 
 The production build reads the public `VITE_STUDYAPP_AI_ASSISTANT_URL` setting
-from `.env.production` to open the dedicated StudyApp Custom GPT. Vite environment
-variables are public configuration and must never contain secrets.
+from `.env.production` for the dedicated StudyApp Custom GPT link. Runtime
+validation falls back to the exact approved HTTPS destination if the setting is
+missing or changed. Vite environment variables are public configuration and
+must never contain secrets.
