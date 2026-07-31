@@ -35,6 +35,10 @@ The available Assistant link may:
 - show the approved dedicated StudyApp AI Assistant Custom GPT URL;
 - open that URL through a user-activated external link in a new tab.
 
+The bilingual typewriter welcome is local presentation only. Its text,
+punctuation timing, skip action and reduced-motion handling do not read storage,
+inspect study material or initiate any remote request.
+
 The available Assistant link must not:
 
 - call the OpenAI API;

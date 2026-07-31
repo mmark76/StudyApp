@@ -24,7 +24,8 @@ body.assistant-panel-open {
 
 .assistant-launch-button:focus-visible,
 .assistant-close:focus-visible,
-.assistant-back:focus-visible {
+.assistant-back:focus-visible,
+.assistant-typewriter-skip:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--blue-600, #1d4ed8) 45%, transparent);
   outline-offset: 2px;
 }
@@ -166,6 +167,65 @@ body.assistant-panel-open {
   margin-bottom: 0;
 }
 
+.assistant-typewriter {
+  position: relative;
+}
+
+.assistant-typewriter-accessible {
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.assistant-typewriter-skip {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  font: inherit;
+  line-height: inherit;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  width: 100%;
+}
+
+.assistant-typewriter-skip:disabled {
+  color: inherit;
+  cursor: text;
+  opacity: 1;
+  user-select: text;
+}
+
+.assistant-typewriter-reserve,
+.assistant-typewriter-visual {
+  grid-column: 1;
+  grid-row: 1;
+  overflow-wrap: anywhere;
+}
+
+.assistant-typewriter-reserve {
+  visibility: hidden;
+}
+
+.assistant-typewriter-cursor {
+  animation: assistant-typewriter-cursor 760ms step-end infinite;
+  border-left: 2px solid currentColor;
+  display: inline-block;
+  height: 1em;
+  margin-left: 0.12em;
+  vertical-align: -0.12em;
+}
+
 .assistant-actions {
   display: flex;
   flex-wrap: wrap;
@@ -194,6 +254,12 @@ body.assistant-panel-open {
   padding: 0.75rem;
 }
 
+@keyframes assistant-typewriter-cursor {
+  50% {
+    opacity: 0;
+  }
+}
+
 @media (max-width: 760px) {
   .assistant-overlay {
     background: var(--page-background, #fffaf0);
@@ -220,5 +286,10 @@ body.assistant-panel-open {
 @media (prefers-reduced-motion: reduce) {
   .assistant-launch-button {
     transform: none !important;
+  }
+
+  .assistant-typewriter-cursor {
+    animation: none;
+    display: none;
   }
 }

@@ -54,6 +54,12 @@ ChatGPT entry screen and the other-AI-options screen. The dialog traps focus,
 makes its application-shell siblings inert while open, closes with Escape and
 restores focus to the launcher.
 
+`src/features/assistant/TypewriterWelcome.tsx` owns the intro-message
+presentation. It reserves the complete responsive text layout, exposes one
+static full copy to assistive technology and animates only an `aria-hidden`
+visual copy. Its deterministic timer is cancelled on completion or unmount;
+reduced motion displays the complete text without starting the typewriter.
+
 #### StudyApp AI Assistant
 
 ```text
@@ -223,6 +229,8 @@ Assistant coverage includes:
 
 - language selection and persistence;
 - English and Greek mode labels;
+- deterministic bilingual welcome typing, completion and reduced motion;
+- a static full screen-reader copy and stable action layout while typing;
 - exact approved StudyApp AI Assistant destination;
 - no clipboard or scripted popup call from the Assistant link;
 - inactive Coming soon modes;

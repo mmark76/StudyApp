@@ -69,8 +69,29 @@ describe("AI Assistant presentation", () => {
   it("keeps visible focus styles for dialog and mode controls", () => {
     expect(assistantCss).toContain(".assistant-close:focus-visible");
     expect(assistantCss).toContain(".assistant-back:focus-visible");
+    expect(assistantCss).toContain(
+      ".assistant-typewriter-skip:focus-visible",
+    );
     expect(cssRule(assistantModesCss, ".assistant-mode-card:focus-visible"))
       .toContain("outline: 3px solid");
+  });
+
+  it("reserves the final welcome layout and disables cursor motion when requested", () => {
+    expect(cssRule(assistantCss, ".assistant-typewriter-skip"))
+      .toContain("display: grid;");
+    expect(cssRule(assistantCss, ".assistant-typewriter-reserve"))
+      .toContain("visibility: hidden;");
+    expect(cssRule(
+      assistantCss,
+      ".assistant-typewriter-reserve,\n.assistant-typewriter-visual",
+    ))
+      .toContain("grid-row: 1;");
+    expect(cssRule(assistantCss, ".assistant-typewriter-cursor"))
+      .toContain("animation: assistant-typewriter-cursor");
+    expect(assistantCss).toContain("@media (prefers-reduced-motion: reduce)");
+    expect(assistantCss).toMatch(
+      /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.assistant-typewriter-cursor\s*\{[\s\S]*?display: none;/u,
+    );
   });
 
   it("contains no styles from the removed workflow", () => {

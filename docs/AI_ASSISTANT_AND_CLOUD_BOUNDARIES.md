@@ -18,6 +18,12 @@ The StudyApp AI Assistant is a minimal external handoff:
 2. the interface renders it as a normal external link;
 3. the user activates the link and works directly in ChatGPT.
 
+The intro presents a bilingual overview of the available Assistant and the two
+planned AI options. Its accessible typewriter effect runs entirely in the
+browser, provides a complete static copy to assistive technology, supports
+immediate completion and shows the full text without animation when reduced
+motion is requested. This presentation does not change the data boundary.
+
 The Custom GPT share URL is public production configuration through
 `VITE_STUDYAPP_AI_ASSISTANT_URL`. It identifies the destination only; it is not an
 API key, account credential or permission grant.
