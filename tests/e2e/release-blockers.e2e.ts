@@ -375,6 +375,29 @@ test("Assistant intro has the exact safe link and no old workflow", async ({
   assertNoApplicationErrors();
 });
 
+test("Assistant launcher keeps its avatar and status visible on mobile", async ({
+  page,
+}) => {
+  const assertNoApplicationErrors = watchForApplicationErrors(page);
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto("/");
+
+  const launcher = page.getByRole("button", {
+    name: "Open StudyApp AI Assistant",
+  });
+  await expect(launcher).toBeVisible();
+  await expect(launcher.locator(".assistant-launch-copy")).toBeHidden();
+  await expect(launcher.locator(".assistant-launch-avatar-wrap")).toBeVisible();
+  await expect(launcher.locator(".assistant-launch-avatar")).toBeVisible();
+  await expect(launcher.locator(".assistant-service-dot")).toBeVisible();
+
+  await launcher.click();
+  await expect(
+    page.getByRole("dialog", { name: "AI Assistant" }),
+  ).toBeVisible();
+  assertNoApplicationErrors();
+});
+
 test("Assistant welcome types accessibly without moving its actions", async ({
   page,
 }) => {

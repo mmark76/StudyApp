@@ -315,7 +315,7 @@ body.assistant-panel-open {
     padding: 1rem;
   }
 
-  .assistant-launch-button span {
+  .assistant-launch-button .assistant-launch-copy {
     display: none;
   }
 
