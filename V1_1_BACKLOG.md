@@ -30,6 +30,11 @@ clipboard and scripted-popup workflow with a two-screen Assistant and a normal
 external link to the approved Custom GPT. It also added focus trapping,
 background inertness, Escape close and launcher focus restoration.
 
+The July 31 minimum audit remediation also aligned the English and Greek local
+storage notices. Both now explain browser/device-local storage, realistic loss
+conditions, storage availability, the incomplete JSON file-backup boundary and
+the need to keep original files and required copies outside StudyApp.
+
 ## P0 — Production AI and financial safety gates
 
 The following items are prerequisites for real AI requests or payments. They

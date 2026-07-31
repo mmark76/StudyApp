@@ -64,11 +64,13 @@ See [`docs/AI_ASSISTANT_AND_CLOUD_BOUNDARIES.md`](docs/AI_ASSISTANT_AND_CLOUD_BO
 ## Local-first storage and privacy
 
 Study content, progress, settings, links and uploaded file blobs are stored in
-the browser. StudyApp currently has no account, cloud storage, cloud sync,
-first-party analytics, telemetry or advertising.
+the current browser and device. StudyApp currently has no account, cloud
+storage, cloud sync, first-party analytics, telemetry or advertising.
 
-Local browser data can be lost. Keep original files and required copies outside
-StudyApp.
+Local browser data can be lost if site data is cleared or the browser or device
+fails. StudyApp is not a permanent-storage service or a complete backup
+service. Keep original files and required copies outside StudyApp. Available
+storage depends on the browser and device.
 
 The JSON backup includes progress, sessions, supported settings, imported
 chapters and flashcards, and saved links. It does **not** include uploaded or
@@ -87,7 +89,7 @@ significantly mismatched file types are rejected.
 ## Current limitations
 
 - Local file blobs are not included in the JSON backup.
-- Storage capacity depends on the browser and device.
+- Browser and device storage capacity and availability are not guaranteed.
 - ChatGPT Companion opens an external ChatGPT page; ChatGPT applies its own
   account, plan, privacy and sharing rules.
 - ChatGPT App / MCP is not active yet.

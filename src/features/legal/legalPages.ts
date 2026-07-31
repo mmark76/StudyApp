@@ -44,8 +44,8 @@ export const legalPages = {
       {
         heading: copy("Local data", "Τοπικά δεδομένα"),
         paragraphs: [
-          copy("Progress, settings, chapters, flashcards, links and local files are stored in this browser.", "Η πρόοδος, οι ρυθμίσεις, τα κεφάλαια, οι κάρτες, οι σύνδεσμοι και τα τοπικά αρχεία αποθηκεύονται σε αυτόν τον browser."),
-          copy("Browser data can be lost. Keep original files and backups somewhere safe.", "Τα δεδομένα του browser μπορεί να χαθούν. Κράτησε τα πρωτότυπα αρχεία και τα backup σε ασφαλές σημείο."),
+          copy("Progress, settings, chapters, flashcards, links and local files are stored locally in this browser and device. Available storage depends on the browser and device.", "Η πρόοδος, οι ρυθμίσεις, τα κεφάλαια, οι κάρτες, οι σύνδεσμοι και τα τοπικά αρχεία αποθηκεύονται τοπικά σε αυτόν τον browser και τη συσκευή. Ο διαθέσιμος χώρος εξαρτάται από τον browser και τη συσκευή."),
+          copy("Data can be lost if site data is cleared or the browser or device fails. StudyApp is not permanent storage or a complete backup service. Keep original files and required copies outside StudyApp. The JSON backup does not include uploaded or generated file copies.", "Τα δεδομένα μπορεί να χαθούν αν διαγραφούν τα δεδομένα ιστοτόπου ή αν παρουσιαστεί βλάβη στον browser ή στη συσκευή. Το StudyApp δεν είναι υπηρεσία μόνιμης αποθήκευσης ούτε πλήρης υπηρεσία backup. Κράτησε τα πρωτότυπα αρχεία και τα απαραίτητα αντίγραφα εκτός StudyApp. Το JSON backup δεν περιλαμβάνει αρχεία που προστέθηκαν ή δημιουργήθηκαν."),
         ],
       },
       {
