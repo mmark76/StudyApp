@@ -181,6 +181,164 @@ async function openAssistant(page: Page, language: "en" | "el" = "en") {
   return launcher;
 }
 
+async function showPwaUpdate(
+  page: Page,
+  mode: "failure" | "pending" | "success",
+) {
+  await expect.poll(() =>
+    page.evaluate(() => Boolean(window.__STUDYAPP_E2E_PWA_UPDATE__)),
+  ).toBe(true);
+  await page.evaluate((simulationMode) => {
+    const control = window.__STUDYAPP_E2E_PWA_UPDATE__;
+    if (!control) throw new Error("PWA update E2E control is unavailable.");
+    control.show(simulationMode);
+  }, mode);
+}
+
+test("PWA update toast is compact, localized, responsive, and user-controlled", async ({
+  page,
+}) => {
+  const assertNoApplicationErrors = watchForApplicationErrors(page);
+  await page.goto("/");
+
+  const settings = page.getByRole("link", { name: "Settings", exact: true });
+  await settings.focus();
+  await showPwaUpdate(page, "success");
+
+  const toast = page.locator(".pwa-update-toast");
+  await expect(toast).toBeVisible();
+  await expect(settings).toBeFocused();
+  await expect(
+    toast.getByRole("heading", { name: "Update available" }),
+  ).toBeVisible();
+  await expect(toast.getByRole("status")).toHaveText(
+    "A newer version of StudyApp is available.",
+  );
+  await expect(
+    toast.getByText("Update when you finish your current work."),
+  ).toHaveCount(0);
+
+  const desktopBox = await toast.boundingBox();
+  const footerBox = await page.locator(".app-footer").boundingBox();
+  expect(desktopBox).not.toBeNull();
+  expect(desktopBox?.width).toBeGreaterThanOrEqual(340);
+  expect(desktopBox?.width).toBeLessThanOrEqual(410);
+  expect(desktopBox?.width).toBeLessThan(640);
+  expect((desktopBox?.x ?? 0) + (desktopBox?.width ?? 0))
+    .toBeLessThanOrEqual(1270);
+  expect((desktopBox?.y ?? 0) + (desktopBox?.height ?? 0))
+    .toBeLessThanOrEqual(footerBox?.y ?? 720);
+
+  const primary = toast.locator(".pwa-update-toast-actions .button.primary");
+  const secondary = toast.locator(
+    ".pwa-update-toast-actions .button.secondary",
+  );
+  await primary.focus();
+  await page.keyboard.press("Enter");
+  await expect(toast).toHaveCount(0);
+  await expect.poll(() =>
+    page.evaluate(
+      () => window.__STUDYAPP_E2E_PWA_UPDATE__?.attempts ?? 0,
+    ),
+  ).toBe(1);
+
+  await showPwaUpdate(page, "success");
+  await toast.getByRole("button", { name: "Later" }).click();
+  await expect(toast).toHaveCount(0);
+  await expect.poll(() =>
+    page.evaluate(
+      () => window.__STUDYAPP_E2E_PWA_UPDATE__?.getState().isAvailable,
+    ),
+  ).toBe(false);
+
+  await showPwaUpdate(page, "pending");
+  await primary.click();
+  await expect(primary).toHaveText("Updating...");
+  await expect(primary).toBeDisabled();
+  await expect(secondary).toBeDisabled();
+  await primary.evaluate((button) => button.click());
+  await expect.poll(() =>
+    page.evaluate(
+      () => window.__STUDYAPP_E2E_PWA_UPDATE__?.attempts ?? 0,
+    ),
+  ).toBe(1);
+  await page.evaluate(() => {
+    window.__STUDYAPP_E2E_PWA_UPDATE__?.releasePending?.();
+  });
+  await expect(toast).toHaveCount(0);
+
+  await showPwaUpdate(page, "failure");
+  await primary.click();
+  await expect(toast.getByRole("status")).toHaveText(
+    "The update could not be completed. Try again.",
+  );
+  await expect(primary).toBeEnabled();
+  await expect(
+    toast.getByText("E2E service worker update failure"),
+  ).toHaveCount(0);
+
+  await page.getByRole("button", { name: "GR" }).click();
+  await expect(
+    toast.getByRole("heading", { name: "Διαθέσιμη ενημέρωση" }),
+  ).toBeVisible();
+  await expect(toast.getByRole("status")).toHaveText(
+    "Η ενημέρωση δεν ολοκληρώθηκε. Δοκίμασε ξανά.",
+  );
+  await expect(
+    toast.getByText("The update could not be completed. Try again."),
+  ).toHaveCount(0);
+
+  await toast.getByRole("button", { name: "Αργότερα" }).click();
+  await showPwaUpdate(page, "success");
+  await expect(toast.getByRole("status")).toHaveText(
+    "Υπάρχει νεότερη έκδοση του StudyApp.",
+  );
+  await expect(
+    toast.getByRole("button", { name: "Ενημέρωση", exact: true }),
+  ).toBeVisible();
+  await toast.getByRole("button", { name: "Αργότερα" }).click();
+
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.getByRole("button", { name: "EN" }).click();
+  await showPwaUpdate(page, "success");
+  const mobileBox = await toast.boundingBox();
+  expect(mobileBox).not.toBeNull();
+  expect(mobileBox?.x).toBeGreaterThanOrEqual(12);
+  expect((mobileBox?.x ?? 0) + (mobileBox?.width ?? 0))
+    .toBeLessThanOrEqual(363);
+  expect(mobileBox?.width).toBeGreaterThanOrEqual(300);
+  expect(mobileBox?.width).toBeLessThanOrEqual(355);
+  expect((mobileBox?.y ?? 0) + (mobileBox?.height ?? 0))
+    .toBeLessThanOrEqual(667);
+  await expect(
+    toast.evaluate((element) => getComputedStyle(element).position),
+  ).resolves.toBe("fixed");
+
+  const actionBoxes = await toast
+    .locator(".pwa-update-toast-actions .button")
+    .evaluateAll((buttons) =>
+      buttons.map((button) => {
+        const box = button.getBoundingClientRect();
+        return {
+          left: box.left,
+          right: box.right,
+        };
+      }),
+    );
+  expect(
+    actionBoxes.every(
+      (box) =>
+        box.left >= (mobileBox?.x ?? 0) &&
+        box.right <= (mobileBox?.x ?? 0) + (mobileBox?.width ?? 0),
+    ),
+  ).toBe(true);
+
+  await toast.getByRole("button", { name: "Later" }).focus();
+  await page.keyboard.press("Space");
+  await expect(toast).toHaveCount(0);
+  assertNoApplicationErrors();
+});
+
 test("Assistant intro has the exact safe link and no old workflow", async ({
   page,
 }) => {

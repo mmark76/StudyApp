@@ -184,6 +184,10 @@ browser-storage warnings visible.
 
 Do not reload an active page automatically. Keep the update prompt under user
 control so unfinished input or an active study session is not discarded.
+The notification stores only a language-neutral failure code, translates errors
+at render time and does not expose raw service-worker exceptions. Update and
+Later remain explicit keyboard-accessible actions; both are disabled while an
+update is being applied to prevent duplicate requests.
 
 ## Dependency and verification gate
 
