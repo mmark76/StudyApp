@@ -150,6 +150,19 @@ Stable operation ID
 Retries reuse the operation ID. Existing committed operations return their
 stored logical result without applying scheduling or quiz counters again.
 
+### Local form-write flow
+
+```text
+Validated chapter, flashcard or appearance change
+→ synchronous pending lock
+→ awaited IndexedDB write
+→ success message and form reset only after commit
+```
+
+A failed write retains the user's form values or latest appearance selection
+and exposes a bilingual error state. Pending controls prevent rapid duplicate
+submissions from producing duplicate writes or success messages.
+
 ### Companion flow
 
 ```text
@@ -202,7 +215,9 @@ backups and updates.
 Playwright Chromium tests cover the two Assistant screens, exact link
 attributes, English and Greek copy, focus trapping/restoration, inert
 background, Escape handling, absence of clipboard/scripted-popup behaviour and
-transaction failure/retry behaviour for flashcards, quizzes and review.
+transaction failure/retry behaviour for flashcards, quizzes and review. They
+also inject deterministic local-write delay/failure states for chapter,
+flashcard and appearance-setting persistence.
 
 Assistant coverage includes:
 

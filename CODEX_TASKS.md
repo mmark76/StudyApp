@@ -1,6 +1,6 @@
 # Codex Task Queue
 
-_Last updated: 2026-07-30_
+_Last updated: 2026-07-31_
 
 ## v1 status
 
@@ -18,9 +18,11 @@ Cloud Core work.
 
 ## Current `main` status
 
-The repository now contains a post-v1 AI Assistant preview with mock results,
-test credits, a user guide, and Cloud Core readiness presentation. This is not a
-production AI, account, billing, cloud-storage, or cloud-sync implementation.
+The repository now contains a two-screen AI Assistant with a normal external
+link to the approved StudyApp Custom GPT and an inactive future-modes screen.
+The former mock results, test credits and Cloud Core readiness presentation are
+no longer present. This is not a production AI, account, billing, cloud-storage
+or cloud-sync implementation.
 
 Before touching the assistant, Cloud Core, remote processing, credits, payments,
 or generated-content persistence, read:
@@ -40,9 +42,8 @@ focused item per branch and PR.
 
 For each task:
 
-1. state whether it affects only the local study workflow, only the mock AI
-   preview, the Cloud Core readiness boundary, or a future production remote
-   capability;
+1. state whether it affects only the local study workflow, the current external
+   Assistant handoff, or a future production remote capability;
 2. define the exact data-safety and privacy impact;
 3. preserve explicit user selection and confirmation for any remote content;
 4. keep generated output in review state until the user saves it;

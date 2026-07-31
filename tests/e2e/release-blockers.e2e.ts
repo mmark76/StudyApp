@@ -378,6 +378,197 @@ test("Assistant provides equivalent English and Greek screens", async ({
   assertNoApplicationErrors();
 });
 
+test("chapter writes disable pending controls, reject duplicates, and retain failed input", async ({
+  page,
+}) => {
+  const assertNoApplicationErrors = watchForApplicationErrors(page);
+  await page.goto("/#/import");
+
+  const chapterSection = page
+    .getByRole("heading", { name: "Add one chapter" })
+    .locator("..");
+  const chapterForm = chapterSection.locator("form");
+  const title = chapterSection.getByLabel("Chapter title");
+
+  await page.evaluate(() => {
+    window.__STUDYAPP_E2E_LOCAL_WRITE__ = {
+      attempts: {},
+      pauseNext: "chapter",
+    };
+  });
+  await title.fill("Pending chapter");
+  await chapterForm.evaluate((element) => {
+    const form = element as HTMLFormElement;
+    form.requestSubmit();
+    form.requestSubmit();
+  });
+
+  await expect(chapterForm).toHaveAttribute("aria-busy", "true");
+  await expect(title).toBeDisabled();
+  await expect(
+    chapterSection.getByRole("button", { name: "Saving chapter…" }),
+  ).toBeDisabled();
+  await expect.poll(() =>
+    page.evaluate(
+      () =>
+        window.__STUDYAPP_E2E_LOCAL_WRITE__?.attempts?.chapter ?? 0,
+    ),
+  ).toBe(1);
+
+  await page.evaluate(() => {
+    window.__STUDYAPP_E2E_LOCAL_WRITE__?.releasePending?.();
+  });
+  await expect(page.locator(".status-banner")).toHaveText("Chapter added.");
+  await expect(title).toHaveValue("");
+  await expect(page.locator(".stats-grid .stat-card").first()).toContainText(
+    "1",
+  );
+
+  await page.evaluate(() => {
+    const control = window.__STUDYAPP_E2E_LOCAL_WRITE__ ??= {};
+    control.failNext = "chapter";
+  });
+  await title.fill("Retained after failure");
+  await chapterSection.getByLabel("Learning goals").fill("Keep this goal");
+  await chapterSection
+    .getByRole("button", { name: "Add chapter" })
+    .click();
+
+  await expect(page.locator(".status-banner")).toHaveText(
+    "The chapter could not be saved on this device. Your entries are still here. Try again.",
+  );
+  await expect(title).toHaveValue("Retained after failure");
+  await expect(chapterSection.getByLabel("Learning goals")).toHaveValue(
+    "Keep this goal",
+  );
+  await expect(page.locator(".stats-grid .stat-card").first()).toContainText(
+    "1",
+  );
+  assertNoApplicationErrors();
+});
+
+test("flashcard write failure never shows success and preserves the form for retry", async ({
+  page,
+}) => {
+  const assertNoApplicationErrors = watchForApplicationErrors(page);
+  await page.goto("/#/import");
+
+  const chapterSection = page
+    .getByRole("heading", { name: "Add one chapter" })
+    .locator("..");
+  await chapterSection
+    .getByLabel("Chapter title")
+    .fill("Flashcard test chapter");
+  await chapterSection.getByRole("button", { name: "Add chapter" }).click();
+  await expect(page.locator(".status-banner")).toHaveText("Chapter added.");
+
+  const flashcardSection = page
+    .getByRole("heading", { name: "Add one flashcard" })
+    .locator("..");
+  const chapter = flashcardSection.getByLabel("Chapter");
+  await expect.poll(() => chapter.locator("option").count()).toBeGreaterThan(1);
+
+  await chapter.selectOption({ index: 1 });
+  await flashcardSection.getByLabel("Question").fill("Retained question?");
+  await flashcardSection.getByLabel("Answer").fill("Retained answer.");
+  await page.evaluate(() => {
+    window.__STUDYAPP_E2E_LOCAL_WRITE__ = {
+      attempts: {},
+      failNext: "flashcard",
+    };
+  });
+  await flashcardSection
+    .getByRole("button", { name: "Add flashcard" })
+    .click();
+
+  await expect(page.locator(".status-banner")).toHaveText(
+    "The flashcard could not be saved on this device. Your entries are still here. Try again.",
+  );
+  await expect(flashcardSection.getByLabel("Question")).toHaveValue(
+    "Retained question?",
+  );
+  await expect(flashcardSection.getByLabel("Answer")).toHaveValue(
+    "Retained answer.",
+  );
+  await expect(page.getByText("Flashcard added.")).toHaveCount(0);
+
+  await flashcardSection
+    .getByRole("button", { name: "Add flashcard" })
+    .click();
+  await expect(page.locator(".status-banner")).toHaveText("Flashcard added.");
+  await expect(flashcardSection.getByLabel("Question")).toHaveValue("");
+  await expect(flashcardSection.getByLabel("Answer")).toHaveValue("");
+  await expect(page.locator(".stats-grid .stat-card").nth(1)).toContainText(
+    "1",
+  );
+  assertNoApplicationErrors();
+});
+
+test("appearance writes expose pending, success, and truthful failure states", async ({
+  page,
+}) => {
+  const assertNoApplicationErrors = watchForApplicationErrors(page);
+  await page.goto("/#/appearance");
+
+  const accent = page.getByLabel("Accent colour");
+  const reset = page.getByRole("button", { name: "Reset appearance" });
+  await expect(accent).toBeEnabled();
+  await page.evaluate(() => {
+    window.__STUDYAPP_E2E_LOCAL_WRITE__ = {
+      attempts: {},
+      pauseNext: "appearance",
+    };
+  });
+
+  await accent.evaluate((element) => {
+    const select = element as HTMLSelectElement;
+    select.value = "blue";
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+    select.value = "purple";
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+
+  await expect(page.getByRole("status").filter({ hasText: "Saving changes…" }))
+    .toBeVisible();
+  await expect(accent).toBeDisabled();
+  await expect(reset).toBeDisabled();
+  await expect.poll(() =>
+    page.evaluate(
+      () =>
+        window.__STUDYAPP_E2E_LOCAL_WRITE__?.attempts?.appearance ?? 0,
+    ),
+  ).toBe(1);
+
+  await page.evaluate(() => {
+    window.__STUDYAPP_E2E_LOCAL_WRITE__?.releasePending?.();
+  });
+  await expect(page.getByText("Changes saved on this device.")).toBeVisible();
+  await expect(accent).toHaveValue("blue");
+
+  await page.evaluate(() => {
+    const control = window.__STUDYAPP_E2E_LOCAL_WRITE__ ??= {};
+    control.failNext = "appearance";
+  });
+  await accent.selectOption("purple");
+  await expect(
+    page.getByText(
+      "Changes could not be saved. Your latest selection is still shown. Try again.",
+    ),
+  ).toBeVisible();
+  await expect(accent).toHaveValue("purple");
+  await expect(
+    page.getByRole("button", { name: "Retry saving" }),
+  ).toBeVisible();
+  await expect(page.getByText("Changes are saved automatically.")).toHaveCount(
+    0,
+  );
+
+  await page.reload();
+  await expect(accent).toBeEnabled();
+  await expect(accent).toHaveValue("blue");
+  assertNoApplicationErrors();
+});
+
 test("flashcard final-write failure rolls back and retry commits once", async ({
   page,
 }) => {

@@ -80,6 +80,12 @@ Flashcard and review progress, session counters and their internal idempotency
 records are committed together in IndexedDB transactions. A failed write leaves
 the last successfully committed study state available for retry.
 
+Chapter and flashcard creation report success only after the local IndexedDB
+write completes. While a write is pending, duplicate submission is disabled; if
+it fails, the entered values remain in the form with a bilingual error message.
+Appearance settings likewise distinguish saving, saved and failed states, and
+retain the latest visible selection after a failed write.
+
 ## Supported local files
 
 StudyApp accepts PDF, DOC, DOCX, TXT, Markdown, CSV, PNG, JPEG, WebP and GIF after

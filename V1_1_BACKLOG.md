@@ -13,7 +13,7 @@ The focused July 28 release-hardening follow-up added shared
 local-storage/data-safety notices and direct download for generated split PDFs,
 including a latest-result **Download all** action.
 
-The July 29–30 post-v1 preview work added:
+The short-lived July 29–30 post-v1 preview formerly included:
 
 - mock AI Assistant tasks and sample results;
 - deliberate source selection and confirmation screens;
@@ -21,8 +21,9 @@ The July 29–30 post-v1 preview work added:
 - Cloud Core readiness checking and assistant availability status;
 - a user-facing AI Assistant guide.
 
-These preview features do not perform production AI requests or real charges.
-The governing boundary is
+Those mock tasks, test credits, package presentation and readiness UI were
+removed by the July 31 simplification. They never performed production AI
+requests or real charges. The governing boundary is
 [`docs/AI_ASSISTANT_AND_CLOUD_BOUNDARIES.md`](docs/AI_ASSISTANT_AND_CLOUD_BOUNDARIES.md).
 
 The July 31 simplification replaced the Companion's local import, prompt,
@@ -123,9 +124,11 @@ prevent partial or duplicate session history.
 
 ### Persistence failure states
 
-Make UI advancement depend on successful IndexedDB writes, add retry/recovery
-messages, and inject write failures in tests for flashcards, reviews, quizzes,
-content management, settings, and future generated-content saves.
+Chapter creation, flashcard creation and appearance settings now await local
+writes, lock duplicate submissions, retain input on failure and expose
+bilingual failure feedback with deterministic browser tests. Continue this
+pattern for the remaining content-management/settings writes and future
+generated-content saves.
 
 ### Corrupt stored-content recovery
 

@@ -17,9 +17,14 @@ import { ToolsPage } from "../features/tools/ToolsPage";
 import { UnitsPage } from "../features/units/UnitsPage";
 import { AppLayout } from "../shared/components/AppLayout";
 import { createE2EStudyFailureInjectors } from "./e2eStudyFailureInjection";
+import { createE2ELocalWriteFailureInjector } from "./e2eLocalWriteFailureInjection";
 
 const e2eFailureInjectors =
   import.meta.env.MODE === "e2e" ? createE2EStudyFailureInjectors() : null;
+const e2eLocalWriteFailureInjector =
+  import.meta.env.MODE === "e2e"
+    ? createE2ELocalWriteFailureInjector()
+    : undefined;
 
 export const router = createHashRouter([
   {
@@ -27,7 +32,14 @@ export const router = createHashRouter([
     element: <AppLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: "appearance", element: <AppearanceSettingsPage /> },
+      {
+        path: "appearance",
+        element: (
+          <AppearanceSettingsPage
+            failureInjector={e2eLocalWriteFailureInjector}
+          />
+        ),
+      },
       { path: "ai-assistant-guide", element: <AssistantGuidePage /> },
       { path: "study", element: <StudyLearnPage /> },
       { path: "study/theory", element: <StudyTheoryPage /> },
@@ -53,7 +65,14 @@ export const router = createHashRouter([
         element: <QuizPage failureInjector={e2eFailureInjectors?.quiz} />,
       },
       { path: "progress", element: <ProgressPage /> },
-      { path: "import", element: <ContentImportPage /> },
+      {
+        path: "import",
+        element: (
+          <ContentImportPage
+            failureInjector={e2eLocalWriteFailureInjector}
+          />
+        ),
+      },
       { path: "study-materials", element: <Navigate replace to="/library" /> },
       { path: "tools", element: <ToolsPage /> },
       { path: "legal/license", element: <LegalPage content={legalPages.license} /> },

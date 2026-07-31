@@ -166,6 +166,16 @@ browser-storage warnings visible.
 - Completion UI must follow a committed result, never an optimistic counter.
 - Failed writes must preserve the last committed progress and active session.
 
+## Local settings and content-write integrity
+
+- Chapter, flashcard and appearance-setting success messages must follow the
+  completed local write.
+- Pending locks must prevent rapid duplicate submission.
+- A failed write must show a bilingual error and retain the user's entered
+  values or latest visible selection.
+- The interface must not claim that the latest change was saved after a local
+  persistence failure.
+
 ## PWA updates
 
 Do not reload an active page automatically. Keep the update prompt under user
