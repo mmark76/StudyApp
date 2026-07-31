@@ -19,6 +19,12 @@ interface StoredStudyState {
 const assistantUrl =
   "https://chatgpt.com/g/g-6a6b687029608191af7b26717f0a2072-studyapp-ai-assistant";
 
+const englishWelcome =
+  "Welcome to the StudyApp AI Assistant. Here you can open our dedicated assistant in ChatGPT to understand difficult learning material, create clear summaries, build effective flashcards, prepare multiple-choice quizzes, or complete a custom study request. More AI options, including ChatGPT App / MCP and StudyApp AI, are planned for future versions. Press Start to begin.";
+
+const greekWelcome =
+  "Καλώς ήρθες στον Βοηθό AI του StudyApp. Από εδώ μπορείς να ανοίξεις τον ειδικό βοηθό μας στο ChatGPT, για να κατανοήσεις δύσκολο υλικό, να δημιουργήσεις σαφείς περιλήψεις, αποτελεσματικές κάρτες μελέτης, κουίζ πολλαπλής επιλογής ή να εκτελέσεις ένα προσαρμοσμένο αίτημα μελέτης. Περισσότερες επιλογές AI, όπως το ChatGPT App / MCP και το StudyApp AI, προγραμματίζονται για μελλοντικές εκδόσεις. Πάτησε «Έναρξη» για να ξεκινήσεις.";
+
 const cards = [
   {
     id: "e2e-card-1",
@@ -193,6 +199,8 @@ test("Assistant intro has the exact safe link and no old workflow", async ({
   await expect(start).toHaveAttribute("rel", "noopener noreferrer");
   await expect(dialog.getByRole("button", { name: "View other AI options" }))
     .toBeVisible();
+  await expect(dialog.locator(".assistant-typewriter-accessible"))
+    .toHaveText(englishWelcome);
   await expect(
     dialog.getByText("StudyApp does not automatically send your local data."),
   ).toHaveCount(0);
@@ -203,6 +211,102 @@ test("Assistant intro has the exact safe link and no old workflow", async ({
   await expect(dialog.getByText("Choose a study goal")).toHaveCount(0);
   await expect(dialog.locator("textarea")).toHaveCount(0);
   await expect(dialog.locator('input[type="file"]')).toHaveCount(0);
+  assertNoApplicationErrors();
+});
+
+test("Assistant welcome types accessibly without moving its actions", async ({
+  page,
+}) => {
+  const assertNoApplicationErrors = watchForApplicationErrors(page);
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+  await openAssistant(page);
+
+  const panel = page.locator(".assistant-panel");
+  const visual = panel.locator(".assistant-typewriter-visual");
+  const actions = panel.locator(".assistant-actions");
+  const englishSkip = panel.getByRole("button", {
+    name: "Show complete welcome message",
+  });
+
+  await expect.poll(async () => (await visual.textContent())?.length ?? 0)
+    .toBeGreaterThan(0);
+  const firstVisibleLength = (await visual.textContent())?.length ?? 0;
+  expect(firstVisibleLength).toBeLessThan(englishWelcome.length);
+  await expect(panel.locator(".assistant-typewriter-cursor")).toHaveCount(1);
+
+  const initialActionsBox = await actions.boundingBox();
+  expect(initialActionsBox).not.toBeNull();
+  await expect.poll(async () => (await visual.textContent())?.length ?? 0)
+    .toBeGreaterThan(firstVisibleLength);
+  const typingActionsBox = await actions.boundingBox();
+  expect(typingActionsBox?.y).toBeCloseTo(initialActionsBox?.y ?? 0, 0);
+
+  await englishSkip.click();
+  await expect(visual).toHaveText(englishWelcome);
+  await expect(englishSkip).toBeDisabled();
+  await expect(panel.locator(".assistant-typewriter-cursor")).toHaveCount(0);
+  const completedActionsBox = await actions.boundingBox();
+  expect(completedActionsBox?.y).toBeCloseTo(initialActionsBox?.y ?? 0, 0);
+
+  const start = panel.getByRole("link", { name: "Start", exact: true });
+  await expect(start).toBeVisible();
+  await expect(start).toHaveAttribute("href", assistantUrl);
+  await expect(start).toHaveAttribute("target", "_blank");
+  await expect(start).toHaveAttribute("rel", "noopener noreferrer");
+
+  await panel
+    .getByRole("button", { name: "View other AI options" })
+    .click();
+  await expect(
+    panel.getByRole("heading", { name: "Other AI options" }),
+  ).toBeVisible();
+  await panel
+    .getByRole("button", { name: "Back to Study with ChatGPT" })
+    .click();
+  const restartedEnglishLength = (await visual.textContent())?.length ?? 0;
+  expect(restartedEnglishLength).toBeLessThan(englishWelcome.length);
+
+  await englishSkip.focus();
+  await page.keyboard.press("Enter");
+  await expect(visual).toHaveText(englishWelcome);
+
+  await page.locator(".language-switcher button", { hasText: "GR" })
+    .evaluate((button) => {
+      button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+  const greekSkip = panel.getByRole("button", {
+    name: "Εμφάνιση ολόκληρου του μηνύματος υποδοχής",
+  });
+  await expect(panel.locator(".assistant-typewriter-accessible"))
+    .toHaveText(greekWelcome);
+  await expect.poll(async () => (await visual.textContent())?.length ?? 0)
+    .toBeGreaterThan(0);
+  expect((await visual.textContent())?.length ?? 0)
+    .toBeLessThan(greekWelcome.length);
+
+  await greekSkip.focus();
+  await page.keyboard.press("Space");
+  await expect(visual).toHaveText(greekWelcome);
+
+  await page.locator(".language-switcher button", { hasText: "EN" })
+    .evaluate((button) => {
+      button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+  await expect.poll(async () => (await visual.textContent())?.length ?? 0)
+    .toBeGreaterThan(0);
+  expect((await visual.textContent())?.length ?? 0)
+    .toBeLessThan(englishWelcome.length);
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(visual).toHaveText(englishWelcome);
+  await expect(panel.locator(".assistant-typewriter-cursor")).toHaveCount(0);
+  await expect(
+    panel.getByRole("button", { name: "Show complete welcome message" }),
+  ).toBeDisabled();
+
+  await panel.getByRole("button", { name: "Close AI Assistant" }).click();
+  await expect(panel).toHaveCount(0);
   assertNoApplicationErrors();
 });
 
@@ -380,10 +484,13 @@ test("Assistant provides equivalent English and Greek screens", async ({
     page.getByRole("heading", { name: "Study with ChatGPT" }),
   ).toBeVisible();
   await expect(
-    page.getByText(
-      "Open the dedicated StudyApp AI Assistant in ChatGPT to study, summarize, create flashcards or prepare quizzes.",
-    ),
-  ).toBeVisible();
+    page.locator(".assistant-typewriter-accessible"),
+  ).toHaveText(englishWelcome);
+  await page
+    .getByRole("button", { name: "Show complete welcome message" })
+    .click();
+  await expect(page.locator(".assistant-typewriter-visual"))
+    .toHaveText(englishWelcome);
   await expect(
     page.getByText("StudyApp does not automatically send your local data."),
   ).toHaveCount(0);
@@ -396,10 +503,15 @@ test("Assistant provides equivalent English and Greek screens", async ({
     greekDialog.getByRole("heading", { name: "Μελέτη με το ChatGPT" }),
   ).toBeVisible();
   await expect(
-    greekDialog.getByText(
-      "Άνοιξε τον ειδικό Βοηθό AI του StudyApp στο ChatGPT για μελέτη, περιλήψεις, κάρτες ή κουίζ.",
-    ),
-  ).toBeVisible();
+    greekDialog.locator(".assistant-typewriter-accessible"),
+  ).toHaveText(greekWelcome);
+  await greekDialog
+    .getByRole("button", {
+      name: "Εμφάνιση ολόκληρου του μηνύματος υποδοχής",
+    })
+    .click();
+  await expect(greekDialog.locator(".assistant-typewriter-visual"))
+    .toHaveText(greekWelcome);
   await expect(
     greekDialog.getByText(
       "Το StudyApp δεν αποστέλλει αυτόματα τα τοπικά δεδομένα σου.",

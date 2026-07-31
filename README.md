@@ -27,6 +27,11 @@ StudyApp provides a normal external link to the dedicated **StudyApp AI
 Assistant** Custom GPT. The link opens in a new browser tab. The user chooses and
 shares any study material directly in ChatGPT.
 
+The bilingual intro explains the available assistant and planned AI options
+through an accessible typewriter presentation. The full message is available
+immediately to assistive technology, can be revealed on demand and appears
+without animation when reduced motion is requested.
+
 The available StudyApp AI Assistant link:
 
 - does not use the StudyApp OpenAI API key;

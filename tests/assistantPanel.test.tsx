@@ -5,6 +5,10 @@ import {
   getStudyAppAssistantUrl,
   STUDYAPP_AI_ASSISTANT_URL,
 } from "../src/features/assistant/assistantDestination";
+import {
+  ASSISTANT_WELCOME_COMPLETE_LABEL,
+  ASSISTANT_WELCOME_COPY,
+} from "../src/features/assistant/TypewriterWelcome";
 
 describe("AI Assistant two-screen entry point", () => {
   it("renders the introductory screen and safe external Start link", () => {
@@ -13,9 +17,12 @@ describe("AI Assistant two-screen entry point", () => {
     );
 
     expect(markup).toContain("Study with ChatGPT");
-    expect(markup).toContain(
-      "Open the dedicated StudyApp AI Assistant in ChatGPT to study, summarize, create flashcards or prepare quizzes.",
-    );
+    expect(markup).toContain(ASSISTANT_WELCOME_COPY.en);
+    expect(markup).toContain(ASSISTANT_WELCOME_COMPLETE_LABEL.en);
+    expect(markup).toContain("assistant-typewriter-accessible");
+    expect(markup).toContain("assistant-typewriter-visual");
+    expect(markup).toContain('aria-hidden="true"');
+    expect(markup).not.toContain("aria-live");
     expect(markup).not.toContain(
       "StudyApp does not automatically send your local data.",
     );

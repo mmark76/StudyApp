@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { getStudyAppAssistantUrl } from "./assistantDestination";
+import {
+  ASSISTANT_WELCOME_COMPLETE_LABEL,
+  ASSISTANT_WELCOME_COPY,
+  TypewriterWelcome,
+} from "./TypewriterWelcome";
 
 type AssistantScreen = "intro" | "modes";
 
@@ -24,7 +29,7 @@ function getFocusableElements(container: HTMLElement): HTMLElement[] {
 }
 
 export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
-  const { text } = useLanguage();
+  const { language, text } = useLanguage();
   const [screen, setScreen] = useState<AssistantScreen>("intro");
   const [message, setMessage] = useState("");
   const overlayRef = useRef<HTMLDivElement | null>(null);
@@ -179,12 +184,17 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
               />
               <p className="eyebrow">{text("Available", "Διαθέσιμο")}</p>
               <h3>{text("Study with ChatGPT", "Μελέτη με το ChatGPT")}</h3>
-              <p className="assistant-intro-copy">
-                {text(
-                  "Open the dedicated StudyApp AI Assistant in ChatGPT to study, summarize, create flashcards or prepare quizzes.",
-                  "Άνοιξε τον ειδικό Βοηθό AI του StudyApp στο ChatGPT για μελέτη, περιλήψεις, κάρτες ή κουίζ.",
+              <TypewriterWelcome
+                completeLabel={text(
+                  ASSISTANT_WELCOME_COMPLETE_LABEL.en,
+                  ASSISTANT_WELCOME_COMPLETE_LABEL.el,
                 )}
-              </p>
+                restartKey={language}
+                text={text(
+                  ASSISTANT_WELCOME_COPY.en,
+                  ASSISTANT_WELCOME_COPY.el,
+                )}
+              />
 
               <div className="assistant-actions">
                 <a
