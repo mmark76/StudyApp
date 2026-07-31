@@ -9,6 +9,10 @@ const assistantModesCss = readFileSync(
   new URL("../src/styles/assistantModes.css", import.meta.url),
   "utf8",
 );
+const assistantServiceStatusCss = readFileSync(
+  new URL("../src/styles/assistantServiceStatus.css", import.meta.url),
+  "utf8",
+);
 
 function cssRule(source: string, selector: string): string {
   const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
@@ -108,6 +112,26 @@ describe("AI Assistant presentation", () => {
     expect(assistantCss).toContain("@keyframes assistant-avatar-activation");
     expect(assistantCss).toMatch(
       /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.assistant-avatar-hero\.is-activating,[\s\S]*?\.assistant-start-spinner\s*\{[\s\S]*?animation: none;[\s\S]*?transform: none;/u,
+    );
+  });
+
+  it("hides only the launcher copy on mobile and keeps its status visuals visible", () => {
+    const combinedCss = `${assistantCss}\n${assistantServiceStatusCss}`;
+
+    expect(assistantCss).toMatch(
+      /@media \(max-width: 760px\)[\s\S]*?\.assistant-launch-button \.assistant-launch-copy\s*\{\s*display: none;\s*\}/u,
+    );
+    expect(assistantCss).not.toMatch(
+      /\.assistant-launch-button\s+span\s*\{\s*display: none;\s*\}/u,
+    );
+    expect(combinedCss).not.toMatch(
+      /\.assistant-launch-avatar-wrap\s*\{[^}]*display:\s*none;/u,
+    );
+    expect(combinedCss).not.toMatch(
+      /\.assistant-launch-avatar\s*\{[^}]*display:\s*none;/u,
+    );
+    expect(assistantServiceStatusCss).toMatch(
+      /@media \(max-width: 760px\)[\s\S]*?\.assistant-launch-button \.assistant-service-dot\s*\{\s*display: inline-block;\s*\}/u,
     );
   });
 
