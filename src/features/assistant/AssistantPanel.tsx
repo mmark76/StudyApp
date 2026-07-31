@@ -185,12 +185,6 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
                   "Άνοιξε τον ειδικό Βοηθό AI του StudyApp στο ChatGPT για μελέτη, περιλήψεις, κάρτες ή κουίζ.",
                 )}
               </p>
-              <p className="assistant-privacy-note">
-                {text(
-                  "StudyApp does not automatically send your local data.",
-                  "Το StudyApp δεν αποστέλλει αυτόματα τα τοπικά δεδομένα σου.",
-                )}
-              </p>
 
               <div className="assistant-actions">
                 <a

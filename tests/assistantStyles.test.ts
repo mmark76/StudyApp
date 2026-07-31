@@ -79,5 +79,8 @@ describe("AI Assistant presentation", () => {
     expect(combinedCss).not.toContain("assistant-prompt-preview");
     expect(combinedCss).not.toContain("assistant-import");
     expect(combinedCss).not.toContain("assistant-onboarding-steps");
+    expect(combinedCss).not.toContain("assistant-privacy-note");
+    expect(cssRule(assistantCss, ".assistant-intro-copy"))
+      .toContain("margin-bottom: 0;");
   });
 });
