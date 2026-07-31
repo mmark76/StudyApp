@@ -3,7 +3,7 @@
 _Last updated: 2026-07-31_
 
 This is the explicit stopping-point backlog after v1.0.0 plus the post-v1 AI
-Assistant preview. Items must be handled in separate, focused work. Priority
+Assistant changes. Items must be handled in separate, focused work. Priority
 reflects reliability, security, privacy, and financial risk; it is not a decision
 to reopen the historical v1 release scope.
 
@@ -136,19 +136,20 @@ Replace silent fallback-to-empty behaviour with validated error states and
 recovery/export choices so corrupt imported content cannot look like an
 intentional empty collection.
 
-### AI preview accessibility and interruption safety
+### AI Assistant accessibility and interruption safety
 
 Focus trapping and restoration, inert background, Escape close and bilingual
 Assistant navigation now have browser coverage. Add the remaining browser tests
-for screen-reader status, 200% zoom, narrow layouts, offline/online transitions,
-service timeout, repeated connection checks and PWA updates while the dialog is
-open.
+for screen-reader output, 200% zoom, narrow layouts and PWA updates while the
+dialog is open.
 
-### Service-status state correctness
+### Future remote service-status state correctness
 
-Test race conditions between focus, browser online/offline events, manual retry,
-unmount, slow responses, and stale responses. Distinguish service readiness from
-task availability and task success in both code and wording.
+If a future remote mode exposes service status, test race conditions between
+browser online/offline events, manual retry, unmount, slow responses, and stale
+responses. Distinguish service readiness from task availability and task
+success in both code and wording. No readiness check is active in the current
+Assistant handoff.
 
 ## P2 — Import, storage, platform, and AI design hardening
 
@@ -203,7 +204,7 @@ major/downgrade without a focused compatibility review.
 
 Add focused browser tests for uploads, unsafe-file rejection, restore rollback,
 IndexedDB persistence, PDF split flows, keyboard navigation, live regions, 200%
-zoom, narrow/mobile layouts, and the AI preview states.
+zoom, narrow/mobile layouts, and the current Assistant handoff states.
 
 ## P3 — Maintainability and product polish
 
@@ -218,8 +219,8 @@ zoom, narrow/mobile layouts, and the AI preview states.
 - Consolidate historical audit/update documents without removing traceability.
 - Add a visible build/environment label so test, staging, and future production
   AI configurations cannot be confused.
-- Review all AI and credit wording for consistent use of preview, test mode,
-  readiness, estimate, reservation, charge, release, and refund.
+- Keep current Assistant availability wording distinct from future remote
+  readiness, credit estimate, reservation, charge, release, and refund wording.
 
 ## Documentation rule
 
