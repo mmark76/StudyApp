@@ -91,6 +91,14 @@ it fails, the entered values remain in the form with a bilingual error message.
 Appearance settings likewise distinguish saving, saved and failed states, and
 retain the latest visible selection after a failed write.
 
+## PWA updates
+
+When a newer service worker is ready, StudyApp shows a compact bilingual update
+toast. The user explicitly chooses **Update / Ενημέρωση** or **Later /
+Αργότερα**; StudyApp does not install the update or reload active work
+automatically. Update failures remain retryable and follow the currently
+selected interface language.
+
 ## Supported local files
 
 StudyApp accepts PDF, DOC, DOCX, TXT, Markdown, CSV, PNG, JPEG, WebP and GIF after

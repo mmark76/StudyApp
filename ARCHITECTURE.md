@@ -112,6 +112,15 @@ but the application shell no longer performs automatic readiness polling. A
 future active remote mode must own its availability checks and must distinguish
 service health from task success.
 
+### PWA update presentation
+
+`src/app/pwaUpdate.ts` keeps service-worker update availability, applying state
+and a language-neutral failure code in a small external store.
+`src/shared/components/PwaUpdateToast.tsx` renders that state as a fixed,
+responsive English/Greek notification. Update installation remains an explicit
+user action; choosing Later only dismisses the current notification. The
+service-worker registration and caching strategy remain owned by `src/main.tsx`.
+
 ## Routing
 
 - `/` — Home;
@@ -223,7 +232,9 @@ attributes, English and Greek copy, focus trapping/restoration, inert
 background, Escape handling, absence of clipboard/scripted-popup behaviour and
 transaction failure/retry behaviour for flashcards, quizzes and review. They
 also inject deterministic local-write delay/failure states for chapter,
-flashcard and appearance-setting persistence.
+flashcard and appearance-setting persistence. PWA coverage verifies the compact
+desktop and mobile update toast, explicit Update/Later actions, pending-state
+duplicate prevention and live error retranslation.
 
 Assistant coverage includes:
 

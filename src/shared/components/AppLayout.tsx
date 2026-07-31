@@ -6,7 +6,7 @@ import { AssistantPanel } from "../../features/assistant/AssistantPanel";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { useInternetConnectivity } from "../hooks/useInternetConnectivity";
 import { LanguageSwitcher } from "./LanguageSwitcher";
-import { PwaUpdateBanner } from "./PwaUpdateBanner";
+import { PwaUpdateToast } from "./PwaUpdateToast";
 
 const mainNavigation = [
   { to: "/", en: "Home", el: "Αρχική", matches: ["/"] },
@@ -135,7 +135,7 @@ export function AppLayout() {
           </nav>
         </div>
       </header>
-      <PwaUpdateBanner />
+      <PwaUpdateToast />
       <main className="app-main">
         <Outlet />
       </main>
