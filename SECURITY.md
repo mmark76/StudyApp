@@ -39,6 +39,12 @@ The bilingual typewriter welcome is local presentation only. Its text,
 punctuation timing, skip action and reduced-motion handling do not read storage,
 inspect study material or initiate any remote request.
 
+The brief Opening label, decorative spinner and hero-avatar effect are also
+local presentation only. They do not call `window.open`, prevent the anchor's
+default action, delay navigation or alter the approved destination. Pointer and
+tab-order suppression during the short state reduces accidental repeated
+activation without removing the link's `href`.
+
 The available Assistant link must not:
 
 - call the OpenAI API;

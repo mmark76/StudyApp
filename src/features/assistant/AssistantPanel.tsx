@@ -1,5 +1,13 @@
-import { useEffect, useRef, useState } from "react";
-import { useLanguage } from "../../i18n/LanguageContext";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
+import {
+  useLanguage,
+  type AppLanguage,
+} from "../../i18n/LanguageContext";
 import { getStudyAppAssistantUrl } from "./assistantDestination";
 import {
   ASSISTANT_WELCOME_COMPLETE_LABEL,
@@ -12,6 +20,152 @@ type AssistantScreen = "intro" | "modes";
 interface AssistantPanelProps {
   open: boolean;
   onClose: () => void;
+}
+
+export const ASSISTANT_AVATAR_ACTIVATION_DURATION_MS = 500;
+export const ASSISTANT_OPENING_STATE_DURATION_MS = 800;
+
+export const ASSISTANT_START_COPY = {
+  en: {
+    openingAccessibleName: "Opening StudyApp AI Assistant",
+    openingLabel: "Opening...",
+    startLabel: "Start",
+  },
+  el: {
+    openingAccessibleName: "Άνοιγμα του Βοηθού AI του StudyApp",
+    openingLabel: "Άνοιγμα...",
+    startLabel: "Έναρξη",
+  },
+} as const;
+
+export interface AssistantOpeningState {
+  isAvatarActive: boolean;
+  isOpening: boolean;
+}
+
+interface AssistantOpeningTimerApi {
+  clearTimeout: (handle: ReturnType<typeof globalThis.setTimeout>) => void;
+  setTimeout: (
+    callback: () => void,
+    delayMs: number,
+  ) => ReturnType<typeof globalThis.setTimeout>;
+}
+
+export interface AssistantOpeningController {
+  dispose: () => void;
+  getState: () => AssistantOpeningState;
+  reset: () => void;
+  start: () => void;
+}
+
+const inactiveOpeningState: AssistantOpeningState = {
+  isAvatarActive: false,
+  isOpening: false,
+};
+
+export function createAssistantOpeningController(
+  onStateChange: (state: AssistantOpeningState) => void,
+  timerApi: AssistantOpeningTimerApi = {
+    clearTimeout: (handle) => globalThis.clearTimeout(handle),
+    setTimeout: (callback, delayMs) =>
+      globalThis.setTimeout(callback, delayMs),
+  },
+): AssistantOpeningController {
+  let avatarTimer: ReturnType<typeof globalThis.setTimeout> | undefined;
+  let disposed = false;
+  let openingTimer: ReturnType<typeof globalThis.setTimeout> | undefined;
+  let state = inactiveOpeningState;
+
+  function clearTimers() {
+    if (avatarTimer !== undefined) {
+      timerApi.clearTimeout(avatarTimer);
+      avatarTimer = undefined;
+    }
+    if (openingTimer !== undefined) {
+      timerApi.clearTimeout(openingTimer);
+      openingTimer = undefined;
+    }
+  }
+
+  function publish(nextState: AssistantOpeningState) {
+    if (disposed) return;
+    state = nextState;
+    onStateChange(nextState);
+  }
+
+  function reset() {
+    clearTimers();
+    if (!state.isOpening && !state.isAvatarActive) return;
+    publish(inactiveOpeningState);
+  }
+
+  function start() {
+    if (disposed) return;
+    clearTimers();
+    publish({ isAvatarActive: true, isOpening: true });
+
+    avatarTimer = timerApi.setTimeout(() => {
+      avatarTimer = undefined;
+      if (!state.isOpening) return;
+      publish({ isAvatarActive: false, isOpening: true });
+    }, ASSISTANT_AVATAR_ACTIVATION_DURATION_MS);
+
+    openingTimer = timerApi.setTimeout(() => {
+      openingTimer = undefined;
+      publish(inactiveOpeningState);
+    }, ASSISTANT_OPENING_STATE_DURATION_MS);
+  }
+
+  return {
+    dispose: () => {
+      clearTimers();
+      disposed = true;
+    },
+    getState: () => state,
+    reset,
+    start,
+  };
+}
+
+interface AssistantStartLinkProps {
+  assistantUrl: string;
+  isOpening: boolean;
+  language: AppLanguage;
+  linkRef?: RefObject<HTMLAnchorElement | null>;
+  onActivate: () => void;
+}
+
+export function AssistantStartLink({
+  assistantUrl,
+  isOpening,
+  language,
+  linkRef,
+  onActivate,
+}: AssistantStartLinkProps) {
+  const copy = ASSISTANT_START_COPY[language];
+
+  return (
+    <a
+      aria-disabled={isOpening ? "true" : undefined}
+      aria-label={isOpening ? copy.openingAccessibleName : undefined}
+      className={
+        isOpening
+          ? "button primary assistant-start-link is-opening"
+          : "button primary assistant-start-link"
+      }
+      href={assistantUrl}
+      onClick={onActivate}
+      ref={linkRef}
+      rel="noopener noreferrer"
+      tabIndex={isOpening ? -1 : undefined}
+      target="_blank"
+    >
+      {isOpening ? (
+        <span aria-hidden="true" className="assistant-start-spinner" />
+      ) : null}
+      <span>{isOpening ? copy.openingLabel : copy.startLabel}</span>
+    </a>
+  );
 }
 
 const focusableSelector = [
@@ -32,9 +186,14 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
   const { language, text } = useLanguage();
   const [screen, setScreen] = useState<AssistantScreen>("intro");
   const [message, setMessage] = useState("");
+  const [openingState, setOpeningState] = useState<AssistantOpeningState>(
+    inactiveOpeningState,
+  );
+  const openingControllerRef = useRef<AssistantOpeningController | null>(null);
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const dialogRef = useRef<HTMLElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const startLinkRef = useRef<HTMLAnchorElement | null>(null);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
   const onCloseRef = useRef(onClose);
   const assistantUrl = getStudyAppAssistantUrl();
@@ -42,8 +201,24 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
   onCloseRef.current = onClose;
 
   useEffect(() => {
-    if (!open) return;
+    const controller = createAssistantOpeningController(setOpeningState);
+    openingControllerRef.current = controller;
 
+    return () => {
+      controller.dispose();
+      if (openingControllerRef.current === controller) {
+        openingControllerRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!open) {
+      openingControllerRef.current?.reset();
+      return;
+    }
+
+    openingControllerRef.current?.reset();
     setScreen("intro");
     setMessage("");
     previouslyFocusedRef.current =
@@ -104,6 +279,7 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       document.body.classList.remove("assistant-panel-open");
+      openingControllerRef.current?.reset();
 
       for (const { element, wasInert } of backgroundElements) {
         element.inert = wasInert;
@@ -120,8 +296,14 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
   if (!open) return null;
 
   function showModes() {
+    openingControllerRef.current?.reset();
     setMessage("");
     setScreen("modes");
+  }
+
+  function startOpeningEffect() {
+    openingControllerRef.current?.start();
+    startLinkRef.current?.blur();
   }
 
   function showComingSoon(includeNoCharges = false) {
@@ -179,7 +361,11 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
             <section className="assistant-welcome">
               <img
                 alt=""
-                className="assistant-avatar-hero"
+                className={
+                  openingState.isAvatarActive
+                    ? "assistant-avatar-hero is-activating"
+                    : "assistant-avatar-hero"
+                }
                 src="/study-assistant-avatar.svg"
               />
               <p className="eyebrow">{text("Available", "Διαθέσιμο")}</p>
@@ -197,14 +383,13 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
               />
 
               <div className="assistant-actions">
-                <a
-                  className="button primary"
-                  href={assistantUrl}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  {text("Start", "Έναρξη")}
-                </a>
+                <AssistantStartLink
+                  assistantUrl={assistantUrl}
+                  isOpening={openingState.isOpening}
+                  language={language}
+                  linkRef={startLinkRef}
+                  onActivate={startOpeningEffect}
+                />
                 <button
                   className="button secondary assistant-secondary-action"
                   onClick={showModes}
@@ -226,6 +411,7 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
                 )}
                 className="assistant-back"
                 onClick={() => {
+                  openingControllerRef.current?.reset();
                   setMessage("");
                   setScreen("intro");
                 }}

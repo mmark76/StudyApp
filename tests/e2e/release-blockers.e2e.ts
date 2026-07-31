@@ -22,6 +22,9 @@ const assistantUrl =
 const englishWelcome =
   "Welcome to the StudyApp AI Assistant. Here you can open our dedicated assistant in ChatGPT to understand difficult learning material, create clear summaries, build effective flashcards, prepare multiple-choice quizzes, or complete a custom study request. More AI options, including ChatGPT App / MCP and StudyApp AI, are planned for future versions. Press Start to begin.";
 
+const englishWelcomeFirstSentence =
+  "Welcome to the StudyApp AI Assistant.";
+
 const greekWelcome =
   "Καλώς ήρθες στον Βοηθό AI του StudyApp. Από εδώ μπορείς να ανοίξεις τον ειδικό βοηθό μας στο ChatGPT, για να κατανοήσεις δύσκολο υλικό, να δημιουργήσεις σαφείς περιλήψεις, αποτελεσματικές κάρτες μελέτης, κουίζ πολλαπλής επιλογής ή να εκτελέσεις ένα προσαρμοσμένο αίτημα μελέτης. Περισσότερες επιλογές AI, όπως το ChatGPT App / MCP και το StudyApp AI, προγραμματίζονται για μελλοντικές εκδόσεις. Πάτησε «Έναρξη» για να ξεκινήσεις.";
 
@@ -378,6 +381,7 @@ test("Assistant welcome types accessibly without moving its actions", async ({
   const assertNoApplicationErrors = watchForApplicationErrors(page);
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/");
+  const typingStartedAt = await page.evaluate(() => performance.now());
   await openAssistant(page);
 
   const panel = page.locator(".assistant-panel");
@@ -387,18 +391,33 @@ test("Assistant welcome types accessibly without moving its actions", async ({
     name: "Show complete welcome message",
   });
 
-  await expect.poll(async () => (await visual.textContent())?.length ?? 0)
-    .toBeGreaterThan(0);
-  const firstVisibleLength = (await visual.textContent())?.length ?? 0;
-  expect(firstVisibleLength).toBeLessThan(englishWelcome.length);
   await expect(panel.locator(".assistant-typewriter-cursor")).toHaveCount(1);
 
   const initialActionsBox = await actions.boundingBox();
   expect(initialActionsBox).not.toBeNull();
-  await expect.poll(async () => (await visual.textContent())?.length ?? 0)
-    .toBeGreaterThan(firstVisibleLength);
+
+  await page.waitForFunction(
+    ({ selector, expectedText }) =>
+      document.querySelector(selector)?.textContent === expectedText,
+    {
+      selector: ".assistant-typewriter-visual",
+      expectedText: englishWelcomeFirstSentence,
+    },
+  );
+  const firstSentenceRenderedAt = await page.evaluate(() => performance.now());
+  expect(firstSentenceRenderedAt - typingStartedAt).toBeGreaterThan(1_500);
+
   const typingActionsBox = await actions.boundingBox();
   expect(typingActionsBox?.y).toBeCloseTo(initialActionsBox?.y ?? 0, 0);
+
+  await page.waitForTimeout(250);
+  await expect(visual).toHaveText(englishWelcomeFirstSentence);
+  await expect.poll(async () => (await visual.textContent())?.length ?? 0)
+    .toBeGreaterThan(englishWelcomeFirstSentence.length);
+  const nextSentenceStartedAt = await page.evaluate(() => performance.now());
+  expect(nextSentenceStartedAt - firstSentenceRenderedAt)
+    .toBeGreaterThan(350);
+  expect(nextSentenceStartedAt - firstSentenceRenderedAt).toBeLessThan(900);
 
   await englishSkip.click();
   await expect(visual).toHaveText(englishWelcome);
@@ -465,6 +484,148 @@ test("Assistant welcome types accessibly without moving its actions", async ({
 
   await panel.getByRole("button", { name: "Close AI Assistant" }).click();
   await expect(panel).toHaveCount(0);
+  assertNoApplicationErrors();
+});
+
+test("Assistant Start keeps native navigation and runs a local opening effect", async ({
+  context,
+  page,
+}) => {
+  const assertNoApplicationErrors = watchForApplicationErrors(page);
+  await context.route(assistantUrl, async (route) => {
+    await route.fulfill({
+      body: "<!doctype html><title>StudyApp AI Assistant destination</title>",
+      contentType: "text/html; charset=utf-8",
+      status: 200,
+    });
+  });
+  await page.addInitScript(() => {
+    const trackedWindow = window as Window & {
+      assistantStartDefaultPrevented?: boolean | null;
+      assistantWindowOpenCalls?: number;
+    };
+    trackedWindow.assistantStartDefaultPrevented = null;
+    trackedWindow.assistantWindowOpenCalls = 0;
+    window.open = () => {
+      trackedWindow.assistantWindowOpenCalls =
+        (trackedWindow.assistantWindowOpenCalls ?? 0) + 1;
+      return null;
+    };
+  });
+
+  await page.goto("/");
+  await openAssistant(page);
+  const studyAppUrl = page.url();
+  const dialog = page.locator(".assistant-panel");
+  await expect(dialog).toHaveAttribute("role", "dialog");
+  await dialog
+    .getByRole("button", { name: "Show complete welcome message" })
+    .click();
+
+  const start = dialog.locator("a.assistant-start-link");
+  const avatar = dialog.locator(".assistant-avatar-hero");
+  await expect(start).toHaveText("Start");
+  await avatar.evaluate((element) => {
+    const trackedWindow = window as Window & {
+      assistantAvatarActivated?: boolean;
+    };
+    trackedWindow.assistantAvatarActivated = false;
+    const observer = new MutationObserver(() => {
+      if (element.classList.contains("is-activating")) {
+        trackedWindow.assistantAvatarActivated = true;
+        observer.disconnect();
+      }
+    });
+    observer.observe(element, { attributeFilter: ["class"] });
+  });
+  await start.evaluate((element) => {
+    const trackedWindow = window as Window & {
+      assistantStartDefaultPrevented?: boolean | null;
+    };
+    document.body.addEventListener(
+      "click",
+      (event) => {
+        if (event.composedPath().includes(element)) {
+          trackedWindow.assistantStartDefaultPrevented =
+            event.defaultPrevented;
+        }
+      },
+      { once: true },
+    );
+  });
+
+  const popupPromise = page.waitForEvent("popup");
+  await start.click();
+  const popup = await popupPromise;
+
+  await expect(start).toHaveText("Opening...");
+  await expect(start).toHaveAttribute(
+    "aria-label",
+    "Opening StudyApp AI Assistant",
+  );
+  await expect(start).toHaveAttribute("aria-disabled", "true");
+  await expect(start).toHaveAttribute("tabindex", "-1");
+  await expect(start).toHaveCSS("pointer-events", "none");
+  await expect(start.locator(".assistant-start-spinner")).toHaveCount(1);
+  await expect.poll(() =>
+    page.evaluate(
+      () =>
+        (window as Window & { assistantAvatarActivated?: boolean })
+          .assistantAvatarActivated,
+    ),
+  ).toBe(true);
+
+  await page.getByRole("button", { name: "GR" }).evaluate((button) => {
+    button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  });
+  await expect(start).toHaveText("Άνοιγμα...");
+  await expect(start).toHaveAttribute(
+    "aria-label",
+    "Άνοιγμα του Βοηθού AI του StudyApp",
+  );
+
+  await popup.waitForLoadState("domcontentloaded");
+  await expect(start).toHaveAttribute("href", assistantUrl);
+  await expect(start).toHaveAttribute("target", "_blank");
+  await expect(start).toHaveAttribute("rel", "noopener noreferrer");
+  await expect(dialog).toBeVisible();
+  expect(page.url()).toBe(studyAppUrl);
+  await expect.poll(() => popup.url()).toBe(assistantUrl);
+  await expect.poll(() =>
+    page.evaluate(() => {
+      const trackedWindow = window as Window & {
+        assistantStartDefaultPrevented?: boolean | null;
+        assistantWindowOpenCalls?: number;
+      };
+      return {
+        defaultPrevented: trackedWindow.assistantStartDefaultPrevented,
+        windowOpenCalls: trackedWindow.assistantWindowOpenCalls,
+      };
+    }),
+  ).toEqual({ defaultPrevented: false, windowOpenCalls: 0 });
+
+  await expect(avatar).not.toHaveClass(/is-activating/u, { timeout: 900 });
+  await expect(start).toHaveText("Έναρξη", { timeout: 1_200 });
+  await expect(start.locator(".assistant-start-spinner")).toHaveCount(0);
+  await expect(start).not.toHaveAttribute("aria-disabled", "true");
+  await expect(start).not.toHaveAttribute("tabindex", "-1");
+  await expect(start).toHaveAttribute("href", assistantUrl);
+  await expect(dialog).toBeVisible();
+
+  await popup.close();
+
+  const secondPopupPromise = page.waitForEvent("popup");
+  await start.click();
+  const secondPopup = await secondPopupPromise;
+  await expect(start).toHaveText("Άνοιγμα...");
+  await dialog.locator(".assistant-close").click();
+  await expect(dialog).toHaveCount(0);
+
+  await openAssistant(page, "el");
+  await expect(start).toHaveText("Έναρξη");
+  await expect(start.locator(".assistant-start-spinner")).toHaveCount(0);
+  await expect(avatar).not.toHaveClass(/is-activating/u);
+  await secondPopup.close();
   assertNoApplicationErrors();
 });
 

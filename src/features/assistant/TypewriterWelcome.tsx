@@ -12,14 +12,22 @@ export const ASSISTANT_WELCOME_COMPLETE_LABEL = {
 
 export interface TypewriterTiming {
   characterDelayMs: number;
-  shortPauseMs: number;
+  clausePauseMs: number;
+  commaPauseMs: number;
+  initialDelayMs: number;
+  lineBreakPauseMs: number;
   sentencePauseMs: number;
+  spaceDelayMs: number;
 }
 
 export const DEFAULT_TYPEWRITER_TIMING: TypewriterTiming = {
-  characterDelayMs: 23,
-  shortPauseMs: 100,
-  sentencePauseMs: 220,
+  characterDelayMs: 50,
+  clausePauseMs: 275,
+  commaPauseMs: 200,
+  initialDelayMs: 300,
+  lineBreakPauseMs: 600,
+  sentencePauseMs: 500,
+  spaceDelayMs: 75,
 };
 
 interface TypewriterFrame {
@@ -50,9 +58,8 @@ interface TypewriterWelcomeProps {
 }
 
 const reducedMotionQuery = "(prefers-reduced-motion: reduce)";
-const shortPauseCharacters = new Set([",", ":", ";"]);
+const clausePauseCharacters = new Set([":", ";"]);
 const sentenceCharacters = new Set([".", "!", "?"]);
-const closingQuotationMarks = new Set(['"', "”", "’", "»"]);
 
 function readsReducedMotionPreference(): boolean {
   return typeof window !== "undefined" &&
@@ -105,21 +112,24 @@ export function getTypewriterDelay(
 ): number {
   const character = text[characterIndex] ?? "";
 
+  if (character === "\n") {
+    return timing.lineBreakPauseMs;
+  }
+
   if (sentenceCharacters.has(character)) {
-    return timing.characterDelayMs + timing.sentencePauseMs;
+    return timing.sentencePauseMs;
   }
 
-  if (shortPauseCharacters.has(character)) {
-    return timing.characterDelayMs + timing.shortPauseMs;
+  if (clausePauseCharacters.has(character)) {
+    return timing.clausePauseMs;
   }
 
-  if (
-    closingQuotationMarks.has(character) &&
-    characterIndex > 0 &&
-    (sentenceCharacters.has(text[characterIndex - 1]) ||
-      text[characterIndex - 1] === ";")
-  ) {
-    return timing.characterDelayMs + timing.sentencePauseMs;
+  if (character === ",") {
+    return timing.commaPauseMs;
+  }
+
+  if (character === " ") {
+    return timing.spaceDelayMs;
   }
 
   return timing.characterDelayMs;
@@ -131,7 +141,7 @@ export function getApproximateTypingDurationMs(
 ): number {
   if (text.length === 0) return 0;
 
-  let durationMs = timing.characterDelayMs;
+  let durationMs = timing.initialDelayMs;
   for (let index = 0; index < text.length - 1; index += 1) {
     durationMs += getTypewriterDelay(text, index, timing);
   }
@@ -211,7 +221,7 @@ export function createTypewriterController(
     }
 
     publish({ isTyping: true, visibleText: "" });
-    scheduleNext(timing.characterDelayMs);
+    scheduleNext(timing.initialDelayMs);
   }
 
   return {
@@ -258,8 +268,12 @@ export function TypewriterWelcome({
     restartKey,
     text,
     resolvedTiming.characterDelayMs,
+    resolvedTiming.clausePauseMs,
+    resolvedTiming.commaPauseMs,
+    resolvedTiming.initialDelayMs,
+    resolvedTiming.lineBreakPauseMs,
     resolvedTiming.sentencePauseMs,
-    resolvedTiming.shortPauseMs,
+    resolvedTiming.spaceDelayMs,
   ]);
 
   useEffect(() => {

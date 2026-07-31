@@ -57,8 +57,10 @@ restores focus to the launcher.
 `src/features/assistant/TypewriterWelcome.tsx` owns the intro-message
 presentation. It reserves the complete responsive text layout, exposes one
 static full copy to assistive technology and animates only an `aria-hidden`
-visual copy. Its deterministic timer is cancelled on completion or unmount;
-reduced motion displays the complete text without starting the typewriter.
+visual copy. Its deterministic timing distinguishes the initial pause,
+ordinary characters, spaces, clause punctuation and sentence punctuation. The
+timer is cancelled on completion or unmount; reduced motion displays the
+complete text without starting the typewriter.
 
 #### StudyApp AI Assistant
 
@@ -70,7 +72,10 @@ The application renders the public Custom GPT destination as an anchor with
 `target="_blank"` and `rel="noopener noreferrer"`. It does not build or copy a
 prompt, inspect IndexedDB, send study data, call `window.open`, automate ChatGPT
 or read the ChatGPT response. The user chooses and shares material directly in
-ChatGPT.
+ChatGPT. Selecting Start also begins a short local-only Opening label, spinner
+and hero-avatar effect. This presentation runs in parallel with the anchor's
+immediate native navigation, does not close the panel and does not control or
+delay the new tab.
 
 The production URL is public Vite configuration in `.env.production`; it is not a
 secret and must not contain credentials or tokens. Runtime validation accepts
@@ -242,6 +247,7 @@ Assistant coverage includes:
 - English and Greek mode labels;
 - deterministic bilingual welcome typing, completion and reduced motion;
 - a static full screen-reader copy and stable action layout while typing;
+- a brief bilingual Start activation state that preserves native link behaviour;
 - exact approved StudyApp AI Assistant destination;
 - no clipboard or scripted popup call from the Assistant link;
 - inactive Coming soon modes;

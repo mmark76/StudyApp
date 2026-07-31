@@ -85,47 +85,114 @@ describe("deterministic typewriter controller", () => {
     vi.useRealTimers();
   });
 
-  it("reveals ordinary characters progressively at 23 ms intervals", () => {
+  it("waits before the first character and then uses the slower ordinary delay", () => {
     const { controller, latest } = makeController();
     controller.start("ABC");
 
     expect(latest()).toEqual({ isTyping: true, visibleText: "" });
     expect(vi.getTimerCount()).toBe(1);
 
-    vi.advanceTimersByTime(22);
+    vi.advanceTimersByTime(DEFAULT_TYPEWRITER_TIMING.initialDelayMs - 1);
     expect(latest()?.visibleText).toBe("");
 
     vi.advanceTimersByTime(1);
     expect(latest()).toEqual({ isTyping: true, visibleText: "A" });
 
-    vi.advanceTimersByTime(DEFAULT_TYPEWRITER_TIMING.characterDelayMs);
+    vi.advanceTimersByTime(DEFAULT_TYPEWRITER_TIMING.characterDelayMs - 1);
+    expect(latest()).toEqual({ isTyping: true, visibleText: "A" });
+
+    vi.advanceTimersByTime(1);
     expect(latest()).toEqual({ isTyping: true, visibleText: "AB" });
   });
 
-  it("adds deterministic pauses after supported punctuation", () => {
+  it("uses a slightly longer deterministic delay after a word-boundary space", () => {
     const { controller, latest } = makeController();
-    controller.start("A, B. C");
+    controller.start("A B");
 
-    vi.advanceTimersByTime(23);
+    vi.advanceTimersByTime(DEFAULT_TYPEWRITER_TIMING.initialDelayMs);
     expect(latest()?.visibleText).toBe("A");
-    vi.advanceTimersByTime(23);
+    vi.advanceTimersByTime(DEFAULT_TYPEWRITER_TIMING.characterDelayMs);
+    expect(latest()?.visibleText).toBe("A ");
+
+    vi.advanceTimersByTime(DEFAULT_TYPEWRITER_TIMING.spaceDelayMs - 1);
+    expect(latest()?.visibleText).toBe("A ");
+    vi.advanceTimersByTime(1);
+    expect(latest()?.visibleText).toBe("A B");
+  });
+
+  it("uses a natural phrase pause after a comma", () => {
+    const { controller, latest } = makeController();
+    controller.start("A,B");
+
+    vi.advanceTimersByTime(DEFAULT_TYPEWRITER_TIMING.initialDelayMs);
+    expect(latest()?.visibleText).toBe("A");
+    vi.advanceTimersByTime(DEFAULT_TYPEWRITER_TIMING.characterDelayMs);
     expect(latest()?.visibleText).toBe("A,");
 
-    vi.advanceTimersByTime(122);
+    vi.advanceTimersByTime(DEFAULT_TYPEWRITER_TIMING.commaPauseMs - 1);
     expect(latest()?.visibleText).toBe("A,");
     vi.advanceTimersByTime(1);
-    expect(latest()?.visibleText).toBe("A, ");
+    expect(latest()?.visibleText).toBe("A,B");
+  });
 
-    vi.advanceTimersByTime(46);
-    expect(latest()?.visibleText).toBe("A, B.");
-    vi.advanceTimersByTime(242);
-    expect(latest()?.visibleText).toBe("A, B.");
+  it("uses longer deterministic clause and sentence pauses", () => {
+    expect(getTypewriterDelay("A:B", 1)).toBe(
+      DEFAULT_TYPEWRITER_TIMING.clausePauseMs,
+    );
+    expect(getTypewriterDelay("A;B", 1)).toBe(
+      DEFAULT_TYPEWRITER_TIMING.clausePauseMs,
+    );
+    expect(getTypewriterDelay("A.B", 1)).toBe(
+      DEFAULT_TYPEWRITER_TIMING.sentencePauseMs,
+    );
+    expect(getTypewriterDelay("A!B", 1)).toBe(
+      DEFAULT_TYPEWRITER_TIMING.sentencePauseMs,
+    );
+    expect(getTypewriterDelay("A?B", 1)).toBe(
+      DEFAULT_TYPEWRITER_TIMING.sentencePauseMs,
+    );
+    expect(getTypewriterDelay("A\nB", 1)).toBe(
+      DEFAULT_TYPEWRITER_TIMING.lineBreakPauseMs,
+    );
+  });
+
+  it("does not add a second large pause after closing quotation marks", () => {
+    const { controller, latest } = makeController();
+    controller.start('A.” B');
+
+    vi.advanceTimersByTime(DEFAULT_TYPEWRITER_TIMING.initialDelayMs);
+    vi.advanceTimersByTime(DEFAULT_TYPEWRITER_TIMING.characterDelayMs);
+    expect(latest()?.visibleText).toBe("A.");
+    vi.advanceTimersByTime(DEFAULT_TYPEWRITER_TIMING.sentencePauseMs);
+    expect(latest()?.visibleText).toBe('A.”');
+
+    vi.advanceTimersByTime(DEFAULT_TYPEWRITER_TIMING.characterDelayMs - 1);
+    expect(latest()?.visibleText).toBe('A.”');
     vi.advanceTimersByTime(1);
-    expect(latest()?.visibleText).toBe("A, B. ");
+    expect(latest()?.visibleText).toBe('A.” ');
+  });
 
-    expect(getTypewriterDelay("A:B", 1)).toBe(123);
-    expect(getTypewriterDelay("A;B", 1)).toBe(123);
-    expect(getTypewriterDelay('A.” B', 2)).toBe(243);
+  it("returns the same character-based timing on every call", () => {
+    const samples = ["A", " ", ",", ":", ";", ".", "!", "?", "\n"];
+    const firstPass = samples.map((character) =>
+      getTypewriterDelay(character, 0),
+    );
+    const secondPass = samples.map((character) =>
+      getTypewriterDelay(character, 0),
+    );
+
+    expect(secondPass).toEqual(firstPass);
+    expect(firstPass).toEqual([
+      DEFAULT_TYPEWRITER_TIMING.characterDelayMs,
+      DEFAULT_TYPEWRITER_TIMING.spaceDelayMs,
+      DEFAULT_TYPEWRITER_TIMING.commaPauseMs,
+      DEFAULT_TYPEWRITER_TIMING.clausePauseMs,
+      DEFAULT_TYPEWRITER_TIMING.clausePauseMs,
+      DEFAULT_TYPEWRITER_TIMING.sentencePauseMs,
+      DEFAULT_TYPEWRITER_TIMING.sentencePauseMs,
+      DEFAULT_TYPEWRITER_TIMING.sentencePauseMs,
+      DEFAULT_TYPEWRITER_TIMING.lineBreakPauseMs,
+    ]);
   });
 
   it.each([
@@ -157,7 +224,10 @@ describe("deterministic typewriter controller", () => {
   it("restarts from the beginning after a close and reopen lifecycle", () => {
     const firstRun = makeController();
     firstRun.controller.start("Welcome");
-    vi.advanceTimersByTime(69);
+    vi.advanceTimersByTime(
+      DEFAULT_TYPEWRITER_TIMING.initialDelayMs +
+        (2 * DEFAULT_TYPEWRITER_TIMING.characterDelayMs),
+    );
     expect(firstRun.latest()?.visibleText).toBe("Wel");
     firstRun.controller.dispose();
     expect(vi.getTimerCount()).toBe(0);
@@ -171,18 +241,21 @@ describe("deterministic typewriter controller", () => {
   it("restarts when returning from options or when either language changes", () => {
     const { controller, latest } = makeController();
     controller.start(ASSISTANT_WELCOME_COPY.en);
-    vi.advanceTimersByTime(69);
+    vi.advanceTimersByTime(
+      DEFAULT_TYPEWRITER_TIMING.initialDelayMs +
+        (2 * DEFAULT_TYPEWRITER_TIMING.characterDelayMs),
+    );
     expect(latest()?.visibleText).toBe("Wel");
 
     controller.start(ASSISTANT_WELCOME_COPY.en);
     expect(latest()?.visibleText).toBe("");
 
     controller.start(ASSISTANT_WELCOME_COPY.el);
-    vi.advanceTimersByTime(23);
+    vi.advanceTimersByTime(DEFAULT_TYPEWRITER_TIMING.initialDelayMs);
     expect(latest()?.visibleText).toBe("Κ");
 
     controller.start(ASSISTANT_WELCOME_COPY.en);
-    vi.advanceTimersByTime(23);
+    vi.advanceTimersByTime(DEFAULT_TYPEWRITER_TIMING.initialDelayMs);
     expect(latest()?.visibleText).toBe("W");
     expect(vi.getTimerCount()).toBe(1);
   });
@@ -190,7 +263,10 @@ describe("deterministic typewriter controller", () => {
   it("reveals the full message immediately through the shared completion action", () => {
     const { controller, latest } = makeController();
     controller.start(ASSISTANT_WELCOME_COPY.en);
-    vi.advanceTimersByTime(69);
+    vi.advanceTimersByTime(
+      DEFAULT_TYPEWRITER_TIMING.initialDelayMs +
+        (2 * DEFAULT_TYPEWRITER_TIMING.characterDelayMs),
+    );
 
     controller.complete();
 
@@ -227,7 +303,10 @@ describe("deterministic typewriter controller", () => {
   it("completes active typing and clears its timer when reduced motion activates", () => {
     const { controller, latest } = makeController();
     controller.start(ASSISTANT_WELCOME_COPY.el);
-    vi.advanceTimersByTime(69);
+    vi.advanceTimersByTime(
+      DEFAULT_TYPEWRITER_TIMING.initialDelayMs +
+        (2 * DEFAULT_TYPEWRITER_TIMING.characterDelayMs),
+    );
     expect(latest()?.isTyping).toBe(true);
 
     controller.complete();
@@ -259,9 +338,9 @@ describe("deterministic typewriter controller", () => {
       ASSISTANT_WELCOME_COPY.el,
     );
 
-    expect(englishDuration).toBeGreaterThan(8_000);
-    expect(englishDuration).toBeLessThan(12_000);
-    expect(greekDuration).toBeGreaterThan(9_000);
-    expect(greekDuration).toBeLessThan(13_000);
+    expect(englishDuration).toBeGreaterThan(20_000);
+    expect(englishDuration).toBeLessThan(28_000);
+    expect(greekDuration).toBeGreaterThan(23_000);
+    expect(greekDuration).toBeLessThan(32_000);
   });
 });

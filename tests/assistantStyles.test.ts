@@ -69,6 +69,7 @@ describe("AI Assistant presentation", () => {
   it("keeps visible focus styles for dialog and mode controls", () => {
     expect(assistantCss).toContain(".assistant-close:focus-visible");
     expect(assistantCss).toContain(".assistant-back:focus-visible");
+    expect(assistantCss).toContain(".assistant-start-link:focus-visible");
     expect(assistantCss).toContain(
       ".assistant-typewriter-skip:focus-visible",
     );
@@ -91,6 +92,22 @@ describe("AI Assistant presentation", () => {
     expect(assistantCss).toContain("@media (prefers-reduced-motion: reduce)");
     expect(assistantCss).toMatch(
       /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.assistant-typewriter-cursor\s*\{[\s\S]*?display: none;/u,
+    );
+  });
+
+  it("keeps the Start effect stable, brief, and reduced-motion safe", () => {
+    expect(cssRule(assistantCss, ".assistant-start-link"))
+      .toContain("min-inline-size: 7.5rem;");
+    expect(cssRule(assistantCss, ".assistant-start-link.is-opening"))
+      .toContain("pointer-events: none;");
+    expect(cssRule(assistantCss, ".assistant-start-spinner"))
+      .toContain("animation: assistant-start-spinner 700ms linear infinite;");
+    expect(cssRule(assistantCss, ".assistant-avatar-hero.is-activating"))
+      .toContain("animation: assistant-avatar-activation 500ms ease-out;");
+    expect(assistantCss).toContain("@keyframes assistant-start-spinner");
+    expect(assistantCss).toContain("@keyframes assistant-avatar-activation");
+    expect(assistantCss).toMatch(
+      /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.assistant-avatar-hero\.is-activating,[\s\S]*?\.assistant-start-spinner\s*\{[\s\S]*?animation: none;[\s\S]*?transform: none;/u,
     );
   });
 
