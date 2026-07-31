@@ -10,60 +10,67 @@ export function AssistantGuidePage() {
         <div>
           <p className="eyebrow">{text("AI options", "Επιλογές AI")}</p>
           <h2>{text("AI Assistant", "Βοηθός AI")}</h2>
-          <p>{text(
-            "Start with a guided ChatGPT study session or review the options planned for later.",
-            "Ξεκίνησε μια καθοδηγούμενη μελέτη με το ChatGPT ή δες τις επιλογές που σχεδιάζονται για αργότερα.",
-          )}</p>
+          <p>
+            {text(
+              "Open the StudyApp AI Assistant in ChatGPT or review the options planned for later.",
+              "Άνοιξε τον Βοηθό AI του StudyApp στο ChatGPT ή δες τις επιλογές που σχεδιάζονται για αργότερα.",
+            )}
+          </p>
           <div className="button-row">
-            <Link className="button secondary" to="/">{text("Back to Home", "Πίσω στην Αρχική")}</Link>
+            <Link className="button secondary" to="/">
+              {text("Back to Home", "Πίσω στην Αρχική")}
+            </Link>
           </div>
         </div>
         <img alt="" src="/study-assistant-avatar.svg" />
       </header>
 
-      <section className="assistant-guide-grid" aria-label={text("AI Assistant options", "Επιλογές Βοηθού AI")}>
+      <section
+        aria-label={text("AI Assistant options", "Επιλογές Βοηθού AI")}
+        className="assistant-guide-grid"
+      >
         <article className="assistant-guide-card">
           <p className="eyebrow">{text("Available", "Διαθέσιμο")}</p>
           <h3>ChatGPT Companion</h3>
-          <p>{text(
-            "Follow guided steps to prepare your study instructions and continue in ChatGPT.",
-            "Ακολούθησε καθοδηγούμενα βήματα για να ετοιμάσεις τις οδηγίες μελέτης και να συνεχίσεις στο ChatGPT.",
-          )}</p>
+          <p>
+            {text(
+              "Open the dedicated StudyApp AI Assistant in ChatGPT. Choose and share any study material directly in ChatGPT.",
+              "Άνοιξε τον ειδικό Βοηθό AI του StudyApp στο ChatGPT. Επίλεξε και μοιράσου οποιοδήποτε υλικό μελέτης απευθείας στο ChatGPT.",
+            )}
+          </p>
         </article>
 
         <article className="assistant-guide-card">
           <p className="eyebrow">{text("Coming soon", "Σύντομα")}</p>
           <h3>ChatGPT App / MCP</h3>
-          <p>{text("Use StudyApp inside ChatGPT.", "Χρησιμοποίησε το StudyApp μέσα στο ChatGPT.")}</p>
+          <p>
+            {text(
+              "Use StudyApp inside ChatGPT.",
+              "Χρησιμοποίησε το StudyApp μέσα στο ChatGPT.",
+            )}
+          </p>
         </article>
 
         <article className="assistant-guide-card">
           <p className="eyebrow">{text("Coming soon", "Σύντομα")}</p>
           <h3>StudyApp AI</h3>
-          <p>{text("Automatic AI with StudyApp credits. No charges yet.", "Αυτόματο AI με credits του StudyApp. Δεν γίνεται χρέωση ακόμη.")}</p>
+          <p>
+            {text(
+              "Automatic AI is not active. No charges yet.",
+              "Το αυτόματο AI δεν είναι ενεργό. Δεν γίνεται χρέωση ακόμη.",
+            )}
+          </p>
         </article>
       </section>
 
-      <section className="content-panel">
-        <p className="eyebrow">ChatGPT Companion</p>
-        <h3>{text("How it works", "Πώς λειτουργεί")}</h3>
-        <ol className="assistant-guide-steps">
-          {[
-            text("Paste the study text you choose.", "Επικόλλησε το υλικό μελέτης που επιλέγεις."),
-            text("Choose what you want ChatGPT to do.", "Επίλεξε τι θέλεις να κάνει το ChatGPT."),
-            text("Review and edit the prepared instructions.", "Έλεγξε και επεξεργάσου τις έτοιμες οδηγίες."),
-            text("Copy the instructions and continue in ChatGPT.", "Αντέγραψε τις οδηγίες και συνέχισε στο ChatGPT."),
-          ].map((step, index) => (
-            <li key={step}>
-              <span aria-hidden="true">{index + 1}</span>
-              <div><strong>{step}</strong></div>
-            </li>
-          ))}
-        </ol>
-        <p className="assistant-privacy-note">{text(
-          "StudyApp does not automatically read your library. Only text you deliberately paste into the Assistant is used to prepare the instructions.",
-          "Το StudyApp δεν διαβάζει αυτόματα τη βιβλιοθήκη σου. Χρησιμοποιείται μόνο το κείμενο που επικολλάς σκόπιμα στον Βοηθό για την προετοιμασία των οδηγιών.",
-        )}</p>
+      <section className="assistant-guide-note">
+        <h3>{text("Your data stays under your control", "Τα δεδομένα σου παραμένουν υπό τον έλεγχό σου")}</h3>
+        <p>
+          {text(
+            "Opening ChatGPT does not make StudyApp read, copy, or send your library or study material. StudyApp does not use the clipboard or access IndexedDB for this handoff.",
+            "Το άνοιγμα του ChatGPT δεν επιτρέπει στο StudyApp να διαβάσει, να αντιγράψει ή να στείλει τη βιβλιοθήκη ή το υλικό μελέτης σου. Το StudyApp δεν χρησιμοποιεί το πρόχειρο ούτε προσπελαύνει το IndexedDB για αυτή τη μετάβαση.",
+          )}
+        </p>
       </section>
     </div>
   );

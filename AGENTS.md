@@ -29,7 +29,7 @@ cloud storage, cloud sync, first-party analytics, advertising or telemetry.
 
 Use these names consistently:
 
-- **ChatGPT Companion** — available manual prompt handoff;
+- **ChatGPT Companion** — available external-link handoff;
 - **ChatGPT App / MCP** — coming soon and inactive;
 - **StudyApp AI** — coming soon and inactive paid/API mode;
 - **StudyApp credits** — future server-authoritative credits, not active yet.
@@ -41,12 +41,13 @@ operational.
 
 ### ChatGPT Companion
 
-- prepares prompts locally;
-- uses only text deliberately pasted by the user;
+- renders only the approved dedicated ChatGPT destination as a normal external link;
 - does not call the OpenAI API;
-- does not read IndexedDB or the library automatically;
+- does not read, copy or send study material;
+- does not read IndexedDB or the library;
+- does not use the clipboard or scripted popup positioning;
 - does not use StudyApp credits;
-- may open ChatGPT in a separate tab;
+- may open ChatGPT in a separate tab through a user-activated link;
 - must not automate or scrape the ChatGPT website.
 
 ### ChatGPT App / MCP

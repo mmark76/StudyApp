@@ -1,6 +1,6 @@
 # Architecture
 
-_Last updated: 2026-07-30_
+_Last updated: 2026-07-31_
 
 ## Summary
 
@@ -9,7 +9,7 @@ features run in the browser and store data in IndexedDB.
 
 The AI Assistant now exposes three separate modes:
 
-- ChatGPT Companion — active local prompt handoff to the dedicated StudyApp AI Assistant Custom GPT;
+- ChatGPT Companion — active external link to the dedicated StudyApp AI Assistant Custom GPT;
 - ChatGPT App / MCP — visible but inactive;
 - StudyApp AI — visible but inactive paid/API mode.
 
@@ -49,24 +49,28 @@ the user is not translated automatically.
 
 ### AI Assistant presentation layer
 
-`src/features/assistant/AssistantPanel.tsx` owns mode selection.
+`src/features/assistant/AssistantPanel.tsx` owns a two-screen dialog: the
+ChatGPT entry screen and the other-AI-options screen. The dialog traps focus,
+makes its application-shell siblings inert while open, closes with Escape and
+restores focus to the launcher.
 
 #### ChatGPT Companion
 
 ```text
-Pasted text → local prompt builder → clipboard → dedicated StudyApp AI Assistant Custom GPT popup
+User activates normal external link → dedicated StudyApp AI Assistant Custom GPT tab
 ```
 
-The prompt is built entirely in the browser. The application opens the public
-Custom GPT URL configured through `VITE_STUDYAPP_AI_ASSISTANT_URL`, but it does not
-send the text, automate ChatGPT or read the ChatGPT response. The user pastes the
-prepared request manually.
+The application renders the public Custom GPT destination as an anchor with
+`target="_blank"` and `rel="noopener noreferrer"`. It does not build or copy a
+prompt, inspect IndexedDB, send study data, call `window.open`, automate ChatGPT
+or read the ChatGPT response. The user chooses and shares material directly in
+ChatGPT.
 
 The production URL is public Vite configuration in `.env.production`; it is not a
-secret and must not contain credentials or tokens. Runtime validation permits
-only the approved HTTPS `chatgpt.com` destination without embedded credentials
-or a custom port. Popup and clipboard outcomes are independent React state, and
-the prepared request remains visible for manual copy and paste.
+secret and must not contain credentials or tokens. Runtime validation accepts
+the exact approved HTTPS Custom GPT URL without credentials, a custom port,
+query parameters or a fragment. Missing or changed configuration falls back to
+that approved destination.
 
 #### ChatGPT App / MCP
 
@@ -149,12 +153,12 @@ stored logical result without applying scheduling or quiz counters again.
 ### Companion flow
 
 ```text
-User-pasted or explicitly imported text → local prompt → clipboard
-→ user-controlled Custom GPT popup → manual paste
+User activates external link → browser opens approved Custom GPT in a new tab
+→ user works directly in ChatGPT
 ```
 
-No study material is sent by the Companion itself. Opening the configured ChatGPT
-page is a normal external navigation controlled by the user.
+No study material is read or sent by the Companion. Opening the configured
+ChatGPT page is a normal external navigation controlled by the user.
 
 ### Future remote AI flow
 
@@ -195,15 +199,17 @@ No automatic library scan and no automatic result save are allowed.
 Existing unit and IndexedDB tests cover local study logic, files, imports,
 backups and updates.
 
-Playwright Chromium tests cover the Companion navigation/failure paths and
+Playwright Chromium tests cover the two Assistant screens, exact link
+attributes, English and Greek copy, focus trapping/restoration, inert
+background, Escape handling, absence of clipboard/scripted-popup behaviour and
 transaction failure/retry behaviour for flashcards, quizzes and review.
 
-This change also requires coverage for:
+Assistant coverage includes:
 
 - language selection and persistence;
 - English and Greek mode labels;
-- Companion prompt generation;
-- no automatic network request from Companion;
+- exact approved Companion destination;
+- no clipboard or scripted popup call from Companion;
 - inactive Coming soon modes;
 - keyboard operation and focus behaviour.
 

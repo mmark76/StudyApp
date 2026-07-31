@@ -1,271 +1,78 @@
 .assistant-guide-page {
-  max-width: 1100px;
   margin: 0 auto;
+  max-width: 1100px;
 }
 
 .assistant-guide-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 2rem;
-  padding: var(--panel-padding);
+  background: var(--surface);
   border: 1px solid var(--slate-300);
   border-radius: var(--radius-lg);
-  background: var(--surface);
   box-shadow: var(--shadow);
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: var(--panel-padding);
 }
 
 .assistant-guide-hero h2,
 .assistant-guide-card h3,
-.assistant-guide-note h3,
-.assistant-guide-page .content-panel h3 {
+.assistant-guide-note h3 {
   margin-top: 0;
 }
 
 .assistant-guide-hero > div > p:not(.eyebrow) {
-  max-width: 700px;
   color: var(--slate-600);
+  max-width: 700px;
 }
 
 .assistant-guide-hero img {
-  width: clamp(8rem, 18vw, 12rem);
   aspect-ratio: 1;
-  object-fit: cover;
   border: 6px solid var(--blue-100);
   border-radius: 50%;
   box-shadow: var(--shadow);
-}
-
-.assistant-guide-note {
-  padding: 1.25rem 1.4rem;
-  border: 2px solid var(--blue-600);
-  border-radius: var(--radius-lg);
-  background: var(--blue-100);
-}
-
-.assistant-guide-note p:last-child {
-  margin-bottom: 0;
-  color: var(--slate-700);
-}
-
-.assistant-guide-check-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem 1.5rem;
-  margin: 1rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.assistant-guide-check-list li {
-  position: relative;
-  padding-left: 1.8rem;
-  color: var(--slate-700);
-}
-
-.assistant-guide-check-list li::before {
-  content: "✓";
-  position: absolute;
-  left: 0;
-  top: 0;
-  color: var(--blue-600);
-  font-weight: 900;
-}
-
-.assistant-guide-steps {
-  display: grid;
-  gap: 0.85rem;
-  margin: 1rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.assistant-guide-steps li {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.9rem;
-  align-items: start;
-  padding: 1rem;
-  border: 1px solid var(--slate-300);
-  border-radius: var(--radius-md);
-  background: var(--page-background);
-}
-
-.assistant-guide-steps li > span {
-  display: grid;
-  place-items: center;
-  width: 2.2rem;
-  height: 2.2rem;
-  border-radius: 50%;
-  background: var(--blue-600);
-  color: #ffffff;
-  font-weight: 850;
-}
-
-.assistant-guide-steps p {
-  margin: 0.25rem 0 0;
-  color: var(--slate-600);
+  object-fit: cover;
+  width: clamp(8rem, 18vw, 12rem);
 }
 
 .assistant-guide-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .assistant-guide-card {
-  padding: var(--panel-padding);
+  background: var(--surface);
   border: 1px solid var(--slate-300);
   border-radius: var(--radius-lg);
-  background: var(--surface);
   box-shadow: var(--shadow);
+  padding: var(--panel-padding);
 }
 
 .assistant-guide-card > p:last-child {
   color: var(--slate-600);
 }
 
-.assistant-guide-status-list {
-  margin: 1rem 0 0;
-}
-
-.assistant-guide-status-list div {
-  display: grid;
-  grid-template-columns: minmax(8rem, 0.7fr) 1.3fr;
-  gap: 1rem;
-  padding: 0.7rem 0;
-}
-
-.assistant-guide-status-list div + div {
-  border-top: 1px solid var(--slate-300);
-}
-
-.assistant-guide-status-list dt {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  font-weight: 800;
-}
-
-.assistant-guide-status-list dd {
-  margin: 0;
-  color: var(--slate-600);
-}
-
-.assistant-guide-light {
-  width: 0.75rem;
-  height: 0.75rem;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  box-shadow: 0 0 0 3px rgb(148 163 184 / 0.18);
-}
-
-.assistant-guide-light.online { background: #16a34a; }
-.assistant-guide-light.checking { background: #94a3b8; }
-.assistant-guide-light.offline { background: #dc2626; }
-
-.assistant-guide-charge-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.assistant-guide-charge-grid article {
-  padding: 1rem;
-  border: 1px solid var(--slate-300);
-  border-radius: var(--radius-md);
-  background: var(--page-background);
-}
-
-.assistant-guide-charge-grid p {
-  margin: 0.3rem 0 0;
-  color: var(--slate-600);
-}
-
-.assistant-guide-credit-explainer,
-.assistant-guide-example {
-  margin-top: 1.25rem;
-  padding: 1rem;
-  border-radius: var(--radius-md);
+.assistant-guide-note {
   background: var(--blue-100);
+  border: 2px solid var(--blue-600);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.4rem;
 }
 
-.assistant-guide-credit-explainer h4,
-.assistant-guide-example h4 {
-  margin: 0 0 0.35rem;
-}
-
-.assistant-guide-credit-explainer p,
-.assistant-guide-example p {
-  margin: 0;
+.assistant-guide-note p:last-child {
   color: var(--slate-700);
-}
-
-.assistant-guide-packages {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 0.75rem;
-}
-
-.assistant-guide-packages > div {
-  display: grid;
-  gap: 0.2rem;
-  padding: 0.9rem;
-  border: 1px solid var(--slate-300);
-  border-radius: var(--radius-md);
-  background: var(--page-background);
-  text-align: center;
-}
-
-.assistant-guide-packages strong {
-  font-size: 1.2rem;
-  color: var(--navy-800);
-}
-
-.assistant-guide-packages span {
-  color: var(--slate-600);
-  font-size: 0.9rem;
-}
-
-.assistant-guide-faq {
-  display: grid;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.assistant-guide-faq details {
-  padding: 0.9rem 1rem;
-  border: 1px solid var(--slate-300);
-  border-radius: var(--radius-md);
-  background: var(--page-background);
-}
-
-.assistant-guide-faq summary {
-  cursor: pointer;
-  font-weight: 800;
-}
-
-.assistant-guide-faq p {
-  margin: 0.7rem 0 0;
-  color: var(--slate-600);
+  margin-bottom: 0;
 }
 
 @media (max-width: 760px) {
   .assistant-guide-hero,
-  .assistant-guide-grid,
-  .assistant-guide-charge-grid,
-  .assistant-guide-check-list {
+  .assistant-guide-grid {
     grid-template-columns: 1fr;
   }
 
   .assistant-guide-hero img {
-    order: -1;
     justify-self: center;
-  }
-
-  .assistant-guide-status-list div {
-    grid-template-columns: 1fr;
-    gap: 0.2rem;
+    order: -1;
   }
 }

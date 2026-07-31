@@ -1,6 +1,6 @@
 # Security Policy
 
-_Last updated: 2026-07-30_
+_Last updated: 2026-07-31_
 
 ## Current security model
 
@@ -9,7 +9,7 @@ files, links, progress, sessions and settings remain in the current browser.
 
 The AI Assistant has three modes:
 
-- ChatGPT Companion — active local prompt handoff to the dedicated StudyApp AI Assistant Custom GPT;
+- ChatGPT Companion — active external link to the dedicated StudyApp AI Assistant Custom GPT;
 - ChatGPT App / MCP — inactive and marked Coming soon;
 - StudyApp AI — inactive and marked Coming soon.
 
@@ -32,16 +32,17 @@ No real AI request, credit purchase or charge is currently enabled.
 
 The Companion may:
 
-- use text pasted or explicitly imported by the user;
-- prepare a prompt locally;
-- copy the prompt to the clipboard;
-- open the dedicated StudyApp AI Assistant Custom GPT in a separate browser popup.
+- show the approved dedicated StudyApp AI Assistant Custom GPT URL;
+- open that URL through a user-activated external link in a new tab.
 
 The Companion must not:
 
 - call the OpenAI API;
-- read the StudyApp library or IndexedDB automatically;
+- read the StudyApp library or IndexedDB;
+- read, copy or send study material;
+- use the clipboard;
 - send content automatically;
+- use `window.open` or scripted popup positioning;
 - automate, scrape, embed or inspect the ChatGPT website;
 - read the user's ChatGPT session or response;
 - use or simulate a real StudyApp balance.
@@ -49,14 +50,10 @@ The Companion must not:
 The Custom GPT URL is public configuration through
 `VITE_STUDYAPP_AI_ASSISTANT_URL`. It must be an approved HTTPS ChatGPT share URL
 and must not contain credentials, tokens or private query data. Runtime
-validation rejects other protocols, hostnames, embedded credentials and custom
-ports before `window.open` is called.
-
-Clipboard and popup failures must be handled with short user-facing messages.
-Their outcomes remain independent: neither clipboard success nor popup success
-may imply the other. The prepared prompt remains visible for manual copying, and
-blocked or invalid popup destinations retain a safe fallback link. The user
-remains responsible for reviewing and pasting the prepared request into ChatGPT.
+validation permits only the exact approved destination, without embedded
+credentials, a custom port, query parameters or a fragment. Invalid or missing
+configuration falls back to the same approved URL. The rendered external link
+must retain `noopener noreferrer`.
 
 ## ChatGPT App / MCP security gate
 
@@ -172,7 +169,7 @@ browser-storage warnings visible.
 ## PWA updates
 
 Do not reload an active page automatically. Keep the update prompt under user
-control so unfinished input or AI prompt preparation is not discarded.
+control so unfinished input or an active study session is not discarded.
 
 ## Dependency and verification gate
 

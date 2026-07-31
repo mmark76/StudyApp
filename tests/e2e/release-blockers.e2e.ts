@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 
 interface StoredStudyState {
   progress: Array<{
@@ -15,6 +15,9 @@ interface StoredStudyState {
     cardId?: string;
   }>;
 }
+
+const assistantUrl =
+  "https://chatgpt.com/g/g-6a6b687029608191af7b26717f0a2072-studyapp-ai-assistant";
 
 const cards = [
   {
@@ -156,728 +159,222 @@ async function readStudyState(page: Page): Promise<StoredStudyState> {
   });
 }
 
-async function openAssistantAtStepThree(page: Page) {
-  await openAssistantAtStepOne(page);
-  await page.getByLabel("Study text").fill("Deterministic E2E study material.");
-  await page.getByRole("button", { name: "Continue", exact: true }).click();
-  await page.getByRole("button", { name: /Create a summary/ }).click();
-  await page.getByRole("button", { name: "Continue: Create summary" }).click();
-  await expect(
-    page.getByRole("heading", {
-      name: "Continue in the StudyApp AI Assistant",
-    }),
-  ).toBeVisible();
-}
-
-async function openAssistantAtStepOne(
-  page: Page,
-  language: "en" | "el" = "en",
-) {
-  await page.getByRole("button", {
+async function openAssistant(page: Page, language: "en" | "el" = "en") {
+  const launcher = page.getByRole("button", {
     name:
       language === "el"
         ? "Άνοιγμα Βοηθού AI του StudyApp"
         : "Open StudyApp AI Assistant",
-  }).click();
-  await page
-    .getByRole("button", {
-      name: language === "el" ? "Έναρξη" : "Start",
-      exact: true,
-    })
-    .click();
+  });
+  await launcher.click();
   await expect(
-    page.getByRole("heading", {
-      name:
-        language === "el"
-          ? "Πρόσθεσε υλικό μελέτης"
-          : "Add study material",
+    page.getByRole("dialog", {
+      name: language === "el" ? "Βοηθός AI" : "AI Assistant",
     }),
   ).toBeVisible();
+  return launcher;
 }
 
-async function visibleTextOccurrences(
-  locator: Locator,
-  value: string,
-): Promise<number> {
-  return locator.evaluate(
-    (element, expectedValue) =>
-      ((element as HTMLElement).innerText.match(
-        new RegExp(
-          expectedValue.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"),
-          "gu",
-        ),
-      ) ?? []).length,
-    value,
-  );
-}
-
-function cssContrastRatio(
-  foreground: string,
-  background: string,
-): number {
-  function relativeLuminance(cssColor: string): number {
-    const channels = cssColor.match(/\d+(?:\.\d+)?/gu)?.slice(0, 3);
-    if (!channels || channels.length !== 3) {
-      throw new Error(`Expected an RGB color, received "${cssColor}".`);
-    }
-
-    const [red, green, blue] = channels.map((channel) => {
-      const normalized = Number(channel) / 255;
-      return normalized <= 0.04045
-        ? normalized / 12.92
-        : ((normalized + 0.055) / 1.055) ** 2.4;
-    });
-
-    return (0.2126 * red) + (0.7152 * green) + (0.0722 * blue);
-  }
-
-  const foregroundLuminance = relativeLuminance(foreground);
-  const backgroundLuminance = relativeLuminance(background);
-  const lighter = Math.max(foregroundLuminance, backgroundLuminance);
-  const darker = Math.min(foregroundLuminance, backgroundLuminance);
-  return (lighter + 0.05) / (darker + 0.05);
-}
-
-test("Assistant secondary actions use the teal palette and retain keyboard focus", async ({
+test("Assistant intro has the exact safe link and no old workflow", async ({
   page,
 }) => {
   const assertNoApplicationErrors = watchForApplicationErrors(page);
   await page.goto("/");
-  await page
-    .getByRole("button", { name: "Open StudyApp AI Assistant" })
-    .click();
+  await openAssistant(page);
 
-  const assistantContent = page.locator(".assistant-content");
-  await expect(assistantContent).toHaveCSS("zoom", "0.9");
+  const dialog = page.getByRole("dialog", { name: "AI Assistant" });
+  await expect(
+    dialog.getByRole("heading", { name: "Study with ChatGPT" }),
+  ).toBeVisible();
 
-  const onboardingStepper = page.locator(".assistant-onboarding-steps");
-  const onboardingRows = onboardingStepper.locator(":scope > li");
-  await expect(onboardingStepper).toHaveCSS(
-    "background-color",
-    "rgb(255, 255, 255)",
-  );
-  await expect(onboardingStepper).toHaveCSS("border-top-style", "solid");
-  expect(
-    await onboardingStepper.evaluate((element) =>
-      Number.parseFloat(getComputedStyle(element).borderTopWidth),
-    ),
-  ).toBeGreaterThan(0);
-  expect(
-    await onboardingStepper.evaluate((element) =>
-      Number.parseFloat(getComputedStyle(element).borderTopLeftRadius),
-    ),
-  ).toBeGreaterThan(0);
-  await expect(onboardingRows).toHaveCount(3);
-  expect(
-    await onboardingStepper.evaluate((element) => ({
-      childTags: Array.from(element.children).map((child) => child.tagName),
-      tag: element.tagName,
-    })),
-  ).toEqual({ childTags: ["LI", "LI", "LI"], tag: "OL" });
-  await expect(onboardingRows.first()).toHaveCSS(
-    "background-color",
-    "rgba(0, 0, 0, 0)",
-  );
-  await expect(onboardingRows.first()).toHaveCSS("border-top-width", "0px");
-  await expect(onboardingRows.nth(1)).toHaveCSS("border-top-style", "solid");
-  await expect(onboardingRows.nth(2)).toHaveCSS("border-top-style", "solid");
-  expect(
-    await onboardingRows.nth(1).evaluate((element) =>
-      Number.parseFloat(getComputedStyle(element).borderTopWidth),
-    ),
-  ).toBeGreaterThan(0);
-  await expect(onboardingRows.first().locator(":scope > span")).toHaveCSS(
-    "border-radius",
-    "50%",
-  );
+  const start = dialog.getByRole("link", { name: "Start" });
+  await expect(start).toHaveAttribute("href", assistantUrl);
+  await expect(start).toHaveAttribute("target", "_blank");
+  await expect(start).toHaveAttribute("rel", "noopener noreferrer");
+  await expect(dialog.getByRole("button", { name: "View other AI options" }))
+    .toBeVisible();
 
-  const viewOtherOptions = page.getByRole("button", {
+  await expect(dialog.getByText("Step 1 of 3")).toHaveCount(0);
+  await expect(dialog.getByText("Add study material")).toHaveCount(0);
+  await expect(dialog.getByText("Choose a study goal")).toHaveCount(0);
+  await expect(dialog.locator("textarea")).toHaveCount(0);
+  await expect(dialog.locator('input[type="file"]')).toHaveCount(0);
+  assertNoApplicationErrors();
+});
+
+test("Other AI options and Back provide exactly two Assistant screens", async ({
+  page,
+}) => {
+  const assertNoApplicationErrors = watchForApplicationErrors(page);
+  await page.goto("/");
+  await openAssistant(page);
+
+  const dialog = page.getByRole("dialog", { name: "AI Assistant" });
+  await dialog.getByRole("button", { name: "View other AI options" }).click();
+  await expect(
+    dialog.getByRole("heading", { name: "Other AI options" }),
+  ).toBeVisible();
+  await expect(dialog.getByText("ChatGPT Companion")).toBeVisible();
+  await expect(dialog.getByText("ChatGPT App / MCP")).toBeVisible();
+  await expect(dialog.getByText("StudyApp AI", { exact: true })).toBeVisible();
+  await expect(dialog.locator(".assistant-mode-status.available")).toHaveText(
+    "Available",
+  );
+  await expect(dialog.locator(".assistant-mode-status.soon")).toHaveCount(2);
+
+  await dialog.getByRole("button", { name: "Back" }).click();
+  await expect(
+    dialog.getByRole("heading", { name: "Study with ChatGPT" }),
+  ).toBeVisible();
+  await expect(
+    dialog.getByRole("heading", { name: "Other AI options" }),
+  ).toHaveCount(0);
+  assertNoApplicationErrors();
+});
+
+test("Escape closes the Assistant and restores focus to its launcher", async ({
+  page,
+}) => {
+  const assertNoApplicationErrors = watchForApplicationErrors(page);
+  await page.goto("/");
+  const launcher = await openAssistant(page);
+
+  await expect(page.getByRole("button", { name: "Close AI Assistant" }))
+    .toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(launcher).toBeFocused();
+  assertNoApplicationErrors();
+});
+
+test("Assistant traps forward and reverse focus and makes the background inert", async ({
+  page,
+}) => {
+  const assertNoApplicationErrors = watchForApplicationErrors(page);
+  await page.goto("/");
+  await openAssistant(page);
+
+  const dialog = page.getByRole("dialog", { name: "AI Assistant" });
+  const close = dialog.getByRole("button", { name: "Close AI Assistant" });
+  const lastControl = dialog.getByRole("button", {
     name: "View other AI options",
   });
-  await expect(viewOtherOptions).toHaveClass(/assistant-secondary-action/u);
-  await expect(viewOtherOptions).toHaveCSS(
-    "background-color",
-    "rgb(200, 232, 227)",
-  );
-  await expect(viewOtherOptions).toHaveCSS("color", "rgb(22, 78, 74)");
-  const defaultColors = await viewOtherOptions.evaluate((element) => {
-    const style = getComputedStyle(element);
-    return {
-      background: style.backgroundColor,
-      foreground: style.color,
-    };
-  });
-  expect(
-    cssContrastRatio(defaultColors.foreground, defaultColors.background),
-  ).toBeGreaterThanOrEqual(4.5);
+  await expect(
+    page.locator(".app-header").evaluate((element) => element.inert),
+  ).resolves.toBe(true);
 
-  await viewOtherOptions.hover();
-  await expect(viewOtherOptions).toHaveCSS(
-    "background-color",
-    "rgb(180, 221, 214)",
-  );
-  const hoverColors = await viewOtherOptions.evaluate((element) => {
-    const style = getComputedStyle(element);
-    return {
-      background: style.backgroundColor,
-      foreground: style.color,
-    };
-  });
-  expect(
-    cssContrastRatio(hoverColors.foreground, hoverColors.background),
-  ).toBeGreaterThanOrEqual(4.5);
-
-  const buttonBox = await viewOtherOptions.boundingBox();
-  expect(buttonBox).not.toBeNull();
-  if (buttonBox) {
-    await page.mouse.move(
-      buttonBox.x + buttonBox.width / 2,
-      buttonBox.y + buttonBox.height / 2,
-    );
-    await page.mouse.down();
-    await expect(viewOtherOptions).toHaveCSS(
-      "background-color",
-      "rgb(116, 191, 180)",
-    );
-    await expect(viewOtherOptions).toHaveCSS("color", "rgb(21, 73, 68)");
-    const activeColors = await viewOtherOptions.evaluate((element) => {
-      const style = getComputedStyle(element);
-      return {
-        background: style.backgroundColor,
-        foreground: style.color,
-      };
-    });
-    expect(
-      cssContrastRatio(activeColors.foreground, activeColors.background),
-    ).toBeGreaterThanOrEqual(4.5);
-    await page.mouse.move(0, 0);
-    await page.mouse.up();
-  }
-
-  await page.getByRole("button", { name: "Start", exact: true }).click();
-  const dialog = page.getByRole("dialog", { name: "AI Assistant" });
-  const chooseInput = dialog.getByLabel("Choose file", { exact: true });
-  const chooseAction = chooseInput.locator("..");
-  const continueButton = dialog.getByRole("button", {
-    name: "Continue",
-    exact: true,
-  });
-
-  await expect(chooseAction).toHaveClass(/assistant-secondary-action/u);
-  await expect(chooseAction).toHaveCSS(
-    "background-color",
-    "rgb(200, 232, 227)",
-  );
-  await expect(chooseAction).toHaveAttribute("for", "assistant-choose-file");
-  await expect(chooseInput).toHaveAttribute("id", "assistant-choose-file");
-  await expect(continueButton).toHaveClass("button primary");
-  await expect(continueButton).not.toHaveClass(/assistant-secondary-action/u);
-  await expect(continueButton).toHaveCSS(
-    "background-color",
-    "rgb(217, 119, 6)",
-  );
-
-  await dialog.getByLabel("Study text").focus();
+  await lastControl.focus();
   await page.keyboard.press("Tab");
-  await expect(chooseInput).toBeFocused();
-  await expect(chooseAction).toHaveCSS("outline-style", "solid");
-  const computedOutlineWidth = await chooseAction.evaluate((element) =>
-    Number.parseFloat(getComputedStyle(element).outlineWidth),
-  );
-  expect(computedOutlineWidth).toBeGreaterThanOrEqual(2);
-  await expect(chooseAction).toHaveCSS(
-    "outline-color",
-    "rgb(35, 127, 120)",
-  );
+  await expect(close).toBeFocused();
 
-  await page.setViewportSize({ width: 390, height: 844 });
-  const narrowButtonBox = await chooseAction.boundingBox();
-  expect(narrowButtonBox).not.toBeNull();
-  if (narrowButtonBox) {
-    expect(narrowButtonBox.x).toBeGreaterThanOrEqual(0);
-    expect(narrowButtonBox.x + narrowButtonBox.width).toBeLessThanOrEqual(390);
-  }
+  await page.keyboard.press("Shift+Tab");
+  await expect(lastControl).toBeFocused();
+
+  await close.click();
+  await expect(
+    page.locator(".app-header").evaluate((element) => element.inert),
+  ).resolves.toBe(false);
   assertNoApplicationErrors();
 });
 
-test("file import, replacement, and removal show each filename exactly once", async ({
+test("Start does not use the clipboard or scripted popup positioning", async ({
   page,
 }) => {
   const assertNoApplicationErrors = watchForApplicationErrors(page);
   await page.addInitScript(() => {
+    const trackedWindow = window as Window & {
+      assistantClipboardAccesses?: number;
+      assistantWindowOpenCalls?: number;
+    };
+    trackedWindow.assistantClipboardAccesses = 0;
+    trackedWindow.assistantWindowOpenCalls = 0;
+
+    window.open = () => {
+      trackedWindow.assistantWindowOpenCalls =
+        (trackedWindow.assistantWindowOpenCalls ?? 0) + 1;
+      return null;
+    };
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
-      value: { writeText: async () => undefined },
-    });
-  });
-  await page.goto("/");
-  await openAssistantAtStepOne(page);
-
-  const dialog = page.getByRole("dialog", { name: "AI Assistant" });
-  const firstFileName = "chapter-notes.txt";
-  await dialog.getByLabel("Choose file", { exact: true }).setInputFiles({
-    name: firstFileName,
-    mimeType: "text/plain",
-    buffer: Buffer.from("Chapter notes for the assistant."),
-  });
-
-  const firstAttachment = dialog.getByRole("group", {
-    name: firstFileName,
-  });
-  await expect(firstAttachment).toBeVisible();
-  const importStatus = dialog.getByRole("status");
-  await expect(importStatus).toHaveText(
-    "The extracted text is ready to use.",
-  );
-  await expect(importStatus).not.toHaveClass(/assistant-secondary-action/u);
-  expect(await visibleTextOccurrences(dialog, firstFileName)).toBe(1);
-  await expect(dialog.getByRole("status")).not.toContainText(firstFileName);
-  await expect(dialog.getByText("Imported", { exact: true })).toHaveCount(0);
-
-  const fileBadge = firstAttachment.getByText("FILE", { exact: true });
-  await expect(fileBadge).not.toHaveClass(/assistant-secondary-action/u);
-  await expect(fileBadge).toHaveCSS(
-    "background-color",
-    "rgb(255, 243, 209)",
-  );
-
-  const replaceInput = dialog.getByLabel("Replace file", { exact: true });
-  const replaceAction = replaceInput.locator("..");
-  await expect(replaceAction).toHaveClass(/assistant-secondary-action/u);
-
-  const replacementFileName = "revision-points.csv";
-  await replaceInput.setInputFiles({
-    name: replacementFileName,
-    mimeType: "text/csv",
-    buffer: Buffer.from("topic,detail\nmemory,encoding"),
-  });
-
-  await expect(
-    dialog.getByRole("group", { name: replacementFileName }),
-  ).toBeVisible();
-  await expect(dialog.getByRole("group", { name: firstFileName })).toHaveCount(
-    0,
-  );
-  expect(await visibleTextOccurrences(dialog, firstFileName)).toBe(0);
-  expect(await visibleTextOccurrences(dialog, replacementFileName)).toBe(1);
-  await expect(dialog.getByRole("status")).toHaveText(
-    "The extracted text is ready to use.",
-  );
-  await expect(dialog.getByRole("status")).not.toContainText(
-    replacementFileName,
-  );
-
-  await dialog
-    .getByRole("button", { name: `Remove ${replacementFileName}` })
-    .click();
-  await expect(
-    dialog.getByRole("group", { name: replacementFileName }),
-  ).toHaveCount(0);
-  expect(await visibleTextOccurrences(dialog, replacementFileName)).toBe(0);
-  await expect(dialog.getByRole("status")).toHaveCount(0);
-  await expect(
-    dialog.getByLabel("Choose file", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    dialog.getByRole("button", { name: "Continue", exact: true }),
-  ).toBeDisabled();
-  assertNoApplicationErrors();
-});
-
-test("Step 1 file import does not request clipboard access", async ({
-  page,
-}) => {
-  const assertNoApplicationErrors = watchForApplicationErrors(page);
-  await page.addInitScript(() => {
-    (
-      window as Window & { assistantClipboardWriteAttempts?: number }
-    ).assistantClipboardWriteAttempts = 0;
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: {
-        writeText: async () => {
-          (
-            window as Window & { assistantClipboardWriteAttempts?: number }
-          ).assistantClipboardWriteAttempts = 1;
-          throw new DOMException("Clipboard denied", "NotAllowedError");
-        },
+      get() {
+        trackedWindow.assistantClipboardAccesses =
+          (trackedWindow.assistantClipboardAccesses ?? 0) + 1;
+        return { writeText: async () => undefined };
       },
     });
   });
   await page.goto("/");
-  await openAssistantAtStepOne(page);
+  await openAssistant(page);
 
-  const dialog = page.getByRole("dialog", { name: "AI Assistant" });
-  const fileName = "clipboard-failure.txt";
-  await dialog.getByLabel("Choose file", { exact: true }).setInputFiles({
-    name: fileName,
-    mimeType: "text/plain",
-    buffer: Buffer.from("The extracted text remains usable."),
+  const start = page.getByRole("link", { name: "Start", exact: true });
+  await start.evaluate((element) => {
+    element.addEventListener("click", (event) => event.preventDefault(), {
+      once: true,
+    });
   });
+  await start.click();
 
-  await expect(dialog.getByRole("group", { name: fileName })).toBeVisible();
-  expect(await visibleTextOccurrences(dialog, fileName)).toBe(1);
-  await expect(dialog.getByRole("status")).toHaveText(
-    "The extracted text is ready to use.",
-  );
-  await expect(dialog.getByRole("status")).not.toContainText(
-    "copied to the clipboard",
-  );
-  expect(
-    await page.evaluate(
-      () =>
-        (
-          window as Window & { assistantClipboardWriteAttempts?: number }
-        ).assistantClipboardWriteAttempts,
+  await expect.poll(() =>
+    page.evaluate(() => {
+      const trackedWindow = window as Window & {
+        assistantClipboardAccesses?: number;
+        assistantWindowOpenCalls?: number;
+      };
+      return {
+        clipboard: trackedWindow.assistantClipboardAccesses,
+        popup: trackedWindow.assistantWindowOpenCalls,
+      };
+    }),
+  ).toEqual({ clipboard: 0, popup: 0 });
+  assertNoApplicationErrors();
+});
+
+test("Assistant provides equivalent English and Greek screens", async ({
+  page,
+}) => {
+  const assertNoApplicationErrors = watchForApplicationErrors(page);
+  await page.goto("/");
+  await openAssistant(page);
+  await expect(
+    page.getByRole("heading", { name: "Study with ChatGPT" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "Open the dedicated StudyApp AI Assistant in ChatGPT to study, summarize, create flashcards or prepare quizzes.",
     ),
-  ).toBe(0);
-  await expect(
-    dialog.getByRole("button", { name: "Continue", exact: true }),
-  ).toBeEnabled();
-  assertNoApplicationErrors();
-});
-
-test("Greek import success is localized and does not repeat the filename", async ({
-  page,
-}) => {
-  const assertNoApplicationErrors = watchForApplicationErrors(page);
-  await page.addInitScript(() => {
-    window.localStorage.setItem("studyapp.language.v1", "el");
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: { writeText: async () => undefined },
-    });
-  });
-  await page.goto("/");
-  await openAssistantAtStepOne(page, "el");
-
-  const dialog = page.getByRole("dialog", { name: "Βοηθός AI" });
-  const fileName = "σημειώσεις.txt";
-  await dialog.getByLabel("Επιλογή αρχείου", { exact: true }).setInputFiles({
-    name: fileName,
-    mimeType: "text/plain",
-    buffer: Buffer.from("Greek interface test content."),
-  });
-
-  await expect(dialog.getByRole("group", { name: fileName })).toBeVisible();
-  expect(await visibleTextOccurrences(dialog, fileName)).toBe(1);
-  await expect(dialog.getByRole("status")).toHaveText(
-    "Το εξαγόμενο κείμενο είναι έτοιμο για χρήση.",
-  );
-  await expect(dialog.getByRole("status")).not.toContainText(fileName);
-  await expect(dialog.getByText("Έγινε εισαγωγή", { exact: false })).toHaveCount(
-    0,
-  );
-  await expect(
-    dialog.getByRole("button", { name: `Αφαίρεση ${fileName}` }),
   ).toBeVisible();
-  assertNoApplicationErrors();
-});
-
-test("file action shows a muted disabled state while local extraction is pending", async ({
-  page,
-}) => {
-  const assertNoApplicationErrors = watchForApplicationErrors(page);
-  await page.addInitScript(() => {
-    const originalFileText = File.prototype.text;
-    let resolveFileText: (() => void) | undefined;
-    (
-      window as Window & {
-        resolveAssistantFileText?: () => void;
-      }
-    ).resolveAssistantFileText = () => resolveFileText?.();
-    File.prototype.text = function pendingAssistantFileText() {
-      return new Promise<string>((resolve) => {
-        resolveFileText = () => {
-          void originalFileText.call(this).then(resolve);
-        };
-      });
-    };
-  });
-  await page.goto("/");
-  await openAssistantAtStepOne(page);
-
-  const dialog = page.getByRole("dialog", { name: "AI Assistant" });
-  await dialog.getByLabel("Choose file", { exact: true }).setInputFiles({
-    name: "pending-extraction.txt",
-    mimeType: "text/plain",
-    buffer: Buffer.from("Pending local extraction state."),
-  });
-
-  const pendingAction = dialog.locator("label.assistant-file-button", {
-    hasText: "Reading...",
-  });
-  await expect(pendingAction).toHaveAttribute("aria-disabled", "true");
-  await expect(pendingAction.locator('input[type="file"]')).toBeDisabled();
-  await expect(pendingAction).toHaveCSS(
-    "background-color",
-    "rgb(213, 232, 228)",
-  );
-  await expect(pendingAction).toHaveCSS("color", "rgb(85, 112, 108)");
-  await expect(pendingAction).toHaveCSS("cursor", "not-allowed");
-
-  await page.evaluate(() => {
-    (
-      window as Window & {
-        resolveAssistantFileText?: () => void;
-      }
-    ).resolveAssistantFileText?.();
-  });
   await expect(
-    dialog.getByRole("group", { name: "pending-extraction.txt" }),
+    page.getByText("StudyApp does not automatically send your local data."),
   ).toBeVisible();
-  await dialog
-    .getByRole("button", { name: "Remove pending-extraction.txt" })
+  await page.getByRole("button", { name: "Close AI Assistant" }).click();
+
+  await page.getByRole("button", { name: "GR" }).click();
+  await openAssistant(page, "el");
+  const greekDialog = page.getByRole("dialog", { name: "Βοηθός AI" });
+  await expect(
+    greekDialog.getByRole("heading", { name: "Μελέτη με το ChatGPT" }),
+  ).toBeVisible();
+  await expect(
+    greekDialog.getByText(
+      "Άνοιξε τον ειδικό Βοηθό AI του StudyApp στο ChatGPT για μελέτη, περιλήψεις, κάρτες ή κουίζ.",
+    ),
+  ).toBeVisible();
+  await expect(
+    greekDialog.getByText(
+      "Το StudyApp δεν αποστέλλει αυτόματα τα τοπικά δεδομένα σου.",
+    ),
+  ).toBeVisible();
+  await expect(greekDialog.getByRole("link", { name: "Έναρξη" }))
+    .toHaveAttribute("href", assistantUrl);
+  await greekDialog
+    .getByRole("button", { name: "Προβολή άλλων επιλογών AI" })
     .click();
-  await expect(dialog.getByRole("status")).toHaveCount(0);
   await expect(
-    dialog.getByText("pending-extraction.txt", { exact: true }),
-  ).toHaveCount(0);
-  await expect(
-    dialog.getByRole("button", { name: "Continue", exact: true }),
-  ).toBeDisabled();
-  assertNoApplicationErrors();
-});
-
-test("Step 2 copies the complete request and opens the assistant once", async ({
-  page,
-}) => {
-  const assertNoApplicationErrors = watchForApplicationErrors(page);
-  await page.addInitScript(() => {
-    (
-      window as Window & {
-        assistantClipboardWrites?: string[];
-        assistantPopupOpenCount?: number;
-      }
-    ).assistantClipboardWrites = [];
-    (
-      window as Window & {
-        assistantClipboardWrites?: string[];
-        assistantPopupOpenCount?: number;
-      }
-    ).assistantPopupOpenCount = 0;
-    window.open = () => {
-      (
-        window as Window & {
-          assistantPopupOpenCount?: number;
-        }
-      ).assistantPopupOpenCount =
-        ((
-          window as Window & {
-            assistantPopupOpenCount?: number;
-          }
-        ).assistantPopupOpenCount ?? 0) + 1;
-      const link = {
-        click: () => undefined,
-        href: "",
-        referrerPolicy: "",
-        rel: "",
-        target: "",
-      };
-      return {
-        close: () => undefined,
-        document: {
-          body: { append: () => undefined },
-          createElement: () => link,
-        },
-        opener: window,
-      } as unknown as Window;
-    };
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: {
-        writeText: async (value: string) => {
-          (
-            window as Window & { assistantClipboardWrites?: string[] }
-          ).assistantClipboardWrites?.push(value);
-        },
-      },
-    });
-  });
-  await page.goto("/");
-  await openAssistantAtStepOne(page);
-
-  await page.getByLabel("Study text").fill("Deterministic E2E study material.");
-  await page.getByRole("button", { name: "Continue", exact: true }).click();
-  expect(
-    await page.evaluate(() => ({
-      popupCount: (
-        window as Window & { assistantPopupOpenCount?: number }
-      ).assistantPopupOpenCount,
-      writes: (
-        window as Window & { assistantClipboardWrites?: string[] }
-      ).assistantClipboardWrites,
-    })),
-  ).toEqual({ popupCount: 0, writes: [] });
-
-  await page.getByRole("button", { name: /Create a summary/ }).click();
-  await page.getByRole("button", { name: "Continue: Create summary" }).click();
-  await expect(page.getByText("The request was copied.")).toBeVisible();
-
-  const expectedRequest = [
-    "STUDYAPP TASK: summarize",
-    "RESPONSE LANGUAGE: en",
-    "",
-    "INSTRUCTIONS:",
-    "Summarize the study material using clear headings and concise key points. Include the most important terms and conclusions.",
-    "",
-    "STUDY MATERIAL:",
-    "Deterministic E2E study material.",
-  ].join("\n");
-  expect(
-    await page.evaluate(() => ({
-      popupCount: (
-        window as Window & { assistantPopupOpenCount?: number }
-      ).assistantPopupOpenCount,
-      writes: (
-        window as Window & { assistantClipboardWrites?: string[] }
-      ).assistantClipboardWrites,
-    })),
-  ).toEqual({ popupCount: 1, writes: [expectedRequest] });
-  await expect(page.getByLabel("Prepared request")).toHaveValue(expectedRequest);
-  await expect(
-    page.getByRole("button", {
-      name: "Continue in the StudyApp AI Assistant",
-    }),
-  ).toHaveCount(0);
-  await expect(
-    page.getByRole("link", {
-      name: "Open the StudyApp AI Assistant manually",
-    }),
-  ).toHaveCount(0);
-  assertNoApplicationErrors();
-});
-
-test("Assistant can move repeatedly between Step 2 and Step 3 without a DOM crash", async ({
-  page,
-}) => {
-  const assertNoApplicationErrors = watchForApplicationErrors(page);
-  await page.addInitScript(() => {
-    window.open = () => {
-      const link = {
-        click: () => undefined,
-        href: "",
-        referrerPolicy: "",
-        rel: "",
-        target: "",
-      };
-      return {
-        close: () => undefined,
-        document: {
-          body: { append: () => undefined },
-          createElement: () => link,
-        },
-        opener: window,
-      } as unknown as Window;
-    };
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: { writeText: async () => undefined },
-    });
-  });
-  await page.goto("/");
-  await openAssistantAtStepThree(page);
-
-  for (let attempt = 0; attempt < 4; attempt += 1) {
-    await page.getByRole("button", { name: "Back to previous step" }).click();
-    await expect(
-      page.getByRole("heading", { name: "Choose a study goal" }),
-    ).toBeVisible();
-    await page
-      .getByRole("button", { name: "Continue: Create summary" })
-      .click();
-    await expect(
-      page.getByRole("heading", {
-        name: "Continue in the StudyApp AI Assistant",
-      }),
-    ).toBeVisible();
-  }
-
-  await expect(page.getByText("The request was copied.")).toBeVisible();
-  await expect(page.locator("body")).not.toContainText("NotFoundError");
-  await expect(page.locator("body")).not.toContainText("removeChild");
-  assertNoApplicationErrors();
-});
-
-test("blocked popup keeps the fallback link and copied prompt visible", async ({
-  page,
-}) => {
-  const assertNoApplicationErrors = watchForApplicationErrors(page);
-  await page.addInitScript(() => {
-    window.open = () => null;
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: { writeText: async () => undefined },
-    });
-  });
-  await page.goto("/");
-  await openAssistantAtStepThree(page);
-
-  await expect(page.getByText("The assistant popup was blocked.")).toBeVisible();
-  await expect(
-    page.getByRole("link", {
-      name: "Open the StudyApp AI Assistant manually",
-    }),
+    greekDialog.getByRole("heading", { name: "Άλλες επιλογές AI" }),
   ).toBeVisible();
-  await expect(
-    page.getByRole("button", {
-      name: "Continue in the StudyApp AI Assistant",
-    }),
-  ).toHaveCount(0);
-  await expect(page.getByText("The request was copied.")).toBeVisible();
-  await expect(page.getByLabel("Prepared request")).toContainText(
-    "STUDYAPP TASK: summarize",
-  );
-  assertNoApplicationErrors();
-});
-
-test("clipboard failure preserves manual copy while the popup succeeds", async ({
-  page,
-}) => {
-  const assertNoApplicationErrors = watchForApplicationErrors(page);
-  await page.addInitScript(() => {
-    window.open = () => {
-      const link = {
-        click: () => undefined,
-        href: "",
-        referrerPolicy: "",
-        rel: "",
-        target: "",
-      };
-      return {
-        close: () => undefined,
-        document: {
-          body: { append: () => undefined },
-          createElement: () => link,
-        },
-        opener: window,
-      } as unknown as Window;
-    };
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: {
-        writeText: async () => {
-          throw new DOMException("Clipboard denied", "NotAllowedError");
-        },
-      },
-    });
-  });
-  await page.goto("/");
-  await openAssistantAtStepThree(page);
-
-  await expect(
-    page.getByText("The StudyApp AI Assistant popup opened."),
-  ).toBeVisible();
-  await expect(page.getByText("Clipboard access failed.")).toBeVisible();
-  await expect(page.getByLabel("Prepared request")).toContainText(
-    "STUDYAPP TASK: summarize",
-  );
-  await expect(page.getByText("The request was copied.")).toHaveCount(0);
-  await expect(
-    page.getByRole("link", {
-      name: "Open the StudyApp AI Assistant manually",
-    }),
-  ).toHaveCount(0);
+  await expect(greekDialog.getByRole("button", { name: "Πίσω" })).toBeVisible();
+  await expect(greekDialog.getByText("Διαθέσιμο")).toBeVisible();
+  await expect(greekDialog.getByText("Σύντομα")).toHaveCount(2);
   assertNoApplicationErrors();
 });
 

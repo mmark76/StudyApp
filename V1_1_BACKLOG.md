@@ -1,6 +1,6 @@
 # StudyApp v1.1 Backlog
 
-_Last updated: 2026-07-30_
+_Last updated: 2026-07-31_
 
 This is the explicit stopping-point backlog after v1.0.0 plus the post-v1 AI
 Assistant preview. Items must be handled in separate, focused work. Priority
@@ -24,6 +24,11 @@ The July 29–30 post-v1 preview work added:
 These preview features do not perform production AI requests or real charges.
 The governing boundary is
 [`docs/AI_ASSISTANT_AND_CLOUD_BOUNDARIES.md`](docs/AI_ASSISTANT_AND_CLOUD_BOUNDARIES.md).
+
+The July 31 simplification replaced the Companion's local import, prompt,
+clipboard and scripted-popup workflow with a two-screen Assistant and a normal
+external link to the approved Custom GPT. It also added focus trapping,
+background inertness, Escape close and launcher focus restoration.
 
 ## P0 — Production AI and financial safety gates
 
@@ -125,10 +130,11 @@ intentional empty collection.
 
 ### AI preview accessibility and interruption safety
 
-Add browser tests for keyboard operation, focus trapping and restoration,
-screen-reader status, 200% zoom, narrow layouts, offline/online transitions,
-service timeout, repeated connection checks, interrupted processing, and PWA
-updates while confirmation or result review is open.
+Focus trapping and restoration, inert background, Escape close and bilingual
+Assistant navigation now have browser coverage. Add the remaining browser tests
+for screen-reader status, 200% zoom, narrow layouts, offline/online transitions,
+service timeout, repeated connection checks and PWA updates while the dialog is
+open.
 
 ### Service-status state correctness
 
@@ -213,7 +219,7 @@ Historical v1 documents may retain their release-gate statements. Living
 product and engineering documents must distinguish:
 
 1. released local-first functionality;
-2. current AI Assistant preview and readiness check;
+2. current AI Assistant external handoff and inactive future modes;
 3. future production AI, account, payment, or cloud capabilities.
 
 Update legal, privacy, security, architecture, user guide, and data-safety text
