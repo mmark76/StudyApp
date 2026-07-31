@@ -193,6 +193,10 @@ test("Assistant intro has the exact safe link and no old workflow", async ({
   await expect(start).toHaveAttribute("rel", "noopener noreferrer");
   await expect(dialog.getByRole("button", { name: "View other AI options" }))
     .toBeVisible();
+  await expect(
+    dialog.getByText("StudyApp does not automatically send your local data."),
+  ).toHaveCount(0);
+  await expect(dialog.locator(".assistant-privacy-note")).toHaveCount(0);
 
   await expect(dialog.getByText("Step 1 of 3")).toHaveCount(0);
   await expect(dialog.getByText("Add study material")).toHaveCount(0);
@@ -382,7 +386,7 @@ test("Assistant provides equivalent English and Greek screens", async ({
   ).toBeVisible();
   await expect(
     page.getByText("StudyApp does not automatically send your local data."),
-  ).toBeVisible();
+  ).toHaveCount(0);
   await page.getByRole("button", { name: "Close AI Assistant" }).click();
 
   await page.getByRole("button", { name: "GR" }).click();
@@ -400,7 +404,7 @@ test("Assistant provides equivalent English and Greek screens", async ({
     greekDialog.getByText(
       "Το StudyApp δεν αποστέλλει αυτόματα τα τοπικά δεδομένα σου.",
     ),
-  ).toBeVisible();
+  ).toHaveCount(0);
   await expect(greekDialog.getByRole("link", { name: "Έναρξη" }))
     .toHaveAttribute("href", assistantUrl);
   await greekDialog

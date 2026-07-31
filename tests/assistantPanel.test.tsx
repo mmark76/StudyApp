@@ -16,9 +16,13 @@ describe("AI Assistant two-screen entry point", () => {
     expect(markup).toContain(
       "Open the dedicated StudyApp AI Assistant in ChatGPT to study, summarize, create flashcards or prepare quizzes.",
     );
-    expect(markup).toContain(
+    expect(markup).not.toContain(
       "StudyApp does not automatically send your local data.",
     );
+    expect(markup).not.toContain(
+      "Το StudyApp δεν αποστέλλει αυτόματα τα τοπικά δεδομένα σου.",
+    );
+    expect(markup).not.toContain("assistant-privacy-note");
     expect(markup).toContain("View other AI options");
     expect(markup).toContain(`href="${STUDYAPP_AI_ASSISTANT_URL}"`);
     expect(markup).toContain('target="_blank"');
