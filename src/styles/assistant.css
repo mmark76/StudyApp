@@ -25,6 +25,7 @@ body.assistant-panel-open {
 .assistant-launch-button:focus-visible,
 .assistant-close:focus-visible,
 .assistant-back:focus-visible,
+.assistant-start-link:focus-visible,
 .assistant-typewriter-skip:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--blue-600, #1d4ed8) 45%, transparent);
   outline-offset: 2px;
@@ -161,6 +162,10 @@ body.assistant-panel-open {
   width: 9rem;
 }
 
+.assistant-avatar-hero.is-activating {
+  animation: assistant-avatar-activation 500ms ease-out;
+}
+
 .assistant-intro-copy {
   color: var(--text-muted, #64748b);
   line-height: 1.55;
@@ -218,7 +223,7 @@ body.assistant-panel-open {
 }
 
 .assistant-typewriter-cursor {
-  animation: assistant-typewriter-cursor 760ms step-end infinite;
+  animation: assistant-typewriter-cursor 900ms step-end infinite;
   border-left: 2px solid currentColor;
   display: inline-block;
   height: 1em;
@@ -232,6 +237,27 @@ body.assistant-panel-open {
   gap: 0.65rem;
   justify-content: center;
   margin-top: 1rem;
+}
+
+.assistant-start-link {
+  gap: 0.45rem;
+  min-inline-size: 7.5rem;
+}
+
+.assistant-start-link.is-opening {
+  cursor: wait;
+  pointer-events: none;
+}
+
+.assistant-start-spinner {
+  animation: assistant-start-spinner 700ms linear infinite;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  border-right-color: transparent;
+  display: inline-block;
+  flex: 0 0 auto;
+  height: 1em;
+  width: 1em;
 }
 
 .assistant-back {
@@ -257,6 +283,21 @@ body.assistant-panel-open {
 @keyframes assistant-typewriter-cursor {
   50% {
     opacity: 0;
+  }
+}
+
+@keyframes assistant-start-spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes assistant-avatar-activation {
+  45% {
+    box-shadow:
+      0 16px 34px rgba(15, 23, 42, 0.16),
+      0 0 0 8px color-mix(in srgb, var(--blue-600, #1d4ed8) 16%, transparent);
+    transform: scale(1.015);
   }
 }
 
@@ -291,5 +332,11 @@ body.assistant-panel-open {
   .assistant-typewriter-cursor {
     animation: none;
     display: none;
+  }
+
+  .assistant-avatar-hero.is-activating,
+  .assistant-start-spinner {
+    animation: none;
+    transform: none;
   }
 }

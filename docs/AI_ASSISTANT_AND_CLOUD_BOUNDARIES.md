@@ -22,7 +22,10 @@ The intro presents a bilingual overview of the available Assistant and the two
 planned AI options. Its accessible typewriter effect runs entirely in the
 browser, provides a complete static copy to assistive technology, supports
 immediate completion and shows the full text without animation when reduced
-motion is requested. This presentation does not change the data boundary.
+motion is requested. Its deterministic character and punctuation rhythm and
+the brief Start Opening/spinner/avatar state are local presentation only. The
+Opening state runs alongside the anchor's immediate native new-tab navigation
+and does not change the destination or data boundary.
 
 The Custom GPT share URL is public production configuration through
 `VITE_STUDYAPP_AI_ASSISTANT_URL`. It identifies the destination only; it is not an
