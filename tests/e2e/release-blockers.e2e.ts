@@ -214,15 +214,39 @@ test("Other AI options and Back provide exactly two Assistant screens", async ({
   await expect(
     dialog.getByRole("heading", { name: "Other AI options" }),
   ).toBeVisible();
-  await expect(dialog.getByText("ChatGPT Companion")).toBeVisible();
+  const availableOption = dialog.getByRole("link", {
+    name: "Open StudyApp AI Assistant in ChatGPT",
+  });
+  await expect(availableOption).toContainText("StudyApp AI Assistant");
+  await expect(availableOption).toContainText(
+    "Open the dedicated assistant in ChatGPT and provide your study material directly.",
+  );
+  await expect(availableOption).toHaveAttribute("href", assistantUrl);
+  await expect(availableOption).toHaveAttribute("target", "_blank");
+  await expect(availableOption).toHaveAttribute(
+    "rel",
+    "noopener noreferrer",
+  );
+  await expect(dialog.getByText("ChatGPT Companion")).toHaveCount(0);
+  await expect(
+    dialog.getByText(
+      "Follow guided steps to prepare your study session in ChatGPT.",
+    ),
+  ).toHaveCount(0);
   await expect(dialog.getByText("ChatGPT App / MCP")).toBeVisible();
   await expect(dialog.getByText("StudyApp AI", { exact: true })).toBeVisible();
   await expect(dialog.locator(".assistant-mode-status.available")).toHaveText(
     "Available",
   );
   await expect(dialog.locator(".assistant-mode-status.soon")).toHaveCount(2);
+  const comingSoonOptions = dialog.locator("button.assistant-mode-card");
+  await expect(comingSoonOptions).toHaveCount(2);
+  await expect(comingSoonOptions.nth(0)).not.toHaveAttribute("href");
+  await expect(comingSoonOptions.nth(1)).not.toHaveAttribute("href");
 
-  await dialog.getByRole("button", { name: "Back" }).click();
+  await dialog
+    .getByRole("button", { name: "Back to Study with ChatGPT" })
+    .click();
   await expect(
     dialog.getByRole("heading", { name: "Study with ChatGPT" }),
   ).toBeVisible();
@@ -277,7 +301,7 @@ test("Assistant traps forward and reverse focus and makes the background inert",
   assertNoApplicationErrors();
 });
 
-test("Start does not use the clipboard or scripted popup positioning", async ({
+test("Assistant links do not use the clipboard or scripted popup positioning", async ({
   page,
 }) => {
   const assertNoApplicationErrors = watchForApplicationErrors(page);
@@ -313,6 +337,19 @@ test("Start does not use the clipboard or scripted popup positioning", async ({
     });
   });
   await start.click();
+
+  await page
+    .getByRole("button", { name: "View other AI options" })
+    .click();
+  const availableOption = page.getByRole("link", {
+    name: "Open StudyApp AI Assistant in ChatGPT",
+  });
+  await availableOption.evaluate((element) => {
+    element.addEventListener("click", (event) => event.preventDefault(), {
+      once: true,
+    });
+  });
+  await availableOption.click();
 
   await expect.poll(() =>
     page.evaluate(() => {
@@ -372,7 +409,19 @@ test("Assistant provides equivalent English and Greek screens", async ({
   await expect(
     greekDialog.getByRole("heading", { name: "Άλλες επιλογές AI" }),
   ).toBeVisible();
-  await expect(greekDialog.getByRole("button", { name: "Πίσω" })).toBeVisible();
+  const greekAvailableOption = greekDialog.getByRole("link", {
+    name: "Άνοιγμα του Βοηθού AI του StudyApp στο ChatGPT",
+  });
+  await expect(greekAvailableOption).toContainText("Βοηθός AI του StudyApp");
+  await expect(greekAvailableOption).toContainText(
+    "Άνοιξε τον ειδικό βοηθό στο ChatGPT και πρόσθεσε απευθείας το υλικό μελέτης σου.",
+  );
+  await expect(greekAvailableOption).toHaveAttribute("href", assistantUrl);
+  await expect(
+    greekDialog.getByRole("button", {
+      name: "Πίσω στη Μελέτη με το ChatGPT",
+    }),
+  ).toBeVisible();
   await expect(greekDialog.getByText("Διαθέσιμο")).toBeVisible();
   await expect(greekDialog.getByText("Σύντομα")).toHaveCount(2);
   assertNoApplicationErrors();

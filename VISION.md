@@ -25,7 +25,7 @@ user-facing explanations should remain short and clear.
 
 The AI Assistant has three modes with distinct purposes.
 
-### ChatGPT Companion
+### StudyApp AI Assistant
 
 Available now. It provides a normal external link to the dedicated StudyApp AI
 Assistant in ChatGPT. StudyApp does not read, copy or send study material for
@@ -62,7 +62,7 @@ Library             = source material
 Structured Study    = material by structure and level
 Learn & Practice    = flashcards, review, quiz and progress
 Split PDF Tool      = local PDF utility
-AI Assistant        = Companion now; MCP and paid API later
+AI Assistant        = StudyApp AI Assistant now; MCP and paid API later
 ```
 
 ## Long-term principles

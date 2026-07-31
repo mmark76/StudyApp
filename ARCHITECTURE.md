@@ -9,7 +9,7 @@ features run in the browser and store data in IndexedDB.
 
 The AI Assistant now exposes three separate modes:
 
-- ChatGPT Companion — active external link to the dedicated StudyApp AI Assistant Custom GPT;
+- StudyApp AI Assistant — active external link to the dedicated Custom GPT;
 - ChatGPT App / MCP — visible but inactive;
 - StudyApp AI — visible but inactive paid/API mode.
 
@@ -54,7 +54,7 @@ ChatGPT entry screen and the other-AI-options screen. The dialog traps focus,
 makes its application-shell siblings inert while open, closes with Escape and
 restores focus to the launcher.
 
-#### ChatGPT Companion
+#### StudyApp AI Assistant
 
 ```text
 User activates normal external link → dedicated StudyApp AI Assistant Custom GPT tab
@@ -163,14 +163,14 @@ A failed write retains the user's form values or latest appearance selection
 and exposes a bilingual error state. Pending controls prevent rapid duplicate
 submissions from producing duplicate writes or success messages.
 
-### Companion flow
+### StudyApp AI Assistant link flow
 
 ```text
 User activates external link → browser opens approved Custom GPT in a new tab
 → user works directly in ChatGPT
 ```
 
-No study material is read or sent by the Companion. Opening the configured
+No study material is read or sent by StudyApp. Opening the configured
 ChatGPT page is a normal external navigation controlled by the user.
 
 ### Future remote AI flow
@@ -191,7 +191,7 @@ No automatic library scan and no automatic result save are allowed.
 - Real credits and ledgers must be server-authoritative and idempotent.
 - Mode availability must be represented independently.
 - English and Greek wording must communicate the same material facts.
-- The Companion does not inspect, automate or embed the ChatGPT website.
+- The StudyApp AI Assistant link does not inspect, automate or embed the ChatGPT website.
 
 ## High-risk areas
 
@@ -223,8 +223,8 @@ Assistant coverage includes:
 
 - language selection and persistence;
 - English and Greek mode labels;
-- exact approved Companion destination;
-- no clipboard or scripted popup call from Companion;
+- exact approved StudyApp AI Assistant destination;
+- no clipboard or scripted popup call from the Assistant link;
 - inactive Coming soon modes;
 - keyboard operation and focus behaviour.
 

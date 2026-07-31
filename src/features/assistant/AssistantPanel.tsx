@@ -216,6 +216,10 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
           ) : (
             <section>
               <button
+                aria-label={text(
+                  "Back to Study with ChatGPT",
+                  "Πίσω στη Μελέτη με το ChatGPT",
+                )}
                 className="assistant-back"
                 onClick={() => {
                   setMessage("");
@@ -230,6 +234,10 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
 
               <div className="assistant-mode-grid">
                 <a
+                  aria-label={text(
+                    "Open StudyApp AI Assistant in ChatGPT",
+                    "Άνοιγμα του Βοηθού AI του StudyApp στο ChatGPT",
+                  )}
                   className="assistant-mode-card"
                   href={assistantUrl}
                   rel="noopener noreferrer"
@@ -238,11 +246,16 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
                   <span className="assistant-mode-status available">
                     {text("Available", "Διαθέσιμο")}
                   </span>
-                  <strong>ChatGPT Companion</strong>
+                  <strong>
+                    {text(
+                      "StudyApp AI Assistant",
+                      "Βοηθός AI του StudyApp",
+                    )}
+                  </strong>
                   <small>
                     {text(
-                      "Open the StudyApp AI Assistant in ChatGPT.",
-                      "Άνοιξε τον Βοηθό AI του StudyApp στο ChatGPT.",
+                      "Open the dedicated assistant in ChatGPT and provide your study material directly.",
+                      "Άνοιξε τον ειδικό βοηθό στο ChatGPT και πρόσθεσε απευθείας το υλικό μελέτης σου.",
                     )}
                   </small>
                 </a>

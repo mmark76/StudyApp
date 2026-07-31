@@ -51,7 +51,7 @@ export const legalPages = {
       {
         heading: copy("AI Assistant", "Βοηθός AI"),
         paragraphs: [
-          copy("ChatGPT Companion provides a normal external link to the dedicated StudyApp AI Assistant in ChatGPT. StudyApp does not read, copy or send your library or study material for this handoff.", "Το ChatGPT Companion παρέχει έναν κανονικό εξωτερικό σύνδεσμο προς τον ειδικό Βοηθό AI του StudyApp στο ChatGPT. Το StudyApp δεν διαβάζει, δεν αντιγράφει και δεν στέλνει τη βιβλιοθήκη ή το υλικό μελέτης σου για αυτή τη μετάβαση."),
+          copy("StudyApp AI Assistant provides a normal external link to the dedicated Custom GPT. You provide study material directly in ChatGPT; StudyApp does not read, copy or send your library or study material for this handoff.", "Ο Βοηθός AI του StudyApp παρέχει έναν κανονικό εξωτερικό σύνδεσμο προς το ειδικό Custom GPT. Προσθέτεις το υλικό μελέτης απευθείας στο ChatGPT· το StudyApp δεν διαβάζει, δεν αντιγράφει και δεν στέλνει τη βιβλιοθήκη ή το υλικό μελέτης σου για αυτή τη μετάβαση."),
           copy("StudyApp AI and ChatGPT App are not active yet.", "Το StudyApp AI και το ChatGPT App δεν είναι ακόμη ενεργά."),
           copy("No paid AI request or charge is currently available.", "Δεν είναι ακόμη διαθέσιμη επί πληρωμή κλήση AI ή χρέωση."),
         ],

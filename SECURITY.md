@@ -9,7 +9,7 @@ files, links, progress, sessions and settings remain in the current browser.
 
 The AI Assistant has three modes:
 
-- ChatGPT Companion — active external link to the dedicated StudyApp AI Assistant Custom GPT;
+- StudyApp AI Assistant — active external link to the dedicated Custom GPT;
 - ChatGPT App / MCP — inactive and marked Coming soon;
 - StudyApp AI — inactive and marked Coming soon.
 
@@ -28,14 +28,14 @@ No real AI request, credit purchase or charge is currently enabled.
 - Provider and payment secrets must remain server-side.
 - Vite environment variables are public configuration and must not contain secrets.
 
-## ChatGPT Companion
+## StudyApp AI Assistant
 
-The Companion may:
+The available Assistant link may:
 
 - show the approved dedicated StudyApp AI Assistant Custom GPT URL;
 - open that URL through a user-activated external link in a new tab.
 
-The Companion must not:
+The available Assistant link must not:
 
 - call the OpenAI API;
 - read the StudyApp library or IndexedDB;

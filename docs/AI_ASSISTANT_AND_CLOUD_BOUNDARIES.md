@@ -9,9 +9,9 @@ and its three AI Assistant modes.
 
 ## Current modes
 
-### 1. ChatGPT Companion — available
+### 1. StudyApp AI Assistant — available
 
-The Companion is a minimal external handoff:
+The StudyApp AI Assistant is a minimal external handoff:
 
 1. StudyApp validates the configured dedicated **StudyApp AI Assistant** Custom
    GPT destination;
@@ -22,7 +22,7 @@ The Custom GPT share URL is public production configuration through
 `VITE_STUDYAPP_AI_ASSISTANT_URL`. It identifies the destination only; it is not an
 API key, account credential or permission grant.
 
-The Companion does not:
+The StudyApp AI Assistant link does not:
 
 - call the OpenAI API;
 - use the StudyApp server-side API key;
@@ -67,7 +67,7 @@ request, credit purchase, reservation or charge.
 
 ## Future task boundary
 
-The current Companion leaves task selection inside ChatGPT. Future remote modes
+The current StudyApp AI Assistant leaves task selection inside ChatGPT. Future remote modes
 should use a common StudyApp task model for:
 
 - asking questions;
@@ -94,7 +94,7 @@ Any remote AI mode must satisfy all of the following:
 - do not turn AI processing into hidden storage, backup or sync;
 - do not log study content or secrets by default.
 
-The current Companion is an external-link handoff. Opening its configured Custom
+The current StudyApp AI Assistant is an external-link handoff. Opening its configured Custom
 GPT page does not itself read or transmit StudyApp study material.
 
 ## Credits and payments

@@ -21,13 +21,13 @@ The core study workflow is available:
 
 The AI Assistant presents three clearly separated options.
 
-### ChatGPT Companion — available
+### StudyApp AI Assistant — available
 
 StudyApp provides a normal external link to the dedicated **StudyApp AI
 Assistant** Custom GPT. The link opens in a new browser tab. The user chooses and
 shares any study material directly in ChatGPT.
 
-The Companion:
+The available StudyApp AI Assistant link:
 
 - does not use the StudyApp OpenAI API key;
 - does not read, copy or send study content;
@@ -59,7 +59,7 @@ See [`docs/AI_ASSISTANT_AND_CLOUD_BOUNDARIES.md`](docs/AI_ASSISTANT_AND_CLOUD_BO
 2. **Structured Study** — contents, chapters, sections, concepts, references and diagrams.
 3. **Learn & Practice** — flashcards, due review, quizzes and progress.
 4. **Split PDF Tool** — local PDF splitting and download.
-5. **AI Assistant** — Companion now; ChatGPT App/MCP and paid StudyApp AI later.
+5. **AI Assistant** — StudyApp AI Assistant now; ChatGPT App/MCP and paid StudyApp AI later.
 
 ## Local-first storage and privacy
 
@@ -96,7 +96,7 @@ significantly mismatched file types are rejected.
 
 - Local file blobs are not included in the JSON backup.
 - Browser and device storage capacity and availability are not guaranteed.
-- ChatGPT Companion opens an external ChatGPT page; ChatGPT applies its own
+- StudyApp AI Assistant opens an external ChatGPT page; ChatGPT applies its own
   account, plan, privacy and sharing rules.
 - ChatGPT App / MCP is not active yet.
 - StudyApp AI, real credits and payments are not active yet.

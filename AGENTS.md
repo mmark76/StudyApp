@@ -29,7 +29,7 @@ cloud storage, cloud sync, first-party analytics, advertising or telemetry.
 
 Use these names consistently:
 
-- **ChatGPT Companion** — available external-link handoff;
+- **StudyApp AI Assistant** — available external-link handoff to the dedicated Custom GPT;
 - **ChatGPT App / MCP** — coming soon and inactive;
 - **StudyApp AI** — coming soon and inactive paid/API mode;
 - **StudyApp credits** — future server-authoritative credits, not active yet.
@@ -39,7 +39,7 @@ operational.
 
 ## Current AI invariants
 
-### ChatGPT Companion
+### StudyApp AI Assistant
 
 - renders only the approved dedicated ChatGPT destination as a normal external link;
 - does not call the OpenAI API;
@@ -79,7 +79,7 @@ Library             = source material
 Structured Study    = material by structure and level
 Learn & Practice    = flashcards, review, quiz and progress
 Split PDF Tool      = local PDF utility
-AI Assistant        = Companion now; MCP and paid API later
+AI Assistant        = StudyApp AI Assistant now; MCP and paid API later
 ```
 
 The AI Assistant is a supporting workflow, not a material store or replacement

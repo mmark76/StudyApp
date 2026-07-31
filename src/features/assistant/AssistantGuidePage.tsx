@@ -31,7 +31,7 @@ export function AssistantGuidePage() {
       >
         <article className="assistant-guide-card">
           <p className="eyebrow">{text("Available", "Διαθέσιμο")}</p>
-          <h3>ChatGPT Companion</h3>
+          <h3>{text("StudyApp AI Assistant", "Βοηθός AI του StudyApp")}</h3>
           <p>
             {text(
               "Open the dedicated StudyApp AI Assistant in ChatGPT. Choose and share any study material directly in ChatGPT.",
