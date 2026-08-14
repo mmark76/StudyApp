@@ -4,9 +4,8 @@ import {
   injectLocalWriteFailure,
   type LocalWriteFailureInjector,
 } from "../../infrastructure/database/localWriteFailureInjector";
-import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { StudyUnit } from "../../shared/types/models";
-import { IMPORTED_UNITS_SETTING_KEY } from "./importedContent";
+import { addImportedPracticeUnit } from "./practiceContentRepository";
 
 function splitLines(value: string): string[] {
   return value.split("\n").map((item) => item.trim()).filter(Boolean);
@@ -19,12 +18,10 @@ function splitCommaList(value: string): string[] {
 export function UnitForm({
   existingUnits,
   failureInjector,
-  importedUnits,
   onMessage,
 }: {
   existingUnits: readonly StudyUnit[];
   failureInjector?: LocalWriteFailureInjector;
-  importedUnits: readonly StudyUnit[];
   onMessage: (message: string) => void;
 }) {
   const { text } = useLanguage();
@@ -50,7 +47,7 @@ export function UnitForm({
     };
 
     if (!nextUnit.title) {
-      onMessage(text("Enter a chapter title.", "Γράψε τίτλο κεφαλαίου."));
+      onMessage(text("Enter a practice chapter title.", "Γράψε τίτλο κεφαλαίου εξάσκησης."));
       return;
     }
 
@@ -60,10 +57,7 @@ export function UnitForm({
 
     try {
       await injectLocalWriteFailure(failureInjector, "chapter");
-      await studyDatabase.settings.put({
-        key: IMPORTED_UNITS_SETTING_KEY,
-        value: [...importedUnits, nextUnit],
-      });
+      await addImportedPracticeUnit(nextUnit);
       setTitle("");
       setObjectives("");
       setSummary("");
@@ -72,8 +66,8 @@ export function UnitForm({
     } catch {
       onMessage(
         text(
-          "The chapter could not be saved on this device. Your entries are still here. Try again.",
-          "Το κεφάλαιο δεν μπόρεσε να αποθηκευτεί σε αυτή τη συσκευή. Οι καταχωρίσεις σου παραμένουν στη φόρμα. Δοκίμασε ξανά.",
+          "The practice chapter could not be saved on this device. Your entries are still here. Try again.",
+          "Το κεφάλαιο εξάσκησης δεν μπόρεσε να αποθηκευτεί σε αυτή τη συσκευή. Οι καταχωρίσεις σου παραμένουν στη φόρμα. Δοκίμασε ξανά.",
         ),
       );
     } finally {
@@ -89,7 +83,7 @@ export function UnitForm({
       onSubmit={(event) => void submit(event)}
     >
       <label className="field-label">
-        {text("Chapter title", "Τίτλος κεφαλαίου")}
+        {text("Practice chapter title", "Τίτλος κεφαλαίου εξάσκησης")}
         <input disabled={isSubmitting} required value={title} onChange={(event) => setTitle(event.target.value)} />
       </label>
       <label className="field-label">

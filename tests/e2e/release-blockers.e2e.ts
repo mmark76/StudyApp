@@ -885,73 +885,163 @@ test("Assistant provides equivalent English and Greek screens", async ({
   assertNoApplicationErrors();
 });
 
-test("Learn exposes bilingual Manage Content and keeps imports in Learn & Practice", async ({
+test("Learn manages bilingual practice content inline before four responsive study cards", async ({
   page,
 }) => {
   const assertNoApplicationErrors = watchForApplicationErrors(page);
   await page.goto("/#/learn");
 
+  const manager = page.getByRole("region", { name: "Manage practice content" });
   const englishGrid = page.getByRole("region", { name: "Learning tools" });
-  await expect(englishGrid.locator(".learning-stage-card")).toHaveCount(5);
-  const englishCard = englishGrid
-    .getByRole("heading", { name: "Manage Content", exact: true })
-    .locator("..");
-  for (const option of [
-    "Add Flashcard",
-    "Import Flashcards CSV",
-    "Import Chapters CSV",
-    "Manage/Delete imported content",
-  ]) {
-    await expect(englishCard.getByText(option, { exact: true })).toBeVisible();
-  }
-  await expect(
-    englishCard.getByRole("link", { name: "Manage content", exact: true }),
-  ).toHaveAttribute("href", "#/import");
+  await expect(manager.getByText("PRACTICE CONTENT", { exact: true })).toBeVisible();
+  await expect(manager.getByText(
+    "Add, import or manage your flashcards and practice chapters.",
+    { exact: true },
+  )).toBeVisible();
+  await expect(manager.getByText(
+    "New content? Import the Chapters CSV first, then the Flashcards CSV.",
+    { exact: true },
+  )).toBeVisible();
+  await expect(manager.getByText(
+    "Add one flashcard or import many from CSV.",
+    { exact: true },
+  )).toBeVisible();
+  await expect(manager.getByText(
+    "Practice chapters group and organize your flashcards. They are not files stored in Structured Study.",
+    { exact: true },
+  )).toBeVisible();
+  await expect(englishGrid.locator(".learning-stage-card")).toHaveCount(4);
+  await expect(englishGrid.getByRole("heading", { name: "Manage Content" })).toHaveCount(0);
+  await expect.poll(() => manager.evaluate((element) => Boolean(
+    element.compareDocumentPosition(document.querySelector(".learn-tools-grid"))
+      & Node.DOCUMENT_POSITION_FOLLOWING,
+  ))).toBe(true);
+
+  const navigation = page.getByRole("navigation", { name: "Main navigation" });
+  await expect(navigation.getByRole("link", { name: "Learn & Practice" })).toHaveAttribute("aria-current", "page");
+  await expect(navigation.getByRole("link", { name: "Structured Study" })).not.toHaveAttribute("aria-current", "page");
+
+  await manager.getByRole("button", { name: "Add Flashcard", exact: true }).click();
+  await expect(page).toHaveURL(/\/#\/learn$/u);
+  await manager.getByRole("button", { name: "Add Chapter", exact: true }).click();
+  await expect(page).toHaveURL(/\/#\/learn$/u);
+  await expect
+    .poll(() => manager.locator(".practice-content-options").evaluate((element) =>
+      getComputedStyle(element).gridTemplateColumns.split(" ").length,
+    ))
+    .toBe(2);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect(englishCard).toBeVisible();
   await expect
-    .poll(() =>
-      englishGrid.evaluate((element) =>
-        getComputedStyle(element).gridTemplateColumns.split(" ").length,
-      ),
-    )
+    .poll(() => manager.locator(".practice-content-options").evaluate((element) =>
+      getComputedStyle(element).gridTemplateColumns.split(" ").length,
+    ))
     .toBe(1);
 
   await page.getByRole("button", { name: "GR" }).click();
-  const greekGrid = page.getByRole("region", { name: "Εργαλεία μάθησης" });
-  const greekCard = greekGrid
-    .getByRole("heading", {
-      name: "Διαχείριση περιεχομένου",
-      exact: true,
-    })
-    .locator("..");
-  for (const option of [
-    "Προσθήκη κάρτας",
-    "Εισαγωγή καρτών CSV",
-    "Εισαγωγή κεφαλαίων CSV",
-    "Διαχείριση/διαγραφή εισαγόμενου περιεχομένου",
-  ]) {
-    await expect(greekCard.getByText(option, { exact: true })).toBeVisible();
-  }
+  const greekManager = page.getByRole("region", { name: "Διαχείριση περιεχομένου εξάσκησης" });
+  await expect(greekManager.getByText("ΠΕΡΙΕΧΟΜΕΝΟ ΕΞΑΣΚΗΣΗΣ", { exact: true })).toBeVisible();
+  await expect(greekManager.getByText(
+    "Προσθέστε, εισαγάγετε ή διαχειριστείτε τις flashcards και τα κεφάλαια εξάσκησης.",
+    { exact: true },
+  )).toBeVisible();
+  await expect(greekManager.getByText(
+    "Νέο περιεχόμενο; Εισαγάγετε πρώτα το Chapters CSV και μετά το Flashcards CSV.",
+    { exact: true },
+  )).toBeVisible();
+  await expect(greekManager.getByRole("heading", { name: "Κεφάλαια εξάσκησης", exact: true })).toBeVisible();
 
-  const importLink = greekCard.getByRole("link", {
-    name: "Διαχείριση περιεχομένου",
-    exact: true,
-  });
-  await expect(importLink).toHaveAttribute("href", "#/import");
-  await importLink.click();
-  await expect(page).toHaveURL(/\/#\/import$/u);
+  await page.goto("/#/import");
+  await expect(page).toHaveURL(/\/#\/learn$/u);
+  const greekNavigation = page.getByRole("navigation", { name: "Κύρια πλοήγηση" });
+  await expect(greekNavigation.getByRole("link", { name: "Μάθηση & Εξάσκηση" })).toHaveAttribute("aria-current", "page");
+  assertNoApplicationErrors();
+});
 
-  const navigation = page.getByRole("navigation", {
-    name: "Κύρια πλοήγηση",
+test("practice content CSV import and accessible CRUD stay truthful and consistent", async ({
+  page,
+}) => {
+  const assertNoApplicationErrors = watchForApplicationErrors(page);
+  await page.goto("/#/learn");
+  const manager = page.getByRole("region", { name: "Manage practice content" });
+
+  const chaptersInput = manager.getByLabel("Import Chapters CSV");
+  await chaptersInput.setInputFiles({
+    name: "invalid-chapters.csv",
+    mimeType: "text/csv",
+    buffer: Buffer.from("Wrong,Headers\n1,Invalid", "utf8"),
   });
-  await expect(
-    navigation.getByRole("link", { name: "Μάθηση & Εξάσκηση" }),
-  ).toHaveAttribute("aria-current", "page");
-  await expect(
-    navigation.getByRole("link", { name: "Δομημένη Μελέτη" }),
-  ).not.toHaveAttribute("aria-current", "page");
+  await expect(manager.getByRole("status")).toContainText(
+    "The chapters file must start with these column headings",
+  );
+  await expect(manager.getByRole("heading", { name: "Practice Chapters (0)", exact: true })).toBeVisible();
+
+  await chaptersInput.setInputFiles({
+    name: "practice-chapters.csv",
+    mimeType: "text/csv",
+    buffer: Buffer.from([
+      "Chapter number,Chapter title,What should you learn?,Key points,Important terms",
+      "50,Imported practice chapter,Imported goal,Imported point,imported term",
+    ].join("\n"), "utf8"),
+  });
+  await expect(manager.getByRole("status")).toHaveText("1 practice chapter saved.");
+  await expect(manager.getByRole("heading", { name: "Practice Chapters (1)", exact: true })).toBeVisible();
+
+  const flashcardsInput = manager.getByLabel("Import Flashcards CSV");
+  await flashcardsInput.setInputFiles({
+    name: "practice-flashcards.csv",
+    mimeType: "text/csv",
+    buffer: Buffer.from([
+      "Chapter number,Question,Answer,Keywords",
+      "50,Imported practice question?,Imported practice answer,practice",
+    ].join("\n"), "utf8"),
+  });
+  await expect(manager.getByRole("status")).toHaveText("1 flashcard saved.");
+  await expect(manager.getByRole("heading", { name: "Flashcards (1)", exact: true })).toBeVisible();
+
+  await manager.getByRole("button", { name: "View practice chapter Imported practice chapter" }).click();
+  await expect(manager.getByText("Imported goal", { exact: true })).toBeVisible();
+
+  page.once("dialog", async (dialog) => {
+    expect(dialog.type()).toBe("prompt");
+    await dialog.accept("Renamed practice chapter");
+  });
+  await manager.getByRole("button", { name: "Rename practice chapter Imported practice chapter" }).click();
+  await expect(manager.getByText("50. Renamed practice chapter", { exact: true })).toBeVisible();
+
+  await manager.getByRole("button", { name: "View flashcard Imported practice question?" }).click();
+  await expect(manager.getByText("Imported practice answer", { exact: true })).toBeVisible();
+  await manager.getByRole("button", { name: "Edit flashcard Imported practice question?" }).click();
+  const editor = manager.locator(".practice-content-editor");
+  await editor.getByLabel("Question").fill("Updated practice question?");
+  await editor.getByLabel("Answer").fill("Updated practice answer");
+  await editor.getByRole("button", { name: "Save changes" }).click();
+  await expect(manager.getByRole("status")).toHaveText("Flashcard updated.");
+  await expect(manager.getByText("Updated practice question?", { exact: true })).toBeVisible();
+
+  page.once("dialog", async (dialog) => {
+    expect(dialog.message()).toContain("and its 1 flashcard");
+    expect(dialog.message()).toContain("saved progress");
+    await dialog.dismiss();
+  });
+  await manager.getByRole("button", { name: "Remove practice chapter Renamed practice chapter" }).click();
+  await expect(manager.getByRole("heading", { name: "Practice Chapters (1)", exact: true })).toBeVisible();
+
+  page.once("dialog", async (dialog) => {
+    expect(dialog.message()).toContain("saved progress");
+    await dialog.dismiss();
+  });
+  await manager.getByRole("button", { name: "Remove flashcard Updated practice question?" }).click();
+  await expect(manager.getByRole("heading", { name: "Flashcards (1)", exact: true })).toBeVisible();
+
+  page.once("dialog", (dialog) => dialog.accept());
+  await manager.getByRole("button", { name: "Remove flashcard Updated practice question?" }).click();
+  await expect(manager.getByRole("heading", { name: "Flashcards (0)", exact: true })).toBeVisible();
+
+  page.once("dialog", (dialog) => dialog.accept());
+  await manager.getByRole("button", { name: "Remove practice chapter Renamed practice chapter" }).click();
+  await expect(manager.getByRole("heading", { name: "Practice Chapters (0)", exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/\/#\/learn$/u);
   assertNoApplicationErrors();
 });
 
@@ -959,13 +1049,15 @@ test("chapter writes disable pending controls, reject duplicates, and retain fai
   page,
 }) => {
   const assertNoApplicationErrors = watchForApplicationErrors(page);
-  await page.goto("/#/import");
+  await page.goto("/#/learn");
 
-  const chapterSection = page
-    .getByRole("heading", { name: "Add one chapter" })
+  const manager = page.getByRole("region", { name: "Manage practice content" });
+  const chapterSection = manager
+    .getByRole("heading", { name: "Practice Chapters", exact: true })
     .locator("..");
+  await chapterSection.getByRole("button", { name: "Add Chapter", exact: true }).click();
   const chapterForm = chapterSection.locator("form");
-  const title = chapterSection.getByLabel("Chapter title");
+  const title = chapterSection.getByLabel("Practice chapter title");
 
   await page.evaluate(() => {
     window.__STUDYAPP_E2E_LOCAL_WRITE__ = {
@@ -997,9 +1089,7 @@ test("chapter writes disable pending controls, reject duplicates, and retain fai
   });
   await expect(page.locator(".status-banner")).toHaveText("Chapter added.");
   await expect(title).toHaveValue("");
-  await expect(page.locator(".stats-grid .stat-card").first()).toContainText(
-    "1",
-  );
+  await expect(manager.getByRole("heading", { name: "Practice Chapters (1)", exact: true })).toBeVisible();
 
   await page.evaluate(() => {
     const control = window.__STUDYAPP_E2E_LOCAL_WRITE__ ??= {};
@@ -1008,19 +1098,17 @@ test("chapter writes disable pending controls, reject duplicates, and retain fai
   await title.fill("Retained after failure");
   await chapterSection.getByLabel("Learning goals").fill("Keep this goal");
   await chapterSection
-    .getByRole("button", { name: "Add chapter" })
+    .getByRole("button", { name: "Add chapter", exact: true })
     .click();
 
   await expect(page.locator(".status-banner")).toHaveText(
-    "The chapter could not be saved on this device. Your entries are still here. Try again.",
+    "The practice chapter could not be saved on this device. Your entries are still here. Try again.",
   );
   await expect(title).toHaveValue("Retained after failure");
   await expect(chapterSection.getByLabel("Learning goals")).toHaveValue(
     "Keep this goal",
   );
-  await expect(page.locator(".stats-grid .stat-card").first()).toContainText(
-    "1",
-  );
+  await expect(manager.getByRole("heading", { name: "Practice Chapters (1)", exact: true })).toBeVisible();
   assertNoApplicationErrors();
 });
 
@@ -1028,21 +1116,24 @@ test("flashcard write failure never shows success and preserves the form for ret
   page,
 }) => {
   const assertNoApplicationErrors = watchForApplicationErrors(page);
-  await page.goto("/#/import");
+  await page.goto("/#/learn");
 
-  const chapterSection = page
-    .getByRole("heading", { name: "Add one chapter" })
+  const manager = page.getByRole("region", { name: "Manage practice content" });
+  const chapterSection = manager
+    .getByRole("heading", { name: "Practice Chapters", exact: true })
     .locator("..");
+  await chapterSection.getByRole("button", { name: "Add Chapter", exact: true }).click();
   await chapterSection
-    .getByLabel("Chapter title")
+    .getByLabel("Practice chapter title")
     .fill("Flashcard test chapter");
-  await chapterSection.getByRole("button", { name: "Add chapter" }).click();
+  await chapterSection.getByRole("button", { name: "Add chapter", exact: true }).click();
   await expect(page.locator(".status-banner")).toHaveText("Chapter added.");
 
-  const flashcardSection = page
-    .getByRole("heading", { name: "Add one flashcard" })
+  const flashcardSection = manager
+    .getByRole("heading", { name: "Flashcards", exact: true })
     .locator("..");
-  const chapter = flashcardSection.getByLabel("Chapter");
+  await flashcardSection.getByRole("button", { name: "Add Flashcard", exact: true }).click();
+  const chapter = flashcardSection.getByLabel("Practice chapter");
   await expect.poll(() => chapter.locator("option").count()).toBeGreaterThan(1);
 
   await chapter.selectOption({ index: 1 });
@@ -1055,7 +1146,7 @@ test("flashcard write failure never shows success and preserves the form for ret
     };
   });
   await flashcardSection
-    .getByRole("button", { name: "Add flashcard" })
+    .getByRole("button", { name: "Add flashcard", exact: true })
     .click();
 
   await expect(page.locator(".status-banner")).toHaveText(
@@ -1070,14 +1161,12 @@ test("flashcard write failure never shows success and preserves the form for ret
   await expect(page.getByText("Flashcard added.")).toHaveCount(0);
 
   await flashcardSection
-    .getByRole("button", { name: "Add flashcard" })
+    .getByRole("button", { name: "Add flashcard", exact: true })
     .click();
   await expect(page.locator(".status-banner")).toHaveText("Flashcard added.");
   await expect(flashcardSection.getByLabel("Question")).toHaveValue("");
   await expect(flashcardSection.getByLabel("Answer")).toHaveValue("");
-  await expect(page.locator(".stats-grid .stat-card").nth(1)).toContainText(
-    "1",
-  );
+  await expect(manager.getByRole("heading", { name: "Flashcards (1)", exact: true })).toBeVisible();
   assertNoApplicationErrors();
 });
 

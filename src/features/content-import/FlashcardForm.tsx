@@ -4,9 +4,8 @@ import {
   injectLocalWriteFailure,
   type LocalWriteFailureInjector,
 } from "../../infrastructure/database/localWriteFailureInjector";
-import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { Flashcard, StudyUnit } from "../../shared/types/models";
-import { IMPORTED_FLASHCARDS_SETTING_KEY } from "./importedContent";
+import { addImportedPracticeFlashcard } from "./practiceContentRepository";
 
 function splitCommaList(value: string): string[] {
   return value.split(",").map((item) => item.trim()).filter(Boolean);
@@ -16,13 +15,11 @@ export function FlashcardForm({
   units,
   existingFlashcards,
   failureInjector,
-  importedFlashcards,
   onMessage,
 }: {
   units: readonly StudyUnit[];
   existingFlashcards: readonly Flashcard[];
   failureInjector?: LocalWriteFailureInjector;
-  importedFlashcards: readonly Flashcard[];
   onMessage: (message: string) => void;
 }) {
   const { text } = useLanguage();
@@ -39,7 +36,7 @@ export function FlashcardForm({
 
     const selectedUnit = units.find((unit) => unit.id === unitId);
     if (!selectedUnit) {
-      onMessage(text("Choose a chapter first.", "Επίλεξε πρώτα κεφάλαιο."));
+      onMessage(text("Choose a practice chapter first.", "Επίλεξε πρώτα κεφάλαιο εξάσκησης."));
       return;
     }
 
@@ -65,10 +62,7 @@ export function FlashcardForm({
 
     try {
       await injectLocalWriteFailure(failureInjector, "flashcard");
-      await studyDatabase.settings.put({
-        key: IMPORTED_FLASHCARDS_SETTING_KEY,
-        value: [...importedFlashcards, nextCard],
-      });
+      await addImportedPracticeFlashcard(nextCard);
       setQuestion("");
       setAnswer("");
       setTags("");
@@ -87,7 +81,7 @@ export function FlashcardForm({
   }
 
   if (units.length === 0) {
-    return <p>{text("Add a chapter before creating flashcards.", "Πρόσθεσε κεφάλαιο πριν δημιουργήσεις κάρτες.")}</p>;
+    return <p>{text("Add a practice chapter before creating flashcards.", "Πρόσθεσε κεφάλαιο εξάσκησης πριν δημιουργήσεις κάρτες.")}</p>;
   }
 
   return (
@@ -97,9 +91,9 @@ export function FlashcardForm({
       onSubmit={(event) => void submit(event)}
     >
       <label className="field-label">
-        {text("Chapter", "Κεφάλαιο")}
+        {text("Practice chapter", "Κεφάλαιο εξάσκησης")}
         <select disabled={isSubmitting} required value={unitId} onChange={(event) => setUnitId(event.target.value)}>
-          <option value="">{text("Choose a chapter", "Επίλεξε κεφάλαιο")}</option>
+          <option value="">{text("Choose a practice chapter", "Επίλεξε κεφάλαιο εξάσκησης")}</option>
           {units.map((unit) => <option key={unit.id} value={unit.id}>{unit.number}. {unit.title}</option>)}
         </select>
       </label>

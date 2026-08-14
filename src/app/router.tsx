@@ -43,7 +43,10 @@ export const router = createHashRouter([
       { path: "ai-assistant-guide", element: <AssistantGuidePage /> },
       { path: "study", element: <StudyLearnPage /> },
       { path: "study/theory", element: <StudyTheoryPage /> },
-      { path: "learn", element: <LearnPage /> },
+      {
+        path: "learn",
+        element: <LearnPage failureInjector={e2eLocalWriteFailureInjector} />,
+      },
       { path: "library", element: <LibraryPage /> },
       { path: "units", element: <UnitsPage /> },
       {
@@ -65,14 +68,7 @@ export const router = createHashRouter([
         element: <QuizPage failureInjector={e2eFailureInjectors?.quiz} />,
       },
       { path: "progress", element: <ProgressPage /> },
-      {
-        path: "import",
-        element: (
-          <ContentImportPage
-            failureInjector={e2eLocalWriteFailureInjector}
-          />
-        ),
-      },
+      { path: "import", element: <ContentImportPage /> },
       { path: "study-materials", element: <Navigate replace to="/library" /> },
       { path: "tools", element: <ToolsPage /> },
       { path: "legal/license", element: <LegalPage content={legalPages.license} /> },

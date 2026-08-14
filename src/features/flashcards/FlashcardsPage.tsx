@@ -112,7 +112,7 @@ export function FlashcardsPage({ failureInjector }: FlashcardsPageProps = {}) {
         <h2>{text("There are no flashcards", "Δεν υπάρχουν κάρτες")}</h2>
         <p>
           {text("Add flashcards from the ", "Πρόσθεσε κάρτες από τη σελίδα ")}
-          <Link className="text-link" to="/import">
+          <Link className="text-link" to="/learn#practice-content">
             {text("Add content", "Προσθήκη περιεχομένου")}
           </Link>
           .
