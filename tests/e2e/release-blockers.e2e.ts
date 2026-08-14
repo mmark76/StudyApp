@@ -939,6 +939,9 @@ test("Learn manages bilingual practice content inline before four responsive stu
       getComputedStyle(element).gridTemplateColumns.split(" ").length,
     ))
     .toBe(1);
+  await expect.poll(() => page.evaluate(() =>
+    document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+  )).toBe(true);
 
   await page.getByRole("button", { name: "GR" }).click();
   const greekManager = page.getByRole("region", { name: "Διαχείριση περιεχομένου εξάσκησης" });
@@ -978,7 +981,10 @@ test("practice content CSV import and accessible CRUD stay truthful and consiste
   );
   await expect(manager.getByRole("heading", { name: "Practice Chapters (0)", exact: true })).toBeVisible();
 
-  await chaptersInput.setInputFiles({
+  const chaptersChooserPromise = page.waitForEvent("filechooser");
+  await manager.getByRole("button", { name: "Import Chapters CSV", exact: true }).click();
+  const chaptersChooser = await chaptersChooserPromise;
+  await chaptersChooser.setFiles({
     name: "practice-chapters.csv",
     mimeType: "text/csv",
     buffer: Buffer.from([
@@ -990,7 +996,10 @@ test("practice content CSV import and accessible CRUD stay truthful and consiste
   await expect(manager.getByRole("heading", { name: "Practice Chapters (1)", exact: true })).toBeVisible();
 
   const flashcardsInput = manager.locator('input[name="flashcards-csv"]');
-  await flashcardsInput.setInputFiles({
+  const flashcardsChooserPromise = page.waitForEvent("filechooser");
+  await manager.getByRole("button", { name: "Import Flashcards CSV", exact: true }).click();
+  const flashcardsChooser = await flashcardsChooserPromise;
+  await flashcardsChooser.setFiles({
     name: "practice-flashcards.csv",
     mimeType: "text/csv",
     buffer: Buffer.from([
