@@ -952,9 +952,14 @@ test("Learn manages bilingual practice content inline before four responsive stu
   page,
 }) => {
   const assertNoApplicationErrors = watchForApplicationErrors(page);
+  await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/#/learn");
 
   const manager = page.getByRole("region", { name: "Manage practice content" });
+  const options = manager.getByRole("group", { name: "Practice content options" });
+  const optionCards = options.locator(".practice-content-option");
+  const actionRows = optionCards.locator(":scope > .button-row");
+  const guidance = manager.locator("#practice-content-add-import-note");
   const englishGrid = page.getByRole("region", { name: "Learning tools" });
   await expect(manager.getByText("PRACTICE CONTENT", { exact: true })).toBeVisible();
   await expect(manager.getByText(
@@ -975,6 +980,50 @@ test("Learn manages bilingual practice content inline before four responsive stu
   )).toBeVisible();
   await expect(manager.getByRole("button", { name: "Import Flashcards CSV", exact: true })).toHaveCount(1);
   await expect(manager.getByRole("button", { name: "Import Chapters CSV", exact: true })).toHaveCount(1);
+  await expect(optionCards).toHaveCount(2);
+  await expect(guidance).toHaveText(
+    "Add creates one item manually. Import adds multiple items from a CSV file.",
+  );
+  await expect(guidance).toHaveAttribute("role", "note");
+  await expect(options).toHaveAttribute(
+    "aria-describedby",
+    "practice-content-add-import-note",
+  );
+  await expect.poll(() => manager.evaluate((element) => {
+    const cards = element.querySelector(".practice-content-options");
+    const note = element.querySelector("#practice-content-add-import-note");
+    const imported = element.querySelector(".practice-content-library");
+    return Boolean(
+      cards
+      && note
+      && imported
+      && (cards.compareDocumentPosition(note) & Node.DOCUMENT_POSITION_FOLLOWING)
+      && (note.compareDocumentPosition(imported) & Node.DOCUMENT_POSITION_FOLLOWING)
+    );
+  })).toBe(true);
+
+  async function expectAlignedCards() {
+    const cardBoxes = await optionCards.evaluateAll((cards) => cards.map((card) => {
+      const box = card.getBoundingClientRect();
+      return { height: box.height, width: box.width };
+    }));
+    const actionBoxes = await actionRows.evaluateAll((rows) => rows.map((row) => {
+      const box = row.getBoundingClientRect();
+      return { bottom: box.bottom };
+    }));
+
+    expect(cardBoxes).toHaveLength(2);
+    expect(actionBoxes).toHaveLength(2);
+    expect(Math.abs(cardBoxes[0].height - cardBoxes[1].height)).toBeLessThanOrEqual(1);
+    expect(Math.abs(actionBoxes[0].bottom - actionBoxes[1].bottom)).toBeLessThanOrEqual(1);
+  }
+
+  await expectAlignedCards();
+  await page.setViewportSize({ width: 900, height: 900 });
+  await expect.poll(() => options.evaluate((element) =>
+    getComputedStyle(element).gridTemplateColumns.split(" ").length,
+  )).toBe(2);
+  await expectAlignedCards();
   await expect(englishGrid.locator(".learning-stage-card")).toHaveCount(4);
   await expect(englishGrid.getByRole("heading", { name: "Manage Content" })).toHaveCount(0);
   await expect.poll(() => manager.evaluate((element) => Boolean(
@@ -991,17 +1040,24 @@ test("Learn manages bilingual practice content inline before four responsive stu
   await manager.getByRole("button", { name: "Add Chapter", exact: true }).click();
   await expect(page).toHaveURL(/\/#\/learn$/u);
   await expect
-    .poll(() => manager.locator(".practice-content-options").evaluate((element) =>
+    .poll(() => options.evaluate((element) =>
       getComputedStyle(element).gridTemplateColumns.split(" ").length,
     ))
     .toBe(2);
 
   await page.setViewportSize({ width: 390, height: 844 });
   await expect
-    .poll(() => manager.locator(".practice-content-options").evaluate((element) =>
+    .poll(() => options.evaluate((element) =>
       getComputedStyle(element).gridTemplateColumns.split(" ").length,
     ))
     .toBe(1);
+  const mobileCardBoxes = await optionCards.evaluateAll((cards) => cards.map((card) => {
+    const box = card.getBoundingClientRect();
+    return { bottom: box.bottom, width: box.width, x: box.x, y: box.y };
+  }));
+  expect(Math.abs(mobileCardBoxes[0].x - mobileCardBoxes[1].x)).toBeLessThanOrEqual(1);
+  expect(Math.abs(mobileCardBoxes[0].width - mobileCardBoxes[1].width)).toBeLessThanOrEqual(1);
+  expect(mobileCardBoxes[1].y).toBeGreaterThanOrEqual(mobileCardBoxes[0].bottom);
   await expect.poll(() => page.evaluate(() =>
     document.documentElement.scrollWidth <= document.documentElement.clientWidth,
   )).toBe(true);
@@ -1017,6 +1073,9 @@ test("Learn manages bilingual practice content inline before four responsive stu
     "Νέο περιεχόμενο; Εισαγάγετε πρώτα το Chapters CSV και μετά το Flashcards CSV.",
     { exact: true },
   )).toBeVisible();
+  await expect(greekManager.locator("#practice-content-add-import-note")).toHaveText(
+    "Το Add δημιουργεί χειροκίνητα μία εγγραφή. Το Import εισάγει πολλές εγγραφές από αρχείο CSV.",
+  );
   await expect(greekManager.getByRole("heading", { name: "Κεφάλαια εξάσκησης", exact: true })).toBeVisible();
 
   await page.goto("/#/import");
