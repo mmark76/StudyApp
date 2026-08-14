@@ -4,7 +4,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useLanguage } from "../../i18n/LanguageContext";
+import { type AppLanguage, useLanguage } from "../../i18n/LanguageContext";
 import type { LocalWriteFailureInjector } from "../../infrastructure/database/localWriteFailureInjector";
 import {
   StorageNotice,
@@ -30,6 +30,11 @@ import "./PracticeContentManager.css";
 
 type OpenForm = "flashcard" | "chapter" | null;
 type ImportKind = "flashcards" | "chapters" | null;
+
+const addImportGuidance: Record<AppLanguage, string> = {
+  en: "Add creates one item manually. Import adds multiple items from a CSV file.",
+  el: "Το Add δημιουργεί χειροκίνητα μία εγγραφή. Το Import εισάγει πολλές εγγραφές από αρχείο CSV.",
+};
 
 async function readFile(file: File): Promise<string> {
   return file.text();
@@ -275,7 +280,12 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
 
       {message ? <p className="inline-message status-banner" role="status" aria-live="polite">{message}</p> : null}
 
-      <div aria-label={text("Practice content options", "Επιλογές περιεχομένου εξάσκησης")} className="practice-content-options">
+      <div
+        aria-describedby="practice-content-add-import-note"
+        aria-label={text("Practice content options", "Επιλογές περιεχομένου εξάσκησης")}
+        className="practice-content-options"
+        role="group"
+      >
         <article className="template-card practice-content-option">
           <h4>{text("Flashcards", "Flashcards")}</h4>
           <p>{text(
@@ -356,6 +366,10 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
           ) : null}
         </article>
       </div>
+
+      <p className="practice-content-add-import-note" id="practice-content-add-import-note" role="note">
+        {addImportGuidance[language]}
+      </p>
 
       <div aria-labelledby="imported-practice-content-title" className="practice-content-library">
         <div>
