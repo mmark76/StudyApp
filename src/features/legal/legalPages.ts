@@ -39,7 +39,7 @@ export const legalPages = {
   privacy: {
     title: copy("Privacy", "Απόρρητο"),
     summary: copy("StudyApp is local-first and sends no study content automatically.", "Το StudyApp είναι local-first και δεν αποστέλλει αυτόματα υλικό μελέτης."),
-    lastUpdated: copy("31 July 2026", "31 Ιουλίου 2026"),
+    lastUpdated: copy("14 August 2026", "14 Αυγούστου 2026"),
     sections: [
       {
         heading: copy("Local data", "Τοπικά δεδομένα"),
@@ -52,6 +52,7 @@ export const legalPages = {
         heading: copy("AI Assistant", "Βοηθός AI"),
         paragraphs: [
           copy("StudyApp AI Assistant provides a normal external link to the dedicated Custom GPT. You provide study material directly in ChatGPT; StudyApp does not read, copy or send your library or study material for this handoff.", "Ο Βοηθός AI του StudyApp παρέχει έναν κανονικό εξωτερικό σύνδεσμο προς το ειδικό Custom GPT. Προσθέτεις το υλικό μελέτης απευθείας στο ChatGPT· το StudyApp δεν διαβάζει, δεν αντιγράφει και δεν στέλνει τη βιβλιοθήκη ή το υλικό μελέτης σου για αυτή τη μετάβαση."),
+          copy("Files created in ChatGPT must be downloaded to your device and added or imported into StudyApp manually. StudyApp does not receive or discover those files automatically.", "Τα αρχεία που δημιουργούνται στο ChatGPT πρέπει να κατεβαίνουν στη συσκευή σου και να προστίθενται ή να εισάγονται χειροκίνητα στο StudyApp. Το StudyApp δεν λαμβάνει ούτε εντοπίζει αυτά τα αρχεία αυτόματα."),
           copy("StudyApp AI and ChatGPT App are not active yet.", "Το StudyApp AI και το ChatGPT App δεν είναι ακόμη ενεργά."),
           copy("No paid AI request or charge is currently available.", "Δεν είναι ακόμη διαθέσιμη επί πληρωμή κλήση AI ή χρέωση."),
         ],

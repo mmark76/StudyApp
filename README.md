@@ -27,6 +27,11 @@ StudyApp provides a normal external link to the dedicated **StudyApp AI
 Assistant** Custom GPT. The link opens in a new browser tab. The user chooses and
 shares any study material directly in ChatGPT.
 
+The permanent bilingual `/#/instructions` page explains how to add files created
+by the Assistant to StudyApp. The user downloads each file to their device and
+then manually adds the PDF to Library or imports Chapters CSV before Flashcards
+CSV in Learn & Practice. No file is transferred automatically from ChatGPT.
+
 The bilingual intro explains the available assistant and planned AI options
 through an accessible typewriter presentation. The full message is available
 immediately to assistive technology, can be revealed on demand and appears

@@ -1,6 +1,6 @@
 # AI Assistant and Cloud Boundaries
 
-_Last updated: 2026-07-31_
+_Last updated: 2026-08-14_
 
 ## Purpose
 
@@ -49,6 +49,13 @@ rules. StudyApp accepts only the exact approved HTTPS `chatgpt.com` Custom GPT
 destination without embedded credentials, a custom port, query parameters or a
 fragment. The link uses `noopener noreferrer`. StudyApp does not access or zoom
 the external cross-origin page.
+
+The Assistant guide links to the permanent bilingual `/instructions` page for
+the manual generated-file workflow. Files remain in ChatGPT or on the user's
+device until the user downloads them and explicitly uses the existing StudyApp
+controls. StudyApp does not receive files from ChatGPT automatically. For a new
+practice-content set, the documented order is Chapters CSV first and Flashcards
+CSV second.
 
 ### 2. ChatGPT App / MCP — coming soon
 
