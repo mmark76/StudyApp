@@ -1,6 +1,6 @@
 # Architecture
 
-_Last updated: 2026-07-31_
+_Last updated: 2026-08-14_
 
 ## Summary
 
@@ -83,6 +83,12 @@ the exact approved HTTPS Custom GPT URL without credentials, a custom port,
 query parameters or a fragment. Missing or changed configuration falls back to
 that approved destination.
 
+`src/features/instructions/StudyAppInstructionsPage.tsx` provides permanent
+bilingual documentation for the manual return path. It does not inspect
+ChatGPT, read StudyApp data or perform imports. The user downloads generated
+files to their device, adds a PDF through Library when applicable, and manually
+imports Chapters CSV before Flashcards CSV through Learn & Practice.
+
 #### ChatGPT App / MCP
 
 Inactive. Its future boundary is:
@@ -137,6 +143,7 @@ service-worker registration and caching strategy remain owned by `src/main.tsx`.
 - `/tools` — Split PDF Tool;
 - `/appearance` — appearance settings;
 - `/ai-assistant-guide` — AI mode guide;
+- `/instructions` — manual AI-generated file instructions;
 - `/legal/*` — legal information.
 
 ## Data-flow boundaries
@@ -192,6 +199,18 @@ User activates external link → browser opens approved Custom GPT in a new tab
 
 No study material is read or sent by StudyApp. Opening the configured
 ChatGPT page is a normal external navigation controlled by the user.
+
+### Manual generated-file return flow
+
+```text
+User downloads files in ChatGPT
+→ user opens StudyApp
+→ user manually adds the PDF to Library when applicable
+→ user manually imports Chapters CSV before Flashcards CSV in Learn & Practice
+```
+
+The instructions page documents this flow only. It does not receive, discover,
+upload or import files automatically.
 
 ### Future remote AI flow
 

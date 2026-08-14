@@ -1,6 +1,6 @@
 # Security Policy
 
-_Last updated: 2026-07-31_
+_Last updated: 2026-08-14_
 
 ## Current security model
 
@@ -64,6 +64,12 @@ validation permits only the exact approved destination, without embedded
 credentials, a custom port, query parameters or a fragment. Invalid or missing
 configuration falls back to the same approved URL. The rendered external link
 must retain `noopener noreferrer`.
+
+The bilingual `/instructions` page is static local documentation for files the
+user has already chosen to download. It does not communicate with ChatGPT, read
+the StudyApp library or IndexedDB, discover downloaded files, or start an
+import. Every add or import remains an explicit action in the existing Library
+or Learn & Practice interface.
 
 ## ChatGPT App / MCP security gate
 

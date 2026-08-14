@@ -49,8 +49,12 @@
   padding: var(--panel-padding);
 }
 
-.assistant-guide-card > p:last-child {
+.assistant-guide-card > p:not(.eyebrow) {
   color: var(--slate-600);
+}
+
+.assistant-guide-card .button-row {
+  margin-top: 1rem;
 }
 
 .assistant-guide-note {

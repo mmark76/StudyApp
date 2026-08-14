@@ -38,6 +38,14 @@ export function AssistantGuidePage() {
               "Άνοιξε τον ειδικό Βοηθό AI του StudyApp στο ChatGPT. Επίλεξε και μοιράσου οποιοδήποτε υλικό μελέτης απευθείας στο ChatGPT.",
             )}
           </p>
+          <div className="button-row">
+            <Link className="button secondary" to="/instructions">
+              {text(
+                "Step-by-step StudyApp instructions",
+                "Οδηγίες StudyApp βήμα προς βήμα",
+              )}
+            </Link>
+          </div>
         </article>
 
         <article className="assistant-guide-card">
