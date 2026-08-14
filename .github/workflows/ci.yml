@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   checks:
-    name: Typecheck, unit, E2E, and production build
+    name: Typecheck, test, and build
     runs-on: ubuntu-latest
 
     steps:
