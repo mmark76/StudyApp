@@ -57,6 +57,27 @@ describe("local file deletion", () => {
     ]);
   });
 
+  it("finds nested split descendants once and stops safely at cycles", () => {
+    const firstSplit = makeFile({
+      id: "split-1",
+      fileSource: "split-pdf",
+      sourceFileId: "source-1",
+    });
+    const nestedSplit = makeFile({
+      id: "split-2",
+      fileSource: "split-pdf",
+      sourceFileId: "split-1",
+    });
+    const cycleBack = makeFile({
+      id: "source-1",
+      fileSource: "split-pdf",
+      sourceFileId: "split-2",
+    });
+
+    expect(findRelatedSplitPdfFiles("source-1", [nestedSplit, cycleBack, firstSplit]))
+      .toEqual([firstSplit, nestedSplit]);
+  });
+
   it("returns no deletion IDs when the user cancels", () => {
     const split = makeFile({ id: "split-1", fileSource: "split-pdf", sourceFileId: "source-1" });
 

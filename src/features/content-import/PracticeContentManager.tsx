@@ -21,11 +21,13 @@ import {
   updateImportedPracticeFlashcard,
 } from "./practiceContentRepository";
 import {
+  MAX_SPREADSHEET_FILE_SIZE,
   parseFlashcardsSpreadsheet,
   parseUnitsSpreadsheet,
 } from "./spreadsheetImport";
 import { UnitForm } from "./UnitForm";
 import { useStudyContent } from "./useStudyContent";
+import { MAX_IMPORTED_TEXT_LENGTH } from "./importedContent";
 import "./PracticeContentManager.css";
 
 type OpenForm = "flashcard" | "chapter" | null;
@@ -109,11 +111,11 @@ function FlashcardEditor({
       </label>
       <label className="field-label">
         {text("Question", "Ερώτηση")}
-        <textarea disabled={isSaving} required rows={3} value={question} onChange={(event) => setQuestion(event.target.value)} />
+        <textarea disabled={isSaving} maxLength={MAX_IMPORTED_TEXT_LENGTH} required rows={3} value={question} onChange={(event) => setQuestion(event.target.value)} />
       </label>
       <label className="field-label">
         {text("Answer", "Απάντηση")}
-        <textarea disabled={isSaving} required rows={4} value={answer} onChange={(event) => setAnswer(event.target.value)} />
+        <textarea disabled={isSaving} maxLength={MAX_IMPORTED_TEXT_LENGTH} required rows={4} value={answer} onChange={(event) => setAnswer(event.target.value)} />
       </label>
       <label className="field-label">
         {text("Keywords (optional)", "Λέξεις-κλειδιά (προαιρετικά)")}
@@ -137,7 +139,13 @@ interface PracticeContentManagerProps {
 
 export function PracticeContentManager({ failureInjector }: PracticeContentManagerProps = {}) {
   const { language, text } = useLanguage();
-  const { units, flashcards, importedUnits, importedFlashcards } = useStudyContent();
+  const {
+    units,
+    flashcards,
+    importedUnits,
+    importedFlashcards,
+    hasStoredContentError,
+  } = useStudyContent();
   const [message, setMessage] = useState("");
   const [openForm, setOpenForm] = useState<OpenForm>(null);
   const [viewedUnitId, setViewedUnitId] = useState<string | null>(null);
@@ -151,12 +159,15 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
   async function importChapters(event: ChangeEvent<HTMLInputElement>) {
     const input = event.currentTarget;
     const file = input.files?.[0];
-    if (!file || importPendingRef.current) return;
+    if (!file || importPendingRef.current || hasStoredContentError) return;
 
     importPendingRef.current = true;
     setImporting("chapters");
     setMessage("");
     try {
+      if (file.size > MAX_SPREADSHEET_FILE_SIZE) {
+        throw new Error("The CSV file is larger than the 10 MB limit.");
+      }
       const spreadsheetUnits = parseUnitsSpreadsheet(await readFile(file)).map((unit) => {
         const existing = units.find((candidate) => candidate.number === unit.number);
         return existing ? { ...unit, id: existing.id } : unit;
@@ -180,12 +191,15 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
   async function importFlashcards(event: ChangeEvent<HTMLInputElement>) {
     const input = event.currentTarget;
     const file = input.files?.[0];
-    if (!file || importPendingRef.current) return;
+    if (!file || importPendingRef.current || hasStoredContentError) return;
 
     importPendingRef.current = true;
     setImporting("flashcards");
     setMessage("");
     try {
+      if (file.size > MAX_SPREADSHEET_FILE_SIZE) {
+        throw new Error("The CSV file is larger than the 10 MB limit.");
+      }
       const spreadsheetFlashcards = await parseFlashcardsSpreadsheet(await readFile(file), units);
       await importPracticeFlashcards(spreadsheetFlashcards);
       setMessage(text(
@@ -273,6 +287,15 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
 
       <StorageNotice kind={storageNoticePlacements.contentImport} />
 
+      {hasStoredContentError ? (
+        <p className="inline-message status-banner" role="alert">
+          {text(
+            "Saved practice content is damaged or incompatible. Nothing was changed. Restore a valid backup before adding or importing content.",
+            "Το αποθηκευμένο περιεχόμενο εξάσκησης είναι κατεστραμμένο ή ασύμβατο. Δεν άλλαξε τίποτα. Επαναφέρετε έγκυρο backup πριν από προσθήκη ή εισαγωγή περιεχομένου.",
+          )}
+        </p>
+      ) : null}
+
       <p className="practice-import-order">{text(
         "New content? Import the Chapters CSV first, then the Flashcards CSV.",
         "Νέο περιεχόμενο; Εισαγάγετε πρώτα το Chapters CSV και μετά το Flashcards CSV.",
@@ -293,12 +316,12 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
             "Προσθέστε μία flashcard ή εισαγάγετε πολλές από CSV.",
           )}</p>
           <div className="button-row">
-            <button aria-expanded={openForm === "flashcard"} className="button secondary" onClick={() => setOpenForm((current) => current === "flashcard" ? null : "flashcard")} type="button">
+            <button aria-expanded={openForm === "flashcard"} className="button secondary" disabled={hasStoredContentError} onClick={() => setOpenForm((current) => current === "flashcard" ? null : "flashcard")} type="button">
               {text("Add Flashcard", "Προσθήκη Flashcard")}
             </button>
             <button
               className="button primary"
-              disabled={importing !== null}
+              disabled={importing !== null || hasStoredContentError}
               onClick={() => flashcardsInputRef.current?.click()}
               type="button"
             >
@@ -307,7 +330,7 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
             <input
               accept=".csv,text/csv"
               aria-hidden="true"
-              disabled={importing !== null}
+              disabled={importing !== null || hasStoredContentError}
               hidden
               name="flashcards-csv"
               ref={flashcardsInputRef}
@@ -319,7 +342,7 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
               {text("Download CSV template", "Λήψη προτύπου CSV")}
             </a>
           </div>
-          {openForm === "flashcard" ? (
+          {openForm === "flashcard" && !hasStoredContentError ? (
             <div className="practice-content-form-panel">
               <FlashcardForm existingFlashcards={flashcards} failureInjector={failureInjector} onMessage={setMessage} units={units} />
             </div>
@@ -333,12 +356,12 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
             "Τα κεφάλαια εξάσκησης οργανώνουν τις flashcards. Δεν είναι αρχεία του Structured Study.",
           )}</p>
           <div className="button-row">
-            <button aria-expanded={openForm === "chapter"} className="button secondary" onClick={() => setOpenForm((current) => current === "chapter" ? null : "chapter")} type="button">
+            <button aria-expanded={openForm === "chapter"} className="button secondary" disabled={hasStoredContentError} onClick={() => setOpenForm((current) => current === "chapter" ? null : "chapter")} type="button">
               {text("Add Chapter", "Προσθήκη Κεφαλαίου")}
             </button>
             <button
               className="button primary"
-              disabled={importing !== null}
+              disabled={importing !== null || hasStoredContentError}
               onClick={() => chaptersInputRef.current?.click()}
               type="button"
             >
@@ -347,7 +370,7 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
             <input
               accept=".csv,text/csv"
               aria-hidden="true"
-              disabled={importing !== null}
+              disabled={importing !== null || hasStoredContentError}
               hidden
               name="chapters-csv"
               ref={chaptersInputRef}
@@ -359,7 +382,7 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
               {text("Download CSV template", "Λήψη προτύπου CSV")}
             </a>
           </div>
-          {openForm === "chapter" ? (
+          {openForm === "chapter" && !hasStoredContentError ? (
             <div className="practice-content-form-panel">
               <UnitForm existingUnits={units} failureInjector={failureInjector} onMessage={setMessage} />
             </div>

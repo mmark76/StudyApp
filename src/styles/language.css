@@ -26,6 +26,6 @@
 }
 
 .language-switcher button:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--blue-600, #1d4ed8) 42%, transparent);
+  outline: 3px solid var(--focus-ring, #1d4ed8);
   outline-offset: 2px;
 }

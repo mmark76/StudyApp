@@ -35,7 +35,15 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "prompt",
-      includeAssets: ["study-icon.svg"],
+      includeAssets: [
+        "study-icon.svg",
+        "study-assistant-avatar.svg",
+        "templates/*.csv",
+        "templates/*.json",
+      ],
+      workbox: {
+        globPatterns: ["**/*.{js,mjs,css,html,ico,png}"],
+      },
       manifest: {
         name: "Markellos Study App",
         short_name: "Study App",

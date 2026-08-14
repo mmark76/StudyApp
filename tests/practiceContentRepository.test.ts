@@ -149,4 +149,20 @@ describe("practice content repository", () => {
     await expect(database.cardProgress.count()).resolves.toBe(0);
     await expect(database.studyOperations.count()).resolves.toBe(0);
   });
+
+  it("rejects writes over corrupt stored content without overwriting it", async () => {
+    const corruptValue = [{ id: "broken-unit" }];
+    await database.settings.put({
+      key: IMPORTED_UNITS_SETTING_KEY,
+      value: corruptValue,
+    });
+
+    await expect(addImportedPracticeUnit(practiceUnit, database)).rejects.toThrow(
+      "Saved practice chapters are invalid",
+    );
+    await expect(database.settings.get(IMPORTED_UNITS_SETTING_KEY)).resolves.toEqual({
+      key: IMPORTED_UNITS_SETTING_KEY,
+      value: corruptValue,
+    });
+  });
 });

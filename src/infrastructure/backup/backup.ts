@@ -31,7 +31,10 @@ import type {
   StudySession,
   StudyUnit,
 } from "../../shared/types/models";
-import { studyDatabase } from "../database/studyDatabase";
+import {
+  studyDatabase,
+  type StudyDatabase,
+} from "../database/studyDatabase";
 
 export const MAX_BACKUP_FILE_SIZE = 10 * 1024 * 1024;
 export const MAX_BACKUP_PROGRESS_RECORDS = 100_000;
@@ -435,19 +438,30 @@ export function createBackupPreview(backup: StudyBackup): BackupPreview {
   };
 }
 
-export async function exportBackup(): Promise<StudyBackup> {
-  const [cardProgress, studySessions, settings] = await Promise.all([
-    studyDatabase.cardProgress.toArray(),
-    studyDatabase.studySessions.toArray(),
-    studyDatabase.settings.toArray(),
-  ]);
-  return {
-    schemaVersion: 1,
-    exportedAt: new Date().toISOString(),
-    cardProgress,
-    studySessions,
-    settings,
-  };
+export function serializeBackup(value: unknown): string {
+  const serialized = JSON.stringify(parseBackup(value), null, 2);
+  if (new TextEncoder().encode(serialized).byteLength > MAX_BACKUP_FILE_SIZE) {
+    throw new BackupValidationError("The backup file is larger than the 10 MB limit.");
+  }
+  return serialized;
+}
+
+export async function exportBackup(
+  database: StudyDatabase = studyDatabase,
+): Promise<StudyBackup> {
+  return database.transaction(
+    "r",
+    database.cardProgress,
+    database.studySessions,
+    database.settings,
+    async () => parseBackup({
+      schemaVersion: 1,
+      exportedAt: new Date().toISOString(),
+      cardProgress: await database.cardProgress.toArray(),
+      studySessions: await database.studySessions.toArray(),
+      settings: await database.settings.toArray(),
+    }),
+  );
 }
 
 export async function importBackup(value: unknown): Promise<void> {

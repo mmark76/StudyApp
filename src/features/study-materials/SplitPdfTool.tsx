@@ -30,6 +30,11 @@ import {
   replaceLatestSplitDownloadBatch,
 } from "./splitPdfDownloads";
 import { normalizeStudyMaterialTitle } from "./studyMaterials";
+import {
+  addRenderedPixelCount,
+  addSplitOutputSize,
+  assertSplitPageBudget,
+} from "./splitPdfLimits";
 
 GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
@@ -79,14 +84,16 @@ function getBestPageCount(
 }
 
 async function readPdfJsPageCount(bytes: ArrayBuffer): Promise<number | null> {
+  const loadingTask = getDocument({ data: new Uint8Array(bytes.slice(0)) });
+  let pdfDocument: Awaited<typeof loadingTask.promise> | null = null;
   try {
-    const loadingTask = getDocument({ data: new Uint8Array(bytes.slice(0)) });
-    const pdfDocument = await loadingTask.promise;
-    const pageCount = pdfDocument.numPages;
-    await pdfDocument.destroy();
-    return pageCount;
+    pdfDocument = await loadingTask.promise;
+    return pdfDocument.numPages;
   } catch {
     return null;
+  } finally {
+    if (pdfDocument) await pdfDocument.destroy();
+    else await loadingTask.destroy();
   }
 }
 
@@ -102,7 +109,7 @@ function validateRanges(ranges: readonly RangeRow[], pageCount: number): Validat
   if (ranges.length === 0) throw new Error("Add at least one range.");
   if (ranges.length > MAX_SPLIT_RANGES) throw new Error(`Use up to ${MAX_SPLIT_RANGES} chunks at a time.`);
 
-  return ranges.map((range, index) => {
+  const validatedRanges = ranges.map((range, index) => {
     const from = readPageNumber(range.from, `Chunk ${index + 1} start page`);
     const to = readPageNumber(range.to, `Chunk ${index + 1} end page`);
     const name = range.name.trim();
@@ -119,6 +126,8 @@ function validateRanges(ranges: readonly RangeRow[], pageCount: number): Validat
       materialType: range.materialType,
     };
   });
+  assertSplitPageBudget(validatedRanges);
+  return validatedRanges;
 }
 
 function makeTitle(value: string): string {
@@ -156,6 +165,7 @@ async function createVectorSplitFiles(
   sourceFileId: string,
 ): Promise<LocalStudyFile[]> {
   const splitFiles: LocalStudyFile[] = [];
+  let totalOutputSize = 0;
 
   for (const [index, range] of validatedRanges.entries()) {
     const outputPdf = await PDFDocument.create();
@@ -165,6 +175,7 @@ async function createVectorSplitFiles(
     const outputBytes = await outputPdf.save();
     const outputBlob = bytesToPdfBlob(outputBytes);
     if (outputBlob.size > MAX_LOCAL_FILE_SIZE) throw new Error(`The generated PDF for pages ${range.label} is larger than 50 MB.`);
+    totalOutputSize = addSplitOutputSize(totalOutputSize, outputBlob.size);
 
     const contentHash = await computeBlobSha256(outputBlob);
     splitFiles.push({
@@ -196,6 +207,8 @@ async function createRenderedSplitFiles(
   const loadingTask = getDocument({ data: new Uint8Array(sourceBytes.slice(0)) });
   const pdfJsDocument = await loadingTask.promise;
   const splitFiles: LocalStudyFile[] = [];
+  let totalOutputSize = 0;
+  let totalRenderedPixels = 0;
 
   try {
     for (const [rangeIndex, range] of validatedRanges.entries()) {
@@ -208,30 +221,39 @@ async function createRenderedSplitFiles(
         const canvas = document.createElement("canvas");
         canvas.width = Math.ceil(renderViewport.width);
         canvas.height = Math.ceil(renderViewport.height);
+        totalRenderedPixels = addRenderedPixelCount(
+          totalRenderedPixels,
+          canvas.width,
+          canvas.height,
+        );
         const canvasContext = canvas.getContext("2d", { alpha: false });
         if (!canvasContext) throw new Error("The browser could not create a PDF rendering surface.");
-        canvasContext.fillStyle = "white";
-        canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+        try {
+          canvasContext.fillStyle = "white";
+          canvasContext.fillRect(0, 0, canvas.width, canvas.height);
 
-        await sourcePage.render({ canvas, canvasContext, viewport: renderViewport }).promise;
-        const imageBlob = await canvasToBlob(canvas, "image/jpeg", 0.92);
-        const imageBytes = new Uint8Array(await imageBlob.arrayBuffer());
-        const image = await outputPdf.embedJpg(imageBytes);
-        const outputPage = outputPdf.addPage([displayViewport.width, displayViewport.height]);
-        outputPage.drawImage(image, {
-          x: 0,
-          y: 0,
-          width: displayViewport.width,
-          height: displayViewport.height,
-        });
-        sourcePage.cleanup();
-        canvas.width = 0;
-        canvas.height = 0;
+          await sourcePage.render({ canvas, canvasContext, viewport: renderViewport }).promise;
+          const imageBlob = await canvasToBlob(canvas, "image/jpeg", 0.92);
+          const imageBytes = new Uint8Array(await imageBlob.arrayBuffer());
+          const image = await outputPdf.embedJpg(imageBytes);
+          const outputPage = outputPdf.addPage([displayViewport.width, displayViewport.height]);
+          outputPage.drawImage(image, {
+            x: 0,
+            y: 0,
+            width: displayViewport.width,
+            height: displayViewport.height,
+          });
+        } finally {
+          sourcePage.cleanup();
+          canvas.width = 0;
+          canvas.height = 0;
+        }
       }
 
       const outputBytes = await outputPdf.save();
       const outputBlob = bytesToPdfBlob(outputBytes);
       if (outputBlob.size > MAX_LOCAL_FILE_SIZE) throw new Error(`The compatibility output for pages ${range.label} is larger than 50 MB.`);
+      totalOutputSize = addSplitOutputSize(totalOutputSize, outputBlob.size);
 
       const contentHash = await computeBlobSha256(outputBlob);
       splitFiles.push({

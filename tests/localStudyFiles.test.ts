@@ -51,6 +51,17 @@ describe("local study file classification", () => {
     expect(isSourceMaterialFile(file)).toBe(true);
   });
 
+  it("trusts explicit source provenance even when a name resembles generated output", () => {
+    const file = makeFile({
+      title: "Cognitive Psychology — pages 4-9",
+      fileName: "Cognitive-Psychology-pages-4-9.pdf",
+      fileSource: "source-material",
+    });
+
+    expect(isSplitPdfFile(file)).toBe(false);
+    expect(isSourceMaterialFile(file)).toBe(true);
+  });
+
   it("leaves source files unclassified when the user has not chosen a source type", () => {
     const file = makeFile({ fileSource: "source-material" });
 

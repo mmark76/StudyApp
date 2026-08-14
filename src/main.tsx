@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
 import { App } from "./app/App";
+import { enforceSecureTransport } from "./app/secureTransport";
 import {
   announcePwaUpdate,
   setPwaUpdateHandler,
@@ -18,23 +19,25 @@ import "./styles/assistantGuide.css";
 import "./styles/assistantModes.css";
 import "./styles/language.css";
 
-const updateServiceWorker = registerSW({
-  immediate: true,
-  onNeedRefresh() {
-    announcePwaUpdate();
-  },
-  onRegisteredSW(_scriptUrl, registration) {
-    void registration?.update();
-  },
-});
+if (!enforceSecureTransport()) {
+  const updateServiceWorker = registerSW({
+    immediate: true,
+    onNeedRefresh() {
+      announcePwaUpdate();
+    },
+    onRegisteredSW(_scriptUrl, registration) {
+      void registration?.update();
+    },
+  });
 
-setPwaUpdateHandler(() => updateServiceWorker(true));
+  setPwaUpdateHandler(() => updateServiceWorker(true));
 
-const root = document.getElementById("root");
-if (!root) throw new Error("Application root was not found");
+  const root = document.getElementById("root");
+  if (!root) throw new Error("Application root was not found");
 
-createRoot(root).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+  createRoot(root).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  );
+}

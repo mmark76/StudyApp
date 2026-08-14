@@ -10,6 +10,14 @@ export interface StudyMaterialLink {
 }
 
 export const STUDY_MATERIALS_SETTING_KEY = "study-material-links";
+const STUDY_MATERIAL_LINK_KEYS = ["id", "title", "url", "materialType", "structuredStudyType"] as const;
+
+export class StoredStudyMaterialsValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "StoredStudyMaterialsValidationError";
+  }
+}
 
 // Add permanent subject links here. The template intentionally starts empty.
 export const builtInStudyMaterials: readonly StudyMaterialLink[] = [];
@@ -51,14 +59,29 @@ export function titleFromStudyMaterialUrl(value: string): string {
 }
 
 export function parseStoredStudyMaterials(value: unknown): StudyMaterialLink[] {
-  if (!Array.isArray(value)) return [];
+  if (value === undefined || value === null) return [];
+  if (!Array.isArray(value)) {
+    throw new StoredStudyMaterialsValidationError("Saved links are not an array.");
+  }
   const result: StudyMaterialLink[] = [];
   const ids = new Set<string>();
   for (const item of value) {
-    if (!isRecord(item) || typeof item.id !== "string" || typeof item.title !== "string" || typeof item.url !== "string") continue;
+    if (
+      !isRecord(item)
+      || Object.keys(item).some((key) => !STUDY_MATERIAL_LINK_KEYS.includes(key as typeof STUDY_MATERIAL_LINK_KEYS[number]))
+      || typeof item.id !== "string"
+      || typeof item.title !== "string"
+      || typeof item.url !== "string"
+      || (item.materialType !== undefined && !isSourceMaterialType(item.materialType))
+      || (item.structuredStudyType !== undefined && !isStructuredStudyType(item.structuredStudyType))
+    ) {
+      throw new StoredStudyMaterialsValidationError("A saved link is invalid.");
+    }
     try {
       const id = item.id.trim();
-      if (!id || ids.has(id)) continue;
+      if (!id || id.length > 256 || ids.has(id)) {
+        throw new StoredStudyMaterialsValidationError("A saved link ID is invalid or duplicated.");
+      }
       result.push({
         id,
         title: normalizeStudyMaterialTitle(item.title),
@@ -67,8 +90,9 @@ export function parseStoredStudyMaterials(value: unknown): StudyMaterialLink[] {
         structuredStudyType: isStructuredStudyType(item.structuredStudyType) ? item.structuredStudyType : undefined,
       });
       ids.add(id);
-    } catch {
-      // Ignore malformed local records.
+    } catch (error) {
+      if (error instanceof StoredStudyMaterialsValidationError) throw error;
+      throw new StoredStudyMaterialsValidationError("A saved link is invalid.");
     }
   }
   return result;

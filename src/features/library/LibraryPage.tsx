@@ -25,6 +25,7 @@ import {
   STUDY_MATERIALS_SETTING_KEY,
   type StudyMaterialLink,
 } from "../study-materials/studyMaterials";
+import { removeSavedStudyMaterialLink } from "../study-materials/studyMaterialLinksRepository";
 
 function getLinkMaterialType(link: StudyMaterialLink): SourceMaterialType | null {
   return link.materialType ?? null;
@@ -38,7 +39,14 @@ export function LibraryPage() {
   ) ?? [];
   const localFiles = useMemo(() => allLocalFiles.filter(isSourceMaterialFile), [allLocalFiles]);
   const setting = useLiveQuery(() => studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY), []);
-  const savedLinks = useMemo(() => parseStoredStudyMaterials(setting?.value), [setting?.value]);
+  const storedLinksResult = useMemo(() => {
+    try {
+      return { links: parseStoredStudyMaterials(setting?.value), error: false };
+    } catch {
+      return { links: [], error: true };
+    }
+  }, [setting?.value]);
+  const savedLinks = storedLinksResult.links;
   const [message, setMessage] = useState("");
   const allLinks = [...builtInStudyMaterials, ...savedLinks];
   const sourceLinks = allLinks.filter((link) => getLinkMaterialType(link) !== null || !link.structuredStudyType);
@@ -131,12 +139,7 @@ export function LibraryPage() {
     if (!window.confirm(text(`Delete "${link.title}" from StudyApp?`, `Να διαγραφεί το «${link.title}» από το StudyApp;`))) return;
 
     try {
-      const currentSetting = await studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY);
-      const currentLinks = parseStoredStudyMaterials(currentSetting?.value);
-      await studyDatabase.settings.put({
-        key: STUDY_MATERIALS_SETTING_KEY,
-        value: currentLinks.filter((item) => item.id !== link.id),
-      });
+      await removeSavedStudyMaterialLink(link.id);
       setMessage(text("Link deleted.", "Ο σύνδεσμος διαγράφηκε."));
     } catch {
       setMessage(text("The link could not be deleted.", "Ο σύνδεσμος δεν μπορεί να διαγραφεί."));
@@ -154,8 +157,8 @@ export function LibraryPage() {
       <MaterialUploadPanel
         destination="library"
         files={allLocalFiles}
-        savedLinks={savedLinks}
         existingLinks={allLinks}
+        linksBlocked={storedLinksResult.error}
         onMessage={setMessage}
       />
 

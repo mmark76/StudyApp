@@ -24,6 +24,15 @@ describe("buildQuiz", () => {
     }
   });
 
+  it("returns no quiz when fewer than four distinct answers exist", () => {
+    const repeatedAnswers = cards.map((card, index) => ({
+      ...card,
+      answer: `Answer ${(index % 3) + 1}`,
+    }));
+
+    expect(buildQuiz(repeatedAnswers, 5, () => 0.5)).toEqual([]);
+  });
+
   it("accepts only one answer while a question is locked", () => {
     const lock = { current: false };
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { studyConfig } from "../../app/studyConfig";
 import { useAppearanceSettings } from "../../features/appearance/useAppearanceSettings";
@@ -43,6 +43,27 @@ export function AppLayout() {
   const { text } = useLanguage();
   const internetStatus = useInternetConnectivity();
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
+
+  function focusMainContent() {
+    mainRef.current?.focus();
+  }
+
+  useEffect(() => {
+    const animationFrame = window.requestAnimationFrame(() => {
+      if (location.hash) {
+        const target = document.getElementById(location.hash.slice(1));
+        if (target) {
+          target.tabIndex = -1;
+          target.focus();
+          target.scrollIntoView({ block: "start" });
+          return;
+        }
+      }
+      focusMainContent();
+    });
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [location.hash, location.pathname]);
   const internetStatusLabel = internetStatus === "online"
     ? text("Internet connection: Online", "Σύνδεση στο διαδίκτυο: Online")
     : internetStatus === "offline"
@@ -56,6 +77,12 @@ export function AppLayout() {
 
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#main-content" onClick={(event) => {
+        event.preventDefault();
+        focusMainContent();
+      }}>
+        {text("Skip to main content", "Μετάβαση στο κύριο περιεχόμενο")}
+      </a>
       <header className="app-header">
         <div className="app-header-top">
           <div>
@@ -136,7 +163,7 @@ export function AppLayout() {
         </div>
       </header>
       <PwaUpdateToast />
-      <main className="app-main">
+      <main className="app-main" id="main-content" ref={mainRef} tabIndex={-1}>
         <Outlet />
       </main>
       <footer className="app-footer">

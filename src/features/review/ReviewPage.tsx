@@ -41,6 +41,7 @@ export function ReviewPage({ failureInjector }: ReviewPageProps = {}) {
   const [retryOperation, setRetryOperation] =
     useState<CardRatingOperationInput | null>(null);
   const activeOperationRef = useRef<CardRatingOperationInput | null>(null);
+  const cardHeadingRef = useRef<HTMLHeadingElement>(null);
   const [session, setSession] = useState(createReviewSessionIdentity);
   const card = dueCards[index];
 
@@ -50,6 +51,10 @@ export function ReviewPage({ failureInjector }: ReviewPageProps = {}) {
       current.length > 0 ? current : buildDueReviewQueue(flashcards, progress),
     );
   }, [finished, flashcards, progress]);
+
+  useEffect(() => {
+    if (index > 0 || revealed) cardHeadingRef.current?.focus();
+  }, [index, revealed]);
 
   async function persistRating(operation: CardRatingOperationInput) {
     if (pending) return;
@@ -169,7 +174,7 @@ export function ReviewPage({ failureInjector }: ReviewPageProps = {}) {
       </div>
       <article className="flashcard">
         <p className="eyebrow">{text("Review", "Επανάληψη")}</p>
-        <h2>{revealed ? card.answer : card.question}</h2>
+        <h2 ref={cardHeadingRef} tabIndex={-1}>{revealed ? card.answer : card.question}</h2>
       </article>
       {!revealed ? (
         <button

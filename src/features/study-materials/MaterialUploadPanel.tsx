@@ -12,14 +12,14 @@ import type { StudyMaterialLink } from "./studyMaterials";
 export function MaterialUploadPanel({
   destination,
   files,
-  savedLinks,
   existingLinks,
+  linksBlocked = false,
   onMessage,
 }: {
   destination: MaterialDestination;
   files: readonly LocalStudyFile[];
-  savedLinks: readonly StudyMaterialLink[];
   existingLinks: readonly StudyMaterialLink[];
+  linksBlocked?: boolean;
   onMessage: (message: string) => void;
 }) {
   const { text } = useLanguage();
@@ -53,8 +53,8 @@ export function MaterialUploadPanel({
           </div>
           <CloudLinkForm
             destination={destination}
-            savedLinks={savedLinks}
             existingLinks={existingLinks}
+            linksBlocked={linksBlocked}
             onMessage={onMessage}
           />
         </section>

@@ -9,6 +9,7 @@ import {
   importBackup,
   MAX_BACKUP_FILE_SIZE,
   parseBackupJson,
+  serializeBackup,
   type BackupPreview,
 } from "../../infrastructure/backup/backup";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
@@ -30,8 +31,13 @@ export function ProgressPage() {
   const sessions = useLiveQuery(() => studyDatabase.studySessions.orderBy("startedAt").reverse().toArray(), []) ?? [];
   const [message, setMessage] = useState("");
   const [pendingRestore, setPendingRestore] = useState<PendingRestore | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+  const exportLock = useRef(false);
   const restoreLock = useRef(false);
+  const resetLock = useRef(false);
+  const restoreInputRef = useRef<HTMLInputElement>(null);
 
   function settingLabel(label: string): string {
     if (language === "en") return label;
@@ -44,15 +50,42 @@ export function ProgressPage() {
     return labels[label] ?? label;
   }
 
+  function backupReadError(error: unknown): string {
+    if (!(error instanceof BackupValidationError)) {
+      return text("The backup could not be read.", "Το backup δεν μπορεί να διαβαστεί.");
+    }
+    if (language === "en") return error.message;
+    if (error.message.includes("larger than") || error.message.includes("too large")) {
+      return "Το backup είναι μεγαλύτερο από το όριο των 10 MB.";
+    }
+    if (error.message.includes("version")) return "Η έκδοση αυτού του backup δεν υποστηρίζεται.";
+    if (error.message.includes("valid JSON")) return "Το επιλεγμένο αρχείο δεν είναι έγκυρο backup JSON.";
+    return "Το backup είναι κατεστραμμένο, ελλιπές ή ασύμβατο. Δεν άλλαξε τίποτα.";
+  }
+
   async function downloadProgressCopy() {
-    const backup = await exportBackup();
-    const url = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" }));
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = `study-progress-${new Date().toISOString().slice(0, 10)}.json`;
-    anchor.click();
-    URL.revokeObjectURL(url);
-    setMessage(text("Backup saved. Files are not included.", "Το backup αποθηκεύτηκε. Τα αρχεία δεν περιλαμβάνονται."));
+    if (exportLock.current) return;
+    exportLock.current = true;
+    setIsExporting(true);
+    setMessage("");
+    try {
+      const serialized = serializeBackup(await exportBackup());
+      const url = URL.createObjectURL(new Blob([serialized], { type: "application/json" }));
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `study-progress-${new Date().toISOString().slice(0, 10)}.json`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      setMessage(text("Backup saved. Files are not included.", "Το backup αποθηκεύτηκε. Τα αρχεία δεν περιλαμβάνονται."));
+    } catch {
+      setMessage(text(
+        "Backup could not be saved because the stored data is invalid or too large. Nothing was changed.",
+        "Το backup δεν αποθηκεύτηκε επειδή τα δεδομένα δεν είναι έγκυρα ή είναι πολύ μεγάλα. Δεν άλλαξε τίποτα.",
+      ));
+    } finally {
+      exportLock.current = false;
+      setIsExporting(false);
+    }
   }
 
   async function restoreProgress(event: ChangeEvent<HTMLInputElement>) {
@@ -65,11 +98,7 @@ export function ProgressPage() {
       setPendingRestore({ fileName: file.name, backup, preview: createBackupPreview(backup) });
       setMessage(text("Backup checked. Review it before restoring.", "Το backup ελέγχθηκε. Δες την προεπισκόπηση πριν την επαναφορά."));
     } catch (error) {
-      setMessage(
-        error instanceof BackupValidationError && language === "en"
-          ? error.message
-          : text("The backup could not be read.", "Το backup δεν μπορεί να διαβαστεί."),
-      );
+      setMessage(backupReadError(error));
     } finally {
       event.target.value = "";
     }
@@ -97,19 +126,32 @@ export function ProgressPage() {
   }
 
   async function resetProgress() {
+    if (resetLock.current) return;
     if (!window.confirm(text("Remove all study progress from this device?", "Να διαγραφεί όλη η πρόοδος από αυτή τη συσκευή;"))) return;
-    await studyDatabase.transaction(
-      "rw",
-      studyDatabase.cardProgress,
-      studyDatabase.studyOperations,
-      studyDatabase.studySessions,
-      async () => {
-        await studyDatabase.cardProgress.clear();
-        await studyDatabase.studyOperations.clear();
-        await studyDatabase.studySessions.clear();
-      },
-    );
-    setMessage(text("Study progress removed.", "Η πρόοδος διαγράφηκε."));
+    resetLock.current = true;
+    setIsResetting(true);
+    try {
+      await studyDatabase.transaction(
+        "rw",
+        studyDatabase.cardProgress,
+        studyDatabase.studyOperations,
+        studyDatabase.studySessions,
+        async () => {
+          await studyDatabase.cardProgress.clear();
+          await studyDatabase.studyOperations.clear();
+          await studyDatabase.studySessions.clear();
+        },
+      );
+      setMessage(text("Study progress removed.", "Η πρόοδος διαγράφηκε."));
+    } catch {
+      setMessage(text(
+        "Progress could not be removed. Existing data was not changed.",
+        "Η πρόοδος δεν μπόρεσε να διαγραφεί. Τα υπάρχοντα δεδομένα δεν άλλαξαν.",
+      ));
+    } finally {
+      resetLock.current = false;
+      setIsResetting(false);
+    }
   }
 
   return (
@@ -129,15 +171,15 @@ export function ProgressPage() {
         <h3>{text("Backup", "Αντίγραφο ασφαλείας")}</h3>
         <StorageNotice kind={storageNoticePlacements.progressBackup} />
         <div className="button-row">
-          <button className="button primary" disabled={isRestoring} onClick={() => void downloadProgressCopy()}>
-            {text("Save backup", "Αποθήκευση backup")}
+          <button className="button primary" disabled={isExporting || isRestoring || isResetting} onClick={() => void downloadProgressCopy()}>
+            {isExporting ? text("Saving…", "Αποθήκευση…") : text("Save backup", "Αποθήκευση backup")}
           </button>
-          <label className="button secondary file-button">
+          <button className="button secondary" disabled={isExporting || isRestoring || isResetting} onClick={() => restoreInputRef.current?.click()} type="button">
             {text("Restore backup", "Επαναφορά backup")}
-            <input accept=".json,application/json" disabled={isRestoring} type="file" onChange={(event) => void restoreProgress(event)} />
-          </label>
-          <button className="button danger" disabled={isRestoring} onClick={() => void resetProgress()}>
-            {text("Clear progress", "Διαγραφή προόδου")}
+          </button>
+          <input accept=".json,application/json" aria-hidden="true" disabled={isExporting || isRestoring || isResetting} hidden ref={restoreInputRef} tabIndex={-1} type="file" onChange={(event) => void restoreProgress(event)} />
+          <button className="button danger" disabled={isExporting || isRestoring || isResetting} onClick={() => void resetProgress()}>
+            {isResetting ? text("Clearing…", "Διαγραφή…") : text("Clear progress", "Διαγραφή προόδου")}
           </button>
         </div>
 

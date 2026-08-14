@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
@@ -29,7 +29,9 @@ interface FlashcardsPageProps {
 
 export function FlashcardsPage({ failureInjector }: FlashcardsPageProps = {}) {
   const { text } = useLanguage();
-  const { flashcards: cards } = useStudyContent();
+  const { flashcards: availableCards } = useStudyContent();
+  const [cards, setCards] = useState(availableCards);
+  const [hasStarted, setHasStarted] = useState(false);
   const [index, setIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [finished, setFinished] = useState(false);
@@ -38,8 +40,17 @@ export function FlashcardsPage({ failureInjector }: FlashcardsPageProps = {}) {
   const [retryOperation, setRetryOperation] =
     useState<CardRatingOperationInput | null>(null);
   const activeOperationRef = useRef<CardRatingOperationInput | null>(null);
+  const cardHeadingRef = useRef<HTMLHeadingElement>(null);
   const [session, setSession] = useState(createSessionIdentity);
   const card = cards[index];
+
+  useEffect(() => {
+    if (!hasStarted) setCards(availableCards);
+  }, [availableCards, hasStarted]);
+
+  useEffect(() => {
+    if (index > 0 || revealed) cardHeadingRef.current?.focus();
+  }, [index, revealed]);
 
   async function persistRating(operation: CardRatingOperationInput) {
     if (pending) return;
@@ -92,11 +103,14 @@ export function FlashcardsPage({ failureInjector }: FlashcardsPageProps = {}) {
     };
 
     activeOperationRef.current = operation;
+    setHasStarted(true);
     setRetryOperation(operation);
     void persistRating(operation);
   }
 
   function startNewSession() {
+    setCards(availableCards);
+    setHasStarted(false);
     setIndex(0);
     setRevealed(false);
     setFinished(false);
@@ -145,7 +159,7 @@ export function FlashcardsPage({ failureInjector }: FlashcardsPageProps = {}) {
         <p className="eyebrow">
           {text("Card", "Κάρτα")} {card.number}
         </p>
-        <h2>{revealed ? card.answer : card.question}</h2>
+        <h2 ref={cardHeadingRef} tabIndex={-1}>{revealed ? card.answer : card.question}</h2>
         <div className="tag-row">
           {card.tags.map((tag) => (
             <span className="tag" key={tag}>
@@ -158,7 +172,10 @@ export function FlashcardsPage({ failureInjector }: FlashcardsPageProps = {}) {
         <button
           className="button primary"
           disabled={pending}
-          onClick={() => setRevealed(true)}
+          onClick={() => {
+            setHasStarted(true);
+            setRevealed(true);
+          }}
           type="button"
         >
           {text("Show answer", "Εμφάνιση απάντησης")}
