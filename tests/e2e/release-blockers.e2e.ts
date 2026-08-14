@@ -198,6 +198,69 @@ async function showPwaUpdate(
   }, mode);
 }
 
+test("How to use guide explains the practice-content flow in English and Greek", async ({
+  page,
+}) => {
+  const assertNoApplicationErrors = watchForApplicationErrors(page);
+  const englishSteps = [
+    "Add your source material to Library or Structured Study.",
+    "Use the StudyApp AI Assistant to create study content.",
+    "Download the generated PDF or CSV files. They are not transferred automatically.",
+    "For new practice content, open Learn & Practice → Manage Practice Content.",
+    "Import the Chapters CSV first, then the Flashcards CSV.",
+    "Study with Flashcards, Review and Quiz.",
+    "Save regular backups of your local data.",
+  ];
+  const greekSteps = [
+    "Προσθέστε το αρχικό υλικό στη Βιβλιοθήκη ή στο Structured Study.",
+    "Χρησιμοποιήστε το StudyApp AI Assistant για να δημιουργήσετε εκπαιδευτικό περιεχόμενο.",
+    "Κατεβάστε τα αρχεία PDF ή CSV. Δεν μεταφέρονται αυτόματα στο StudyApp.",
+    "Για νέο υλικό εξάσκησης, ανοίξτε Learn & Practice → Διαχείριση περιεχομένου εξάσκησης.",
+    "Εισαγάγετε πρώτα το Chapters CSV και μετά το Flashcards CSV.",
+    "Μελετήστε με Flashcards, Review και Quiz.",
+    "Δημιουργείτε τακτικά αντίγραφα ασφαλείας των τοπικών δεδομένων.",
+  ];
+
+  await page.goto("/");
+  const englishLauncher = page.getByRole("button", { name: "Open guide" });
+  await englishLauncher.click();
+
+  const englishDialog = page.getByRole("dialog", {
+    name: "How to use StudyApp",
+  });
+  await expect(englishDialog).toBeVisible();
+  await expect(englishDialog).toHaveAttribute(
+    "aria-describedby",
+    "home-guide-description",
+  );
+  await expect(englishDialog.locator("ol > li")).toHaveText(englishSteps);
+  await expect(englishDialog.getByRole("button", { name: "Close" }))
+    .toBeFocused();
+
+  await page.keyboard.press("Escape");
+  await expect(englishDialog).toBeHidden();
+  await expect(englishLauncher).toBeFocused();
+
+  await page.getByRole("button", { name: "GR" }).click();
+  await page.setViewportSize({ width: 390, height: 720 });
+  await page.getByRole("button", { name: "Άνοιγμα οδηγού" }).click();
+
+  const greekDialog = page.getByRole("dialog", {
+    name: "Πώς να χρησιμοποιήσετε το StudyApp",
+  });
+  await expect(greekDialog).toBeVisible();
+  await expect(greekDialog.locator("ol > li")).toHaveText(greekSteps);
+
+  const dialogBox = await greekDialog.boundingBox();
+  expect(dialogBox).not.toBeNull();
+  expect(dialogBox?.x).toBeGreaterThanOrEqual(0);
+  expect((dialogBox?.x ?? 0) + (dialogBox?.width ?? 0)).toBeLessThanOrEqual(390);
+  await expect.poll(() => greekDialog.evaluate(
+    (element) => element.scrollWidth <= element.clientWidth,
+  )).toBe(true);
+  assertNoApplicationErrors();
+});
+
 test("PWA update toast is compact, localized, responsive, and user-controlled", async ({
   page,
 }) => {

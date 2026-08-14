@@ -73,19 +73,41 @@ export function HomePage() {
     },
     {
       eyebrow: text("Getting started", "Ξεκίνημα"),
-      title: text("How to use StudyApp", "Πώς χρησιμοποιείται το StudyApp"),
+      title: text("How to use StudyApp", "Πώς να χρησιμοποιήσετε το StudyApp"),
       description: text(
         "A simple path from source material to practice.",
         "Μια απλή διαδρομή από το υλικό στην εξάσκηση.",
       ),
       action: text("Open guide", "Άνοιγμα οδηγού"),
       guideSteps: [
-        text("Add material to Library or Structured Study.", "Πρόσθεσε υλικό στη Βιβλιοθήκη ή στη Δομημένη Μελέτη."),
-        text("Classify files so they are easy to find.", "Ταξινόμησε τα αρχεία για να τα βρίσκεις εύκολα."),
-        text("Split large PDFs when needed.", "Διαχώρισε μεγάλα PDF όταν χρειάζεται."),
-        text("Create or import chapters and flashcards.", "Δημιούργησε ή εισήγαγε κεφάλαια και κάρτες."),
-        text("Use review and quizzes regularly.", "Χρησιμοποίησε συχνά την επανάληψη και τα κουίζ."),
-        text("Save a backup of your progress.", "Αποθήκευε backup της προόδου σου."),
+        text(
+          "Add your source material to Library or Structured Study.",
+          "Προσθέστε το αρχικό υλικό στη Βιβλιοθήκη ή στο Structured Study.",
+        ),
+        text(
+          "Use the StudyApp AI Assistant to create study content.",
+          "Χρησιμοποιήστε το StudyApp AI Assistant για να δημιουργήσετε εκπαιδευτικό περιεχόμενο.",
+        ),
+        text(
+          "Download the generated PDF or CSV files. They are not transferred automatically.",
+          "Κατεβάστε τα αρχεία PDF ή CSV. Δεν μεταφέρονται αυτόματα στο StudyApp.",
+        ),
+        text(
+          "For new practice content, open Learn & Practice → Manage Practice Content.",
+          "Για νέο υλικό εξάσκησης, ανοίξτε Learn & Practice → Διαχείριση περιεχομένου εξάσκησης.",
+        ),
+        text(
+          "Import the Chapters CSV first, then the Flashcards CSV.",
+          "Εισαγάγετε πρώτα το Chapters CSV και μετά το Flashcards CSV.",
+        ),
+        text(
+          "Study with Flashcards, Review and Quiz.",
+          "Μελετήστε με Flashcards, Review και Quiz.",
+        ),
+        text(
+          "Save regular backups of your local data.",
+          "Δημιουργείτε τακτικά αντίγραφα ασφαλείας των τοπικών δεδομένων.",
+        ),
       ],
     },
   ];
@@ -125,6 +147,7 @@ export function HomePage() {
 
       {guideSpace && (
         <dialog
+          aria-describedby="home-guide-description"
           aria-labelledby="home-guide-title"
           className="home-guide-dialog"
           onClose={() => setIsGuideOpen(false)}
@@ -132,7 +155,7 @@ export function HomePage() {
         >
           <p className="eyebrow">{guideSpace.eyebrow}</p>
           <h2 id="home-guide-title">{guideSpace.title}</h2>
-          <p>{guideSpace.description}</p>
+          <p id="home-guide-description">{guideSpace.description}</p>
           <ol className="learning-stage-steps">
             {guideSpace.guideSteps?.map((step) => <li key={step}>{step}</li>)}
           </ol>
