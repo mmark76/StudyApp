@@ -297,8 +297,8 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
             <input
               accept=".csv,text/csv"
               aria-hidden="true"
-              className="practice-content-file-input"
               disabled={importing !== null}
+              hidden
               name="flashcards-csv"
               ref={flashcardsInputRef}
               tabIndex={-1}
@@ -337,8 +337,8 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
             <input
               accept=".csv,text/csv"
               aria-hidden="true"
-              className="practice-content-file-input"
               disabled={importing !== null}
+              hidden
               name="chapters-csv"
               ref={chaptersInputRef}
               tabIndex={-1}
