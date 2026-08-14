@@ -885,6 +885,76 @@ test("Assistant provides equivalent English and Greek screens", async ({
   assertNoApplicationErrors();
 });
 
+test("Learn exposes bilingual Manage Content and keeps imports in Learn & Practice", async ({
+  page,
+}) => {
+  const assertNoApplicationErrors = watchForApplicationErrors(page);
+  await page.goto("/#/learn");
+
+  const englishGrid = page.getByRole("region", { name: "Learning tools" });
+  await expect(englishGrid.locator(".learning-stage-card")).toHaveCount(5);
+  const englishCard = englishGrid
+    .getByRole("heading", { name: "Manage Content", exact: true })
+    .locator("..");
+  for (const option of [
+    "Add Flashcard",
+    "Import Flashcards CSV",
+    "Import Chapters CSV",
+    "Manage/Delete imported content",
+  ]) {
+    await expect(englishCard.getByText(option, { exact: true })).toBeVisible();
+  }
+  await expect(
+    englishCard.getByRole("link", { name: "Manage content", exact: true }),
+  ).toHaveAttribute("href", "#/import");
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(englishCard).toBeVisible();
+  await expect
+    .poll(() =>
+      englishGrid.evaluate((element) =>
+        getComputedStyle(element).gridTemplateColumns.split(" ").length,
+      ),
+    )
+    .toBe(1);
+
+  await page.getByRole("button", { name: "GR" }).click();
+  const greekGrid = page.getByRole("region", { name: "Εργαλεία μάθησης" });
+  const greekCard = greekGrid
+    .getByRole("heading", {
+      name: "Διαχείριση περιεχομένου",
+      exact: true,
+    })
+    .locator("..");
+  for (const option of [
+    "Προσθήκη κάρτας",
+    "Εισαγωγή καρτών CSV",
+    "Εισαγωγή κεφαλαίων CSV",
+    "Διαχείριση/διαγραφή εισαγόμενου περιεχομένου",
+  ]) {
+    await expect(greekCard.getByText(option, { exact: true })).toBeVisible();
+  }
+
+  const importLink = greekCard.getByRole("link", {
+    name: "Διαχείριση περιεχομένου",
+    exact: true,
+  });
+  await expect(importLink).toHaveAttribute("href", "#/import");
+  await importLink.click();
+  await expect(page).toHaveURL(/\/#\/import$/u);
+
+  const navigation = page.getByRole("navigation", {
+    name: "Κύρια πλοήγηση",
+  });
+  await expect(
+    navigation.getByRole("link", { name: "Μάθηση & Εξάσκηση" }),
+  ).toHaveAttribute("aria-current", "page");
+  await expect(
+    navigation.getByRole("link", { name: "Δομημένη Μελέτη" }),
+  ).not.toHaveAttribute("aria-current", "page");
+  assertNoApplicationErrors();
+});
+
 test("chapter writes disable pending controls, reject duplicates, and retain failed input", async ({
   page,
 }) => {

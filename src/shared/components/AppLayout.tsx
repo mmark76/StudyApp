@@ -15,13 +15,13 @@ const mainNavigation = [
     to: "/study/theory",
     en: "Structured Study",
     el: "Δομημένη Μελέτη",
-    matches: ["/study", "/study/theory", "/units", "/import"],
+    matches: ["/study", "/study/theory", "/units"],
   },
   {
     to: "/learn",
     en: "Learn & Practice",
     el: "Μάθηση & Εξάσκηση",
-    matches: ["/learn", "/flashcards", "/review", "/quiz", "/progress"],
+    matches: ["/learn", "/flashcards", "/review", "/quiz", "/progress", "/import"],
   },
   { to: "/tools#split-pdf", en: "Split PDF Tool", el: "Διαχωρισμός PDF", matches: ["/tools"] },
 ] as const;

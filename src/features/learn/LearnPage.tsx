@@ -29,6 +29,24 @@ export function LearnPage() {
       action: text("View progress", "Προβολή προόδου"),
       to: "/progress",
     },
+    {
+      title: text("Manage Content", "Διαχείριση περιεχομένου"),
+      description: text(
+        "Add, import, or remove your flashcards and chapters.",
+        "Πρόσθεσε, εισήγαγε ή διέγραψε κάρτες και κεφάλαια.",
+      ),
+      options: [
+        text("Add Flashcard", "Προσθήκη κάρτας"),
+        text("Import Flashcards CSV", "Εισαγωγή καρτών CSV"),
+        text("Import Chapters CSV", "Εισαγωγή κεφαλαίων CSV"),
+        text(
+          "Manage/Delete imported content",
+          "Διαχείριση/διαγραφή εισαγόμενου περιεχομένου",
+        ),
+      ],
+      action: text("Manage content", "Διαχείριση περιεχομένου"),
+      to: "/import",
+    },
   ];
 
   return (
@@ -45,6 +63,11 @@ export function LearnPage() {
             <span className="stage-number" aria-hidden="true">{index + 1}</span>
             <h3>{tool.title}</h3>
             <p>{tool.description}</p>
+            {tool.options ? (
+              <ul className="learning-stage-steps">
+                {tool.options.map((option) => <li key={option}>{option}</li>)}
+              </ul>
+            ) : null}
             <Link className="button secondary" to={tool.to}>{tool.action}</Link>
           </article>
         ))}
