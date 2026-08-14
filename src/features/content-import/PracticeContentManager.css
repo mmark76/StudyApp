@@ -1,0 +1,119 @@
+.practice-content-manager {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.practice-content-heading > :last-child,
+.practice-content-option > :last-child,
+.practice-content-library > :last-child {
+  margin-bottom: 0;
+}
+
+.practice-content-options,
+.practice-content-lists {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.practice-content-option {
+  display: grid;
+  gap: 1rem;
+}
+
+.practice-content-option h4,
+.practice-content-option p,
+.practice-content-library h4,
+.practice-content-list-panel h5 {
+  margin: 0;
+}
+
+.practice-content-option > .button-row {
+  align-items: stretch;
+}
+
+.practice-content-file-input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.practice-content-form-panel,
+.practice-content-editor,
+.practice-content-details {
+  margin-top: 0.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--slate-300);
+}
+
+.practice-import-order {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-left: 4px solid var(--blue-600);
+  border-radius: var(--radius-sm);
+  background: var(--blue-100);
+  color: var(--navy-800);
+  font-weight: 750;
+}
+
+.practice-content-library {
+  display: grid;
+  gap: 1rem;
+  padding-top: 0.25rem;
+}
+
+.practice-content-list-panel {
+  min-width: 0;
+  padding: var(--card-padding);
+  border: 1px solid var(--slate-300);
+  border-radius: var(--radius-md);
+  background: var(--page-background);
+}
+
+.practice-content-list-panel > p {
+  color: var(--slate-600);
+}
+
+.practice-content-item + .practice-content-item {
+  border-top: 1px solid var(--slate-300);
+}
+
+.practice-content-item .local-file-row {
+  border-bottom: 0;
+}
+
+.practice-content-details {
+  display: grid;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.practice-content-details div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.practice-content-details dt {
+  color: var(--navy-800);
+  font-weight: 750;
+}
+
+.practice-content-details dd {
+  margin: 0;
+  color: var(--slate-600);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .practice-content-options,
+  .practice-content-lists {
+    grid-template-columns: 1fr;
+  }
+
+  .practice-content-option .button {
+    width: 100%;
+  }
+}

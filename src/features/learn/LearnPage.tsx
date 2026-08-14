@@ -1,8 +1,14 @@
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
+import type { LocalWriteFailureInjector } from "../../infrastructure/database/localWriteFailureInjector";
+import { PracticeContentManager } from "../content-import/PracticeContentManager";
 import "./LearnPage.css";
 
-export function LearnPage() {
+interface LearnPageProps {
+  failureInjector?: LocalWriteFailureInjector;
+}
+
+export function LearnPage({ failureInjector }: LearnPageProps = {}) {
   const { text } = useLanguage();
   const learnTools = [
     {
@@ -29,24 +35,6 @@ export function LearnPage() {
       action: text("View progress", "Προβολή προόδου"),
       to: "/progress",
     },
-    {
-      title: text("Manage Content", "Διαχείριση περιεχομένου"),
-      description: text(
-        "Add, import, or remove your flashcards and chapters.",
-        "Πρόσθεσε, εισήγαγε ή διέγραψε κάρτες και κεφάλαια.",
-      ),
-      options: [
-        text("Add Flashcard", "Προσθήκη κάρτας"),
-        text("Import Flashcards CSV", "Εισαγωγή καρτών CSV"),
-        text("Import Chapters CSV", "Εισαγωγή κεφαλαίων CSV"),
-        text(
-          "Manage/Delete imported content",
-          "Διαχείριση/διαγραφή εισαγόμενου περιεχομένου",
-        ),
-      ],
-      action: text("Manage content", "Διαχείριση περιεχομένου"),
-      to: "/import",
-    },
   ];
 
   return (
@@ -57,17 +45,14 @@ export function LearnPage() {
         <p>{text("Practise with flashcards, review and quizzes.", "Εξασκήσου με κάρτες, επανάληψη και κουίζ.")}</p>
       </header>
 
+      <PracticeContentManager failureInjector={failureInjector} />
+
       <section className="learning-stage-grid learn-tools-grid" aria-label={text("Learning tools", "Εργαλεία μάθησης")}>
         {learnTools.map((tool, index) => (
           <article className="learning-stage-card" key={tool.title}>
             <span className="stage-number" aria-hidden="true">{index + 1}</span>
             <h3>{tool.title}</h3>
             <p>{tool.description}</p>
-            {tool.options ? (
-              <ul className="learning-stage-steps">
-                {tool.options.map((option) => <li key={option}>{option}</li>)}
-              </ul>
-            ) : null}
             <Link className="button secondary" to={tool.to}>{tool.action}</Link>
           </article>
         ))}
