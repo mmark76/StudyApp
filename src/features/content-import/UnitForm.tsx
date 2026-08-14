@@ -6,6 +6,7 @@ import {
 } from "../../infrastructure/database/localWriteFailureInjector";
 import type { StudyUnit } from "../../shared/types/models";
 import { addImportedPracticeUnit } from "./practiceContentRepository";
+import { MAX_IMPORTED_TEXT_LENGTH } from "./importedContent";
 
 function splitLines(value: string): string[] {
   return value.split("\n").map((item) => item.trim()).filter(Boolean);
@@ -84,7 +85,7 @@ export function UnitForm({
     >
       <label className="field-label">
         {text("Practice chapter title", "Τίτλος κεφαλαίου εξάσκησης")}
-        <input disabled={isSubmitting} required value={title} onChange={(event) => setTitle(event.target.value)} />
+        <input disabled={isSubmitting} maxLength={MAX_IMPORTED_TEXT_LENGTH} required value={title} onChange={(event) => setTitle(event.target.value)} />
       </label>
       <label className="field-label">
         {text("Learning goals", "Στόχοι μάθησης")}

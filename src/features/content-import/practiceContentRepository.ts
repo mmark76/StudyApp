@@ -8,6 +8,8 @@ import { mergeImportedFlashcards } from "./flashcardIdentity";
 import {
   IMPORTED_FLASHCARDS_SETTING_KEY,
   IMPORTED_UNITS_SETTING_KEY,
+  parseImportedFlashcards,
+  parseImportedUnits,
   parseStoredFlashcards,
   parseStoredUnits,
 } from "./importedContent";
@@ -37,18 +39,19 @@ export async function addImportedPracticeUnit(
   unit: StudyUnit,
   database: StudyDatabase = studyDatabase,
 ): Promise<void> {
+  const [validatedUnit] = parseImportedUnits([unit]);
   await database.transaction("rw", database.settings, async () => {
     const currentUnits = await readImportedUnits(database);
     if (
       currentUnits.some(
-        (current) => current.id === unit.id || current.number === unit.number,
+        (current) => current.id === validatedUnit.id || current.number === validatedUnit.number,
       )
     ) {
       throw new Error("Practice chapter already exists");
     }
     await database.settings.put({
       key: IMPORTED_UNITS_SETTING_KEY,
-      value: [...currentUnits, unit],
+      value: [...currentUnits, validatedUnit],
     });
   });
 }
@@ -57,6 +60,7 @@ export async function addImportedPracticeFlashcard(
   card: Flashcard,
   database: StudyDatabase = studyDatabase,
 ): Promise<void> {
+  const [validatedCard] = parseImportedFlashcards([card]);
   await database.transaction("rw", database.settings, async () => {
     const [currentUnits, currentCards] = await Promise.all([
       readImportedUnits(database),
@@ -66,15 +70,15 @@ export async function addImportedPracticeFlashcard(
       ...builtInUnits.map((unit) => unit.id),
       ...currentUnits.map((unit) => unit.id),
     ]);
-    if (!knownUnitIds.has(card.unitId)) {
+    if (!knownUnitIds.has(validatedCard.unitId)) {
       throw new Error("Practice chapter does not exist");
     }
-    if (currentCards.some((current) => current.id === card.id)) {
+    if (currentCards.some((current) => current.id === validatedCard.id)) {
       throw new Error("Flashcard already exists");
     }
     await database.settings.put({
       key: IMPORTED_FLASHCARDS_SETTING_KEY,
-      value: [...currentCards, card],
+      value: [...currentCards, validatedCard],
     });
   });
 }
@@ -83,12 +87,13 @@ export async function importPracticeUnits(
   units: readonly StudyUnit[],
   database: StudyDatabase = studyDatabase,
 ): Promise<void> {
+  const validatedUnits = parseImportedUnits([...units]);
   await database.transaction("rw", database.settings, async () => {
     const currentUnits = await readImportedUnits(database);
     const byNumber = new Map<number, StudyUnit>(
       currentUnits.map((unit) => [unit.number, unit] as const),
     );
-    for (const unit of units) byNumber.set(unit.number, unit);
+    for (const unit of validatedUnits) byNumber.set(unit.number, unit);
     await database.settings.put({
       key: IMPORTED_UNITS_SETTING_KEY,
       value: [...byNumber.values()].sort(
@@ -102,11 +107,22 @@ export async function importPracticeFlashcards(
   flashcards: readonly Flashcard[],
   database: StudyDatabase = studyDatabase,
 ): Promise<void> {
+  const validatedFlashcards = parseImportedFlashcards([...flashcards]);
   await database.transaction("rw", database.settings, async () => {
-    const currentCards = await readImportedFlashcards(database);
+    const [currentUnits, currentCards] = await Promise.all([
+      readImportedUnits(database),
+      readImportedFlashcards(database),
+    ]);
+    const knownUnitIds = new Set([
+      ...builtInUnits.map((unit) => unit.id),
+      ...currentUnits.map((unit) => unit.id),
+    ]);
+    if (validatedFlashcards.some((card) => !knownUnitIds.has(card.unitId))) {
+      throw new Error("A flashcard refers to a practice chapter that does not exist");
+    }
     await database.settings.put({
       key: IMPORTED_FLASHCARDS_SETTING_KEY,
-      value: mergeImportedFlashcards(currentCards, flashcards),
+      value: mergeImportedFlashcards(currentCards, validatedFlashcards),
     });
   });
 }
@@ -124,11 +140,12 @@ export async function renameImportedPracticeUnit(
     if (!currentUnits.some((unit) => unit.id === unitId)) {
       throw new Error("Practice chapter was not found");
     }
+    const nextUnits = parseImportedUnits(currentUnits.map((unit) =>
+      unit.id === unitId ? { ...unit, title: normalizedTitle } : unit,
+    ));
     await database.settings.put({
       key: IMPORTED_UNITS_SETTING_KEY,
-      value: currentUnits.map((unit) =>
-        unit.id === unitId ? { ...unit, title: normalizedTitle } : unit,
-      ),
+      value: nextUnits,
     });
   });
 }
@@ -172,6 +189,7 @@ export async function updateImportedPracticeFlashcard(
   updatedCard: Flashcard,
   database: StudyDatabase = studyDatabase,
 ): Promise<void> {
+  const [validatedCard] = parseImportedFlashcards([updatedCard]);
   await database.transaction("rw", database.settings, async () => {
     const [currentUnits, currentCards] = await Promise.all([
       readImportedUnits(database),
@@ -181,16 +199,16 @@ export async function updateImportedPracticeFlashcard(
       ...builtInUnits.map((unit) => unit.id),
       ...currentUnits.map((unit) => unit.id),
     ]);
-    if (!knownUnitIds.has(updatedCard.unitId)) {
+    if (!knownUnitIds.has(validatedCard.unitId)) {
       throw new Error("Practice chapter does not exist");
     }
-    if (!currentCards.some((card) => card.id === updatedCard.id)) {
+    if (!currentCards.some((card) => card.id === validatedCard.id)) {
       throw new Error("Flashcard was not found");
     }
     await database.settings.put({
       key: IMPORTED_FLASHCARDS_SETTING_KEY,
       value: currentCards.map((card) =>
-        card.id === updatedCard.id ? updatedCard : card,
+        card.id === validatedCard.id ? validatedCard : card,
       ),
     });
   });

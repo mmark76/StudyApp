@@ -3,10 +3,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   BackupValidationError,
   createBackupPreview,
+  exportBackup,
   importBackup,
   MAX_BACKUP_FILE_SIZE,
   parseBackup,
   parseBackupJson,
+  serializeBackup,
 } from "../src/infrastructure/backup/backup";
 import { studyDatabase } from "../src/infrastructure/database/studyDatabase";
 import type {
@@ -252,6 +254,37 @@ describe("backup validation", () => {
       studyFiles: [{ data: "not-supported" }],
     })).toThrow("invalid structure");
   });
+
+  it("refuses to serialize an otherwise valid backup above the file limit", () => {
+    const flashcards = Array.from({ length: 600 }, (_, index) => ({
+      id: `large-card-${index}`,
+      unitId: "large-unit",
+      number: index + 1,
+      question: `${"q".repeat(19_000)}-${index}`,
+      answer: "Answer",
+      tags: [],
+    }));
+    expect(() => serializeBackup({
+      schemaVersion: 1,
+      exportedAt,
+      cardProgress: [],
+      studySessions: [],
+      settings: [
+        {
+          key: "imported-study-units",
+          value: [{
+            id: "large-unit",
+            number: 999,
+            title: "Large unit",
+            objectives: [],
+            summary: [],
+            keyTerms: [],
+          }],
+        },
+        { key: "imported-flashcards", value: flashcards },
+      ],
+    })).toThrow("larger than the 10 MB limit");
+  });
 });
 
 describe("transactional backup restore", () => {
@@ -325,6 +358,26 @@ describe("transactional backup restore", () => {
     await expect(studyDatabase.settings.get("appearance-settings")).resolves.toEqual(
       backup.settings[0],
     );
+  });
+
+  it("exports a validated snapshot of the supported records", async () => {
+    await studyDatabase.cardProgress.clear();
+    const backup = await exportBackup();
+
+    expect(backup.cardProgress).toEqual([]);
+    expect(backup.studySessions).toEqual([existingSession]);
+    expect(backup.settings).toEqual([existingSetting]);
+    expect(() => serializeBackup(backup)).not.toThrow();
+  });
+
+  it("refuses to export corrupt stored settings", async () => {
+    await studyDatabase.settings.put({
+      key: "imported-study-units",
+      value: [{ id: "broken" }],
+    });
+
+    await expect(exportBackup()).rejects.toBeInstanceOf(BackupValidationError);
+    await expect(studyDatabase.cardProgress.toArray()).resolves.toEqual([existingProgress]);
   });
 
   it("does not start replacement when validation fails", async () => {

@@ -21,14 +21,28 @@ export function useStudyContent() {
     [],
   );
 
-  const importedUnits = useMemo(
-    () => parseStoredUnits(unitsSetting?.value),
+  const parsedUnits = useMemo(
+    () => {
+      try {
+        return { items: parseStoredUnits(unitsSetting?.value), error: false };
+      } catch {
+        return { items: [], error: true };
+      }
+    },
     [unitsSetting?.value],
   );
-  const importedFlashcards = useMemo(
-    () => parseStoredFlashcards(flashcardsSetting?.value),
+  const parsedFlashcards = useMemo(
+    () => {
+      try {
+        return { items: parseStoredFlashcards(flashcardsSetting?.value), error: false };
+      } catch {
+        return { items: [], error: true };
+      }
+    },
     [flashcardsSetting?.value],
   );
+  const importedUnits = parsedUnits.items;
+  const importedFlashcards = parsedFlashcards.items;
 
   const units = useMemo(
     () => mergeById(builtInUnits, importedUnits),
@@ -39,5 +53,11 @@ export function useStudyContent() {
     [importedFlashcards],
   );
 
-  return { units, flashcards, importedUnits, importedFlashcards };
+  return {
+    units,
+    flashcards,
+    importedUnits,
+    importedFlashcards,
+    hasStoredContentError: parsedUnits.error || parsedFlashcards.error,
+  };
 }

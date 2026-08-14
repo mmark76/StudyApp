@@ -29,7 +29,9 @@ interface QuizPageProps {
 export function QuizPage({ failureInjector }: QuizPageProps = {}) {
   const { text } = useLanguage();
   const { flashcards } = useStudyContent();
-  const questions = useMemo(() => buildQuiz(flashcards), [flashcards]);
+  const availableQuestions = useMemo(() => buildQuiz(flashcards), [flashcards]);
+  const [questions, setQuestions] = useState(availableQuestions);
+  const [hasStarted, setHasStarted] = useState(false);
   const [index, setIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
@@ -39,11 +41,17 @@ export function QuizPage({ failureInjector }: QuizPageProps = {}) {
     useState<QuizCompletionOperationInput | null>(null);
   const [session, setSession] = useState(createQuizSessionIdentity);
   const answerLock = useRef(false);
+  const questionHeadingRef = useRef<HTMLHeadingElement>(null);
   const question = questions[index];
 
   useEffect(() => {
     answerLock.current = false;
+    if (index > 0) questionHeadingRef.current?.focus();
   }, [index]);
+
+  useEffect(() => {
+    if (!hasStarted) setQuestions(availableQuestions);
+  }, [availableQuestions, hasStarted]);
 
   async function persistCompletion(operation: QuizCompletionOperationInput) {
     if (pending) return;
@@ -88,6 +96,7 @@ export function QuizPage({ failureInjector }: QuizPageProps = {}) {
     }
 
     const nextScore = score + (option === question.correctAnswer ? 1 : 0);
+    setHasStarted(true);
 
     if (index >= questions.length - 1) {
       const operation: QuizCompletionOperationInput = {
@@ -109,6 +118,8 @@ export function QuizPage({ failureInjector }: QuizPageProps = {}) {
   }
 
   function restartQuiz() {
+    setQuestions(buildQuiz(flashcards));
+    setHasStarted(false);
     setIndex(0);
     setScore(0);
     setFinished(false);
@@ -157,7 +168,7 @@ export function QuizPage({ failureInjector }: QuizPageProps = {}) {
         {text("Question", "Ερώτηση")} {index + 1} {text("of", "από")}{" "}
         {questions.length}
       </p>
-      <h2>{question.question}</h2>
+      <h2 ref={questionHeadingRef} tabIndex={-1}>{question.question}</h2>
       <div className="option-grid">
         {question.options.map((option) => (
           <button

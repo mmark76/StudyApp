@@ -6,6 +6,7 @@ import {
 } from "../../infrastructure/database/localWriteFailureInjector";
 import type { Flashcard, StudyUnit } from "../../shared/types/models";
 import { addImportedPracticeFlashcard } from "./practiceContentRepository";
+import { MAX_IMPORTED_TEXT_LENGTH } from "./importedContent";
 
 function splitCommaList(value: string): string[] {
   return value.split(",").map((item) => item.trim()).filter(Boolean);
@@ -99,11 +100,11 @@ export function FlashcardForm({
       </label>
       <label className="field-label">
         {text("Question", "Ερώτηση")}
-        <textarea disabled={isSubmitting} required rows={3} value={question} onChange={(event) => setQuestion(event.target.value)} />
+        <textarea disabled={isSubmitting} maxLength={MAX_IMPORTED_TEXT_LENGTH} required rows={3} value={question} onChange={(event) => setQuestion(event.target.value)} />
       </label>
       <label className="field-label">
         {text("Answer", "Απάντηση")}
-        <textarea disabled={isSubmitting} required rows={4} value={answer} onChange={(event) => setAnswer(event.target.value)} />
+        <textarea disabled={isSubmitting} maxLength={MAX_IMPORTED_TEXT_LENGTH} required rows={4} value={answer} onChange={(event) => setAnswer(event.target.value)} />
       </label>
       <label className="field-label">
         {text("Keywords (optional)", "Λέξεις-κλειδιά (προαιρετικά)")}

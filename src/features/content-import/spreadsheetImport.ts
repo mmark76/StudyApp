@@ -3,15 +3,29 @@ import {
   buildFlashcardIdentity,
   createFlashcardContentId,
 } from "./flashcardIdentity";
+import {
+  MAX_IMPORTED_FLASHCARDS,
+  MAX_IMPORTED_TEXT_LENGTH,
+  MAX_IMPORTED_UNITS,
+} from "./importedContent";
 
 const UNITS_HEADERS = ["Chapter number", "Chapter title", "What should you learn?", "Key points", "Important terms"];
 const FLASHCARDS_HEADERS = ["Chapter number", "Question", "Answer", "Keywords"];
+export const MAX_SPREADSHEET_FILE_SIZE = 10 * 1024 * 1024;
+
+function assertSpreadsheetTextSize(text: string): void {
+  if (new TextEncoder().encode(text).byteLength > MAX_SPREADSHEET_FILE_SIZE) {
+    throw new Error("The CSV file is larger than the 10 MB limit.");
+  }
+}
 
 function parseDelimitedText(text: string): string[][] {
+  assertSpreadsheetTextSize(text);
   const rows: string[][] = [];
   let row: string[] = [];
   let value = "";
   let quoted = false;
+  let quoteClosed = false;
 
   for (let index = 0; index < text.length; index += 1) {
     const character = text[index];
@@ -20,21 +34,36 @@ function parseDelimitedText(text: string): string[][] {
     if (character === '"' && quoted && next === '"') {
       value += '"';
       index += 1;
+    } else if (character === '"' && !quoted && value.length === 0) {
+      quoted = true;
+      quoteClosed = false;
+    } else if (character === '"' && quoted) {
+      quoted = false;
+      quoteClosed = true;
+    } else if (quoteClosed && character !== "," && character !== "\n" && character !== "\r") {
+      throw new Error("The CSV file has text after a closing quote.");
     } else if (character === '"') {
-      quoted = !quoted;
+      throw new Error("The CSV file contains an invalid quote.");
     } else if (character === "," && !quoted) {
       row.push(value.trim());
       value = "";
+      quoteClosed = false;
     } else if ((character === "\n" || character === "\r") && !quoted) {
       if (character === "\r" && next === "\n") index += 1;
       row.push(value.trim());
       if (row.some((cell) => cell.length > 0)) rows.push(row);
       row = [];
       value = "";
+      quoteClosed = false;
     } else {
       value += character;
+      if (value.length > MAX_IMPORTED_TEXT_LENGTH) {
+        throw new Error("A CSV cell is too long.");
+      }
     }
   }
+
+  if (quoted) throw new Error("The CSV file contains an unclosed quote.");
 
   row.push(value.trim());
   if (row.some((cell) => cell.length > 0)) rows.push(row);
@@ -74,8 +103,10 @@ export function parseUnitsSpreadsheet(text: string): StudyUnit[] {
   if (rows.length === 0) throw new Error("The file contains no chapters");
   validateHeaders(rows[0], UNITS_HEADERS, "chapters");
   if (rows.length < 2) throw new Error("The file contains no chapters");
+  if (rows.length - 1 > MAX_IMPORTED_UNITS) throw new Error("The file contains too many chapters");
 
   const units = rows.slice(1).map((row) => {
+    if (row.length !== UNITS_HEADERS.length) throw new Error("Each chapter row must contain exactly 5 columns");
     const [numberValue = "", title = "", objectives = "", summary = "", keyTerms = ""] = row;
     const number = readNumber(numberValue, "Chapter number");
     return {
@@ -104,6 +135,7 @@ export async function parseFlashcardsSpreadsheet(
   if (rows.length === 0) throw new Error("The file contains no flashcards");
   validateHeaders(rows[0], FLASHCARDS_HEADERS, "flashcards");
   if (rows.length < 2) throw new Error("The file contains no flashcards");
+  if (rows.length - 1 > MAX_IMPORTED_FLASHCARDS) throw new Error("The file contains too many flashcards");
 
   const unitsByNumber = new Map<number, StudyUnit>(
     units.map((unit) => [unit.number, unit] as const),
@@ -112,6 +144,9 @@ export async function parseFlashcardsSpreadsheet(
   const firstRowByIdentity = new Map<string, number>();
 
   const drafts = rows.slice(1).map((row, rowIndex) => {
+    if (row.length !== FLASHCARDS_HEADERS.length) {
+      throw new Error(`Flashcard row ${rowIndex + 2} must contain exactly 4 columns`);
+    }
     const [unitNumberValue = "", question = "", answer = "", tags = ""] = row;
     const unitNumber = readNumber(unitNumberValue, "Chapter number");
     const unit = unitsByNumber.get(unitNumber);

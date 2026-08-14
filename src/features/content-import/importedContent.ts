@@ -2,27 +2,68 @@ import type { Flashcard, StudyUnit } from "../../shared/types/models";
 
 export const IMPORTED_UNITS_SETTING_KEY = "imported-study-units";
 export const IMPORTED_FLASHCARDS_SETTING_KEY = "imported-flashcards";
+export const MAX_IMPORTED_UNITS = 10_000;
+export const MAX_IMPORTED_FLASHCARDS = 100_000;
+export const MAX_IMPORTED_TEXT_LENGTH = 20_000;
+const MAX_IMPORTED_LIST_ITEMS = 1_000;
+const MAX_IMPORTED_ID_LENGTH = 256;
+const MAX_IMPORTED_NUMBER = 1_000_000;
+const UNIT_KEYS = ["id", "number", "title", "objectives", "summary", "keyTerms"] as const;
+const FLASHCARD_KEYS = ["id", "unitId", "number", "question", "answer", "tags"] as const;
+
+export class StoredContentValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "StoredContentValidationError";
+  }
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function hasExactKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
+  const actualKeys = Object.keys(value);
+  return actualKeys.length === keys.length && actualKeys.every((key) => keys.includes(key));
+}
+
 function readString(value: unknown, field: string): string {
-  if (typeof value !== "string" || value.trim().length === 0) {
+  if (
+    typeof value !== "string"
+    || value.trim().length === 0
+    || value.trim().length > MAX_IMPORTED_TEXT_LENGTH
+  ) {
     throw new Error(`Invalid ${field}`);
   }
   return value.trim();
 }
 
+function readId(value: unknown, field: string): string {
+  const id = readString(value, field);
+  if (id.length > MAX_IMPORTED_ID_LENGTH) throw new Error(`Invalid ${field}`);
+  return id;
+}
+
 function readPositiveInteger(value: unknown, field: string): number {
-  if (typeof value !== "number" || !Number.isInteger(value) || value < 1) {
+  if (
+    typeof value !== "number"
+    || !Number.isSafeInteger(value)
+    || value < 1
+    || value > MAX_IMPORTED_NUMBER
+  ) {
     throw new Error(`Invalid ${field}`);
   }
   return value;
 }
 
 function readStringArray(value: unknown, field: string): string[] {
-  if (!Array.isArray(value) || !value.every((item) => typeof item === "string")) {
+  if (
+    !Array.isArray(value)
+    || value.length > MAX_IMPORTED_LIST_ITEMS
+    || !value.every(
+      (item) => typeof item === "string" && item.trim().length <= MAX_IMPORTED_TEXT_LENGTH,
+    )
+  ) {
     throw new Error(`Invalid ${field}`);
   }
   return value.map((item) => item.trim()).filter(Boolean);
@@ -36,12 +77,14 @@ function extractArray(value: unknown, property: "units" | "flashcards"): unknown
 
 export function parseImportedUnits(value: unknown): StudyUnit[] {
   const rows = extractArray(value, "units");
+  if (rows.length > MAX_IMPORTED_UNITS) throw new Error("Too many imported chapters");
   const ids = new Set<string>();
+  const numbers = new Set<number>();
 
   return rows.map((row) => {
-    if (!isRecord(row)) throw new Error("Invalid unit record");
+    if (!isRecord(row) || !hasExactKeys(row, UNIT_KEYS)) throw new Error("Invalid unit record");
     const unit: StudyUnit = {
-      id: readString(row.id, "unit id"),
+      id: readId(row.id, "unit id"),
       number: readPositiveInteger(row.number, "unit number"),
       title: readString(row.title, "unit title"),
       objectives: readStringArray(row.objectives, "unit objectives"),
@@ -49,20 +92,23 @@ export function parseImportedUnits(value: unknown): StudyUnit[] {
       keyTerms: readStringArray(row.keyTerms, "unit key terms"),
     };
     if (ids.has(unit.id)) throw new Error(`Duplicate unit id: ${unit.id}`);
+    if (numbers.has(unit.number)) throw new Error(`Duplicate unit number: ${unit.number}`);
     ids.add(unit.id);
+    numbers.add(unit.number);
     return unit;
   });
 }
 
 export function parseImportedFlashcards(value: unknown): Flashcard[] {
   const rows = extractArray(value, "flashcards");
+  if (rows.length > MAX_IMPORTED_FLASHCARDS) throw new Error("Too many imported flashcards");
   const ids = new Set<string>();
 
   return rows.map((row) => {
-    if (!isRecord(row)) throw new Error("Invalid flashcard record");
+    if (!isRecord(row) || !hasExactKeys(row, FLASHCARD_KEYS)) throw new Error("Invalid flashcard record");
     const card: Flashcard = {
-      id: readString(row.id, "flashcard id"),
-      unitId: readString(row.unitId, "flashcard unit id"),
+      id: readId(row.id, "flashcard id"),
+      unitId: readId(row.unitId, "flashcard unit id"),
       number: readPositiveInteger(row.number, "flashcard number"),
       question: readString(row.question, "flashcard question"),
       answer: readString(row.answer, "flashcard answer"),
@@ -75,18 +121,24 @@ export function parseImportedFlashcards(value: unknown): Flashcard[] {
 }
 
 export function parseStoredUnits(value: unknown): StudyUnit[] {
+  if (value === undefined || value === null) return [];
   try {
     return parseImportedUnits(value);
-  } catch {
-    return [];
+  } catch (error) {
+    throw new StoredContentValidationError(
+      `Saved practice chapters are invalid: ${error instanceof Error ? error.message : "unknown error"}`,
+    );
   }
 }
 
 export function parseStoredFlashcards(value: unknown): Flashcard[] {
+  if (value === undefined || value === null) return [];
   try {
     return parseImportedFlashcards(value);
-  } catch {
-    return [];
+  } catch (error) {
+    throw new StoredContentValidationError(
+      `Saved flashcards are invalid: ${error instanceof Error ? error.message : "unknown error"}`,
+    );
   }
 }
 

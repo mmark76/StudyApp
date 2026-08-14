@@ -124,4 +124,28 @@ describe("spreadsheet import", () => {
       "Flashcard rows 2 and 3 have the same chapter, question and answer",
     );
   });
+
+  it("rejects unclosed or misplaced CSV quotes", () => {
+    expect(() => parseUnitsSpreadsheet([
+      "Chapter number,Chapter title,What should you learn?,Key points,Important terms",
+      '1,"Unclosed chapter,Goal,Point,Term',
+    ].join("\n"))).toThrow("unclosed quote");
+
+    expect(() => parseUnitsSpreadsheet([
+      "Chapter number,Chapter title,What should you learn?,Key points,Important terms",
+      '1,Chap"ter,Goal,Point,Term',
+    ].join("\n"))).toThrow("invalid quote");
+  });
+
+  it("rejects missing or extra columns instead of silently dropping data", async () => {
+    expect(() => parseUnitsSpreadsheet([
+      "Chapter number,Chapter title,What should you learn?,Key points,Important terms",
+      "1,Chapter,Goal,Point,Term,unexpected",
+    ].join("\n"))).toThrow("exactly 5 columns");
+
+    await expect(parseFlashcardsSpreadsheet([
+      "Chapter number,Question,Answer,Keywords",
+      "1,Question,Answer",
+    ].join("\n"), units)).rejects.toThrow("exactly 4 columns");
+  });
 });

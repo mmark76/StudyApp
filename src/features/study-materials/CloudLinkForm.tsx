@@ -4,7 +4,6 @@ import {
   getStructuredStudyTypeLabel,
 } from "../../i18n/domainLabels";
 import { useLanguage } from "../../i18n/LanguageContext";
-import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { SourceMaterialType, StructuredStudyType } from "../../shared/types/models";
 import { createId } from "../../shared/utils/id";
 import {
@@ -16,21 +15,23 @@ import {
 import type { MaterialDestination } from "./materialDestination";
 import {
   normalizeStudyMaterialUrl,
-  parseStoredStudyMaterials,
-  STUDY_MATERIALS_SETTING_KEY,
   titleFromStudyMaterialUrl,
   type StudyMaterialLink,
 } from "./studyMaterials";
+import {
+  addSavedStudyMaterialLink,
+  removeSavedStudyMaterialLink,
+} from "./studyMaterialLinksRepository";
 
 export function CloudLinkForm({
   destination,
-  savedLinks,
   existingLinks,
+  linksBlocked = false,
   onMessage,
 }: {
   destination: MaterialDestination;
-  savedLinks: readonly StudyMaterialLink[];
   existingLinks: readonly StudyMaterialLink[];
+  linksBlocked?: boolean;
   onMessage: (message: string) => void;
 }) {
   const { language, text } = useLanguage();
@@ -75,7 +76,7 @@ export function CloudLinkForm({
         return;
       }
 
-      await studyDatabase.settings.put({ key: STUDY_MATERIALS_SETTING_KEY, value: [...savedLinks, item] });
+      await addSavedStudyMaterialLink(item);
       setUploadedLink(item);
       clearDraft();
       onMessage(text("Link added.", "Ο σύνδεσμος προστέθηκε."));
@@ -97,12 +98,7 @@ export function CloudLinkForm({
 
     lock.current = true;
     try {
-      const currentSetting = await studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY);
-      const currentLinks = parseStoredStudyMaterials(currentSetting?.value);
-      await studyDatabase.settings.put({
-        key: STUDY_MATERIALS_SETTING_KEY,
-        value: currentLinks.filter((link) => link.id !== uploadedLink.id),
-      });
+      await removeSavedStudyMaterialLink(uploadedLink.id);
       onMessage(text(`Removed ${uploadedLink.title}.`, `Διαγράφηκε το ${uploadedLink.title}.`));
       setUploadedLink(null);
       clearDraft();
@@ -116,6 +112,17 @@ export function CloudLinkForm({
   const destinationLabel = destination === "structured-study"
     ? text("Structured Study", "Δομημένη Μελέτη")
     : text("Library", "Βιβλιοθήκη");
+
+  if (linksBlocked) {
+    return (
+      <p className="inline-message" role="alert">
+        {text(
+          "Saved links are damaged or incompatible. Nothing was changed. Restore a valid backup before changing links.",
+          "Οι αποθηκευμένοι σύνδεσμοι είναι κατεστραμμένοι ή ασύμβατοι. Δεν άλλαξε τίποτα. Επαναφέρετε έγκυρο backup πριν αλλάξετε συνδέσμους.",
+        )}
+      </p>
+    );
+  }
 
   return (
     <form className="material-form" onSubmit={(event) => void submit(event)}>

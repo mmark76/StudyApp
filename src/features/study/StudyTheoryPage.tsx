@@ -21,6 +21,7 @@ import {
 } from "../study-materials/localFilePolicy";
 import { MaterialUploadPanel } from "../study-materials/MaterialUploadPanel";
 import { downloadSplitPdfFile } from "../study-materials/splitPdfDownloads";
+import { findRelatedSplitPdfFiles } from "../library/localFileDeletion";
 import {
   builtInStudyMaterials,
   normalizeStudyMaterialTitle,
@@ -28,6 +29,7 @@ import {
   STUDY_MATERIALS_SETTING_KEY,
   type StudyMaterialLink,
 } from "../study-materials/studyMaterials";
+import { removeSavedStudyMaterialLink } from "../study-materials/studyMaterialLinksRepository";
 import "./StructuredFileActions.css";
 
 function getLinkStructuredStudyType(link: StudyMaterialLink): StructuredStudyType | null {
@@ -87,7 +89,14 @@ export function StudyTheoryPage() {
     [],
   ) ?? [];
   const setting = useLiveQuery(() => studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY), []);
-  const savedLinks = useMemo(() => parseStoredStudyMaterials(setting?.value), [setting?.value]);
+  const storedLinksResult = useMemo(() => {
+    try {
+      return { links: parseStoredStudyMaterials(setting?.value), error: false };
+    } catch {
+      return { links: [], error: true };
+    }
+  }, [setting?.value]);
+  const savedLinks = storedLinksResult.links;
   const allLinks = [...builtInStudyMaterials, ...savedLinks];
   const structuredFiles = useMemo(() => localFiles.filter(isStructuredStudyFile), [localFiles]);
   const structuredLinks = allLinks.filter((link) => getLinkStructuredStudyType(link) !== null);
@@ -151,14 +160,26 @@ export function StudyTheoryPage() {
 
   async function removeStructuredFile(file: LocalStudyFile) {
     const deleteWholeFile = isSplitPdfFile(file) || file.fileSource === "structured-material";
+    const relatedSplitPdfs = deleteWholeFile
+      ? findRelatedSplitPdfFiles(file.id, localFiles)
+      : [];
     if (!window.confirm(text(
-      deleteWholeFile ? `Remove "${file.title}"?` : `Remove "${file.title}" from Structured Study?`,
-      deleteWholeFile ? `Να διαγραφεί το «${file.title}»;` : `Να αφαιρεθεί το «${file.title}» από τη Δομημένη Μελέτη;`,
+      deleteWholeFile
+        ? `Remove "${file.title}"${relatedSplitPdfs.length > 0 ? ` and ${relatedSplitPdfs.length} related PDF files` : ""}?`
+        : `Remove "${file.title}" from Structured Study?`,
+      deleteWholeFile
+        ? `Να διαγραφεί το «${file.title}»${relatedSplitPdfs.length > 0 ? ` και ${relatedSplitPdfs.length} σχετικά PDF` : ""};`
+        : `Να αφαιρεθεί το «${file.title}» από τη Δομημένη Μελέτη;`,
     ))) return;
 
     try {
       if (deleteWholeFile) {
-        await studyDatabase.studyFiles.delete(file.id);
+        await studyDatabase.transaction("rw", studyDatabase.studyFiles, async () => {
+          await studyDatabase.studyFiles.bulkDelete([
+            file.id,
+            ...relatedSplitPdfs.map((relatedFile) => relatedFile.id),
+          ]);
+        });
       } else {
         await studyDatabase.studyFiles.update(file.id, { structuredStudyType: null });
       }
@@ -172,12 +193,7 @@ export function StudyTheoryPage() {
     if (!window.confirm(text(`Remove "${link.title}"?`, `Να αφαιρεθεί το «${link.title}»;`))) return;
 
     try {
-      const currentSetting = await studyDatabase.settings.get(STUDY_MATERIALS_SETTING_KEY);
-      const currentLinks = parseStoredStudyMaterials(currentSetting?.value);
-      await studyDatabase.settings.put({
-        key: STUDY_MATERIALS_SETTING_KEY,
-        value: currentLinks.filter((item) => item.id !== link.id),
-      });
+      await removeSavedStudyMaterialLink(link.id);
       setMessage(text("Link removed.", "Ο σύνδεσμος αφαιρέθηκε."));
     } catch {
       setMessage(text("The link could not be removed.", "Ο σύνδεσμος δεν μπορεί να αφαιρεθεί."));
@@ -197,8 +213,8 @@ export function StudyTheoryPage() {
       <MaterialUploadPanel
         destination="structured-study"
         files={localFiles}
-        savedLinks={savedLinks}
         existingLinks={allLinks}
+        linksBlocked={storedLinksResult.error}
         onMessage={setMessage}
       />
 
@@ -234,7 +250,7 @@ export function StudyTheoryPage() {
         </section>
       ) : null}
 
-      <section className="learning-stage-grid" style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }} aria-label={text("Structured Study levels", "Επίπεδα Δομημένης Μελέτης")}>
+      <section className="learning-stage-grid" aria-label={text("Structured Study levels", "Επίπεδα Δομημένης Μελέτης")}>
         {sourceStructure.map((item, index) => {
           const filesForType = structuredFiles.filter((file) => getStructuredStudyType(file) === item.materialType);
           const linksForType = structuredLinks.filter((link) => getLinkStructuredStudyType(link) === item.materialType);

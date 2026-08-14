@@ -90,7 +90,8 @@ export function isPdfStudyFile(file: LocalStudyFile): boolean {
 
 export function isSplitPdfFile(file: LocalStudyFile): boolean {
   return file.fileSource === "split-pdf"
-    || (isPdfStudyFile(file)
+    || (file.fileSource === undefined
+      && isPdfStudyFile(file)
       && (GENERATED_SPLIT_PDF_FILENAME_PATTERN.test(file.fileName)
         || GENERATED_SPLIT_PDF_TITLE_PATTERN.test(file.title)));
 }
