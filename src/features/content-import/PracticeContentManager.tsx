@@ -310,46 +310,6 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
         role="group"
       >
         <article className="template-card practice-content-option">
-          <h4>{text("Flashcards", "Flashcards")}</h4>
-          <p>{text(
-            "Add one flashcard or import many from CSV.",
-            "Προσθέστε μία flashcard ή εισαγάγετε πολλές από CSV.",
-          )}</p>
-          <div className="button-row">
-            <button aria-expanded={openForm === "flashcard"} className="button secondary" disabled={hasStoredContentError} onClick={() => setOpenForm((current) => current === "flashcard" ? null : "flashcard")} type="button">
-              {text("Add Flashcard", "Προσθήκη Flashcard")}
-            </button>
-            <button
-              className="button primary"
-              disabled={importing !== null || hasStoredContentError}
-              onClick={() => flashcardsInputRef.current?.click()}
-              type="button"
-            >
-              {importing === "flashcards" ? text("Importing…", "Εισαγωγή…") : text("Import Flashcards CSV", "Εισαγωγή Flashcards CSV")}
-            </button>
-            <input
-              accept=".csv,text/csv"
-              aria-hidden="true"
-              disabled={importing !== null || hasStoredContentError}
-              hidden
-              name="flashcards-csv"
-              ref={flashcardsInputRef}
-              tabIndex={-1}
-              type="file"
-              onChange={(event) => void importFlashcards(event)}
-            />
-            <a className="button secondary" download="flashcards-template.csv" href={`${import.meta.env.BASE_URL}templates/flashcards-spreadsheet.csv`}>
-              {text("Download CSV template", "Λήψη προτύπου CSV")}
-            </a>
-          </div>
-          {openForm === "flashcard" && !hasStoredContentError ? (
-            <div className="practice-content-form-panel">
-              <FlashcardForm existingFlashcards={flashcards} failureInjector={failureInjector} onMessage={setMessage} units={units} />
-            </div>
-          ) : null}
-        </article>
-
-        <article className="template-card practice-content-option">
           <h4>{text("Practice Chapters", "Κεφάλαια εξάσκησης")}</h4>
           <p>{text(
             "Practice chapters group and organize your flashcards. They are not files stored in Structured Study.",
@@ -385,6 +345,46 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
           {openForm === "chapter" && !hasStoredContentError ? (
             <div className="practice-content-form-panel">
               <UnitForm existingUnits={units} failureInjector={failureInjector} onMessage={setMessage} />
+            </div>
+          ) : null}
+        </article>
+
+        <article className="template-card practice-content-option">
+          <h4>{text("Flashcards", "Flashcards")}</h4>
+          <p>{text(
+            "Add one flashcard or import many from CSV.",
+            "Προσθέστε μία flashcard ή εισαγάγετε πολλές από CSV.",
+          )}</p>
+          <div className="button-row">
+            <button aria-expanded={openForm === "flashcard"} className="button secondary" disabled={hasStoredContentError} onClick={() => setOpenForm((current) => current === "flashcard" ? null : "flashcard")} type="button">
+              {text("Add Flashcard", "Προσθήκη Flashcard")}
+            </button>
+            <button
+              className="button primary"
+              disabled={importing !== null || hasStoredContentError}
+              onClick={() => flashcardsInputRef.current?.click()}
+              type="button"
+            >
+              {importing === "flashcards" ? text("Importing…", "Εισαγωγή…") : text("Import Flashcards CSV", "Εισαγωγή Flashcards CSV")}
+            </button>
+            <input
+              accept=".csv,text/csv"
+              aria-hidden="true"
+              disabled={importing !== null || hasStoredContentError}
+              hidden
+              name="flashcards-csv"
+              ref={flashcardsInputRef}
+              tabIndex={-1}
+              type="file"
+              onChange={(event) => void importFlashcards(event)}
+            />
+            <a className="button secondary" download="flashcards-template.csv" href={`${import.meta.env.BASE_URL}templates/flashcards-spreadsheet.csv`}>
+              {text("Download CSV template", "Λήψη προτύπου CSV")}
+            </a>
+          </div>
+          {openForm === "flashcard" && !hasStoredContentError ? (
+            <div className="practice-content-form-panel">
+              <FlashcardForm existingFlashcards={flashcards} failureInjector={failureInjector} onMessage={setMessage} units={units} />
             </div>
           ) : null}
         </article>
