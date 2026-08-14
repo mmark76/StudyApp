@@ -296,9 +296,10 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
             </button>
             <input
               accept=".csv,text/csv"
-              aria-label={text("Import Flashcards CSV", "Εισαγωγή Flashcards CSV")}
+              aria-hidden="true"
               className="practice-content-file-input"
               disabled={importing !== null}
+              name="flashcards-csv"
               ref={flashcardsInputRef}
               tabIndex={-1}
               type="file"
@@ -335,9 +336,10 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
             </button>
             <input
               accept=".csv,text/csv"
-              aria-label={text("Import Chapters CSV", "Εισαγωγή Chapters CSV")}
+              aria-hidden="true"
               className="practice-content-file-input"
               disabled={importing !== null}
+              name="chapters-csv"
               ref={chaptersInputRef}
               tabIndex={-1}
               type="file"

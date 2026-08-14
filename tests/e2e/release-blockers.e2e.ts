@@ -910,6 +910,8 @@ test("Learn manages bilingual practice content inline before four responsive stu
     "Practice chapters group and organize your flashcards. They are not files stored in Structured Study.",
     { exact: true },
   )).toBeVisible();
+  await expect(manager.getByRole("button", { name: "Import Flashcards CSV", exact: true })).toHaveCount(1);
+  await expect(manager.getByRole("button", { name: "Import Chapters CSV", exact: true })).toHaveCount(1);
   await expect(englishGrid.locator(".learning-stage-card")).toHaveCount(4);
   await expect(englishGrid.getByRole("heading", { name: "Manage Content" })).toHaveCount(0);
   await expect.poll(() => manager.evaluate((element) => Boolean(
@@ -965,7 +967,7 @@ test("practice content CSV import and accessible CRUD stay truthful and consiste
   await page.goto("/#/learn");
   const manager = page.getByRole("region", { name: "Manage practice content" });
 
-  const chaptersInput = manager.getByLabel("Import Chapters CSV");
+  const chaptersInput = manager.locator('input[name="chapters-csv"]');
   await chaptersInput.setInputFiles({
     name: "invalid-chapters.csv",
     mimeType: "text/csv",
@@ -987,7 +989,7 @@ test("practice content CSV import and accessible CRUD stay truthful and consiste
   await expect(manager.getByRole("status")).toHaveText("1 practice chapter saved.");
   await expect(manager.getByRole("heading", { name: "Practice Chapters (1)", exact: true })).toBeVisible();
 
-  const flashcardsInput = manager.getByLabel("Import Flashcards CSV");
+  const flashcardsInput = manager.locator('input[name="flashcards-csv"]');
   await flashcardsInput.setInputFiles({
     name: "practice-flashcards.csv",
     mimeType: "text/csv",
