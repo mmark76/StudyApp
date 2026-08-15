@@ -85,6 +85,10 @@ export function HomePage() {
         "See the available AI options.",
         "Δες τις διαθέσιμες επιλογές AI.",
       ),
+      fileSupport: text(
+        "AI file processing depends on file type and size, device resources, and your ChatGPT plan. For large PDFs, split first.",
+        "Η επεξεργασία αρχείων από το AI εξαρτάται από τον τύπο και το μέγεθος, τους πόρους της συσκευής και το πλάνο ChatGPT. Για μεγάλα PDF, κάνε πρώτα διαχωρισμό.",
+      ),
       action: text("Open AI guide", "Άνοιγμα οδηγού AI"),
       to: "/ai-assistant-guide",
     },

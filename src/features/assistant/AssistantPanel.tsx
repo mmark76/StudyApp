@@ -448,6 +448,12 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
                       "Άνοιξε τον ειδικό βοηθό στο ChatGPT και πρόσθεσε απευθείας το υλικό μελέτης σου.",
                     )}
                   </small>
+                  <small>
+                    {text(
+                      "File processing depends on file type and size, device resources, and your ChatGPT plan. For large PDFs, consider using Split PDF Tool first.",
+                      "Η επεξεργασία αρχείων εξαρτάται από τον τύπο και το μέγεθος, τους πόρους της συσκευής και το πλάνο ChatGPT. Για μεγάλα PDF, χρησιμοποίησε πρώτα το εργαλείο διαχωρισμού PDF.",
+                    )}
+                  </small>
                 </a>
 
                 <button
