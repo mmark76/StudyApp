@@ -15,24 +15,28 @@ export function LearnPage({ failureInjector }: LearnPageProps = {}) {
       title: text("Flashcards", "Κάρτες"),
       description: text("Practise active recall.", "Εξασκήσου στην ενεργή ανάκληση."),
       action: text("Open flashcards", "Άνοιγμα καρτών"),
+      actionClass: "button practice",
       to: "/flashcards",
     },
     {
       title: text("Review", "Επανάληψη"),
       description: text("Review cards when they are due.", "Επανέλαβε τις κάρτες όταν έρθει η ώρα τους."),
       action: text("Review cards", "Επανάληψη καρτών"),
+      actionClass: "button review",
       to: "/review",
     },
     {
       title: text("Quiz", "Κουίζ"),
       description: text("Test your knowledge with mixed questions.", "Δοκίμασε τις γνώσεις σου με μικτές ερωτήσεις."),
       action: text("Start quiz", "Έναρξη κουίζ"),
+      actionClass: "button quiz",
       to: "/quiz",
     },
     {
       title: text("Progress", "Πρόοδος"),
       description: text("See your study activity.", "Δες τη δραστηριότητα μελέτης σου."),
       action: text("View progress", "Προβολή προόδου"),
+      actionClass: "button utility",
       to: "/progress",
     },
   ];
@@ -53,7 +57,7 @@ export function LearnPage({ failureInjector }: LearnPageProps = {}) {
             <span className="stage-number" aria-hidden="true">{index + 1}</span>
             <h3>{tool.title}</h3>
             <p>{tool.description}</p>
-            <Link className="button secondary" to={tool.to}>{tool.action}</Link>
+            <Link className={tool.actionClass} to={tool.to}>{tool.action}</Link>
           </article>
         ))}
       </section>
