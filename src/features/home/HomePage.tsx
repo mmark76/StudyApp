@@ -185,7 +185,7 @@ export function HomePage() {
             <Link className="button primary" to="/important-info" onClick={() => setIsGuideOpen(false)}>
               {text("Complete guide", "Πλήρης οδηγός")}
             </Link>
-            <button className="button secondary" type="button" onClick={() => setIsGuideOpen(false)}>
+            <button autoFocus className="button secondary" type="button" onClick={() => setIsGuideOpen(false)}>
               {text("Close", "Κλείσιμο")}
             </button>
           </div>
