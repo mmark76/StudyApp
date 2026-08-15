@@ -24,6 +24,7 @@ const mainNavigation = [
     matches: ["/learn", "/flashcards", "/review", "/quiz", "/progress", "/import"],
   },
   { to: "/tools#split-pdf", en: "Split PDF Tool", el: "Διαχωρισμός PDF", matches: ["/tools"] },
+  { to: "/important-info", en: "Important Info", el: "Σημαντικές πληροφορίες", matches: ["/important-info"] },
 ] as const;
 
 const footerNavigation = [
