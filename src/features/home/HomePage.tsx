@@ -10,6 +10,7 @@ interface HomeSpace {
   eyebrow: string;
   title: string;
   description: string;
+  fileSupport?: string;
   action: string;
   to?: string;
   guideSteps?: string[];
@@ -28,6 +29,10 @@ export function HomePage() {
         "Read books, articles, papers, notes and summaries.",
         "Μελέτησε βιβλία, άρθρα, εργασίες, σημειώσεις και περιλήψεις.",
       ),
+      fileSupport: text(
+        "Supported files: PDF · DOC/DOCX · TXT/MD · CSV · PNG/JPG · WebP · GIF",
+        "Υποστηριζόμενα αρχεία: PDF · DOC/DOCX · TXT/MD · CSV · PNG/JPG · WebP · GIF",
+      ),
       action: text("Open Library", "Άνοιγμα Βιβλιοθήκης"),
       to: "/library",
     },
@@ -37,6 +42,10 @@ export function HomePage() {
       description: text(
         "Study material by chapters, sections, concepts and diagrams.",
         "Μελέτησε το υλικό ανά κεφάλαιο, ενότητα, έννοια και διάγραμμα.",
+      ),
+      fileSupport: text(
+        "Supported files: PDF · DOC/DOCX · TXT/MD · CSV · PNG/JPG · WebP · GIF",
+        "Υποστηριζόμενα αρχεία: PDF · DOC/DOCX · TXT/MD · CSV · PNG/JPG · WebP · GIF",
       ),
       action: text("Start studying", "Έναρξη μελέτης"),
       to: "/study/theory",
@@ -48,6 +57,10 @@ export function HomePage() {
         "Practise with flashcards, review and quizzes.",
         "Εξασκήσου με κάρτες, επανάληψη και κουίζ.",
       ),
+      fileSupport: text(
+        "Practice content import: CSV",
+        "Εισαγωγή υλικού εξάσκησης: CSV",
+      ),
       action: text("Start practice", "Έναρξη εξάσκησης"),
       to: "/learn",
     },
@@ -57,6 +70,10 @@ export function HomePage() {
       description: text(
         "Split PDF files locally in your browser.",
         "Διαχώρισε PDF τοπικά στον browser.",
+      ),
+      fileSupport: text(
+        "Supported files: PDF only",
+        "Υποστηριζόμενα αρχεία: μόνο PDF",
       ),
       action: text("Open tool", "Άνοιγμα εργαλείου"),
       to: "/tools#split-pdf",
@@ -134,6 +151,7 @@ export function HomePage() {
             <p className="eyebrow">{space.eyebrow}</p>
             <h2>{space.title}</h2>
             <p>{space.description}</p>
+            {space.fileSupport ? <p className="field-help">{space.fileSupport}</p> : null}
             {space.guideSteps ? (
               <button className="button primary" type="button" onClick={() => setIsGuideOpen(true)}>{space.action}</button>
             ) : (
