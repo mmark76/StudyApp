@@ -1,0 +1,131 @@
+:root {
+  --button-primary: #2563eb;
+  --button-primary-hover: #1d4ed8;
+  --button-study: #4f46e5;
+  --button-study-hover: #4338ca;
+  --button-practice: #7c3aed;
+  --button-practice-hover: #6d28d9;
+  --button-review: #b45309;
+  --button-review-hover: #92400e;
+  --button-quiz: #0f766e;
+  --button-quiz-hover: #115e59;
+  --button-assistant: #0369a1;
+  --button-assistant-hover: #075985;
+  --button-success: #047857;
+  --button-success-hover: #065f46;
+  --button-neutral: #475569;
+  --button-neutral-hover: #334155;
+  --button-secondary-background: #e2e8f0;
+  --button-secondary-hover: #cbd5e1;
+}
+
+/*
+ * Button colour is based on the action's role, not the selected appearance
+ * theme. This prevents unrelated actions from all inheriting the amber accent.
+ */
+.button.primary {
+  color: #ffffff;
+  background: var(--button-primary);
+}
+
+.button.primary:hover {
+  background: var(--button-primary-hover);
+}
+
+.button.secondary {
+  color: #334155;
+  background: var(--button-secondary-background);
+  border: 1px solid #cbd5e1;
+}
+
+.button.secondary:hover {
+  background: var(--button-secondary-hover);
+}
+
+.button.study {
+  color: #ffffff;
+  background: var(--button-study);
+}
+
+.button.study:hover {
+  background: var(--button-study-hover);
+}
+
+.button.practice {
+  color: #ffffff;
+  background: var(--button-practice);
+}
+
+.button.practice:hover {
+  background: var(--button-practice-hover);
+}
+
+.button.review {
+  color: #ffffff;
+  background: var(--button-review);
+}
+
+.button.review:hover {
+  background: var(--button-review-hover);
+}
+
+.button.quiz {
+  color: #ffffff;
+  background: var(--button-quiz);
+}
+
+.button.quiz:hover {
+  background: var(--button-quiz-hover);
+}
+
+.button.assistant {
+  color: #ffffff;
+  background: var(--button-assistant);
+}
+
+.button.assistant:hover {
+  background: var(--button-assistant-hover);
+}
+
+.button.success {
+  color: #ffffff;
+  background: var(--button-success);
+}
+
+.button.success:hover {
+  background: var(--button-success-hover);
+}
+
+.button.utility {
+  color: #ffffff;
+  background: var(--button-neutral);
+}
+
+.button.utility:hover {
+  background: var(--button-neutral-hover);
+}
+
+.button.danger:hover {
+  filter: brightness(0.9);
+}
+
+.button:disabled,
+.button[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+@media (forced-colors: active) {
+  .button.primary,
+  .button.secondary,
+  .button.study,
+  .button.practice,
+  .button.review,
+  .button.quiz,
+  .button.assistant,
+  .button.success,
+  .button.utility,
+  .button.danger {
+    border: 1px solid ButtonText;
+  }
+}
