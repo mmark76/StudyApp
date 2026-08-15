@@ -4,7 +4,6 @@ import { AssistantGuidePage } from "../features/assistant/AssistantGuidePage";
 import { ContentImportPage } from "../features/content-import/ContentImportPage";
 import { FlashcardsPage } from "../features/flashcards/FlashcardsPage";
 import { HomePage } from "../features/home/HomePage";
-import { ImportantInfoPage } from "../features/important-info/ImportantInfoPage";
 import { StudyAppInstructionsPage } from "../features/instructions/StudyAppInstructionsPage";
 import { LearnPage } from "../features/learn/LearnPage";
 import { LegalPage } from "../features/legal/LegalPage";
@@ -42,7 +41,13 @@ export const router = createHashRouter([
         ),
       },
       { path: "ai-assistant-guide", element: <AssistantGuidePage /> },
-      { path: "important-info", element: <ImportantInfoPage /> },
+      {
+        path: "important-info",
+        lazy: async () => {
+          const { ImportantInfoPage } = await import("../features/important-info/ImportantInfoPage");
+          return { Component: ImportantInfoPage };
+        },
+      },
       { path: "instructions", element: <StudyAppInstructionsPage /> },
       { path: "study", element: <StudyLearnPage /> },
       { path: "study/theory", element: <StudyTheoryPage /> },
