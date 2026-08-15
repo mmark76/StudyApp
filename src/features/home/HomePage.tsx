@@ -12,6 +12,7 @@ interface HomeSpace {
   description: string;
   fileSupport?: string;
   action: string;
+  actionClass: string;
   to?: string;
   guideSteps?: string[];
 }
@@ -35,6 +36,7 @@ export function HomePage() {
         "Υποστηριζόμενα αρχεία: PDF · DOC/DOCX · TXT/MD · CSV · PNG/JPG · WebP · GIF",
       ),
       action: text("Open Library", "Άνοιγμα Βιβλιοθήκης"),
+      actionClass: "button primary",
       to: "/library",
     },
     {
@@ -49,6 +51,7 @@ export function HomePage() {
         "Υποστηριζόμενα αρχεία: PDF · DOC/DOCX · TXT/MD · CSV · PNG/JPG · WebP · GIF",
       ),
       action: text("Start studying", "Έναρξη μελέτης"),
+      actionClass: "button study",
       to: "/study/theory",
     },
     {
@@ -63,6 +66,7 @@ export function HomePage() {
         "Εισαγωγή υλικού εξάσκησης: CSV",
       ),
       action: text("Start practice", "Έναρξη εξάσκησης"),
+      actionClass: "button practice",
       to: "/learn",
     },
     {
@@ -77,6 +81,7 @@ export function HomePage() {
         "Υποστηριζόμενα αρχεία: μόνο PDF",
       ),
       action: text("Open tool", "Άνοιγμα εργαλείου"),
+      actionClass: "button utility",
       to: "/tools#split-pdf",
     },
     {
@@ -91,6 +96,7 @@ export function HomePage() {
         "Η επεξεργασία αρχείων από το AI εξαρτάται από τον τύπο και το μέγεθος, τους πόρους της συσκευής και το πλάνο ChatGPT. Για μεγάλα PDF, κάνε πρώτα διαχωρισμό.",
       ),
       action: text("Open AI guide", "Άνοιγμα οδηγού AI"),
+      actionClass: "button assistant",
       to: "/ai-assistant-guide",
     },
     {
@@ -101,6 +107,7 @@ export function HomePage() {
         "Μια απλή διαδρομή από το υλικό στην εξάσκηση.",
       ),
       action: text("Open guide", "Άνοιγμα οδηγού"),
+      actionClass: "button secondary",
       guideSteps: [
         text(
           "Add your source material to Library or Structured Study.",
@@ -159,9 +166,9 @@ export function HomePage() {
             <p>{space.description}</p>
             {space.fileSupport ? <p className="field-help">{space.fileSupport}</p> : null}
             {space.guideSteps ? (
-              <button className="button primary" type="button" onClick={() => setIsGuideOpen(true)}>{space.action}</button>
+              <button className={space.actionClass} type="button" onClick={() => setIsGuideOpen(true)}>{space.action}</button>
             ) : (
-              <Link className="button primary" to={space.to ?? "/"}>{space.action}</Link>
+              <Link className={space.actionClass} to={space.to ?? "/"}>{space.action}</Link>
             )}
           </article>
         ))}
