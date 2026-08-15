@@ -41,6 +41,13 @@ export const router = createHashRouter([
         ),
       },
       { path: "ai-assistant-guide", element: <AssistantGuidePage /> },
+      {
+        path: "important-info",
+        lazy: async () => {
+          const { ImportantInfoPage } = await import("../features/important-info/ImportantInfoPage");
+          return { Component: ImportantInfoPage };
+        },
+      },
       { path: "instructions", element: <StudyAppInstructionsPage /> },
       { path: "study", element: <StudyLearnPage /> },
       { path: "study/theory", element: <StudyTheoryPage /> },
