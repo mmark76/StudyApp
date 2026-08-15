@@ -182,6 +182,9 @@ export function HomePage() {
             {guideSpace.guideSteps?.map((step) => <li key={step}>{step}</li>)}
           </ol>
           <div className="home-guide-actions">
+            <Link className="button primary" to="/important-info" onClick={() => setIsGuideOpen(false)}>
+              {text("Complete guide", "Πλήρης οδηγός")}
+            </Link>
             <button className="button secondary" type="button" onClick={() => setIsGuideOpen(false)}>
               {text("Close", "Κλείσιμο")}
             </button>
