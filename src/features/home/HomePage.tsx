@@ -19,6 +19,7 @@ interface HomeSpace {
 export function HomePage() {
   const { text } = useLanguage();
   const guideDialogRef = useRef<HTMLDialogElement | null>(null);
+  const guideCloseButtonRef = useRef<HTMLButtonElement | null>(null);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   const homeSpaces: HomeSpace[] = [
@@ -141,6 +142,7 @@ export function HomePage() {
 
     if (isGuideOpen && !dialog.open) {
       dialog.showModal();
+      guideCloseButtonRef.current?.focus();
       return;
     }
 
@@ -185,7 +187,12 @@ export function HomePage() {
             <Link className="button primary" to="/important-info" onClick={() => setIsGuideOpen(false)}>
               {text("Complete guide", "Πλήρης οδηγός")}
             </Link>
-            <button autoFocus className="button secondary" type="button" onClick={() => setIsGuideOpen(false)}>
+            <button
+              className="button secondary"
+              type="button"
+              onClick={() => setIsGuideOpen(false)}
+              ref={guideCloseButtonRef}
+            >
               {text("Close", "Κλείσιμο")}
             </button>
           </div>
