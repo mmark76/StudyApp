@@ -36,12 +36,12 @@ export function ImportantInfoPage() {
       </header>
 
       <nav className="important-info-jump-links" aria-label={text("Guide sections", "Ενότητες οδηγού")}>
-        <a href="#important-info-workflow">{text("Workflow", "Ροή εργασίας")}</a>
-        <a href="#important-info-areas">{text("App areas", "Ενότητες εφαρμογής")}</a>
-        <a href="#important-info-files">{text("Files & limits", "Αρχεία & όρια")}</a>
-        <a href="#important-info-ai">{text("AI Assistant", "Βοηθός AI")}</a>
-        <a href="#important-info-data">{text("Data & backup", "Δεδομένα & backup")}</a>
-        <a href="#important-info-troubleshooting">{text("Troubleshooting", "Αντιμετώπιση προβλημάτων")}</a>
+        <Link to="/important-info#important-info-workflow">{text("Workflow", "Ροή εργασίας")}</Link>
+        <Link to="/important-info#important-info-areas">{text("App areas", "Ενότητες εφαρμογής")}</Link>
+        <Link to="/important-info#important-info-files">{text("Files & limits", "Αρχεία & όρια")}</Link>
+        <Link to="/important-info#important-info-ai">{text("AI Assistant", "Βοηθός AI")}</Link>
+        <Link to="/important-info#important-info-data">{text("Data & backup", "Δεδομένα & backup")}</Link>
+        <Link to="/important-info#important-info-troubleshooting">{text("Troubleshooting", "Αντιμετώπιση προβλημάτων")}</Link>
       </nav>
 
       <section className="content-panel important-info-section" id="important-info-workflow">
