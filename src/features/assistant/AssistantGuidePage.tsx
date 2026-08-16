@@ -20,6 +20,9 @@ export function AssistantGuidePage() {
             <Link className="button secondary" to="/">
               {text("Back to Home", "Πίσω στην Αρχική")}
             </Link>
+            <Link className="button secondary" to="/ai-assistant-comparison">
+              {text("Compare AI options", "Σύγκριση επιλογών AI")}
+            </Link>
           </div>
         </div>
         <img alt="" src="/study-assistant-avatar.svg" />

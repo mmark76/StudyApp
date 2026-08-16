@@ -1,6 +1,6 @@
 # Architecture
 
-_Last updated: 2026-08-14_
+_Last updated: 2026-08-16_
 
 ## Summary
 
@@ -53,6 +53,12 @@ the user is not translated automatically.
 ChatGPT entry screen and the other-AI-options screen. The dialog traps focus,
 makes its application-shell siblings inert while open, closes with Escape and
 restores focus to the launcher.
+
+`src/features/assistant/AssistantComparisonPage.tsx` provides a bilingual,
+read-only comparison of the available StudyApp AI Assistant and the two planned
+AI modes. It links from the AI mode guide, does not activate a remote mode, does
+not inspect local study data and does not change account, plan or charging
+behaviour.
 
 `src/features/assistant/TypewriterWelcome.tsx` owns the intro-message
 presentation. It reserves the complete responsive text layout, exposes one
@@ -143,6 +149,7 @@ service-worker registration and caching strategy remain owned by `src/main.tsx`.
 - `/tools` — Split PDF Tool;
 - `/appearance` — appearance settings;
 - `/ai-assistant-guide` — AI mode guide;
+- `/ai-assistant-comparison` — bilingual comparison of current and planned AI modes;
 - `/instructions` — manual AI-generated file instructions;
 - `/legal/*` — legal information.
 
@@ -231,6 +238,7 @@ No automatic library scan and no automatic result save are allowed.
 - Mode availability must be represented independently.
 - English and Greek wording must communicate the same material facts.
 - The StudyApp AI Assistant link does not inspect, automate or embed the ChatGPT website.
+- The AI options comparison page is static local presentation and does not itself access or transmit study data.
 
 ## High-risk areas
 
@@ -270,6 +278,7 @@ Assistant coverage includes:
 - exact approved StudyApp AI Assistant destination;
 - no clipboard or scripted popup call from the Assistant link;
 - inactive Coming soon modes;
-- keyboard operation and focus behaviour.
+- keyboard operation and focus behaviour;
+- comparison-page content, availability labels and user-cost row ordering.
 
 Future MCP and paid API work requires separate integration and browser tests.

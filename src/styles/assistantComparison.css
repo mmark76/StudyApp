@@ -1,0 +1,104 @@
+.assistant-comparison-page {
+  margin: 0 auto;
+  max-width: 1280px;
+}
+
+.assistant-comparison-hero {
+  background: var(--surface);
+  border: 1px solid var(--slate-300);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: var(--panel-padding);
+}
+
+.assistant-comparison-hero h2 {
+  margin-top: 0;
+}
+
+.assistant-comparison-hero p:not(.eyebrow) {
+  color: var(--slate-600);
+  max-width: 760px;
+}
+
+.assistant-comparison-table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--slate-300);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow-x: auto;
+}
+
+.assistant-comparison-table {
+  border-collapse: collapse;
+  min-width: 980px;
+  width: 100%;
+}
+
+.assistant-comparison-table th,
+.assistant-comparison-table td {
+  border-bottom: 1px solid var(--slate-300);
+  line-height: 1.5;
+  padding: 1rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.assistant-comparison-table thead th {
+  background: var(--blue-100);
+  color: var(--slate-700);
+  min-width: 220px;
+}
+
+.assistant-comparison-table thead th:first-child {
+  min-width: 190px;
+}
+
+.assistant-comparison-table tbody th {
+  color: var(--slate-700);
+  font-weight: 700;
+  width: 20%;
+}
+
+.assistant-comparison-table tbody tr:last-child th,
+.assistant-comparison-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.assistant-comparison-table thead strong {
+  display: block;
+  margin-top: 0.5rem;
+}
+
+.assistant-comparison-status {
+  border-radius: 999px;
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 0.25rem 0.55rem;
+  text-transform: uppercase;
+}
+
+.assistant-comparison-status.available {
+  background: var(--blue-600);
+  color: white;
+}
+
+.assistant-comparison-status.soon {
+  background: var(--surface);
+  border: 1px solid var(--slate-300);
+  color: var(--slate-600);
+}
+
+.assistant-comparison-note {
+  color: var(--slate-600);
+  font-size: 0.92rem;
+  margin-bottom: 0;
+}
+
+@media (max-width: 760px) {
+  .assistant-comparison-table th,
+  .assistant-comparison-table td {
+    padding: 0.85rem;
+  }
+}

@@ -1,6 +1,6 @@
 # Security Policy
 
-_Last updated: 2026-08-14_
+_Last updated: 2026-08-16_
 
 ## Current security model
 
@@ -14,6 +14,11 @@ The AI Assistant has three modes:
 - StudyApp AI — inactive and marked Coming soon.
 
 No real AI request, credit purchase or charge is currently enabled.
+
+The bilingual AI options comparison page is static local presentation. It
+compares the current and planned modes but does not activate a remote mode,
+inspect local study data, call an AI provider or change account or charging
+behaviour.
 
 ## General boundaries
 
@@ -70,6 +75,10 @@ user has already chosen to download. It does not communicate with ChatGPT, read
 the StudyApp library or IndexedDB, discover downloaded files, or start an
 import. Every add or import remains an explicit action in the existing Library
 or Learn & Practice interface.
+
+The bilingual `/ai-assistant-comparison` page is also static local
+documentation. It does not read the library, inspect IndexedDB, contact ChatGPT,
+call the OpenAI API or perform any StudyApp action.
 
 ## ChatGPT App / MCP security gate
 
