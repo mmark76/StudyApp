@@ -1,5 +1,6 @@
 import { createHashRouter, Navigate } from "react-router-dom";
 import { AppearanceSettingsPage } from "../features/appearance/AppearanceSettingsPage";
+import { AssistantComparisonPage } from "../features/assistant/AssistantComparisonPage";
 import { AssistantGuidePage } from "../features/assistant/AssistantGuidePage";
 import { ContentImportPage } from "../features/content-import/ContentImportPage";
 import { FlashcardsPage } from "../features/flashcards/FlashcardsPage";
@@ -41,6 +42,7 @@ export const router = createHashRouter([
         ),
       },
       { path: "ai-assistant-guide", element: <AssistantGuidePage /> },
+      { path: "ai-assistant-comparison", element: <AssistantComparisonPage /> },
       {
         path: "important-info",
         lazy: async () => {
