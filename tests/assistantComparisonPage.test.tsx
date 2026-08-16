@@ -8,11 +8,18 @@ import {
 
 describe("AI options comparison page", () => {
   it("keeps the user-facing comparison focused and ends with user cost", () => {
-    expect(AI_OPTION_COMPARISON_ROWS).toHaveLength(16);
+    expect(AI_OPTION_COMPARISON_ROWS).toHaveLength(17);
     expect(AI_OPTION_COMPARISON_ROWS[0]?.label).toEqual({
       en: "What is used",
       el: "Τι χρησιμοποιείται",
     });
+    expect(AI_OPTION_COMPARISON_ROWS[1]?.label).toEqual({
+      en: "AI integration with StudyApp",
+      el: "Βαθμός ενσωμάτωσης AI στο StudyApp",
+    });
+    expect(AI_OPTION_COMPARISON_ROWS[1]?.customGpt.el).toBe("Βασικός · ●○○");
+    expect(AI_OPTION_COMPARISON_ROWS[1]?.mcp.el).toBe("Υψηλός · ●●○");
+    expect(AI_OPTION_COMPARISON_ROWS[1]?.studyAppAi.el).toBe("Πλήρης · ●●●");
     expect(AI_OPTION_COMPARISON_ROWS.at(-1)?.label).toEqual({
       en: "Cost for the user",
       el: "Κόστος για τον χρήστη",
@@ -32,6 +39,10 @@ describe("AI options comparison page", () => {
     expect(markup).toContain("3. StudyApp AI");
     expect(markup).toContain("Available");
     expect(markup).toContain("Coming soon");
+    expect(markup).toContain("AI integration with StudyApp");
+    expect(markup).toContain("Basic · ●○○");
+    expect(markup).toContain("High · ●●○");
+    expect(markup).toContain("Full · ●●●");
     expect(markup).toContain("ChatGPT account — Free or Paid");
     expect(markup).toContain("Not active yet — no charges yet");
     expect(markup).toContain('href="/ai-assistant-guide"');
