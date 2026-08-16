@@ -1,5 +1,56 @@
 import { expect, test, type Page } from "@playwright/test";
 
+async function readHorizontalLayout(page: Page) {
+  const manager = page.locator(".practice-content-manager");
+  return manager.evaluate((element) => {
+    const managerBounds = element.getBoundingClientRect();
+    const overflowingElements = [element, ...element.querySelectorAll<HTMLElement>("*")]
+      .map((candidate) => {
+        const bounds = candidate.getBoundingClientRect();
+        const styles = getComputedStyle(candidate);
+        const visualRight = bounds.left + Math.max(bounds.width, candidate.scrollWidth);
+        return {
+          className: typeof candidate.className === "string" ? candidate.className : "",
+          clientWidth: candidate.clientWidth,
+          id: candidate.id,
+          minWidth: styles.minWidth,
+          overflowBeyondManager: Math.round(Math.max(0, visualRight - managerBounds.right)),
+          overflowWrap: styles.overflowWrap,
+          right: Math.round(bounds.right),
+          scrollWidth: candidate.scrollWidth,
+          tagName: candidate.tagName,
+          text: candidate.textContent?.trim().slice(0, 80) ?? "",
+          whiteSpace: styles.whiteSpace,
+          width: Math.round(bounds.width),
+        };
+      })
+      .filter((candidate) => candidate.overflowBeyondManager > 0)
+      .sort((left, right) => Math.max(
+        right.overflowBeyondManager,
+        right.scrollWidth - right.clientWidth,
+      ) - Math.max(
+        left.overflowBeyondManager,
+        left.scrollWidth - left.clientWidth,
+      ));
+    return {
+      documentClientWidth: document.documentElement.clientWidth,
+      documentScrollWidth: document.documentElement.scrollWidth,
+      managerClientWidth: element.clientWidth,
+      managerScrollWidth: element.scrollWidth,
+      overflowingElements: overflowingElements.slice(0, 12),
+      viewportWidth: window.innerWidth,
+    };
+  });
+}
+
+function expectNoHorizontalOverflow(
+  evidence: Awaited<ReturnType<typeof readHorizontalLayout>>,
+): void {
+  expect(evidence.documentScrollWidth).toBeLessThanOrEqual(evidence.documentClientWidth);
+  expect(evidence.managerScrollWidth).toBeLessThanOrEqual(evidence.managerClientWidth);
+  expect(evidence.overflowingElements).toEqual([]);
+}
+
 async function seedPracticeContent(
   page: Page,
   chapterCount = 150,
@@ -186,7 +237,14 @@ test("keeps Greek pagination keyboard-usable without narrow or 200% text overflo
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await seedPracticeContent(page, 26, 51);
+  await seedPracticeContent(page);
+  await page.evaluate(() => {
+    document.documentElement.style.fontSize = "200%";
+  });
+  const englishLayout = await readHorizontalLayout(page);
+  console.info("English 200% layout", englishLayout);
+  expectNoHorizontalOverflow(englishLayout);
+
   await page.getByRole("button", { name: "GR" }).click();
   const manager = page.getByRole("region", {
     name: "Διαχείριση περιεχομένου εξάσκησης",
@@ -196,7 +254,7 @@ test("keeps Greek pagination keyboard-usable without narrow or 200% text overflo
   const flashcardPages = manager.getByRole("navigation", { name: "Σελίδες flashcards" });
 
   await expect(chapterPages.getByText(
-    "Εμφανίζονται κεφάλαια 1–25 από 26. Σελίδα 1 από 2.",
+    "Εμφανίζονται κεφάλαια 1–25 από 150. Σελίδα 1 από 6.",
     { exact: true },
   )).toBeVisible();
   const nextChapter = chapterPages.getByRole("button", {
@@ -204,20 +262,14 @@ test("keeps Greek pagination keyboard-usable without narrow or 200% text overflo
   });
   await nextChapter.focus();
   await page.keyboard.press("Enter");
-  await expect(chapterPages.locator('[aria-current="page"]')).toHaveText("Σελίδα 2 από 2.");
+  await expect(chapterPages.locator('[aria-current="page"]')).toHaveText("Σελίδα 2 από 6.");
   await expect(chapterHeading).toBeFocused();
   await expect(manager.locator("#imported-practice-chapters-list .practice-content-item"))
-    .toHaveCount(1);
+    .toHaveCount(25);
   await expect(flashcardPages.locator('[aria-current="page"]'))
-    .toHaveText("Σελίδα 1 από 2.");
+    .toHaveText("Σελίδα 1 από 30.");
 
-  await page.evaluate(() => {
-    document.documentElement.style.fontSize = "200%";
-  });
-  await expect.poll(() => manager.evaluate((element) =>
-    element.scrollWidth <= element.clientWidth,
-  )).toBe(true);
-  await expect.poll(() => page.evaluate(() =>
-    document.documentElement.scrollWidth <= document.documentElement.clientWidth,
-  )).toBe(true);
+  const greekLayout = await readHorizontalLayout(page);
+  console.info("Greek 200% layout", greekLayout);
+  expectNoHorizontalOverflow(greekLayout);
 });

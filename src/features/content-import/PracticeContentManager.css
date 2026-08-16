@@ -39,6 +39,10 @@
   margin: 0;
 }
 
+.practice-content-option p {
+  overflow-wrap: anywhere;
+}
+
 .practice-content-option > .button-row {
   align-items: stretch;
   margin-top: auto;

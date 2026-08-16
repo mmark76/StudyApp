@@ -35,6 +35,25 @@ async function expectRouteTopAndVisibleHeader(page: Page) {
   await expect(page.locator(".app-main")).toBeFocused();
 }
 
+async function captureLanguageReflowRegion(page: Page) {
+  return page.evaluate(() => {
+    const anchor = document.querySelector<HTMLElement>(
+      "#imported-practice-chapters-title",
+    );
+    if (!anchor) throw new Error("A visible language-reflow anchor was not found.");
+    const bounds = anchor.getBoundingClientRect();
+    return {
+      anchorBottom: Math.round(bounds.bottom),
+      anchorTop: Math.round(bounds.top),
+      documentHeight: document.documentElement.scrollHeight,
+      lineHeight: Number.parseFloat(getComputedStyle(anchor).lineHeight) || bounds.height,
+      scrollY: window.scrollY,
+      text: anchor.textContent?.trim().slice(0, 80) ?? "",
+      viewportHeight: window.innerHeight,
+    };
+  });
+}
+
 test("main-route navigation starts at the document top without resetting same-route state changes", async ({
   page,
 }) => {
@@ -59,16 +78,24 @@ test("main-route navigation starts at the document top without resetting same-ro
   await expectRouteTopAndVisibleHeader(page);
 
   await scrollDocumentTo(page, 900);
-  const beforeLanguageChange = await page.evaluate(() => window.scrollY);
+  const beforeLanguageRegion = await captureLanguageReflowRegion(page);
   await page.getByRole("button", { name: "GR" }).evaluate(
     (button) => (button as HTMLButtonElement).click(),
   );
   await expect(
     page.getByRole("navigation", { name: "Κύρια πλοήγηση" }),
   ).toBeVisible();
-  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(
-    beforeLanguageChange,
-  );
+  const afterLanguageRegion = await captureLanguageReflowRegion(page);
+  console.info("language reflow", { beforeLanguageRegion, afterLanguageRegion });
+  expect(afterLanguageRegion.scrollY).toBeGreaterThan(500);
+  expect(afterLanguageRegion.anchorBottom).toBeGreaterThan(0);
+  expect(afterLanguageRegion.anchorTop).toBeLessThan(afterLanguageRegion.viewportHeight);
+  expect(Math.abs(afterLanguageRegion.anchorTop - beforeLanguageRegion.anchorTop))
+    .toBeLessThanOrEqual(Math.ceil(Math.max(
+      beforeLanguageRegion.lineHeight,
+      afterLanguageRegion.lineHeight,
+    )));
+  await expect(page.locator(".app-main")).toBeFocused();
 
   await page.reload();
   await expect(page).toHaveURL(/\/#\/learn$/u);
