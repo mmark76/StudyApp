@@ -6,7 +6,85 @@ async function readHorizontalLayout(page: Page) {
     const managerBounds = element.getBoundingClientRect();
     const heading = element.querySelector<HTMLElement>(".practice-content-heading");
     const title = element.querySelector<HTMLElement>("#practice-content-title");
-    if (!heading || !title) throw new Error("Practice-content heading is missing.");
+    const root = document.querySelector<HTMLElement>("#root");
+    const appShell = document.querySelector<HTMLElement>(".app-shell");
+    const main = document.querySelector<HTMLElement>(".app-main");
+    if (!heading || !title || !root || !appShell || !main) {
+      throw new Error("Required layout element is missing.");
+    }
+    const describeSelector = (candidate: HTMLElement): string => {
+      const id = candidate.id ? `#${candidate.id}` : "";
+      const classes = typeof candidate.className === "string"
+        ? candidate.className.trim().split(/\s+/u).filter(Boolean).map((name) => `.${name}`).join("")
+        : "";
+      return `${candidate.tagName.toLowerCase()}${id}${classes}`;
+    };
+    const describeBox = (candidate: HTMLElement) => {
+      const bounds = candidate.getBoundingClientRect();
+      return {
+        clientWidth: candidate.clientWidth,
+        left: Math.round(bounds.left),
+        right: Math.round(bounds.right),
+        scrollWidth: candidate.scrollWidth,
+        width: Math.round(bounds.width),
+      };
+    };
+    const viewportWidth = document.documentElement.clientWidth;
+    const pageOverflowingElements = [document.body, ...document.body.querySelectorAll<HTMLElement>("*")]
+      .filter((candidate) => candidate !== element && !element.contains(candidate))
+      .map((candidate) => {
+        const bounds = candidate.getBoundingClientRect();
+        const styles = getComputedStyle(candidate);
+        const contentRight = styles.overflowX === "visible"
+          ? bounds.left + Math.max(bounds.width, candidate.scrollWidth)
+          : bounds.right;
+        const overflowLeft = Math.max(0, -bounds.left);
+        const overflowRight = Math.max(0, Math.max(bounds.right, contentRight) - viewportWidth);
+        let depth = 0;
+        for (let parent = candidate.parentElement; parent; parent = parent.parentElement) depth += 1;
+        return {
+          ancestors: Array.from((function* ancestors() {
+            for (let parent = candidate.parentElement; parent; parent = parent.parentElement) {
+              const parentStyles = getComputedStyle(parent);
+              yield {
+                box: describeBox(parent),
+                display: parentStyles.display,
+                gridTemplateColumns: parentStyles.gridTemplateColumns,
+                minWidth: parentStyles.minWidth,
+                overflowX: parentStyles.overflowX,
+                selector: describeSelector(parent),
+              };
+            }
+          })()).slice(0, 8),
+          box: describeBox(candidate),
+          boxSizing: styles.boxSizing,
+          depth,
+          display: styles.display,
+          flex: styles.flex,
+          flexBasis: styles.flexBasis,
+          flexShrink: styles.flexShrink,
+          gridTemplateColumns: styles.gridTemplateColumns,
+          marginLeft: styles.marginLeft,
+          marginRight: styles.marginRight,
+          maxWidth: styles.maxWidth,
+          minWidth: styles.minWidth,
+          overflowAmount: Math.ceil(Math.max(overflowLeft, overflowRight)),
+          overflowWrap: styles.overflowWrap,
+          overflowX: styles.overflowX,
+          paddingLeft: styles.paddingLeft,
+          paddingRight: styles.paddingRight,
+          position: styles.position,
+          role: candidate.getAttribute("role") ?? "",
+          selector: describeSelector(candidate),
+          text: candidate.textContent?.trim().replace(/\s+/gu, " ").slice(0, 80) ?? "",
+          whiteSpace: styles.whiteSpace,
+          width: styles.width,
+          wordBreak: styles.wordBreak,
+        };
+      })
+      .filter((candidate) => candidate.overflowAmount > 0)
+      .sort((left, right) => right.overflowAmount - left.overflowAmount || right.depth - left.depth)
+      .slice(0, 10);
     const overflowingElements = [element, ...element.querySelectorAll<HTMLElement>("*")]
       .map((candidate) => {
         const bounds = candidate.getBoundingClientRect();
@@ -36,13 +114,18 @@ async function readHorizontalLayout(page: Page) {
         left.scrollWidth - left.clientWidth,
       ));
     return {
+      appShell: describeBox(appShell),
+      body: describeBox(document.body),
       documentClientWidth: document.documentElement.clientWidth,
       documentScrollWidth: document.documentElement.scrollWidth,
       headingClientWidth: heading.clientWidth,
       headingScrollWidth: heading.scrollWidth,
+      main: describeBox(main),
       managerClientWidth: element.clientWidth,
       managerScrollWidth: element.scrollWidth,
       overflowingElements: overflowingElements.slice(0, 12),
+      pageOverflowingElements,
+      root: describeBox(root),
       titleClientWidth: title.clientWidth,
       titleScrollWidth: title.scrollWidth,
       viewportWidth: window.innerWidth,
