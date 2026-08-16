@@ -1,6 +1,41 @@
 # Personal-use capacity calibration: 150 chapters / 1,500 flashcards
 
-## Post-B-03 decision
+## Final post-B-03 decision
+
+_Owner decision recorded: 2026-08-16, after the PR #130 hardening checkpoint._
+
+The evidence chronology is:
+
+1. **Pre-B-03:** **DO NOT APPROVE** because the unpaginated manager exceeded
+   the mounted-row, DOM, focusable-control, accessibility-tree and constrained
+   long-task budgets.
+2. **B-03:** replace repeated cross-filtering with O(U + F)-style projections
+   and introduce bounded, accessible pagination.
+3. **Post-B-03 recommendation:** **APPROVE** after all established budgets pass.
+4. **Owner decision:** **APPROVED**.
+
+| Decision field | Current status |
+| --- | --- |
+| Candidate | 150 chapters / 1,500 flashcards |
+| Product status | **SUPPORTED PERSONAL-USE OPERATIONAL CAPACITY** |
+| Production enforcement | **NOT YET IMPLEMENTED** |
+| Technical/read compatibility | 10,000 chapters / 100,000 flashcards |
+| Safety-maximum operational usability | **NOT CLAIMED** |
+| Backup-over-10-MiB compatibility defect | **OPEN** |
+
+The post-B-03 measurements reduce the manager from 14,894 to 731 DOM nodes,
+1,650 to 75 mounted content rows, 4,956 to 233 focusable controls, and about
+26,000-29,000 to about 1,500 AX nodes. Worst desktop TTI improves from 327 ms to
+130 ms and worst constrained TTI from 1,150 ms to 350 ms. **All established
+B-02 post-B-03 budgets pass.**
+
+The approved capacity is a product/support target. A later task must enforce it
+for new writes, additions and imports without invalidating compatible existing
+data above the target or reducing the technical/read safety maxima. Full backup
+round-trip support at the safety maxima is not claimed while the separate
+backup-over-10-MiB defect remains open.
+
+## Post-B-03 recalibration and recommendation
 
 _Measured: 2026-08-16T13:44:05.043Z_
 
@@ -64,7 +99,7 @@ support at the technical safety maxima. Opening an editor still intentionally
 uses the existing full native chapter select; full safety-max editing was not
 claimed.
 
-**PD-CAPACITY STATUS: READY FOR OWNER APPROVAL**
+**PD-CAPACITY STATUS AT RECALIBRATION: READY FOR OWNER APPROVAL**
 
 ## Pre-B-03 calibration and decision
 

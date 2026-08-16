@@ -1,28 +1,67 @@
 # StudyApp practical-capacity contract
 
-Status: **B-02 baseline retained; B-03 post-remediation evidence complete**
-Finding: the `PERF-001` manager render/work portion is **READY FOR FOCUSED RE-AUDIT**.
+Status: **B-02 baseline retained; B-03 evidence and owner decision recorded**
+Finding: the `PERF-001` manager render/work portion is **REMEDIATED AND
+VERIFIED**. The broader finding remains open while B-04 is outstanding.
 
 The measurements below preserve the pre-B-03 unpaginated baseline. The
-post-B-03 150/1,500 result, safety-max compatibility smoke, and owner-review
-proposal are recorded in `PERSONAL_USE_CAPACITY_CALIBRATION.md`. The separate
-B-04 spreadsheet identity-generation/import-throughput scope is not implemented
+post-B-03 150/1,500 result, safety-max compatibility smoke, and owner decision
+are recorded in `PERSONAL_USE_CAPACITY_CALIBRATION.md`. The separate B-04
+spreadsheet identity-generation/import-throughput scope is not implemented
 here.
 
-## Scope and decision boundary
+## Post-B-03 operational-capacity decision
 
-This document separates three different concepts:
+_Status recorded: 2026-08-16, after the PR #130 hardening checkpoint._
+
+B-02 demonstrated that the unpaginated manager failed practical rendering and
+accessibility budgets well below the technical safety maxima. B-03 replaced the
+repeated cross-filtering path with O(U + F)-style derived projections and added
+independent bounded pagination. The manager now mounts 25 chapter rows and 50
+flashcard rows, for at most 75 content rows at one time.
+
+The post-B-03 150-chapter/1,500-flashcard recalibration passes every established
+B-02 engineering budget on the named desktop and constrained profiles. Based on
+that evidence, the owner has **APPROVED 150 chapters and 1,500 flashcards as the
+supported personal-use operational capacity**.
+
+This is product and support policy, not current production enforcement.
+Enforcement for new writes, additions and imports remains to be implemented.
+Existing compatible data above the operational target must remain readable up
+to the unchanged technical/read compatibility safety maxima of 10,000 chapters
+and 100,000 flashcards.
+
+### Headline before/after evidence at 150 / 1,500
+
+| Metric | Before B-03 | After B-03 |
+| --- | ---: | ---: |
+| Manager DOM | 14,894 | 731 |
+| Mounted content rows | 1,650 | 75 |
+| Focusable controls | 4,956 | 233 |
+| Manager AX tree | about 26,000-29,000 nodes | about 1,500 nodes |
+| Worst desktop TTI | 327 ms | 130 ms |
+| Worst constrained TTI | 1,150 ms | 350 ms |
+
+**All established B-02 post-B-03 budgets: PASS.** Safety-maximum operational
+usability is not claimed. The separate backup-over-10-MiB round-trip defect
+remains open, so full backup portability at the safety maxima is also not
+claimed.
+
+## Historical B-02 scope and decision boundary
+
+The B-02 contract separated three different concepts:
 
 1. **Current safety maximum** — the largest collection accepted by the
    parser/read boundary.
-2. **Observed current baseline** — measurements from the current unpaginated
+2. **Observed B-02 baseline** — measurements from the then-current unpaginated
    manager on the named profiles below.
-3. **Proposed operational budget** — an engineering target for B-03. It is not
-   approved product policy and is not a universal browser/device threshold.
+3. **Proposed operational budget** — an engineering target for B-03. At this
+   stage it was not approved product policy or a universal browser/device
+   threshold.
 
-No parser/import limit is lowered by B-02. Existing valid content remains
-subject to the current production validators. A future lower new-import cap
-requires a separate owner decision and bilingual product copy.
+No parser/import limit was lowered by B-02. Existing valid content remained
+subject to the production validators. The later owner-approved operational
+capacity still requires a separate enforcement task and bilingual product copy.
 
 ## Authoritative safety maximum
 
@@ -150,7 +189,7 @@ Physical-device and physical screen-reader validation remain separate.
   two samples. Representative Greek cases use one sample per profile. A timeout
   is retained as evidence rather than retried with a longer limit.
 
-## Observed current baseline
+## Observed B-02 unpaginated baseline
 
 ### Mixed manager matrix — English
 
@@ -254,7 +293,7 @@ mixed 25%. No physical screen reader was used. Therefore:
 - deep keyboard/screen-reader traversal at 25%: **OPERATIONALLY IMPRACTICAL**;
 - physical screen-reader validation: **NOT PERFORMED**.
 
-## Observed practical capacity
+## Observed B-02 practical capacity
 
 - **Desktop reference:** none of the measured mixed 25/50/100 levels meets a
   practical interaction/accessibility contract. Mixed 25% eventually renders,
@@ -271,10 +310,11 @@ mixed 25%. No physical screen reader was used. Therefore:
 Technically rendering a fixture is not sufficient for supported capacity;
 keyboard and accessibility-tree burden are part of this conclusion.
 
-## Proposed B-03 engineering budgets
+## Established B-03 engineering budgets (defined during B-02)
 
-These are named-profile targets derived from the baseline and require owner
-sign-off. They must not be added as host-sensitive assertions to ordinary CI.
+These named-profile targets were derived from the B-02 baseline and required
+owner sign-off at that stage. They must not be added as host-sensitive
+assertions to ordinary CI.
 
 | Metric | Desktop target | Constrained/mobile target | Basis |
 | --- | ---: | ---: | --- |
@@ -294,7 +334,10 @@ The DOM, row, focusable, and AX budgets are the central B-03 contract. Import
 hashing may require a later separately scoped task if pagination alone cannot
 meet the import target.
 
-## PD-CAPACITY recommendation
+## Historical B-02 PD-CAPACITY recommendation
+
+The recommendation and status below record the B-02 decision boundary before
+B-03 and the later owner decision. They are retained as historical evidence.
 
 - Safety maximum: retain 10,000 chapters / 100,000 flashcards for parser/read
   compatibility; do not present it as supported operational capacity.
@@ -311,7 +354,12 @@ meet the import target.
 
 **PD-CAPACITY STATUS: READY FOR OWNER SIGN-OFF**
 
-## Required next validation
+## Historical B-02 required next validation
+
+The 150/1,500 recalibration and safety-max smoke requested after B-02 have been
+completed; their results and the owner decision are recorded at the top of this
+document. The historical full-matrix request below is retained and is not used
+to claim safety-maximum operational usability.
 
 After B-03, rerun both commands unchanged. The 25/50/100 mixed matrix must be
 measured again against the approved budgets, with lower-scale calibration if an
