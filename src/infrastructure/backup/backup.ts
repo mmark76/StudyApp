@@ -10,6 +10,8 @@ import {
 import {
   IMPORTED_FLASHCARDS_SETTING_KEY,
   IMPORTED_UNITS_SETTING_KEY,
+  MAX_IMPORTED_FLASHCARDS,
+  MAX_IMPORTED_UNITS,
   parseImportedFlashcards,
   parseImportedUnits,
 } from "../../features/content-import/importedContent";
@@ -39,8 +41,8 @@ import {
 export const MAX_BACKUP_FILE_SIZE = 10 * 1024 * 1024;
 export const MAX_BACKUP_PROGRESS_RECORDS = 100_000;
 export const MAX_BACKUP_SESSION_RECORDS = 100_000;
-export const MAX_IMPORTED_UNIT_RECORDS = 10_000;
-export const MAX_IMPORTED_FLASHCARD_RECORDS = 100_000;
+export const MAX_IMPORTED_UNIT_RECORDS = MAX_IMPORTED_UNITS;
+export const MAX_IMPORTED_FLASHCARD_RECORDS = MAX_IMPORTED_FLASHCARDS;
 export const MAX_STUDY_MATERIAL_LINK_RECORDS = 10_000;
 
 const MAX_ID_LENGTH = 256;
@@ -297,9 +299,14 @@ function readSettings(values: unknown[]): ValidatedSettings {
           if (
             !isObject(link)
             || !hasOnlyKeys(link, STUDY_MATERIAL_LINK_KEYS)
-            || ("materialType" in link && !isSourceMaterialType(link.materialType))
+            || (
+              "materialType" in link
+              && link.materialType !== undefined
+              && !isSourceMaterialType(link.materialType)
+            )
             || (
               "structuredStudyType" in link
+              && link.structuredStudyType !== undefined
               && !isStructuredStudyType(link.structuredStudyType)
             )
           ) {

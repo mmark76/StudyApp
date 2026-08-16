@@ -1,18 +1,62 @@
 import "fake-indexeddb/auto";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { flashcards as builtInFlashcards } from "../src/data/flashcards";
+import {
+  IMPORTED_FLASHCARDS_SETTING_KEY,
+  IMPORTED_UNITS_SETTING_KEY,
+  StoredContentValidationError,
+} from "../src/features/content-import/importedContent";
+import {
+  removeImportedPracticeFlashcard,
+} from "../src/features/content-import/practiceContentRepository";
+import { exportBackup } from "../src/infrastructure/backup/backup";
 import { StudyDatabase } from "../src/infrastructure/database/studyDatabase";
 import {
   commitCardRatingOperation,
   commitQuizCompletionOperation,
+  StudyCardUnavailableError,
   StudyOperationConflictError,
   type CardRatingOperationInput,
   type StudyOperationFailureInjector,
   type StudyOperationWriteStage,
 } from "../src/features/learn/studyOperationService";
-import type { CardProgress } from "../src/shared/types/models";
+import type {
+  CardProgress,
+  Flashcard,
+  StudyUnit,
+} from "../src/shared/types/models";
 
 const startedAt = "2026-07-30T10:00:00.000Z";
 const committedAt = "2026-07-30T10:05:00.000Z";
+const originalBuiltInFlashcards = [...builtInFlashcards];
+
+const importedUnit: StudyUnit = {
+  id: "unit-1",
+  number: 1,
+  title: "Imported unit",
+  objectives: [],
+  summary: [],
+  keyTerms: [],
+};
+
+const importedCards: Flashcard[] = [
+  {
+    id: "card-1",
+    unitId: importedUnit.id,
+    number: 1,
+    question: "Question one?",
+    answer: "Answer one.",
+    tags: [],
+  },
+  {
+    id: "card-2",
+    unitId: importedUnit.id,
+    number: 2,
+    question: "Question two?",
+    answer: "Answer two.",
+    tags: [],
+  },
+];
 
 function existingProgress(): CardProgress {
   return {
@@ -56,14 +100,104 @@ function failAt(stage: StudyOperationWriteStage): StudyOperationFailureInjector 
 
 describe("transactional and idempotent study operations", () => {
   let database: StudyDatabase;
+  let peerDatabase: StudyDatabase;
 
   beforeEach(async () => {
-    database = new StudyDatabase(`study-operation-${crypto.randomUUID()}`);
-    await database.open();
+    const databaseName = `study-operation-${crypto.randomUUID()}`;
+    database = new StudyDatabase(databaseName);
+    peerDatabase = new StudyDatabase(databaseName);
+    await Promise.all([database.open(), peerDatabase.open()]);
+    await database.settings.bulkPut([
+      {
+        key: IMPORTED_UNITS_SETTING_KEY,
+        value: [importedUnit],
+      },
+      {
+        key: IMPORTED_FLASHCARDS_SETTING_KEY,
+        value: importedCards,
+      },
+    ]);
   });
 
   afterEach(async () => {
+    peerDatabase.close();
+    builtInFlashcards.splice(
+      0,
+      builtInFlashcards.length,
+      ...originalBuiltInFlashcards,
+    );
     await database.delete();
+  });
+
+  it("commits a valid imported card rating", async () => {
+    const result = await commitCardRatingOperation(cardOperation(), database);
+
+    expect(result.alreadyCommitted).toBe(false);
+    await expect(database.cardProgress.get("card-1")).resolves.toMatchObject({
+      cardId: "card-1",
+      score: 2,
+      repetitions: 1,
+    });
+    await expect(database.studySessions.count()).resolves.toBe(1);
+    await expect(database.studyOperations.count()).resolves.toBe(1);
+  });
+
+  it("commits a valid built-in card rating", async () => {
+    const builtInCard: Flashcard = {
+      id: "built-in-card",
+      unitId: "built-in-unit",
+      number: 1,
+      question: "Built-in question?",
+      answer: "Built-in answer.",
+      tags: [],
+    };
+    builtInFlashcards.push(builtInCard);
+    await database.settings.put({
+      key: IMPORTED_FLASHCARDS_SETTING_KEY,
+      value: [{ id: "broken-imported-card" }],
+    });
+
+    await expect(
+      commitCardRatingOperation(
+        cardOperation({ cardId: builtInCard.id }),
+        database,
+      ),
+    ).resolves.toMatchObject({ alreadyCommitted: false });
+    await expect(database.cardProgress.get(builtInCard.id)).resolves.toMatchObject(
+      { cardId: builtInCard.id, score: 2 },
+    );
+  });
+
+  it("rejects a card deleted through another database connection", async () => {
+    const staleOperation = cardOperation();
+    await removeImportedPracticeFlashcard("card-1", peerDatabase);
+
+    await expect(
+      commitCardRatingOperation(staleOperation, database),
+    ).rejects.toBeInstanceOf(StudyCardUnavailableError);
+
+    await expect(database.cardProgress.count()).resolves.toBe(0);
+    await expect(database.studySessions.count()).resolves.toBe(0);
+    await expect(database.studyOperations.count()).resolves.toBe(0);
+    await expect(exportBackup(database)).resolves.toMatchObject({
+      cardProgress: [],
+      studySessions: [],
+    });
+  });
+
+  it("rejects malformed authoritative card settings without partial writes", async () => {
+    await database.settings.put({
+      key: IMPORTED_FLASHCARDS_SETTING_KEY,
+      value: [{ id: "broken-card" }],
+    });
+
+    await expect(
+      commitCardRatingOperation(cardOperation(), database),
+    ).rejects.toBeInstanceOf(StoredContentValidationError);
+
+    await expect(database.cardProgress.count()).resolves.toBe(0);
+    await expect(database.studySessions.count()).resolves.toBe(0);
+    await expect(database.studyOperations.count()).resolves.toBe(0);
   });
 
   it("rolls back when the progress write fails", async () => {

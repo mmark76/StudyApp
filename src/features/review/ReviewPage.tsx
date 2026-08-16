@@ -1,5 +1,6 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { Rating } from "../../shared/types/models";
@@ -7,6 +8,7 @@ import { createId } from "../../shared/utils/id";
 import { useStudyContent } from "../content-import/useStudyContent";
 import {
   commitCardRatingOperation,
+  StudyCardUnavailableError,
   type CardRatingOperationInput,
   type StudyOperationFailureInjector,
 } from "../learn/studyOperationService";
@@ -38,10 +40,12 @@ export function ReviewPage({ failureInjector }: ReviewPageProps = {}) {
   const [finished, setFinished] = useState(false);
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
+  const [staleContent, setStaleContent] = useState(false);
   const [retryOperation, setRetryOperation] =
     useState<CardRatingOperationInput | null>(null);
   const activeOperationRef = useRef<CardRatingOperationInput | null>(null);
   const cardHeadingRef = useRef<HTMLHeadingElement>(null);
+  const staleHeadingRef = useRef<HTMLHeadingElement>(null);
   const [session, setSession] = useState(createReviewSessionIdentity);
   const card = dueCards[index];
 
@@ -53,8 +57,12 @@ export function ReviewPage({ failureInjector }: ReviewPageProps = {}) {
   }, [finished, flashcards, progress]);
 
   useEffect(() => {
+    if (staleContent) {
+      staleHeadingRef.current?.focus();
+      return;
+    }
     if (index > 0 || revealed) cardHeadingRef.current?.focus();
-  }, [index, revealed]);
+  }, [index, revealed, staleContent]);
 
   async function persistRating(operation: CardRatingOperationInput) {
     if (pending) return;
@@ -83,7 +91,13 @@ export function ReviewPage({ failureInjector }: ReviewPageProps = {}) {
         setIndex((current) => nextReviewIndex(current));
         setMessage("");
       }
-    } catch {
+    } catch (error) {
+      if (error instanceof StudyCardUnavailableError) {
+        activeOperationRef.current = null;
+        setRetryOperation(null);
+        setStaleContent(true);
+        return;
+      }
       setMessage(
         text(
           "Review progress could not be saved. Retry the same rating.",
@@ -122,11 +136,34 @@ export function ReviewPage({ failureInjector }: ReviewPageProps = {}) {
     setIndex(0);
     setRevealed(false);
     setFinished(false);
+    setStaleContent(false);
     setMessage("");
     setPending(false);
     activeOperationRef.current = null;
     setRetryOperation(null);
     setSession(createReviewSessionIdentity());
+  }
+
+  if (staleContent) {
+    return (
+      <section className="empty-state">
+        <h2 ref={staleHeadingRef} tabIndex={-1}>
+          {text("Content changed", "Το περιεχόμενο άλλαξε")}
+        </h2>
+        <p role="alert">
+          {text(
+            "This card is no longer available. Return to Learn & Practice and start again with the current content.",
+            "Αυτή η κάρτα δεν είναι πλέον διαθέσιμη. Επίστρεψε στη Μάθηση και εξάσκηση και ξεκίνησε ξανά με το τρέχον περιεχόμενο.",
+          )}
+        </p>
+        <Link className="button primary" to="/learn#practice-content">
+          {text(
+            "Return to Learn & Practice",
+            "Επιστροφή στη Μάθηση και εξάσκηση",
+          )}
+        </Link>
+      </section>
+    );
   }
 
   if (finished) {

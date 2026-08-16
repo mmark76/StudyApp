@@ -133,6 +133,46 @@ async function seedStudyData(page: Page, reviewCardCount = 0) {
   );
 }
 
+async function removeImportedCardState(page: Page, cardId: string) {
+  await page.goto("/");
+  await page.evaluate(async (removedCardId) => {
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open("generic-study-app");
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        const database = request.result;
+        const transaction = database.transaction(
+          ["settings", "cardProgress"],
+          "readwrite",
+        );
+        transaction.onabort = () => reject(
+          transaction.error ?? new Error("Card removal was aborted."),
+        );
+        transaction.oncomplete = () => {
+          database.close();
+          resolve();
+        };
+
+        const settings = transaction.objectStore("settings");
+        const settingRequest = settings.get("imported-flashcards");
+        settingRequest.onerror = () => transaction.abort();
+        settingRequest.onsuccess = () => {
+          const currentCards = Array.isArray(settingRequest.result?.value)
+            ? settingRequest.result.value
+            : [];
+          settings.put({
+            key: "imported-flashcards",
+            value: currentCards.filter(
+              (card: { id?: unknown }) => card.id !== removedCardId,
+            ),
+          });
+        };
+        transaction.objectStore("cardProgress").delete(removedCardId);
+      };
+    });
+  }, cardId);
+}
+
 async function readStudyState(page: Page): Promise<StoredStudyState> {
   return page.evaluate(async () => {
     return new Promise<StoredStudyState>((resolve, reject) => {
@@ -1365,6 +1405,80 @@ test("appearance writes expose pending, success, and truthful failure states", a
   await page.reload();
   await expect(accent).toBeEnabled();
   await expect(accent).toHaveValue("blue");
+  assertNoApplicationErrors();
+});
+
+test("flashcards exits a stale card after another context removes it", async ({
+  context,
+  page,
+}) => {
+  const assertNoApplicationErrors = watchForApplicationErrors(page);
+  await seedStudyData(page);
+  await page.goto("/#/flashcards");
+  await page.getByRole("button", { name: "Show answer" }).click();
+
+  const contentPage = await context.newPage();
+  await removeImportedCardState(contentPage, cards[0].id);
+  await contentPage.close();
+
+  await page.getByRole("button", { name: /Known/ }).click();
+
+  const recoveryHeading = page.getByRole("heading", {
+    name: "Content changed",
+  });
+  await expect(recoveryHeading).toBeVisible();
+  await expect(recoveryHeading).toBeFocused();
+  await expect(page.getByRole("alert")).toContainText(
+    "This card is no longer available.",
+  );
+  await expect(
+    page.getByRole("link", { name: "Return to Learn & Practice" }),
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Retry saving" }))
+    .toHaveCount(0);
+
+  const state = await readStudyState(page);
+  expect(state.progress).toEqual([]);
+  expect(state.sessions).toEqual([]);
+  expect(state.operations).toEqual([]);
+  assertNoApplicationErrors();
+});
+
+test("review exits a stale card with accessible Greek recovery", async ({
+  context,
+  page,
+}) => {
+  const assertNoApplicationErrors = watchForApplicationErrors(page);
+  await seedStudyData(page, 2);
+  await page.locator(".language-switcher button", { hasText: "GR" }).click();
+  await page.goto("/#/review");
+  await page.getByRole("button", { name: "Εμφάνιση απάντησης" }).click();
+
+  const contentPage = await context.newPage();
+  await removeImportedCardState(contentPage, cards[0].id);
+  await contentPage.close();
+
+  await page.getByRole("button", { name: /Γνωστό/ }).click();
+
+  const recoveryHeading = page.getByRole("heading", {
+    name: "Το περιεχόμενο άλλαξε",
+  });
+  await expect(recoveryHeading).toBeVisible();
+  await expect(recoveryHeading).toBeFocused();
+  await expect(page.getByRole("alert")).toContainText(
+    "Αυτή η κάρτα δεν είναι πλέον διαθέσιμη.",
+  );
+  await expect(
+    page.getByRole("link", { name: "Επιστροφή στη Μάθηση και εξάσκηση" }),
+  ).toBeVisible();
+  await expect(page.getByRole("button", {
+    name: "Νέα προσπάθεια αποθήκευσης",
+  })).toHaveCount(0);
+
+  const state = await readStudyState(page);
+  expect(state.progress.some((item) => item.cardId === cards[0].id)).toBe(false);
+  expect(state.sessions).toEqual([]);
+  expect(state.operations).toEqual([]);
   assertNoApplicationErrors();
 });
 

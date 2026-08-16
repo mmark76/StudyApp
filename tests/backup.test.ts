@@ -11,6 +11,14 @@ import {
   serializeBackup,
 } from "../src/infrastructure/backup/backup";
 import { studyDatabase } from "../src/infrastructure/database/studyDatabase";
+import {
+  commitCardRatingOperation,
+  StudyCardUnavailableError,
+} from "../src/features/learn/studyOperationService";
+import {
+  parseStoredStudyMaterials,
+  STUDY_MATERIALS_SETTING_KEY,
+} from "../src/features/study-materials/studyMaterials";
 import type {
   AppSetting,
   CardProgress,
@@ -96,6 +104,32 @@ function makeValidBackup(): StudyBackup {
       },
     ],
   };
+}
+
+function makeBackupWithSavedLinks(
+  links: Array<Record<string, unknown>>,
+): StudyBackup {
+  const backup = makeValidBackup();
+  return {
+    ...backup,
+    settings: backup.settings.map((setting) =>
+      setting.key === STUDY_MATERIALS_SETTING_KEY
+        ? { ...setting, value: links }
+        : setting,
+    ),
+  };
+}
+
+function savedLinksFromBackup(
+  backup: StudyBackup,
+): Array<Record<string, unknown>> {
+  const setting = backup.settings.find(
+    (candidate) => candidate.key === STUDY_MATERIALS_SETTING_KEY,
+  );
+  if (!setting || !Array.isArray(setting.value)) {
+    throw new Error("Backup does not contain saved links.");
+  }
+  return setting.value as Array<Record<string, unknown>>;
 }
 
 describe("backup validation", () => {
@@ -241,6 +275,26 @@ describe("backup validation", () => {
     })).toThrow("duplicate setting");
   });
 
+  it.each([
+    ["materialType", "string", "invalid-type"],
+    ["materialType", "null", null],
+    ["materialType", "number", 1],
+    ["materialType", "array", []],
+    ["materialType", "object", {}],
+    ["structuredStudyType", "string", "invalid-type"],
+    ["structuredStudyType", "null", null],
+    ["structuredStudyType", "number", 1],
+    ["structuredStudyType", "array", []],
+    ["structuredStudyType", "object", {}],
+  ])("rejects a saved-link %s %s value", (field, _kind, value) => {
+    expect(() => parseBackup(makeBackupWithSavedLinks([{
+      id: "invalid-link",
+      title: "Invalid link",
+      url: "https://example.com/invalid-link",
+      [field]: value,
+    }]))).toThrow("invalid saved cloud link");
+  });
+
   it("rejects oversized files before parsing their contents", () => {
     expect(() => parseBackupJson(
       JSON.stringify(makeValidBackup()),
@@ -370,6 +424,130 @@ describe("transactional backup restore", () => {
     expect(() => serializeBackup(backup)).not.toThrow();
   });
 
+  it.each([
+    [
+      "Library",
+      {
+        id: "library-link",
+        title: "Library reference",
+        url: "https://example.com/library-reference",
+        materialType: "book",
+      },
+      "structuredStudyType",
+    ],
+    [
+      "Structured Study",
+      {
+        id: "structured-link",
+        title: "Structured reference",
+        url: "https://example.com/structured-reference",
+        structuredStudyType: "chapter",
+      },
+      "materialType",
+    ],
+  ] as const)(
+    "round-trips a valid %s saved-link backup through restore and re-export",
+    async (_label, link, absentProperty) => {
+      const acceptedBackup = parseBackup(makeBackupWithSavedLinks([link]));
+
+      await importBackup(acceptedBackup);
+
+      const storedSetting = await studyDatabase.settings.get(
+        STUDY_MATERIALS_SETTING_KEY,
+      );
+      const liveLinks = parseStoredStudyMaterials(storedSetting?.value);
+      expect(liveLinks).toEqual([link]);
+      expect(Object.hasOwn(liveLinks[0], absentProperty)).toBe(false);
+
+      const reExported = await exportBackup();
+      const serialized = serializeBackup(reExported);
+      const reparsed = parseBackupJson(serialized);
+
+      expect(savedLinksFromBackup(reparsed)).toEqual([link]);
+      expect(serialized).not.toContain(`"${absentProperty}"`);
+    },
+  );
+
+  it("exports existing own undefined optionals as canonical JSON absence", async () => {
+    await studyDatabase.cardProgress.clear();
+    await studyDatabase.settings.put({
+      key: STUDY_MATERIALS_SETTING_KEY,
+      value: [
+        {
+          id: "legacy-library-link",
+          title: "Legacy library link",
+          url: "https://example.com/legacy-library-link",
+          materialType: "book",
+          structuredStudyType: undefined,
+        },
+        {
+          id: "legacy-structured-link",
+          title: "Legacy structured link",
+          url: "https://example.com/legacy-structured-link",
+          materialType: undefined,
+          structuredStudyType: "chapter",
+        },
+      ],
+    });
+
+    const exported = await exportBackup();
+    const links = savedLinksFromBackup(exported);
+    expect(Object.hasOwn(links[0], "structuredStudyType")).toBe(false);
+    expect(Object.hasOwn(links[1], "materialType")).toBe(false);
+
+    const serialized = serializeBackup(exported);
+    const serializedLinks = savedLinksFromBackup(
+      JSON.parse(serialized) as StudyBackup,
+    );
+    expect(Object.hasOwn(serializedLinks[0], "structuredStudyType")).toBe(false);
+    expect(Object.hasOwn(serializedLinks[1], "materialType")).toBe(false);
+
+    const reparsedLinks = savedLinksFromBackup(parseBackupJson(serialized));
+    expect(Object.hasOwn(reparsedLinks[0], "structuredStudyType")).toBe(false);
+    expect(Object.hasOwn(reparsedLinks[1], "materialType")).toBe(false);
+  });
+
+  it("keeps export valid when a stale view rates a card removed by restore", async () => {
+    await importBackup(makeValidBackup());
+    const staleOperation = {
+      operationId: "stale-operation",
+      sessionId: "stale-session",
+      mode: "flashcards" as const,
+      cardId: "card-imported-1",
+      rating: 2 as const,
+      startedAt: "2026-07-28T11:00:00.000Z",
+      committedAt: "2026-07-28T11:05:00.000Z",
+      reviewedCards: 1,
+      correctAnswers: 0,
+      completesSession: false,
+    };
+    const backupWithoutCard = makeValidBackup();
+    backupWithoutCard.cardProgress = [];
+    backupWithoutCard.studySessions = [];
+    backupWithoutCard.settings = backupWithoutCard.settings
+      .filter((setting) => setting.key !== "study-material-links")
+      .map((setting) =>
+        setting.key === "imported-flashcards"
+          ? { ...setting, value: [] }
+          : setting,
+      );
+
+    await importBackup(backupWithoutCard);
+
+    await expect(
+      commitCardRatingOperation(staleOperation),
+    ).rejects.toBeInstanceOf(StudyCardUnavailableError);
+    await expect(studyDatabase.cardProgress.count()).resolves.toBe(0);
+    await expect(studyDatabase.studySessions.count()).resolves.toBe(0);
+    await expect(studyDatabase.studyOperations.count()).resolves.toBe(0);
+    await expect(exportBackup()).resolves.toEqual(
+      expect.objectContaining({
+        cardProgress: [],
+        studySessions: [],
+      }),
+    );
+  });
+
   it("refuses to export corrupt stored settings", async () => {
     await studyDatabase.settings.put({
       key: "imported-study-units",
@@ -399,6 +577,31 @@ describe("transactional backup restore", () => {
       existingSetting,
     ]);
   });
+
+  it.each(["materialType", "structuredStudyType"] as const)(
+    "rejects an invalid saved-link %s before replacing existing data",
+    async (field) => {
+      await expect(importBackup(makeBackupWithSavedLinks([{
+        id: "invalid-restore-link",
+        title: "Invalid restore link",
+        url: "https://example.com/invalid-restore-link",
+        [field]: "invalid-type",
+      }]))).rejects.toBeInstanceOf(BackupValidationError);
+
+      await expect(studyDatabase.cardProgress.toArray()).resolves.toEqual([
+        existingProgress,
+      ]);
+      await expect(studyDatabase.studySessions.toArray()).resolves.toEqual([
+        existingSession,
+      ]);
+      await expect(studyDatabase.studyOperations.toArray()).resolves.toEqual([
+        existingOperation,
+      ]);
+      await expect(studyDatabase.settings.toArray()).resolves.toEqual([
+        existingSetting,
+      ]);
+    },
+  );
 
   it("rolls back every cleared table when a write fails", async () => {
     vi.spyOn(studyDatabase.studySessions, "bulkAdd")

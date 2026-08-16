@@ -7,6 +7,7 @@ import { createId } from "../../shared/utils/id";
 import { useStudyContent } from "../content-import/useStudyContent";
 import {
   commitCardRatingOperation,
+  StudyCardUnavailableError,
   type CardRatingOperationInput,
   type StudyOperationFailureInjector,
 } from "../learn/studyOperationService";
@@ -37,10 +38,12 @@ export function FlashcardsPage({ failureInjector }: FlashcardsPageProps = {}) {
   const [finished, setFinished] = useState(false);
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
+  const [staleContent, setStaleContent] = useState(false);
   const [retryOperation, setRetryOperation] =
     useState<CardRatingOperationInput | null>(null);
   const activeOperationRef = useRef<CardRatingOperationInput | null>(null);
   const cardHeadingRef = useRef<HTMLHeadingElement>(null);
+  const staleHeadingRef = useRef<HTMLHeadingElement>(null);
   const [session, setSession] = useState(createSessionIdentity);
   const card = cards[index];
 
@@ -49,8 +52,12 @@ export function FlashcardsPage({ failureInjector }: FlashcardsPageProps = {}) {
   }, [availableCards, hasStarted]);
 
   useEffect(() => {
+    if (staleContent) {
+      staleHeadingRef.current?.focus();
+      return;
+    }
     if (index > 0 || revealed) cardHeadingRef.current?.focus();
-  }, [index, revealed]);
+  }, [index, revealed, staleContent]);
 
   async function persistRating(operation: CardRatingOperationInput) {
     if (pending) return;
@@ -74,7 +81,13 @@ export function FlashcardsPage({ failureInjector }: FlashcardsPageProps = {}) {
         setIndex((current) => current + 1);
         setMessage("");
       }
-    } catch {
+    } catch (error) {
+      if (error instanceof StudyCardUnavailableError) {
+        activeOperationRef.current = null;
+        setRetryOperation(null);
+        setStaleContent(true);
+        return;
+      }
       setMessage(
         text(
           "Progress could not be saved. Retry without changing the rating.",
@@ -114,10 +127,33 @@ export function FlashcardsPage({ failureInjector }: FlashcardsPageProps = {}) {
     setIndex(0);
     setRevealed(false);
     setFinished(false);
+    setStaleContent(false);
     setMessage("");
     activeOperationRef.current = null;
     setRetryOperation(null);
     setSession(createSessionIdentity());
+  }
+
+  if (staleContent) {
+    return (
+      <section className="empty-state">
+        <h2 ref={staleHeadingRef} tabIndex={-1}>
+          {text("Content changed", "Το περιεχόμενο άλλαξε")}
+        </h2>
+        <p role="alert">
+          {text(
+            "This card is no longer available. Return to Learn & Practice and start again with the current content.",
+            "Αυτή η κάρτα δεν είναι πλέον διαθέσιμη. Επίστρεψε στη Μάθηση και εξάσκηση και ξεκίνησε ξανά με το τρέχον περιεχόμενο.",
+          )}
+        </p>
+        <Link className="button primary" to="/learn#practice-content">
+          {text(
+            "Return to Learn & Practice",
+            "Επιστροφή στη Μάθηση και εξάσκηση",
+          )}
+        </Link>
+      </section>
+    );
   }
 
   if (!card) {

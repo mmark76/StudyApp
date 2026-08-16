@@ -6,7 +6,10 @@ import {
 } from "../../infrastructure/database/localWriteFailureInjector";
 import type { StudyUnit } from "../../shared/types/models";
 import { addImportedPracticeUnit } from "./practiceContentRepository";
-import { MAX_IMPORTED_TEXT_LENGTH } from "./importedContent";
+import {
+  getPracticeContentCapacityMessage,
+  MAX_IMPORTED_TEXT_LENGTH,
+} from "./importedContent";
 
 function splitLines(value: string): string[] {
   return value.split("\n").map((item) => item.trim()).filter(Boolean);
@@ -20,12 +23,14 @@ export function UnitForm({
   existingUnits,
   failureInjector,
   onMessage,
+  onSaved,
 }: {
   existingUnits: readonly StudyUnit[];
   failureInjector?: LocalWriteFailureInjector;
   onMessage: (message: string) => void;
+  onSaved?: (unit: StudyUnit) => void;
 }) {
-  const { text } = useLanguage();
+  const { language, text } = useLanguage();
   const [title, setTitle] = useState("");
   const [objectives, setObjectives] = useState("");
   const [summary, setSummary] = useState("");
@@ -64,12 +69,14 @@ export function UnitForm({
       setSummary("");
       setKeyTerms("");
       onMessage(text("Chapter added.", "Το κεφάλαιο προστέθηκε."));
-    } catch {
+      onSaved?.(nextUnit);
+    } catch (error) {
       onMessage(
-        text(
-          "The practice chapter could not be saved on this device. Your entries are still here. Try again.",
-          "Το κεφάλαιο εξάσκησης δεν μπόρεσε να αποθηκευτεί σε αυτή τη συσκευή. Οι καταχωρίσεις σου παραμένουν στη φόρμα. Δοκίμασε ξανά.",
-        ),
+        getPracticeContentCapacityMessage(error, language)
+          ?? text(
+            "The practice chapter could not be saved on this device. Your entries are still here. Try again.",
+            "Το κεφάλαιο εξάσκησης δεν μπόρεσε να αποθηκευτεί σε αυτή τη συσκευή. Οι καταχωρίσεις σου παραμένουν στη φόρμα. Δοκίμασε ξανά.",
+          ),
       );
     } finally {
       submissionPendingRef.current = false;

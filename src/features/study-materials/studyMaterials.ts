@@ -86,8 +86,12 @@ export function parseStoredStudyMaterials(value: unknown): StudyMaterialLink[] {
         id,
         title: normalizeStudyMaterialTitle(item.title),
         url: normalizeStudyMaterialUrl(item.url),
-        materialType: isSourceMaterialType(item.materialType) ? item.materialType : undefined,
-        structuredStudyType: isStructuredStudyType(item.structuredStudyType) ? item.structuredStudyType : undefined,
+        ...(isSourceMaterialType(item.materialType)
+          ? { materialType: item.materialType }
+          : {}),
+        ...(isStructuredStudyType(item.structuredStudyType)
+          ? { structuredStudyType: item.structuredStudyType }
+          : {}),
       });
       ids.add(id);
     } catch (error) {

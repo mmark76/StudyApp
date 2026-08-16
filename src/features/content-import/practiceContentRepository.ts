@@ -49,9 +49,10 @@ export async function addImportedPracticeUnit(
     ) {
       throw new Error("Practice chapter already exists");
     }
+    const nextUnits = parseImportedUnits([...currentUnits, validatedUnit]);
     await database.settings.put({
       key: IMPORTED_UNITS_SETTING_KEY,
-      value: [...currentUnits, validatedUnit],
+      value: nextUnits,
     });
   });
 }
@@ -76,9 +77,10 @@ export async function addImportedPracticeFlashcard(
     if (currentCards.some((current) => current.id === validatedCard.id)) {
       throw new Error("Flashcard already exists");
     }
+    const nextCards = parseImportedFlashcards([...currentCards, validatedCard]);
     await database.settings.put({
       key: IMPORTED_FLASHCARDS_SETTING_KEY,
-      value: [...currentCards, validatedCard],
+      value: nextCards,
     });
   });
 }
@@ -94,11 +96,14 @@ export async function importPracticeUnits(
       currentUnits.map((unit) => [unit.number, unit] as const),
     );
     for (const unit of validatedUnits) byNumber.set(unit.number, unit);
-    await database.settings.put({
-      key: IMPORTED_UNITS_SETTING_KEY,
-      value: [...byNumber.values()].sort(
+    const nextUnits = parseImportedUnits(
+      [...byNumber.values()].sort(
         (first, second) => first.number - second.number,
       ),
+    );
+    await database.settings.put({
+      key: IMPORTED_UNITS_SETTING_KEY,
+      value: nextUnits,
     });
   });
 }
@@ -120,9 +125,12 @@ export async function importPracticeFlashcards(
     if (validatedFlashcards.some((card) => !knownUnitIds.has(card.unitId))) {
       throw new Error("A flashcard refers to a practice chapter that does not exist");
     }
+    const nextCards = parseImportedFlashcards(
+      mergeImportedFlashcards(currentCards, validatedFlashcards),
+    );
     await database.settings.put({
       key: IMPORTED_FLASHCARDS_SETTING_KEY,
-      value: mergeImportedFlashcards(currentCards, validatedFlashcards),
+      value: nextCards,
     });
   });
 }
@@ -171,13 +179,19 @@ export async function removeImportedPracticeUnit(
       const affectedCardIds = currentCards
         .filter((card) => card.unitId === unitId)
         .map((card) => card.id);
+      const nextUnits = parseImportedUnits(
+        currentUnits.filter((unit) => unit.id !== unitId),
+      );
+      const nextCards = parseImportedFlashcards(
+        currentCards.filter((card) => card.unitId !== unitId),
+      );
       await database.settings.put({
         key: IMPORTED_UNITS_SETTING_KEY,
-        value: currentUnits.filter((unit) => unit.id !== unitId),
+        value: nextUnits,
       });
       await database.settings.put({
         key: IMPORTED_FLASHCARDS_SETTING_KEY,
-        value: currentCards.filter((card) => card.unitId !== unitId),
+        value: nextCards,
       });
       await removeCardRecords(database, affectedCardIds);
       return affectedCardIds.length;
@@ -205,11 +219,12 @@ export async function updateImportedPracticeFlashcard(
     if (!currentCards.some((card) => card.id === validatedCard.id)) {
       throw new Error("Flashcard was not found");
     }
+    const nextCards = parseImportedFlashcards(currentCards.map((card) =>
+      card.id === validatedCard.id ? validatedCard : card,
+    ));
     await database.settings.put({
       key: IMPORTED_FLASHCARDS_SETTING_KEY,
-      value: currentCards.map((card) =>
-        card.id === validatedCard.id ? validatedCard : card,
-      ),
+      value: nextCards,
     });
   });
 }
@@ -228,9 +243,12 @@ export async function removeImportedPracticeFlashcard(
       if (!currentCards.some((card) => card.id === cardId)) {
         throw new Error("Flashcard was not found");
       }
+      const nextCards = parseImportedFlashcards(
+        currentCards.filter((card) => card.id !== cardId),
+      );
       await database.settings.put({
         key: IMPORTED_FLASHCARDS_SETTING_KEY,
-        value: currentCards.filter((card) => card.id !== cardId),
+        value: nextCards,
       });
       await removeCardRecords(database, [cardId]);
     },

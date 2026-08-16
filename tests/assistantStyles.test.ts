@@ -15,13 +15,52 @@ const assistantServiceStatusCss = readFileSync(
 );
 
 function cssRule(source: string, selector: string): string {
-  const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
-  const match = source.match(
+  const normalizedSource = source.replace(/\r\n?/gu, "\n");
+  const normalizedSelector = selector.replace(/\r\n?/gu, "\n");
+  const escapedSelector = normalizedSelector.replace(
+    /[.*+?^${}()|[\]\\]/gu,
+    "\\$&",
+  );
+  const match = normalizedSource.match(
     new RegExp(`${escapedSelector}\\s*\\{([^}]+)\\}`, "u"),
   );
   if (!match) throw new Error(`Missing CSS rule for ${selector}.`);
   return match[1];
 }
+
+describe("CSS rule matching", () => {
+  const selector = [
+    ".assistant-typewriter-reserve,",
+    ".assistant-typewriter-visual",
+  ].join("\n");
+
+  it.each([
+    ["LF", `${selector} {\n  grid-row: 1;\n}`],
+    ["CRLF", `${selector.replaceAll("\n", "\r\n")} {\r\n  grid-row: 1;\r\n}`],
+  ])("matches the combined selector with %s line endings", (_label, source) => {
+    expect(cssRule(source, selector)).toContain("grid-row: 1;");
+  });
+
+  it("rejects a malformed combined selector", () => {
+    const malformedSource = [
+      ".assistant-typewriter-reserve",
+      ".assistant-typewriter-visual {",
+      "  grid-row: 1;",
+      "}",
+    ].join("\n");
+
+    expect(() => cssRule(malformedSource, selector)).toThrow(
+      "Missing CSS rule",
+    );
+  });
+
+  it("does not find a required declaration when the rule omits it", () => {
+    const sourceWithoutDeclaration = `${selector} {\n  grid-column: 1;\n}`;
+
+    expect(cssRule(sourceWithoutDeclaration, selector))
+      .not.toContain("grid-row: 1;");
+  });
+});
 
 function relativeLuminance(hexColor: string): number {
   const channels = hexColor

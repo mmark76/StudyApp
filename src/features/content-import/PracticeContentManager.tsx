@@ -1,6 +1,8 @@
 import {
   type ChangeEvent,
   type FormEvent,
+  useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -27,7 +29,17 @@ import {
 } from "./spreadsheetImport";
 import { UnitForm } from "./UnitForm";
 import { useStudyContent } from "./useStudyContent";
-import { MAX_IMPORTED_TEXT_LENGTH } from "./importedContent";
+import {
+  getPracticeContentCapacityMessage,
+  MAX_IMPORTED_TEXT_LENGTH,
+} from "./importedContent";
+import {
+  buildPracticeContentProjection,
+  getPageForItemIndex,
+  paginateItems,
+  PRACTICE_CHAPTER_PAGE_SIZE,
+  PRACTICE_FLASHCARD_PAGE_SIZE,
+} from "./practiceContentProjection";
 import "./PracticeContentManager.css";
 
 type OpenForm = "flashcard" | "chapter" | null;
@@ -42,6 +54,91 @@ async function readFile(file: File): Promise<string> {
   return file.text();
 }
 
+function PaginationControls({
+  controls,
+  currentPage,
+  kind,
+  onPageChange,
+  totalItems,
+  totalPages,
+  visibleEnd,
+  visibleStart,
+}: {
+  controls: string;
+  currentPage: number;
+  kind: "chapters" | "flashcards";
+  onPageChange: (page: number) => void;
+  totalItems: number;
+  totalPages: number;
+  visibleEnd: number;
+  visibleStart: number;
+}) {
+  const { text } = useLanguage();
+  if (totalItems === 0) return null;
+  const itemName = kind === "chapters"
+    ? text("chapters", "κεφάλαια")
+    : "flashcards";
+  const pageName = kind === "chapters"
+    ? text("chapter", "κεφαλαίων")
+    : text("flashcard", "flashcards");
+
+  return (
+    <nav
+      aria-label={kind === "chapters"
+        ? text("Chapter pages", "Σελίδες κεφαλαίων")
+        : text("Flashcard pages", "Σελίδες flashcards")}
+      className="practice-content-pagination"
+    >
+      <p aria-atomic="true" aria-live="polite" className="practice-content-page-status">
+        {text(
+          `Showing ${itemName} ${visibleStart}–${visibleEnd} of ${totalItems}.`,
+          `Εμφανίζονται ${itemName} ${visibleStart}–${visibleEnd} από ${totalItems}.`,
+        )}{" "}
+        <span aria-current="page">
+          {text(
+            `Page ${currentPage} of ${totalPages}.`,
+            `Σελίδα ${currentPage} από ${totalPages}.`,
+          )}
+        </span>
+      </p>
+      <div className="practice-content-pagination-actions">
+        <button
+          aria-controls={controls}
+          aria-label={text(
+            `Previous ${pageName} page`,
+            kind === "chapters"
+              ? "Προηγούμενη σελίδα κεφαλαίων"
+              : "Προηγούμενη σελίδα flashcards",
+          )}
+          className="button secondary"
+          data-page-direction="previous"
+          disabled={currentPage === 1}
+          onClick={() => onPageChange(currentPage - 1)}
+          type="button"
+        >
+          {text("Previous", "Προηγούμενη")}
+        </button>
+        <button
+          aria-controls={controls}
+          aria-label={text(
+            `Next ${pageName} page`,
+            kind === "chapters"
+              ? "Επόμενη σελίδα κεφαλαίων"
+              : "Επόμενη σελίδα flashcards",
+          )}
+          className="button secondary"
+          data-page-direction="next"
+          disabled={currentPage === totalPages}
+          onClick={() => onPageChange(currentPage + 1)}
+          type="button"
+        >
+          {text("Next", "Επόμενη")}
+        </button>
+      </div>
+    </nav>
+  );
+}
+
 function splitCommaList(value: string): string[] {
   return value
     .split(",")
@@ -54,11 +151,13 @@ function FlashcardEditor({
   units,
   onCancel,
   onMessage,
+  onSaved,
 }: {
   card: Flashcard;
   units: readonly StudyUnit[];
   onCancel: () => void;
   onMessage: (message: string) => void;
+  onSaved: () => void;
 }) {
   const { text } = useLanguage();
   const [unitId, setUnitId] = useState(card.unitId);
@@ -87,7 +186,7 @@ function FlashcardEditor({
         tags: splitCommaList(tags),
       });
       onMessage(text("Flashcard updated.", "Η flashcard ενημερώθηκε."));
-      onCancel();
+      onSaved();
     } catch {
       onMessage(text("The flashcard could not be updated.", "Η flashcard δεν μπόρεσε να ενημερωθεί."));
     } finally {
@@ -152,9 +251,89 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
   const [viewedCardId, setViewedCardId] = useState<string | null>(null);
   const [editingCardId, setEditingCardId] = useState<string | null>(null);
   const [importing, setImporting] = useState<ImportKind>(null);
+  const [chapterPage, setChapterPage] = useState(1);
+  const [flashcardPage, setFlashcardPage] = useState(1);
   const importPendingRef = useRef(false);
   const flashcardsInputRef = useRef<HTMLInputElement>(null);
   const chaptersInputRef = useRef<HTMLInputElement>(null);
+  const chapterResultsHeadingRef = useRef<HTMLHeadingElement>(null);
+  const flashcardResultsHeadingRef = useRef<HTMLHeadingElement>(null);
+  const pendingAddedUnitIdRef = useRef<string | null>(null);
+  const pendingAddedCardIdRef = useRef<string | null>(null);
+  const projection = useMemo(
+    () => buildPracticeContentProjection(units, importedFlashcards),
+    [units, importedFlashcards],
+  );
+  const paginatedChapters = paginateItems(
+    importedUnits,
+    PRACTICE_CHAPTER_PAGE_SIZE,
+    chapterPage,
+  );
+  const paginatedFlashcards = paginateItems(
+    importedFlashcards,
+    PRACTICE_FLASHCARD_PAGE_SIZE,
+    flashcardPage,
+  );
+
+  useEffect(() => {
+    if (chapterPage !== paginatedChapters.currentPage) {
+      setChapterPage(paginatedChapters.currentPage);
+    }
+  }, [chapterPage, paginatedChapters.currentPage]);
+
+  useEffect(() => {
+    if (flashcardPage !== paginatedFlashcards.currentPage) {
+      setFlashcardPage(paginatedFlashcards.currentPage);
+    }
+  }, [flashcardPage, paginatedFlashcards.currentPage]);
+
+  useEffect(() => {
+    const pendingId = pendingAddedUnitIdRef.current;
+    if (!pendingId) return;
+    const itemIndex = importedUnits.findIndex((unit) => unit.id === pendingId);
+    if (itemIndex < 0) return;
+    pendingAddedUnitIdRef.current = null;
+    setChapterPage(getPageForItemIndex(itemIndex, PRACTICE_CHAPTER_PAGE_SIZE));
+    focusResults(chapterResultsHeadingRef.current);
+  }, [importedUnits]);
+
+  useEffect(() => {
+    const pendingId = pendingAddedCardIdRef.current;
+    if (!pendingId) return;
+    const itemIndex = importedFlashcards.findIndex((card) => card.id === pendingId);
+    if (itemIndex < 0) return;
+    pendingAddedCardIdRef.current = null;
+    setFlashcardPage(getPageForItemIndex(itemIndex, PRACTICE_FLASHCARD_PAGE_SIZE));
+    focusResults(flashcardResultsHeadingRef.current);
+  }, [importedFlashcards]);
+
+  function focusResults(heading: HTMLHeadingElement | null): void {
+    requestAnimationFrame(() => heading?.focus({ preventScroll: true }));
+  }
+
+  function changeChapterPage(page: number): void {
+    setViewedUnitId(null);
+    setChapterPage(page);
+    focusResults(chapterResultsHeadingRef.current);
+  }
+
+  function changeFlashcardPage(page: number): void {
+    setViewedCardId(null);
+    setEditingCardId(null);
+    setFlashcardPage(page);
+    focusResults(flashcardResultsHeadingRef.current);
+  }
+
+  function revealAddedChapter(unit: StudyUnit): void {
+    pendingAddedUnitIdRef.current = unit.id;
+    setViewedUnitId(null);
+  }
+
+  function revealAddedFlashcard(card: Flashcard): void {
+    pendingAddedCardIdRef.current = card.id;
+    setViewedCardId(null);
+    setEditingCardId(null);
+  }
 
   async function importChapters(event: ChangeEvent<HTMLInputElement>) {
     const input = event.currentTarget;
@@ -169,18 +348,23 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
         throw new Error("The CSV file is larger than the 10 MB limit.");
       }
       const spreadsheetUnits = parseUnitsSpreadsheet(await readFile(file)).map((unit) => {
-        const existing = units.find((candidate) => candidate.number === unit.number);
+        const existing = projection.unitByNumber.get(unit.number);
         return existing ? { ...unit, id: existing.id } : unit;
       });
       await importPracticeUnits(spreadsheetUnits);
+      setChapterPage(1);
+      setViewedUnitId(null);
       setMessage(text(
         `${spreadsheetUnits.length} practice chapter${spreadsheetUnits.length === 1 ? "" : "s"} saved.`,
         `Αποθηκεύτηκαν ${spreadsheetUnits.length} κεφάλαια εξάσκησης.`,
       ));
     } catch (error) {
-      setMessage(language === "en" && error instanceof Error
-        ? error.message
-        : text("The Chapters CSV could not be read.", "Το Chapters CSV δεν μπόρεσε να διαβαστεί."));
+      setMessage(
+        getPracticeContentCapacityMessage(error, language)
+          ?? (language === "en" && error instanceof Error
+            ? error.message
+            : text("The Chapters CSV could not be read.", "Το Chapters CSV δεν μπόρεσε να διαβαστεί.")),
+      );
     } finally {
       input.value = "";
       importPendingRef.current = false;
@@ -202,14 +386,20 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
       }
       const spreadsheetFlashcards = await parseFlashcardsSpreadsheet(await readFile(file), units);
       await importPracticeFlashcards(spreadsheetFlashcards);
+      setFlashcardPage(1);
+      setViewedCardId(null);
+      setEditingCardId(null);
       setMessage(text(
         `${spreadsheetFlashcards.length} flashcard${spreadsheetFlashcards.length === 1 ? "" : "s"} saved.`,
         `Αποθηκεύτηκαν ${spreadsheetFlashcards.length} flashcards.`,
       ));
     } catch (error) {
-      setMessage(language === "en" && error instanceof Error
-        ? error.message
-        : text("The Flashcards CSV could not be read.", "Το Flashcards CSV δεν μπόρεσε να διαβαστεί."));
+      setMessage(
+        getPracticeContentCapacityMessage(error, language)
+          ?? (language === "en" && error instanceof Error
+            ? error.message
+            : text("The Flashcards CSV could not be read.", "Το Flashcards CSV δεν μπόρεσε να διαβαστεί.")),
+      );
     } finally {
       input.value = "";
       importPendingRef.current = false;
@@ -233,7 +423,7 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
   }
 
   async function removeUnit(unit: StudyUnit) {
-    const affectedCards = importedFlashcards.filter((card) => card.unitId === unit.id).length;
+    const affectedCards = projection.cardCountByUnitId.get(unit.id) ?? 0;
     const warning = affectedCards > 0
       ? text(
           `Remove “${unit.title}” and its ${affectedCards} flashcard${affectedCards === 1 ? "" : "s"}? Their saved progress will also be removed.`,
@@ -253,6 +443,7 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
           ? `Αφαιρέθηκε το κεφάλαιο εξάσκησης και ${removedCards} flashcard${removedCards === 1 ? "" : "s"}.`
           : "Το κεφάλαιο εξάσκησης αφαιρέθηκε.",
       ));
+      focusResults(chapterResultsHeadingRef.current);
     } catch {
       setMessage(text("The practice chapter could not be removed.", "Το κεφάλαιο εξάσκησης δεν μπόρεσε να αφαιρεθεί."));
     }
@@ -269,6 +460,7 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
       setViewedCardId(null);
       setEditingCardId(null);
       setMessage(text("Flashcard removed.", "Η flashcard αφαιρέθηκε."));
+      focusResults(flashcardResultsHeadingRef.current);
     } catch {
       setMessage(text("The flashcard could not be removed.", "Η flashcard δεν μπόρεσε να αφαιρεθεί."));
     }
@@ -344,7 +536,12 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
           </div>
           {openForm === "chapter" && !hasStoredContentError ? (
             <div className="practice-content-form-panel">
-              <UnitForm existingUnits={units} failureInjector={failureInjector} onMessage={setMessage} />
+              <UnitForm
+                existingUnits={units}
+                failureInjector={failureInjector}
+                onMessage={setMessage}
+                onSaved={revealAddedChapter}
+              />
             </div>
           ) : null}
         </article>
@@ -384,7 +581,13 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
           </div>
           {openForm === "flashcard" && !hasStoredContentError ? (
             <div className="practice-content-form-panel">
-              <FlashcardForm existingFlashcards={flashcards} failureInjector={failureInjector} onMessage={setMessage} units={units} />
+              <FlashcardForm
+                existingFlashcards={flashcards}
+                failureInjector={failureInjector}
+                onMessage={setMessage}
+                onSaved={revealAddedFlashcard}
+                units={units}
+              />
             </div>
           ) : null}
         </article>
@@ -402,13 +605,20 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
 
         <div className="practice-content-lists">
           <section aria-labelledby="imported-practice-chapters-title" className="practice-content-list-panel">
-            <h5 id="imported-practice-chapters-title">{text("Practice Chapters", "Κεφάλαια εξάσκησης")} ({importedUnits.length})</h5>
+            <h5
+              id="imported-practice-chapters-title"
+              ref={chapterResultsHeadingRef}
+              tabIndex={-1}
+            >
+              {text("Practice Chapters", "Κεφάλαια εξάσκησης")} ({importedUnits.length})
+            </h5>
             {importedUnits.length === 0 ? (
               <p>{text("No imported practice chapters yet.", "Δεν υπάρχουν ακόμη εισαγόμενα κεφάλαια εξάσκησης.")}</p>
             ) : (
-              <ul className="local-file-list">
-                {importedUnits.map((unit) => {
-                  const cardCount = importedFlashcards.filter((card) => card.unitId === unit.id).length;
+              <>
+              <ul className="local-file-list" id="imported-practice-chapters-list">
+                {paginatedChapters.items.map((unit) => {
+                  const cardCount = projection.cardCountByUnitId.get(unit.id) ?? 0;
                   const isViewed = viewedUnitId === unit.id;
                   return (
                     <li className="practice-content-item" key={unit.id}>
@@ -431,17 +641,35 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
                   );
                 })}
               </ul>
+              <PaginationControls
+                controls="imported-practice-chapters-list"
+                currentPage={paginatedChapters.currentPage}
+                kind="chapters"
+                onPageChange={changeChapterPage}
+                totalItems={paginatedChapters.totalItems}
+                totalPages={paginatedChapters.totalPages}
+                visibleEnd={paginatedChapters.visibleEnd}
+                visibleStart={paginatedChapters.visibleStart}
+              />
+              </>
             )}
           </section>
 
           <section aria-labelledby="imported-flashcards-title" className="practice-content-list-panel">
-            <h5 id="imported-flashcards-title">{text("Flashcards", "Flashcards")} ({importedFlashcards.length})</h5>
+            <h5
+              id="imported-flashcards-title"
+              ref={flashcardResultsHeadingRef}
+              tabIndex={-1}
+            >
+              {text("Flashcards", "Flashcards")} ({importedFlashcards.length})
+            </h5>
             {importedFlashcards.length === 0 ? (
               <p>{text("No imported flashcards yet.", "Δεν υπάρχουν ακόμη εισαγόμενες flashcards.")}</p>
             ) : (
-              <ul className="local-file-list">
-                {importedFlashcards.map((card) => {
-                  const unit = units.find((candidate) => candidate.id === card.unitId);
+              <>
+              <ul className="local-file-list" id="imported-flashcards-list">
+                {paginatedFlashcards.items.map((card) => {
+                  const unit = projection.unitById.get(card.unitId);
                   const isViewed = viewedCardId === card.id;
                   const isEditing = editingCardId === card.id;
                   return (
@@ -460,11 +688,36 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
                           <div><dt>{text("Keywords", "Λέξεις-κλειδιά")}</dt><dd>{card.tags.join(", ") || text("None", "Καμία")}</dd></div>
                         </dl>
                       ) : null}
-                      {isEditing ? <FlashcardEditor card={card} onCancel={() => setEditingCardId(null)} onMessage={setMessage} units={units} /> : null}
+                      {isEditing ? (
+                        <FlashcardEditor
+                          card={card}
+                          onCancel={() => {
+                            setEditingCardId(null);
+                            focusResults(flashcardResultsHeadingRef.current);
+                          }}
+                          onMessage={setMessage}
+                          onSaved={() => {
+                            setEditingCardId(null);
+                            focusResults(flashcardResultsHeadingRef.current);
+                          }}
+                          units={units}
+                        />
+                      ) : null}
                     </li>
                   );
                 })}
               </ul>
+              <PaginationControls
+                controls="imported-flashcards-list"
+                currentPage={paginatedFlashcards.currentPage}
+                kind="flashcards"
+                onPageChange={changeFlashcardPage}
+                totalItems={paginatedFlashcards.totalItems}
+                totalPages={paginatedFlashcards.totalPages}
+                visibleEnd={paginatedFlashcards.visibleEnd}
+                visibleStart={paginatedFlashcards.visibleStart}
+              />
+              </>
             )}
           </section>
         </div>

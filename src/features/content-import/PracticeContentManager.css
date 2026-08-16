@@ -1,12 +1,17 @@
 .practice-content-manager {
   display: grid;
   gap: 1.25rem;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .practice-content-heading > :last-child,
 .practice-content-option > :last-child,
 .practice-content-library > :last-child {
   margin-bottom: 0;
+}
+
+#practice-content-title {
+  overflow-wrap: anywhere;
 }
 
 .practice-content-options,
@@ -37,6 +42,10 @@
 .practice-content-library h4,
 .practice-content-list-panel h5 {
   margin: 0;
+}
+
+.practice-content-option p {
+  overflow-wrap: anywhere;
 }
 
 .practice-content-option > .button-row {
@@ -90,6 +99,31 @@
   color: var(--slate-600);
 }
 
+.practice-content-pagination {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--slate-300);
+}
+
+.practice-content-page-status {
+  margin: 0;
+  color: var(--slate-700);
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+}
+
+.practice-content-pagination-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.practice-content-pagination-actions .button {
+  flex: 1 1 8rem;
+}
+
 .practice-content-item + .practice-content-item {
   border-top: 1px solid var(--slate-300);
 }
@@ -132,5 +166,21 @@
 
   .practice-content-option {
     height: auto;
+  }
+
+  .practice-content-item .local-file-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .practice-content-item .local-file-actions .button,
+  .practice-content-pagination-actions .button {
+    min-width: 0;
+    width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .practice-content-pagination-actions .button {
+    flex-basis: 100%;
   }
 }
