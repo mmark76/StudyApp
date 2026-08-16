@@ -1,6 +1,7 @@
 .practice-content-manager {
   display: grid;
   gap: 1.25rem;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .practice-content-heading > :last-child,

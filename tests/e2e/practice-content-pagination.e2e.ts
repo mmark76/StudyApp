@@ -45,10 +45,14 @@ async function readHorizontalLayout(page: Page) {
 
 function expectNoHorizontalOverflow(
   evidence: Awaited<ReturnType<typeof readHorizontalLayout>>,
+  label: string,
 ): void {
-  expect(evidence.documentScrollWidth).toBeLessThanOrEqual(evidence.documentClientWidth);
-  expect(evidence.managerScrollWidth).toBeLessThanOrEqual(evidence.managerClientWidth);
-  expect(evidence.overflowingElements).toEqual([]);
+  const diagnostic = `${label}: ${JSON.stringify(evidence, null, 2)}`;
+  expect(evidence.documentScrollWidth, diagnostic)
+    .toBeLessThanOrEqual(evidence.documentClientWidth);
+  expect(evidence.managerScrollWidth, diagnostic)
+    .toBeLessThanOrEqual(evidence.managerClientWidth);
+  expect(evidence.overflowingElements, diagnostic).toEqual([]);
 }
 
 async function seedPracticeContent(
@@ -106,6 +110,7 @@ test("paginates 150 chapters and 1,500 flashcards with bounded accessible manage
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await seedPracticeContent(page);
+  expectNoHorizontalOverflow(await readHorizontalLayout(page), "English desktop");
   const manager = page.getByRole("region", { name: "Manage practice content" });
   const chapterHeading = manager.locator("#imported-practice-chapters-title");
   const flashcardHeading = manager.locator("#imported-flashcards-title");
@@ -238,12 +243,12 @@ test("keeps Greek pagination keyboard-usable without narrow or 200% text overflo
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await seedPracticeContent(page);
+  expectNoHorizontalOverflow(await readHorizontalLayout(page), "English mobile");
   await page.evaluate(() => {
     document.documentElement.style.fontSize = "200%";
   });
   const englishLayout = await readHorizontalLayout(page);
-  console.info("English 200% layout", englishLayout);
-  expectNoHorizontalOverflow(englishLayout);
+  expectNoHorizontalOverflow(englishLayout, "English mobile at 200% text");
 
   await page.getByRole("button", { name: "GR" }).click();
   const manager = page.getByRole("region", {
@@ -270,6 +275,9 @@ test("keeps Greek pagination keyboard-usable without narrow or 200% text overflo
     .toHaveText("Σελίδα 1 από 30.");
 
   const greekLayout = await readHorizontalLayout(page);
-  console.info("Greek 200% layout", greekLayout);
-  expectNoHorizontalOverflow(greekLayout);
+  expectNoHorizontalOverflow(greekLayout, "Greek mobile at 200% text");
+  await page.evaluate(() => {
+    document.documentElement.style.fontSize = "100%";
+  });
+  expectNoHorizontalOverflow(await readHorizontalLayout(page), "Greek mobile");
 });
