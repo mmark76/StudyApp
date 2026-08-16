@@ -6,7 +6,10 @@ import {
 } from "../../infrastructure/database/localWriteFailureInjector";
 import type { Flashcard, StudyUnit } from "../../shared/types/models";
 import { addImportedPracticeFlashcard } from "./practiceContentRepository";
-import { MAX_IMPORTED_TEXT_LENGTH } from "./importedContent";
+import {
+  getPracticeContentCapacityMessage,
+  MAX_IMPORTED_TEXT_LENGTH,
+} from "./importedContent";
 
 function splitCommaList(value: string): string[] {
   return value.split(",").map((item) => item.trim()).filter(Boolean);
@@ -17,13 +20,15 @@ export function FlashcardForm({
   existingFlashcards,
   failureInjector,
   onMessage,
+  onSaved,
 }: {
   units: readonly StudyUnit[];
   existingFlashcards: readonly Flashcard[];
   failureInjector?: LocalWriteFailureInjector;
   onMessage: (message: string) => void;
+  onSaved?: (card: Flashcard) => void;
 }) {
-  const { text } = useLanguage();
+  const { language, text } = useLanguage();
   const [unitId, setUnitId] = useState("");
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
@@ -68,12 +73,14 @@ export function FlashcardForm({
       setAnswer("");
       setTags("");
       onMessage(text("Flashcard added.", "Η κάρτα προστέθηκε."));
-    } catch {
+      onSaved?.(nextCard);
+    } catch (error) {
       onMessage(
-        text(
-          "The flashcard could not be saved on this device. Your entries are still here. Try again.",
-          "Η κάρτα δεν μπόρεσε να αποθηκευτεί σε αυτή τη συσκευή. Οι καταχωρίσεις σου παραμένουν στη φόρμα. Δοκίμασε ξανά.",
-        ),
+        getPracticeContentCapacityMessage(error, language)
+          ?? text(
+            "The flashcard could not be saved on this device. Your entries are still here. Try again.",
+            "Η κάρτα δεν μπόρεσε να αποθηκευτεί σε αυτή τη συσκευή. Οι καταχωρίσεις σου παραμένουν στη φόρμα. Δοκίμασε ξανά.",
+          ),
       );
     } finally {
       submissionPendingRef.current = false;

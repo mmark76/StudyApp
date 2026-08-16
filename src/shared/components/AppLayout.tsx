@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import {
+  Link,
+  NavLink,
+  Outlet,
+  useLocation,
+  useNavigationType,
+} from "react-router-dom";
 import { studyConfig } from "../../app/studyConfig";
 import { useAppearanceSettings } from "../../features/appearance/useAppearanceSettings";
 import { AssistantPanel } from "../../features/assistant/AssistantPanel";
@@ -41,17 +47,21 @@ function isActiveMainArea(pathname: string, matches: readonly string[]): boolean
 export function AppLayout() {
   useAppearanceSettings();
   const location = useLocation();
+  const navigationType = useNavigationType();
   const { text } = useLanguage();
   const internetStatus = useInternetConnectivity();
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
+  const hasHandledInitialRouteRef = useRef(false);
 
   function focusMainContent() {
     mainRef.current?.focus();
   }
 
   useEffect(() => {
+    const isInitialRoute = !hasHandledInitialRouteRef.current;
     const animationFrame = window.requestAnimationFrame(() => {
+      hasHandledInitialRouteRef.current = true;
       if (location.hash) {
         const target = document.getElementById(location.hash.slice(1));
         if (target) {
@@ -61,9 +71,13 @@ export function AppLayout() {
           return;
         }
       }
-      focusMainContent();
+      if (navigationType === "POP" && !isInitialRoute) return;
+
+      mainRef.current?.focus({ preventScroll: true });
+      window.scrollTo({ behavior: "auto", left: 0, top: 0 });
     });
     return () => window.cancelAnimationFrame(animationFrame);
+    // Only a logical route or in-app fragment change should reposition the page.
   }, [location.hash, location.pathname]);
   const internetStatusLabel = internetStatus === "online"
     ? text("Internet connection: Online", "Σύνδεση στο διαδίκτυο: Online")

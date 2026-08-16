@@ -5,10 +5,15 @@ import type {
   StudyOperation,
   StudySession,
 } from "../../shared/types/models";
+import { flashcards as builtInFlashcards } from "../../data/flashcards";
 import {
   studyDatabase,
   type StudyDatabase,
 } from "../../infrastructure/database/studyDatabase";
+import {
+  IMPORTED_FLASHCARDS_SETTING_KEY,
+  parseStoredFlashcards,
+} from "../content-import/importedContent";
 import { scheduleReview } from "../review/spacedRepetition";
 
 export type StudyOperationWriteStage = "progress" | "session" | "operation";
@@ -52,6 +57,15 @@ export class StudyOperationConflictError extends Error {
   constructor() {
     super("The study operation ID was already used for different data.");
     this.name = "StudyOperationConflictError";
+  }
+}
+
+export class StudyCardUnavailableError extends Error {
+  readonly code = "study-card-unavailable";
+
+  constructor() {
+    super("The card is no longer available in the current study content.");
+    this.name = "StudyCardUnavailableError";
   }
 }
 
@@ -103,6 +117,21 @@ async function injectFailure(
   await injector?.beforeWrite(stage, operation);
 }
 
+async function assertCardIsAvailable(
+  cardId: string,
+  database: StudyDatabase,
+): Promise<void> {
+  if (builtInFlashcards.some((card) => card.id === cardId)) return;
+
+  const setting = await database.settings.get(
+    IMPORTED_FLASHCARDS_SETTING_KEY,
+  );
+  const importedFlashcards = parseStoredFlashcards(setting?.value);
+  if (!importedFlashcards.some((card) => card.id === cardId)) {
+    throw new StudyCardUnavailableError();
+  }
+}
+
 export async function commitCardRatingOperation(
   input: CardRatingOperationInput,
   database: StudyDatabase = studyDatabase,
@@ -136,6 +165,7 @@ export async function commitCardRatingOperation(
     database.cardProgress,
     database.studySessions,
     database.studyOperations,
+    database.settings,
     async () => {
       const existingOperation = await database.studyOperations.get(
         input.operationId,
@@ -155,6 +185,8 @@ export async function commitCardRatingOperation(
 
         return { alreadyCommitted: true, progress, session };
       }
+
+      await assertCardIsAvailable(input.cardId, database);
 
       const existingSession = await database.studySessions.get(input.sessionId);
       if (existingSession) {

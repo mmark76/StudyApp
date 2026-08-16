@@ -9,6 +9,10 @@ import {
   STUDY_MATERIALS_SETTING_KEY,
   type StudyMaterialLink,
 } from "../src/features/study-materials/studyMaterials";
+import {
+  exportBackup,
+  serializeBackup,
+} from "../src/infrastructure/backup/backup";
 import { StudyDatabase } from "../src/infrastructure/database/studyDatabase";
 
 const firstLink: StudyMaterialLink = {
@@ -40,6 +44,57 @@ describe("saved study material links", () => {
     const setting = await database.settings.get(STUDY_MATERIALS_SETTING_KEY);
     return parseStoredStudyMaterials(setting?.value);
   }
+
+  async function serializeCurrentBackup(): Promise<string> {
+    return serializeBackup(await exportBackup(database));
+  }
+
+  it("canonicalizes own undefined optional properties to absence", () => {
+    const links = parseStoredStudyMaterials([
+      { ...firstLink, structuredStudyType: undefined },
+      { ...secondLink, materialType: undefined },
+    ]);
+
+    expect(links).toEqual([firstLink, secondLink]);
+    expect(Object.hasOwn(links[0], "structuredStudyType")).toBe(false);
+    expect(Object.hasOwn(links[1], "materialType")).toBe(false);
+  });
+
+  it.each([
+    ["Library", firstLink, "structuredStudyType"],
+    ["Structured Study", secondLink, "materialType"],
+  ] as const)(
+    "exports and serializes one current UI-style %s link",
+    async (_label, link, absentProperty) => {
+      await addSavedStudyMaterialLink(link, database);
+
+      const serialized = await serializeCurrentBackup();
+      const [storedLink] = await storedLinks();
+
+      expect(storedLink).toEqual(link);
+      expect(Object.hasOwn(storedLink, absentProperty)).toBe(false);
+      expect(serialized).not.toContain(`"${absentProperty}"`);
+    },
+  );
+
+  it("keeps every add and remove state exportable and canonical", async () => {
+    await addSavedStudyMaterialLink(firstLink, database);
+    await expect(serializeCurrentBackup()).resolves.toContain('"materialType": "book"');
+
+    await addSavedStudyMaterialLink(secondLink, database);
+    await expect(serializeCurrentBackup()).resolves.toContain(
+      '"structuredStudyType": "chapter"',
+    );
+
+    const afterSecondAdd = await storedLinks();
+    expect(Object.hasOwn(afterSecondAdd[0], "structuredStudyType")).toBe(false);
+    expect(Object.hasOwn(afterSecondAdd[1], "materialType")).toBe(false);
+
+    await removeSavedStudyMaterialLink(firstLink.id, database);
+
+    await expect(storedLinks()).resolves.toEqual([secondLink]);
+    await expect(serializeCurrentBackup()).resolves.not.toContain('"materialType"');
+  });
 
   it("serializes concurrent additions without losing either link", async () => {
     await Promise.all([

@@ -1,0 +1,223 @@
+import { expect, test, type Page } from "@playwright/test";
+
+async function seedPracticeContent(
+  page: Page,
+  chapterCount = 150,
+  flashcardCount = 1_500,
+): Promise<void> {
+  await page.goto("/");
+  await page.waitForFunction(async () => (await indexedDB.databases()).some(
+    (database) => database.name === "generic-study-app",
+  ));
+  await page.evaluate(async ({ chapterCount, flashcardCount }) => {
+    const units = Array.from({ length: chapterCount }, (_, index) => ({
+      id: `pagination-unit-${index + 1}`,
+      number: index + 1,
+      title: `Pagination chapter ${index + 1}`,
+      objectives: [`Goal ${index + 1}`],
+      summary: [`Point ${index + 1}`],
+      keyTerms: [`term-${index + 1}`],
+    }));
+    const flashcards = Array.from({ length: flashcardCount }, (_, index) => ({
+      id: `pagination-card-${index + 1}`,
+      unitId: units[index % units.length].id,
+      number: Math.floor(index / units.length) + 1,
+      question: `Pagination question ${index + 1}?`,
+      answer: `Pagination answer ${index + 1}.`,
+      tags: ["pagination"],
+    }));
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open("generic-study-app");
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        const database = request.result;
+        const transaction = database.transaction("settings", "readwrite");
+        transaction.onerror = () => reject(transaction.error);
+        transaction.oncomplete = () => {
+          database.close();
+          resolve();
+        };
+        const settings = transaction.objectStore("settings");
+        settings.put({ key: "imported-study-units", value: units });
+        settings.put({ key: "imported-flashcards", value: flashcards });
+      };
+    });
+  }, { chapterCount, flashcardCount });
+  await page.goto("/#/learn");
+  await expect(page.locator("#imported-practice-chapters-title"))
+    .toContainText(`(${chapterCount})`);
+  await expect(page.locator("#imported-flashcards-title"))
+    .toContainText(`(${flashcardCount})`);
+}
+
+test("paginates 150 chapters and 1,500 flashcards with bounded accessible management", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await seedPracticeContent(page);
+  const manager = page.getByRole("region", { name: "Manage practice content" });
+  const chapterHeading = manager.locator("#imported-practice-chapters-title");
+  const flashcardHeading = manager.locator("#imported-flashcards-title");
+  const chapterList = manager.locator("#imported-practice-chapters-list");
+  const flashcardList = manager.locator("#imported-flashcards-list");
+  const chapterPages = manager.getByRole("navigation", { name: "Chapter pages" });
+  const flashcardPages = manager.getByRole("navigation", { name: "Flashcard pages" });
+
+  await expect(chapterHeading).toHaveText("Practice Chapters (150)");
+  await expect(flashcardHeading).toHaveText("Flashcards (1500)");
+  await expect(chapterList.locator(".practice-content-item")).toHaveCount(25);
+  await expect(flashcardList.locator(".practice-content-item")).toHaveCount(50);
+  await expect(chapterPages.locator('[aria-current="page"]')).toHaveText("Page 1 of 6.");
+  await expect(flashcardPages.locator('[aria-current="page"]')).toHaveText("Page 1 of 30.");
+  await expect(chapterPages.getByRole("button", { name: "Previous chapter page" }))
+    .toBeDisabled();
+  await expect(flashcardPages.getByRole("button", { name: "Previous flashcard page" }))
+    .toBeDisabled();
+  await expect(chapterList.getByText("Pagination chapter 26", { exact: true })).toHaveCount(0);
+  await expect(flashcardList.getByText("Pagination question 51?", { exact: true })).toHaveCount(0);
+
+  const mounted = await manager.evaluate((element) => {
+    const focusableSelector = [
+      "a[href]",
+      "button:not([disabled])",
+      "input:not([disabled])",
+      "select:not([disabled])",
+      "textarea:not([disabled])",
+      "[tabindex]:not([tabindex='-1'])",
+    ].join(",");
+    return {
+      dom: element.querySelectorAll("*").length + 1,
+      focusables: element.querySelectorAll(focusableSelector).length,
+      rows: element.querySelectorAll(".practice-content-item").length,
+    };
+  });
+  expect(mounted).toMatchObject({ rows: 75 });
+  expect(mounted.dom).toBeLessThanOrEqual(2_500);
+  expect(mounted.focusables).toBeLessThanOrEqual(350);
+
+  await chapterPages.getByRole("button", { name: "Next chapter page" }).click();
+  await expect(chapterPages.locator('[aria-current="page"]')).toHaveText("Page 2 of 6.");
+  await expect(chapterHeading).toBeFocused();
+  await expect(chapterList.getByText("26. Pagination chapter 26", { exact: true }))
+    .toBeVisible();
+
+  await flashcardPages.getByRole("button", { name: "Next flashcard page" }).click();
+  await expect(flashcardPages.locator('[aria-current="page"]')).toHaveText("Page 2 of 30.");
+  await expect(flashcardHeading).toBeFocused();
+  await expect(flashcardList.getByText("Pagination question 51?", { exact: true }))
+    .toBeVisible();
+
+  await flashcardList.getByRole("button", {
+    name: "Edit flashcard Pagination question 51?",
+  }).click();
+  const editor = flashcardList.locator(".practice-content-editor");
+  await editor.getByLabel("Question").fill("Updated pagination question 51?");
+  await editor.getByRole("button", { name: "Save changes" }).click();
+  await expect(manager.getByRole("status")).toHaveText("Flashcard updated.");
+  await expect(flashcardList.getByText("Updated pagination question 51?", { exact: true }))
+    .toBeVisible();
+  await expect(flashcardHeading).toBeFocused();
+
+  page.once("dialog", (dialog) => dialog.accept());
+  await flashcardList.getByRole("button", {
+    name: "Remove flashcard Updated pagination question 51?",
+  }).click();
+  await expect(flashcardHeading).toHaveText("Flashcards (1499)");
+  await expect(flashcardList.locator(".practice-content-item")).toHaveCount(50);
+  await expect(flashcardPages.locator('[aria-current="page"]')).toHaveText("Page 2 of 30.");
+  await expect(flashcardHeading).toBeFocused();
+
+  await manager.getByRole("button", { name: "Add Chapter", exact: true }).click();
+  const chapterForm = manager.locator(".practice-content-option").first().locator("form");
+  await chapterForm.getByLabel("Practice chapter title").fill("Appended pagination chapter");
+  await chapterForm.getByRole("button", { name: "Add chapter", exact: true }).click();
+  await expect(chapterHeading).toHaveText("Practice Chapters (151)");
+  await expect(chapterPages.locator('[aria-current="page"]')).toHaveText("Page 7 of 7.");
+  await expect(chapterList.getByText("151. Appended pagination chapter", { exact: true }))
+    .toBeVisible();
+  await expect(chapterHeading).toBeFocused();
+
+  page.once("dialog", (dialog) => dialog.accept());
+  await chapterList.getByRole("button", {
+    name: "Remove practice chapter Appended pagination chapter",
+  }).click();
+  await expect(chapterHeading).toHaveText("Practice Chapters (150)");
+  await expect(chapterPages.locator('[aria-current="page"]')).toHaveText("Page 6 of 6.");
+  await expect(chapterList.locator(".practice-content-item")).toHaveCount(25);
+  await expect(chapterHeading).toBeFocused();
+
+  await manager.locator('input[name="chapters-csv"]').setInputFiles({
+    name: "pagination-chapter.csv",
+    mimeType: "text/csv",
+    buffer: Buffer.from([
+      "Chapter number,Chapter title,What should you learn?,Key points,Important terms",
+      "500,Imported pagination chapter,Goal,Point,term",
+    ].join("\n"), "utf8"),
+  });
+  await expect(chapterHeading).toHaveText("Practice Chapters (151)");
+  await expect(chapterPages.locator('[aria-current="page"]')).toHaveText("Page 1 of 7.");
+
+  await manager.locator('input[name="flashcards-csv"]').setInputFiles({
+    name: "pagination-flashcard.csv",
+    mimeType: "text/csv",
+    buffer: Buffer.from([
+      "Chapter number,Question,Answer,Keywords",
+      "1,Imported pagination question?,Imported pagination answer,pagination",
+    ].join("\n"), "utf8"),
+  });
+  await expect(flashcardHeading).toHaveText("Flashcards (1500)");
+  await expect(flashcardPages.locator('[aria-current="page"]')).toHaveText("Page 1 of 30.");
+
+  await manager.getByRole("button", { name: "Add Flashcard", exact: true }).click();
+  const flashcardForm = manager.locator(".practice-content-option").nth(1).locator("form");
+  await flashcardForm.getByLabel("Practice chapter").selectOption("pagination-unit-1");
+  await flashcardForm.getByLabel("Question").fill("Appended pagination question?");
+  await flashcardForm.getByLabel("Answer").fill("Appended pagination answer.");
+  await flashcardForm.getByRole("button", { name: "Add flashcard", exact: true }).click();
+  await expect(flashcardHeading).toHaveText("Flashcards (1501)");
+  await expect(flashcardPages.locator('[aria-current="page"]')).toHaveText("Page 31 of 31.");
+  await expect(flashcardList.getByText("Appended pagination question?", { exact: true }))
+    .toBeVisible();
+  await expect(flashcardHeading).toBeFocused();
+  await expect(page).toHaveURL(/\/#\/learn$/u);
+});
+
+test("keeps Greek pagination keyboard-usable without narrow or 200% text overflow", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await seedPracticeContent(page, 26, 51);
+  await page.getByRole("button", { name: "GR" }).click();
+  const manager = page.getByRole("region", {
+    name: "Διαχείριση περιεχομένου εξάσκησης",
+  });
+  const chapterHeading = manager.locator("#imported-practice-chapters-title");
+  const chapterPages = manager.getByRole("navigation", { name: "Σελίδες κεφαλαίων" });
+  const flashcardPages = manager.getByRole("navigation", { name: "Σελίδες flashcards" });
+
+  await expect(chapterPages.getByText(
+    "Εμφανίζονται κεφάλαια 1–25 από 26. Σελίδα 1 από 2.",
+    { exact: true },
+  )).toBeVisible();
+  const nextChapter = chapterPages.getByRole("button", {
+    name: "Επόμενη σελίδα κεφαλαίων",
+  });
+  await nextChapter.focus();
+  await page.keyboard.press("Enter");
+  await expect(chapterPages.locator('[aria-current="page"]')).toHaveText("Σελίδα 2 από 2.");
+  await expect(chapterHeading).toBeFocused();
+  await expect(manager.locator("#imported-practice-chapters-list .practice-content-item"))
+    .toHaveCount(1);
+  await expect(flashcardPages.locator('[aria-current="page"]'))
+    .toHaveText("Σελίδα 1 από 2.");
+
+  await page.evaluate(() => {
+    document.documentElement.style.fontSize = "200%";
+  });
+  await expect.poll(() => manager.evaluate((element) =>
+    element.scrollWidth <= element.clientWidth,
+  )).toBe(true);
+  await expect.poll(() => page.evaluate(() =>
+    document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+  )).toBe(true);
+});

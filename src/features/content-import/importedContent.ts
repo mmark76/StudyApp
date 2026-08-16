@@ -18,6 +18,52 @@ export class StoredContentValidationError extends Error {
   }
 }
 
+export type PracticeContentCollection = "chapters" | "flashcards";
+
+export class PracticeContentCapacityError extends Error {
+  readonly code = "practice-content-capacity-exceeded";
+
+  constructor(
+    readonly collection: PracticeContentCollection,
+    readonly maximum: number,
+  ) {
+    super(
+      `The ${collection} collection exceeds the maximum total of ${maximum.toLocaleString("en-US")}. Existing content was not changed.`,
+    );
+    this.name = "PracticeContentCapacityError";
+  }
+}
+
+export function getPracticeContentCapacityMessage(
+  error: unknown,
+  language: "en" | "el",
+): string | null {
+  if (!(error instanceof PracticeContentCapacityError)) return null;
+  const maximum = error.maximum.toLocaleString(
+    language === "el" ? "el-GR" : "en-US",
+  );
+  if (language === "el") {
+    const collection = error.collection === "chapters"
+      ? "κεφαλαίων εξάσκησης"
+      : "flashcards";
+    return `Δεν αποθηκεύτηκε. Συμπληρώθηκε το μέγιστο σύνολο των ${maximum} ${collection}. Το υπάρχον περιεχόμενο δεν άλλαξε.`;
+  }
+  const collection = error.collection === "chapters"
+    ? "practice chapters"
+    : "flashcards";
+  return `Not saved. The maximum total of ${maximum} ${collection} has been reached. Existing content is unchanged.`;
+}
+
+function assertImportedCollectionCapacity(
+  collection: PracticeContentCollection,
+  count: number,
+  maximum: number,
+): void {
+  if (count > maximum) {
+    throw new PracticeContentCapacityError(collection, maximum);
+  }
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -77,7 +123,7 @@ function extractArray(value: unknown, property: "units" | "flashcards"): unknown
 
 export function parseImportedUnits(value: unknown): StudyUnit[] {
   const rows = extractArray(value, "units");
-  if (rows.length > MAX_IMPORTED_UNITS) throw new Error("Too many imported chapters");
+  assertImportedCollectionCapacity("chapters", rows.length, MAX_IMPORTED_UNITS);
   const ids = new Set<string>();
   const numbers = new Set<number>();
 
@@ -101,7 +147,11 @@ export function parseImportedUnits(value: unknown): StudyUnit[] {
 
 export function parseImportedFlashcards(value: unknown): Flashcard[] {
   const rows = extractArray(value, "flashcards");
-  if (rows.length > MAX_IMPORTED_FLASHCARDS) throw new Error("Too many imported flashcards");
+  assertImportedCollectionCapacity(
+    "flashcards",
+    rows.length,
+    MAX_IMPORTED_FLASHCARDS,
+  );
   const ids = new Set<string>();
 
   return rows.map((row) => {
