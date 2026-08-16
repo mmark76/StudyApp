@@ -14,6 +14,7 @@ interface HomeSpace {
   action: string;
   actionClass: string;
   to?: string;
+  guideIntro?: string;
   guideSteps?: string[];
 }
 
@@ -108,6 +109,10 @@ export function HomePage() {
       ),
       action: text("Open guide", "Άνοιγμα οδηγού"),
       actionClass: "button secondary",
+      guideIntro: text(
+        "StudyApp helps you collect your study material and sources, divide them into smaller parts, organize and manage them, study in a structured way, practise with flashcards, quizzes and reviews, and track your progress — with the goal of better understanding, recall and long-term retention.",
+        "Το StudyApp βοηθά τον χρήστη να συγκεντρώνει το υλικό και τις πηγές του, να τα χωρίζει σε μικρότερα μέρη, να τα οργανώνει και να τα διαχειρίζεται, να μελετά με δομημένο τρόπο, να εξασκείται με κάρτες, κουίζ και επαναλήψεις και να παρακολουθεί την πρόοδό του, με στόχο την καλύτερη κατανόηση, ανάκληση και μακροχρόνια διατήρηση της γνώσης.",
+      ),
       guideSteps: [
         text(
           "Add your source material to Library or Structured Study.",
@@ -186,6 +191,7 @@ export function HomePage() {
         >
           <p className="eyebrow">{guideSpace.eyebrow}</p>
           <h2 id="home-guide-title">{guideSpace.title}</h2>
+          {guideSpace.guideIntro ? <p id="home-guide-intro">{guideSpace.guideIntro}</p> : null}
           <p id="home-guide-description">{guideSpace.description}</p>
           <ol className="learning-stage-steps">
             {guideSpace.guideSteps?.map((step) => <li key={step}>{step}</li>)}
