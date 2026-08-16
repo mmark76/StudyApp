@@ -10,6 +10,10 @@
   margin-bottom: 0;
 }
 
+#practice-content-title {
+  overflow-wrap: anywhere;
+}
+
 .practice-content-options,
 .practice-content-lists {
   display: grid;

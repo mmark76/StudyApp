@@ -4,6 +4,9 @@ async function readHorizontalLayout(page: Page) {
   const manager = page.locator(".practice-content-manager");
   return manager.evaluate((element) => {
     const managerBounds = element.getBoundingClientRect();
+    const heading = element.querySelector<HTMLElement>(".practice-content-heading");
+    const title = element.querySelector<HTMLElement>("#practice-content-title");
+    if (!heading || !title) throw new Error("Practice-content heading is missing.");
     const overflowingElements = [element, ...element.querySelectorAll<HTMLElement>("*")]
       .map((candidate) => {
         const bounds = candidate.getBoundingClientRect();
@@ -35,9 +38,13 @@ async function readHorizontalLayout(page: Page) {
     return {
       documentClientWidth: document.documentElement.clientWidth,
       documentScrollWidth: document.documentElement.scrollWidth,
+      headingClientWidth: heading.clientWidth,
+      headingScrollWidth: heading.scrollWidth,
       managerClientWidth: element.clientWidth,
       managerScrollWidth: element.scrollWidth,
       overflowingElements: overflowingElements.slice(0, 12),
+      titleClientWidth: title.clientWidth,
+      titleScrollWidth: title.scrollWidth,
       viewportWidth: window.innerWidth,
     };
   });
@@ -52,6 +59,10 @@ function expectNoHorizontalOverflow(
     .toBeLessThanOrEqual(evidence.documentClientWidth);
   expect(evidence.managerScrollWidth, diagnostic)
     .toBeLessThanOrEqual(evidence.managerClientWidth);
+  expect(evidence.headingScrollWidth, diagnostic)
+    .toBeLessThanOrEqual(evidence.headingClientWidth);
+  expect(evidence.titleScrollWidth, diagnostic)
+    .toBeLessThanOrEqual(evidence.titleClientWidth);
   expect(evidence.overflowingElements, diagnostic).toEqual([]);
 }
 
