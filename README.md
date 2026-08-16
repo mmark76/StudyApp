@@ -21,6 +21,8 @@ The core study workflow is available:
 
 The AI Assistant presents three clearly separated options.
 
+The bilingual `/#/ai-assistant-comparison` page compares the current Custom GPT handoff with the planned ChatGPT App / MCP and StudyApp AI modes. It is informational only and does not activate a remote AI mode, read study data or change charging behaviour.
+
 ### StudyApp AI Assistant — available
 
 StudyApp provides a normal external link to the dedicated **StudyApp AI
