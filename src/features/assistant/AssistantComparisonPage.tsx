@@ -30,6 +30,24 @@ export const AI_OPTION_COMPARISON_ROWS: readonly ComparisonRow[] = [
     },
   },
   {
+    label: {
+      en: "AI integration with StudyApp",
+      el: "Βαθμός ενσωμάτωσης AI στο StudyApp",
+    },
+    customGpt: {
+      en: "Basic · ●○○",
+      el: "Βασικός · ●○○",
+    },
+    mcp: {
+      en: "High · ●●○",
+      el: "Υψηλός · ●●○",
+    },
+    studyAppAi: {
+      en: "Full · ●●●",
+      el: "Πλήρης · ●●●",
+    },
+  },
+  {
     label: { en: "Account required", el: "Λογαριασμός που απαιτείται" },
     customGpt: {
       en: "ChatGPT account — Free or Paid",
