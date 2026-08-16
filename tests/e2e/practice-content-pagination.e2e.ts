@@ -140,6 +140,7 @@ function expectNoHorizontalOverflow(
   const diagnostic = `${label}: ${JSON.stringify(evidence, null, 2)}`;
   expect(evidence.documentScrollWidth, diagnostic)
     .toBeLessThanOrEqual(evidence.documentClientWidth);
+  expect(evidence.pageOverflowingElements, diagnostic).toEqual([]);
   expect(evidence.managerScrollWidth, diagnostic)
     .toBeLessThanOrEqual(evidence.managerClientWidth);
   expect(evidence.headingScrollWidth, diagnostic)
