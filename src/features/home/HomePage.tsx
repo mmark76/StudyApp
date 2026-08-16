@@ -183,7 +183,7 @@ export function HomePage() {
 
       {guideSpace && (
         <dialog
-          aria-describedby="home-guide-intro home-guide-description"
+          aria-describedby="home-guide-description"
           aria-labelledby="home-guide-title"
           className="home-guide-dialog"
           onClose={() => setIsGuideOpen(false)}
