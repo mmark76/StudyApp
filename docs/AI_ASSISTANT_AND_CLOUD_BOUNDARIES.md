@@ -1,6 +1,6 @@
 # AI Assistant and Cloud Boundaries
 
-_Last updated: 2026-08-14_
+_Last updated: 2026-08-16_
 
 ## Purpose
 
@@ -80,6 +80,23 @@ bundle.
 
 This option is visible but inactive. The current application performs no paid AI
 request, credit purchase, reservation or charge.
+
+## AI options comparison page
+
+The bilingual `/ai-assistant-comparison` page explains the differences between
+the available Custom GPT handoff and the two planned modes. It is static local
+presentation only. It does not:
+
+- activate ChatGPT App / MCP or StudyApp AI;
+- inspect the library, IndexedDB, progress or study history;
+- send material to ChatGPT, Cloud Core or an AI provider;
+- create, save or import generated content;
+- change account, plan, credit or charging behaviour.
+
+The comparison must keep **Available / Διαθέσιμο** and **Coming soon / Σύντομα**
+status wording explicit so future capabilities are not presented as current.
+ChatGPT account, plan and App/MCP availability statements describe the external
+ChatGPT service and may need revision when OpenAI changes its product rules.
 
 ## Future task boundary
 
