@@ -17,6 +17,7 @@ import "./styles/appearanceSettings.css";
 import "./styles/assistant.css";
 import "./styles/assistantServiceStatus.css";
 import "./styles/assistantGuide.css";
+import "./styles/assistantComparison.css";
 import "./styles/assistantModes.css";
 import "./styles/language.css";
 
