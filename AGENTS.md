@@ -112,6 +112,10 @@ npm run build
 
 Commit the lockfile when dependencies change. Avoid unnecessary dependencies.
 
+Required CI failures must be investigated. Do not bypass or weaken a required
+check merely to merge. Prefer semantic UX assertions over unjustified exact
+pixel values when legitimate browser reflow differs across platforms.
+
 ## Coding expectations
 
 - Keep TypeScript strict and avoid `any`.
@@ -140,6 +144,33 @@ progress tracking:
 8. keep generated AI output in review until explicitly saved.
 
 Do not change the IndexedDB name or schema without a migration plan.
+
+## Capacity and bounded rendering
+
+Distinguish supported operational capacity from technical/read compatibility
+safety maxima:
+
+- the owner-approved personal-use operational capacity target is 150 chapters
+  and 1,500 flashcards;
+- production enforcement of that target is not implemented yet;
+- future operational enforcement must apply to new writes, additions and
+  imports without invalidating existing compatible data above the target;
+- the technical/read compatibility safety maxima remain 10,000 chapters and
+  100,000 flashcards and must not be silently reduced;
+- do not claim that every safety-maximum collection can round-trip through a
+  backup while the separate backup-over-10-MiB defect remains open.
+
+Capacity decisions must be evidence-based. Measure storage, import, rendering
+and accessibility behaviour before introducing or lowering operational limits;
+do not lower a limit merely because the current interface renders poorly.
+Distinguish storage/read capability from mounted UI capacity and use benchmark
+evidence when changing supported capacity.
+
+Large stored collections must not imply unbounded mounted UI. The current
+manager uses O(U + F)-style projections and bounded pagination: 25 chapter rows
+and 50 flashcard rows per page, with at most 75 content rows mounted. Those exact
+page sizes may change when evidence supports it, but bounded rendering,
+keyboard access and a bounded accessibility tree must be preserved.
 
 ## Privacy and security
 
@@ -215,6 +246,12 @@ Never reintroduce a browser-local wallet as a real financial record.
 - Restore and manage focus for dialogs.
 - Announce important asynchronous changes.
 - Test narrow layouts and 200% zoom.
+- Keep critical content-management views usable at narrow widths and 200% text
+  without horizontal document overflow.
+- Treat cross-platform browser results as material: a local Windows pass does
+  not override a Linux CI failure.
+- Fix the responsible layout constraint; do not conceal defects with broad
+  page-level overflow clipping.
 - Never communicate availability or payment state by colour alone.
 
 ## Documentation
