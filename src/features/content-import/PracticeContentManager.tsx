@@ -1,6 +1,7 @@
 import {
   type ChangeEvent,
   type FormEvent,
+  type ReactNode,
   useEffect,
   useMemo,
   useRef,
@@ -234,9 +235,13 @@ function FlashcardEditor({
 
 interface PracticeContentManagerProps {
   failureInjector?: LocalWriteFailureInjector;
+  learningTools?: ReactNode;
 }
 
-export function PracticeContentManager({ failureInjector }: PracticeContentManagerProps = {}) {
+export function PracticeContentManager({
+  failureInjector,
+  learningTools,
+}: PracticeContentManagerProps = {}) {
   const { language, text } = useLanguage();
   const {
     units,
@@ -596,6 +601,8 @@ export function PracticeContentManager({ failureInjector }: PracticeContentManag
       <p className="practice-content-add-import-note" id="practice-content-add-import-note" role="note">
         {addImportGuidance[language]}
       </p>
+
+      {learningTools}
 
       <div aria-labelledby="imported-practice-content-title" className="practice-content-library">
         <div>
