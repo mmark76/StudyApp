@@ -77,7 +77,8 @@ test("main-route navigation starts at the document top without resetting same-ro
   await expect(page).toHaveURL(/\/#\/learn$/u);
   await expectRouteTopAndVisibleHeader(page);
 
-  await scrollDocumentTo(page, 900);
+  await page.locator("#imported-practice-chapters-title").scrollIntoViewIfNeeded();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(500);
   const beforeLanguageRegion = await captureLanguageReflowRegion(page);
   await page.getByRole("button", { name: "GR" }).evaluate(
     (button) => (button as HTMLButtonElement).click(),
