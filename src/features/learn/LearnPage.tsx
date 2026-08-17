@@ -49,8 +49,6 @@ export function LearnPage({ failureInjector }: LearnPageProps = {}) {
         <p>{text("Practise with flashcards, review and quizzes.", "Εξασκήσου με κάρτες, επανάληψη και κουίζ.")}</p>
       </header>
 
-      <PracticeContentManager failureInjector={failureInjector} />
-
       <section className="learning-stage-grid learn-tools-grid" aria-label={text("Learning tools", "Εργαλεία μάθησης")}>
         {learnTools.map((tool, index) => (
           <article className="learning-stage-card" key={tool.title}>
@@ -61,6 +59,8 @@ export function LearnPage({ failureInjector }: LearnPageProps = {}) {
           </article>
         ))}
       </section>
+
+      <PracticeContentManager failureInjector={failureInjector} />
     </div>
   );
 }
