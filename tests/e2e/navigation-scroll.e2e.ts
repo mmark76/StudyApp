@@ -65,14 +65,14 @@ test("main-route navigation starts at the document top without resetting same-ro
   const englishNavigation = page.getByRole("navigation", { name: "Main navigation" });
   await scrollDocumentTo(page, 1000);
   await activateWithoutChangingScroll(
-    englishNavigation.getByRole("link", { name: "Structured Study" }),
+    englishNavigation.getByRole("link", { name: "Sources" }),
   );
-  await expect(page).toHaveURL(/\/#\/study\/theory$/u);
+  await expect(page).toHaveURL(/\/#\/sources$/u);
   await expectRouteTopAndVisibleHeader(page);
 
   await scrollDocumentTo(page, 1100);
   await activateWithoutChangingScroll(
-    englishNavigation.getByRole("link", { name: "Learn & Practice" }),
+    englishNavigation.getByRole("link", { name: "Practice" }),
   );
   await expect(page).toHaveURL(/\/#\/learn$/u);
   await expectRouteTopAndVisibleHeader(page);
@@ -114,21 +114,21 @@ test("Greek narrow navigation starts at top while browser history restores prior
   const greekNavigation = page.getByRole("navigation", { name: "Κύρια πλοήγηση" });
   await scrollDocumentTo(page, 800);
   await activateWithoutChangingScroll(
-    greekNavigation.getByRole("link", { name: "Δομημένη Μελέτη" }),
+    greekNavigation.getByRole("link", { name: "Πηγές" }),
   );
-  await expect(page).toHaveURL(/\/#\/study\/theory$/u);
+  await expect(page).toHaveURL(/\/#\/sources$/u);
   await expectRouteTopAndVisibleHeader(page);
 
   await scrollDocumentTo(page, 1000);
   await activateWithoutChangingScroll(
-    greekNavigation.getByRole("link", { name: "Μάθηση & Εξάσκηση" }),
+    greekNavigation.getByRole("link", { name: "Εξάσκηση" }),
   );
   await expect(page).toHaveURL(/\/#\/learn$/u);
   await expectRouteTopAndVisibleHeader(page);
 
   await scrollDocumentTo(page, 1200);
   await page.goBack();
-  await expect(page).toHaveURL(/\/#\/study\/theory$/u);
+  await expect(page).toHaveURL(/\/#\/sources$/u);
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1000);
 
   await expect.poll(() => page.evaluate(() =>
