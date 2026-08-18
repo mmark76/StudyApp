@@ -62,7 +62,7 @@ export function HomePage() {
     },
     {
       eyebrow: text("Learn", "Μάθηση"),
-      title: text("Learn & Practice", "Μάθηση & Εξάσκηση"),
+      title: text("Practice", "Εξάσκηση"),
       description: text(
         "Turn study material into active learning and long-term review.",
         "Μετέτρεψε το υλικό μελέτης σε ενεργή μάθηση και μακροχρόνια επανάληψη.",
@@ -73,7 +73,7 @@ export function HomePage() {
       ),
       actions: [
         {
-          label: text("Start learning", "Έναρξη μάθησης"),
+          label: text("Start practice", "Έναρξη εξάσκησης"),
           className: "button practice",
           to: "/learn",
         },
