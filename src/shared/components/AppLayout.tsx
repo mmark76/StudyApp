@@ -16,21 +16,39 @@ import { PwaUpdateToast } from "./PwaUpdateToast";
 
 const mainNavigation = [
   { to: "/", en: "Home", el: "Αρχική", matches: ["/"] },
-  { to: "/library", en: "Library", el: "Βιβλιοθήκη", matches: ["/library"] },
   {
-    to: "/study/theory",
-    en: "Structured Study",
-    el: "Δομημένη Μελέτη",
-    matches: ["/study", "/study/theory", "/units"],
+    to: "/sources",
+    en: "Sources",
+    el: "Πηγές",
+    matches: ["/sources", "/library", "/study", "/study/theory", "/units"],
   },
   {
     to: "/learn",
-    en: "Learn & Practice",
-    el: "Μάθηση & Εξάσκηση",
+    en: "Practice",
+    el: "Εξάσκηση",
     matches: ["/learn", "/flashcards", "/review", "/quiz", "/progress", "/import"],
   },
-  { to: "/tools#split-pdf", en: "Split PDF Tool", el: "Διαχωρισμός PDF", matches: ["/tools"] },
-  { to: "/important-info", en: "Important Info", el: "Σημαντικές πληροφορίες", matches: ["/important-info"] },
+  {
+    to: "/ai-assistant-guide",
+    en: "AI Studio",
+    el: "AI Studio",
+    matches: ["/ai-assistant-guide", "/ai-assistant-comparison"],
+  },
+] as const;
+
+const secondaryNavigation = [
+  {
+    to: "/tools#split-pdf",
+    en: "Split PDF Tool",
+    el: "Διαχωρισμός PDF",
+    matches: ["/tools"],
+  },
+  {
+    to: "/important-info",
+    en: "Important Info",
+    el: "Σημαντικές πληροφορίες",
+    matches: ["/important-info"],
+  },
 ] as const;
 
 const footerNavigation = [
@@ -162,6 +180,24 @@ export function AppLayout() {
         <div className="navigation-row">
           <nav className="main-nav" aria-label={text("Main navigation", "Κύρια πλοήγηση")}>
             {mainNavigation.map((item) => {
+              const isActive = isActiveMainArea(location.pathname, item.matches);
+              return (
+                <Link
+                  aria-current={isActive ? "page" : undefined}
+                  className={isActive ? "active" : undefined}
+                  key={item.to}
+                  to={item.to}
+                >
+                  {text(item.en, item.el)}
+                </Link>
+              );
+            })}
+          </nav>
+          <nav
+            className="utility-actions"
+            aria-label={text("Tools and information", "Εργαλεία και πληροφορίες")}
+          >
+            {secondaryNavigation.map((item) => {
               const isActive = isActiveMainArea(location.pathname, item.matches);
               return (
                 <Link
