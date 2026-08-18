@@ -37,7 +37,7 @@ export function HomePage() {
 
   const homeSpaces: HomeSpace[] = [
     {
-      eyebrow: text("Sources", "Πηγές"),
+      eyebrow: text("Add & organize", "Πρόσθεσε & οργάνωσε"),
       title: text("Sources", "Πηγές"),
       description: text(
         "Add, read and organise the material you want to learn.",
@@ -80,7 +80,7 @@ export function HomePage() {
       ],
     },
     {
-      eyebrow: text("AI", "AI"),
+      eyebrow: text("Ask & create", "Ρώτησε & δημιούργησε"),
       title: text("AI Studio", "AI Studio"),
       description: text(
         "Use AI when it helps you understand, create or practise.",

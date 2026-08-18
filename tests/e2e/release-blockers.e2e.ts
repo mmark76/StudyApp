@@ -1072,8 +1072,8 @@ test("Learn manages bilingual practice content inline before four responsive stu
   ))).toBe(true);
 
   const navigation = page.getByRole("navigation", { name: "Main navigation" });
-  await expect(navigation.getByRole("link", { name: "Learn & Practice" })).toHaveAttribute("aria-current", "page");
-  await expect(navigation.getByRole("link", { name: "Structured Study" })).not.toHaveAttribute("aria-current", "page");
+  await expect(navigation.getByRole("link", { name: "Practice" })).toHaveAttribute("aria-current", "page");
+  await expect(navigation.getByRole("link", { name: "Sources" })).not.toHaveAttribute("aria-current", "page");
 
   await manager.getByRole("button", { name: "Add Flashcard", exact: true }).click();
   await expect(page).toHaveURL(/\/#\/learn$/u);
@@ -1121,7 +1121,7 @@ test("Learn manages bilingual practice content inline before four responsive stu
   await page.goto("/#/import");
   await expect(page).toHaveURL(/\/#\/learn$/u);
   const greekNavigation = page.getByRole("navigation", { name: "Κύρια πλοήγηση" });
-  await expect(greekNavigation.getByRole("link", { name: "Μάθηση & Εξάσκηση" })).toHaveAttribute("aria-current", "page");
+  await expect(greekNavigation.getByRole("link", { name: "Εξάσκηση" })).toHaveAttribute("aria-current", "page");
   assertNoApplicationErrors();
 });
 
