@@ -16,7 +16,7 @@ test("Workspace BETA opens secondary AI information in a modal without leaving t
   await expect(page.getByRole("button", { name: "Close" })).toBeFocused();
   await expect(modalFrame.getByRole("heading", { name: "Compare AI options", exact: true })).toBeVisible();
   await expect(page).toHaveURL(/#\/workspace-beta$/u);
-  await expect(page.locator('iframe[name^="studyapp-workspace-"]').filter({ hasNot: page.locator('[name="studyapp-workspace-info-modal"]') })).toHaveCount(3);
+  await expect(page.locator(".workspace-beta-functional-panel > .workspace-beta-frame-wrap > iframe.workspace-beta-frame")).toHaveCount(3);
 
   await page.getByRole("button", { name: "Close" }).click();
   await expect(modal).toHaveCount(0);
