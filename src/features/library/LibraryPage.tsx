@@ -173,7 +173,7 @@ export function LibraryPage() {
               <li className="local-file-row" key={file.id}>
                 <div><strong>{file.title}</strong><span>{getFileKindLabel(file.fileKind, language)} · {formatFileSize(file.size)}</span></div>
                 <div className="local-file-actions">
-                  <button className="button secondary compact-square" onClick={() => void openLocalFile(file.id)} type="button">{text("View", "Προβολή")}</button>
+                  <button className="button secondary compact-square" onClick={() => void openLocalFile(file.id)} type="button">{text("Read", "Ανάγνωση")}</button>
                   <button className="button danger compact-square" onClick={() => void deleteLocalFile(file.id)} type="button">{text("Delete", "Διαγραφή")}</button>
                 </div>
               </li>
@@ -182,7 +182,7 @@ export function LibraryPage() {
               <li className="local-file-row" key={link.id}>
                 <div><strong>{link.title}</strong><span>{link.url}</span></div>
                 <div className="local-file-actions">
-                  <a className="button secondary compact-square" href={link.url} rel="noopener noreferrer" target="_blank">{text("Open", "Άνοιγμα")}</a>
+                  <a className="button secondary compact-square" href={link.url} rel="noopener noreferrer" target="_blank">{text("Read", "Ανάγνωση")}</a>
                   {savedLinkIds.has(link.id) ? (
                     <button className="button danger compact-square" onClick={() => void deleteSavedLink(link)} type="button">{text("Delete", "Διαγραφή")}</button>
                   ) : null}
@@ -210,7 +210,7 @@ export function LibraryPage() {
                     <li className="local-file-row" key={file.id}>
                       <div><strong>{file.title}</strong><span>{getFileKindLabel(file.fileKind, language)} · {formatFileSize(file.size)}</span></div>
                       <div className="local-file-actions">
-                        <button className="button secondary compact-square" onClick={() => void openLocalFile(file.id)} type="button">{text("View", "Προβολή")}</button>
+                        <button className="button secondary compact-square" onClick={() => void openLocalFile(file.id)} type="button">{text("Read", "Ανάγνωση")}</button>
                         <button className="button danger compact-square" onClick={() => void deleteLocalFile(file.id)} type="button">{text("Delete", "Διαγραφή")}</button>
                       </div>
                     </li>
@@ -219,7 +219,7 @@ export function LibraryPage() {
                     <li className="local-file-row" key={link.id}>
                       <div><strong>{link.title}</strong><span>{link.url}</span></div>
                       <div className="local-file-actions">
-                        <a className="button secondary compact-square" href={link.url} rel="noopener noreferrer" target="_blank">{text("Open", "Άνοιγμα")}</a>
+                        <a className="button secondary compact-square" href={link.url} rel="noopener noreferrer" target="_blank">{text("Read", "Ανάγνωση")}</a>
                         {savedLinkIds.has(link.id) ? (
                           <button className="button danger compact-square" onClick={() => void deleteSavedLink(link)} type="button">{text("Delete", "Διαγραφή")}</button>
                         ) : null}
