@@ -1,0 +1,4 @@
+/* Workspace BETA only: keep the embedded AI Studio on its AI surface. */
+.workspace-panel-embed-main .assistant-guide-hero .button-row > .button:first-child {
+  display: none;
+}
