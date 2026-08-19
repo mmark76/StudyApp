@@ -13,16 +13,17 @@ describe("release safety configuration", () => {
       "npm ci",
       "npm run typecheck",
       "npm test",
-      "npx playwright install --with-deps chromium",
       "npm run test:e2e",
       "npm run build",
     ];
     const positions = requiredChecks.map((command) => ciWorkflow.indexOf(command));
 
     expect(ciWorkflow).toContain("pull_request:");
+    expect(ciWorkflow).toContain("container:");
+    expect(ciWorkflow).toContain("mcr.microsoft.com/playwright:v1.62.1-noble");
+    expect(ciWorkflow).not.toContain("playwright install");
     expect(positions.every((position) => position >= 0)).toBe(true);
     expect(positions).toEqual([...positions].sort((first, second) => first - second));
-    expect(ciWorkflow).toContain("timeout-minutes: 10");
     expect(ciWorkflow).not.toMatch(/run: npm install\s/u);
     expect(ciWorkflow).not.toMatch(/uses: [^\s]+@v\d/u);
 
