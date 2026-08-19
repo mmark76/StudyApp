@@ -211,6 +211,13 @@ export function AppLayout() {
               );
             })}
           </nav>
+          <Link
+            aria-current={location.pathname === "/workspace-beta" ? "page" : undefined}
+            className={`workspace-beta-link${location.pathname === "/workspace-beta" ? " active" : ""}`}
+            to="/workspace-beta"
+          >
+            BETA
+          </Link>
         </div>
       </header>
       <PwaUpdateToast />
