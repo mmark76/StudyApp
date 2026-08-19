@@ -9,6 +9,7 @@ import {
 } from "./app/pwaUpdate";
 import "./styles/global.css";
 import "./styles/headerNavigation.css";
+import "./styles/workspaceBeta.css";
 import "./styles/semanticButtons.css";
 import "./styles/storageNotice.css";
 import "./styles/onboarding.css";
