@@ -147,6 +147,7 @@
 
 .workspace-beta-ai-launch-row {
   display: grid;
+  min-width: 0;
   gap: 0.35rem;
   padding: 0.7rem 0.8rem;
   border-bottom: 1px solid #e1e1dc;
@@ -156,6 +157,8 @@
 .workspace-beta-ai-launch-row a {
   display: inline-flex;
   width: fit-content;
+  max-width: 100%;
+  box-sizing: border-box;
   align-items: center;
   justify-content: center;
   padding: 0.48rem 0.65rem;
@@ -164,7 +167,11 @@
   color: #ffffff;
   font-size: 0.76rem;
   font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
   text-decoration: none;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .workspace-beta-ai-launch-row a:hover {
@@ -172,19 +179,25 @@
 }
 
 .workspace-beta-ai-launch-row span {
+  min-width: 0;
   color: #6a6a64;
   font-size: 0.68rem;
   line-height: 1.35;
+  overflow-wrap: break-word;
 }
 
 .workspace-panel-embed-shell {
+  min-width: 0;
   min-height: 100dvh;
   background: var(--surface, #ffffff);
   color: var(--slate-700, #334155);
 }
 
 .workspace-panel-embed-main {
+  min-width: 0;
   min-height: 100dvh;
+  max-width: 100%;
+  box-sizing: border-box;
   padding: 0.85rem;
   outline: none;
 }
@@ -214,39 +227,52 @@
 }
 
 /*
- * Workspace panels are independent iframe viewports. These rules therefore
- * respond to the actual resized panel width rather than the outer browser.
+ * Embedded workspace content must remain readable even when browser zoom makes
+ * the iframe viewport report more CSS pixels than the panel occupies visually.
+ * Content-sized grid tracks avoid relying on a viewport breakpoint alone.
  */
-@media (max-width: 860px) {
-  .workspace-panel-embed-main .practice-content-options,
-  .workspace-panel-embed-main .practice-content-lists,
-  .workspace-panel-embed-main .material-option-panel {
-    grid-template-columns: 1fr;
-  }
+.workspace-panel-embed-main .practice-content-options,
+.workspace-panel-embed-main .practice-content-lists,
+.workspace-panel-embed-main .material-option-panel {
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, 520px), 1fr)
+  );
+}
 
-  .workspace-panel-embed-main .practice-content-option {
-    height: auto;
-  }
+.workspace-panel-embed-main .practice-content-option {
+  height: auto;
+}
 
-  .workspace-panel-embed-main .local-file-row {
-    align-items: flex-start;
-    flex-direction: column;
-  }
+.workspace-panel-embed-main .local-file-row {
+  align-items: flex-start;
+  flex-direction: column;
+  min-width: 0;
+  max-width: 100%;
+}
 
-  .workspace-panel-embed-main .local-file-actions {
-    width: 100%;
-  }
+.workspace-panel-embed-main .local-file-row > div:first-child {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
 
-  .workspace-panel-embed-main .local-file-actions .button {
-    min-width: 0;
-    flex: 1 1 0;
-  }
+.workspace-panel-embed-main .local-file-actions {
+  width: 100%;
+  min-width: 0;
+}
 
-  .workspace-panel-embed-main .local-file-row strong,
-  .workspace-panel-embed-main .local-file-row span {
-    overflow-wrap: break-word;
-    word-break: normal;
-  }
+.workspace-panel-embed-main .local-file-actions .button {
+  min-width: 0;
+  flex: 1 1 0;
+}
+
+.workspace-panel-embed-main .local-file-row strong,
+.workspace-panel-embed-main .local-file-row span,
+.workspace-panel-embed-main .local-file-row > div:first-child a {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 @media (max-width: 1180px) {

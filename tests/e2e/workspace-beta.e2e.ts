@@ -79,8 +79,8 @@ test("Workspace BETA desktop dividers resize adjacent panels and can reset", asy
   }).toBeLessThan(4);
 });
 
-test("Workspace BETA content reflows with the resized Practice panel", async ({ page }) => {
-  await page.setViewportSize({ width: 1800, height: 900 });
+test("Workspace BETA Practice content uses readable content-sized columns", async ({ page }) => {
+  await page.setViewportSize({ width: 2200, height: 900 });
   await page.goto("/#/workspace-beta");
 
   const panels = page.locator(".workspace-beta-functional-panel");
@@ -92,7 +92,7 @@ test("Workspace BETA content reflows with the resized Practice panel", async ({ 
   const initialPracticeWidth = await panels.nth(1).evaluate((panel) =>
     panel.getBoundingClientRect().width,
   );
-  expect(initialPracticeWidth).toBeLessThan(860);
+  expect(initialPracticeWidth).toBeLessThan(1056);
 
   await expect.poll(async () =>
     practiceLists.evaluate((element) =>
@@ -109,15 +109,15 @@ test("Workspace BETA content reflows with the resized Practice panel", async ({ 
   );
   await page.mouse.down();
   await page.mouse.move(
-    dividerBox.x + dividerBox.width / 2 + 140,
+    dividerBox.x + dividerBox.width / 2 + 220,
     dividerBox.y + dividerBox.height / 2,
-    { steps: 8 },
+    { steps: 10 },
   );
   await page.mouse.up();
 
   await expect.poll(async () =>
     panels.nth(1).evaluate((panel) => panel.getBoundingClientRect().width),
-  ).toBeGreaterThan(860);
+  ).toBeGreaterThan(1056);
 
   await expect.poll(async () =>
     practiceLists.evaluate((element) =>
