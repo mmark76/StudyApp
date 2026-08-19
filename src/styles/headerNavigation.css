@@ -1,0 +1,75 @@
+.navigation-row {
+  align-items: baseline;
+  gap: 1.25rem;
+}
+
+.navigation-row .main-nav {
+  gap: 0.55rem 1rem;
+}
+
+.navigation-row .main-nav a {
+  padding: 0.2rem 0.05rem 0.38rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--slate-600);
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  text-underline-offset: 0.32em;
+}
+
+.navigation-row .main-nav a:hover {
+  background: transparent;
+  color: var(--navy-800);
+  text-decoration: underline;
+}
+
+.navigation-row .main-nav a.active {
+  border-bottom-color: var(--blue-600);
+  background: transparent;
+  color: var(--blue-600);
+}
+
+.navigation-row > .utility-actions {
+  gap: 0.5rem 0.9rem;
+  justify-content: flex-start;
+}
+
+.navigation-row > .utility-actions a {
+  padding: 0.2rem 0.05rem 0.38rem;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--slate-500);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  text-underline-offset: 0.32em;
+}
+
+.navigation-row > .utility-actions a:hover {
+  background: transparent;
+  color: var(--navy-800);
+  text-decoration: underline;
+}
+
+.navigation-row > .utility-actions a.active {
+  border-bottom-color: var(--blue-600);
+  background: transparent;
+  color: var(--blue-600);
+}
+
+@media (max-width: 760px) {
+  .navigation-row {
+    gap: 0.65rem;
+  }
+
+  .navigation-row .main-nav,
+  .navigation-row > .utility-actions {
+    gap: 0.45rem 0.9rem;
+  }
+}
