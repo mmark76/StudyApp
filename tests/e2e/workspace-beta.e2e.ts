@@ -34,7 +34,7 @@ test("Workspace BETA uses an independent three-panel desktop shell", async ({ pa
 test("Workspace BETA stays bilingual and contains narrow-screen overflow inside the workspace", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/#/workspace-beta");
-  await page.getByRole("button", { name: "GR" }).click();
+  await page.getByRole("button", { name: "GR", exact: true }).click();
 
   await expect(page.getByRole("heading", { name: "Πηγές" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Εξάσκηση" })).toBeVisible();
