@@ -208,6 +208,7 @@ export function HomePage() {
             <h3>{guide.title}</h3>
             <p>{guide.description}</p>
             <button
+              aria-label={text("Open guide", "Άνοιγμα οδηγού")}
               className="button secondary"
               onClick={() => setIsGuideOpen(true)}
               type="button"
