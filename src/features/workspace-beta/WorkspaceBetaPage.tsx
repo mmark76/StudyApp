@@ -42,7 +42,7 @@ function resizeAdjacentPanels(
   widths: PanelWidths,
   delta: number,
 ): PanelWidths {
-  const next: PanelWidths = [...widths];
+  const next: PanelWidths = [widths[0], widths[1], widths[2]];
 
   if (divider === 0) {
     const combinedWidth = widths[0] + widths[1];
