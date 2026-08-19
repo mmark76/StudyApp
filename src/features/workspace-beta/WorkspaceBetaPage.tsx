@@ -210,9 +210,6 @@ export function WorkspaceBetaPage() {
           <strong>{studyConfig.appName}</strong>
           <span className="workspace-beta-badge">BETA</span>
           <span className="workspace-beta-title">{text("Workspace", "Χώρος εργασίας")}</span>
-          <span className="workspace-beta-resize-hint">
-            {text("Drag dividers to resize", "Σύρε τα διαχωριστικά για αλλαγή πλάτους")}
-          </span>
         </div>
         <div className="workspace-beta-header-actions">
           <LanguageSwitcher />
