@@ -1,44 +1,56 @@
 import { expect, test } from "@playwright/test";
 
-test("Workspace BETA uses an independent three-panel desktop shell", async ({ page }) => {
+test("Workspace BETA keeps three independent functional StudyApp panels", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/#/workspace-beta");
 
   await expect(page.locator(".workspace-beta-header")).toBeVisible();
   await expect(page.locator(".app-header")).toHaveCount(0);
   await expect(page.locator(".app-footer")).toHaveCount(0);
+  await expect(page.locator("iframe.workspace-beta-frame")).toHaveCount(3);
 
   await expect(page.getByRole("heading", { name: "Sources" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Practice" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "AI Studio" })).toBeVisible();
-  await expect(page.locator(".workspace-beta-panel")).toHaveCount(3);
 
-  const boxes = await page.locator(".workspace-beta-panel").evaluateAll((panels) =>
-    panels.map((panel) => {
-      const bounds = panel.getBoundingClientRect();
-      return { left: bounds.left, right: bounds.right, width: bounds.width };
-    }),
-  );
-  expect(boxes.every((box) => box.width >= 250)).toBe(true);
-  expect(boxes[0].right).toBeLessThanOrEqual(boxes[1].left + 1);
-  expect(boxes[1].right).toBeLessThanOrEqual(boxes[2].left + 1);
-  expect(boxes[2].right).toBeLessThanOrEqual(1441);
+  const sources = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
+  const practice = page.frameLocator('iframe[name="studyapp-workspace-practice"]');
+  const ai = page.frameLocator('iframe[name="studyapp-workspace-ai"]');
 
-  await page.getByRole("button", { name: "Quiz", exact: true }).first().click();
-  await expect(page.getByRole("button", { name: "Quiz", exact: true }).first()).toHaveAttribute("aria-pressed", "true");
+  await expect(sources.getByRole("heading", { name: "Sources" })).toBeVisible();
+  await expect(practice.getByRole("heading", { name: "Learn" })).toBeVisible();
+  await expect(ai.getByRole("heading", { name: "AI Assistant" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Mind Map" }).click();
-  await expect(page.getByText("Generation is not connected in this UI preview.")).toBeVisible();
+  await expect(sources.locator(".app-header")).toHaveCount(0);
+  await expect(sources.locator(".app-footer")).toHaveCount(0);
+
+  await sources.getByRole("link", { name: "Library", exact: true }).click();
+  await expect(sources.getByRole("heading", { name: "Library" })).toBeVisible();
+  await expect(practice.getByRole("heading", { name: "Learn" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Sources home" }).click();
+  await expect(sources.getByRole("heading", { name: "Sources" })).toBeVisible();
+
+  const assistantLink = page.getByRole("link", { name: "Start StudyApp AI Assistant" });
+  await expect(assistantLink).toHaveAttribute("target", "_blank");
+  await expect(assistantLink).toHaveAttribute("href", /^https:\/\/chatgpt\.com\//u);
 });
 
-test("Workspace BETA stays bilingual and contains narrow-screen overflow inside the workspace", async ({ page }) => {
+test("Workspace BETA language sync reaches panels and narrow overflow stays contained", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/#/workspace-beta");
+
+  const sources = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
+  const practice = page.frameLocator('iframe[name="studyapp-workspace-practice"]');
+
+  await expect(sources.getByRole("heading", { name: "Sources" })).toBeVisible();
   await page.getByRole("button", { name: "GR", exact: true }).click();
 
   await expect(page.getByRole("heading", { name: "Πηγές" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Εξάσκηση" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Έξοδος" })).toBeVisible();
+  await expect(sources.getByRole("heading", { name: "Πηγές" })).toBeVisible();
+  await expect(practice.getByRole("heading", { name: "Μάθηση" })).toBeVisible();
 
   const overflow = await page.locator(".workspace-beta-main").evaluate((main) => ({
     clientWidth: main.clientWidth,
