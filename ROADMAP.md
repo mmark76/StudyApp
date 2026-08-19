@@ -1,6 +1,6 @@
 # StudyApp Roadmap
 
-_Last updated: 2026-07-31_
+_Last updated: 2026-08-19_
 
 ## v1.0.0 — Complete
 
@@ -24,9 +24,32 @@ A focused post-gate follow-up added explicit local-storage/non-backup notices an
 download actions for generated split PDFs. It did not add content generation,
 cloud storage, authentication, billing, or a new persisted data model.
 
-## Post-v1 AI Assistant simplification — Current `main`
+## Post-v1 UI consolidation — Stable baseline
 
-The repository now includes a two-screen AI Assistant:
+The current production information architecture has been simplified to:
+
+```text
+Home → Sources → Practice → AI Studio
+```
+
+with `Split PDF Tool` and `Important Info` as secondary navigation.
+
+`Sources` groups the existing Library and Structured Study areas. `Practice`
+groups practice-content management, flashcards, review, quiz and progress. `AI
+Studio` is the entry point for the available StudyApp AI Assistant and planned
+AI modes.
+
+The owner-approved completed UI/UX baseline is preserved at:
+
+- branch: `stable/ui-final-2026-08-19`;
+- commit: `e705086af2f393e70a345f2159689446f2e41871`.
+
+This checkpoint is the reference stable experience while new UX directions are
+tested separately.
+
+## Post-v1 AI Assistant simplification — Current stable behaviour
+
+The repository includes a two-screen AI Assistant:
 
 1. **Study with ChatGPT** opens the approved dedicated StudyApp AI Assistant
    Custom GPT through a normal external link;
@@ -43,7 +66,8 @@ The current and future boundary is defined in
 
 ## Next roadmap phase
 
-Future work should proceed through separate, focused branches and PRs.
+Future work should proceed through separate, focused branches and PRs. The stable
+UI baseline should remain recoverable while experiments are evaluated.
 
 ### Track A — Local-first reliability
 
@@ -98,6 +122,49 @@ Real billing is a separate high-risk workstream. It requires:
 - receipts, taxes, refunds, disputes, account recovery, and device transfer;
 - security and privacy review plus browser-to-service integration tests.
 
+### Track E — Workspace BETA UX experiment
+
+Workspace BETA is the next distinct UI/UX experiment. It should not be built by
+rewriting the stable shell in place.
+
+#### Phase E1 — UI/UX prototype only
+
+Create a separate beta route and evaluate a simultaneous three-panel workspace,
+broadly:
+
+```text
+Sources | Workspace / Practice | AI Studio
+```
+
+The first phase should focus on:
+
+- panel proportions and visual hierarchy;
+- compact header treatment and whether the beta needs a footer at all;
+- scrolling and viewport use;
+- panel collapse/expand or resizing behaviour;
+- laptop, tablet and mobile adaptation;
+- keyboard order, focus visibility and 200% zoom;
+- whether the side-by-side model is genuinely easier and faster to use.
+
+Phase E1 must remain presentation-first: no new cross-panel data flow, no data
+migration, no automatic source transfer, no remote AI activation and no MCP merely
+to make the prototype appear functional. Placeholders and clearly labelled beta
+states are acceptable.
+
+#### Phase E2 — selective local connectivity
+
+Only after Phase E1 is explicitly approved, connect one panel interaction at a
+time to existing local StudyApp state. Preserve the existing storage model unless
+a separate data-model proposal is approved. Each connection should have focused
+behaviour and accessibility tests.
+
+#### Phase E3 — source-grounded AI workspace
+
+Only after the local workspace interaction model is proven should remote AI,
+source-grounded generated outputs, citations or MCP be considered. Those remain
+subject to the separate security, privacy, authentication, cost and AI gates in
+`AGENTS.md` and the AI boundary document.
+
 ## Historical-document rule
 
 Historical release documents such as `RELEASE_NOTES_v1.md`,
@@ -105,11 +172,15 @@ Historical release documents such as `RELEASE_NOTES_v1.md`,
 release gate. Living documents must describe current `main` and distinguish:
 
 1. the released local-first workflow;
-2. the current external StudyApp AI Assistant handoff;
-3. planned production cloud-assisted capabilities.
+2. the stable Sources / Practice / AI Studio information architecture;
+3. the current external StudyApp AI Assistant handoff;
+4. Workspace BETA as a separate experiment;
+5. planned production cloud-assisted capabilities.
 
 ## Work selection rule
 
-Remaining work is tracked in [`V1_1_BACKLOG.md`](V1_1_BACKLOG.md). Select one
-focused item per branch/PR, document data-safety and privacy impact, and preserve
-the boundaries in [`AGENTS.md`](AGENTS.md).
+Remaining reliability work is tracked in [`V1_1_BACKLOG.md`](V1_1_BACKLOG.md).
+Select one focused item per branch/PR, document data-safety and privacy impact,
+and preserve the boundaries in [`AGENTS.md`](AGENTS.md). Workspace BETA work
+should use separate focused branches/PRs and must not silently expand from UI/UX
+prototype into persistence or remote-service work.

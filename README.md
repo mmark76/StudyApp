@@ -7,15 +7,50 @@ A bilingual, local-first personal knowledge and learning application.
 StudyApp supports English and Greek through the **EN / GR** switch in the header.
 The selected language is stored locally on the device.
 
+The stable top-level navigation is:
+
+**Home · Sources · Practice · AI Studio**
+
+with **Split PDF Tool** and **Important Info** as secondary navigation.
+
 The core study workflow is available:
 
 - add and organise user-provided study material;
-- read source and structured material;
+- read source and structured material through Sources;
 - split PDFs locally;
 - create or import chapters and flashcards;
 - practise with flashcards, review and quizzes;
 - store progress in the current browser;
 - export and restore a progress/settings backup.
+
+## Stable UI baseline
+
+The completed current UI/UX baseline is preserved at:
+
+- branch: `stable/ui-final-2026-08-19`;
+- commit: `e705086af2f393e70a345f2159689446f2e41871`.
+
+This checkpoint represents the approved stable StudyApp interface before the
+separate Workspace BETA experiment. Normal feature, defect and accessibility
+work may continue, but the beta is not assumed to replace this stable model.
+
+## Workspace BETA — planned experiment
+
+The next UX experiment is a separate multi-panel workspace. The first iteration
+is intentionally UI/UX-only and is expected to test three simultaneous areas,
+broadly:
+
+**Sources | Workspace / Practice | AI Studio**
+
+The initial beta should validate layout, panel proportions, header/footer
+behaviour, responsive adaptation, collapsing/resizing choices and overall ease
+of use before adding real connectivity between panels.
+
+Unless explicitly approved in a later task, the first Workspace BETA does **not**
+change IndexedDB, the data model, persistence, the existing stable routes, MCP,
+remote AI behaviour or automatic source transfer. It may use placeholders or
+clearly labelled beta/coming-soon controls while the interaction model is being
+evaluated.
 
 ## AI Assistant
 
@@ -32,7 +67,7 @@ shares any study material directly in ChatGPT.
 The permanent bilingual `/#/instructions` page explains how to add files created
 by the Assistant to StudyApp. The user downloads each file to their device and
 then manually adds the PDF to Library or imports Chapters CSV before Flashcards
-CSV in Learn & Practice. No file is transferred automatically from ChatGPT.
+CSV through Practice. No file is transferred automatically from ChatGPT.
 
 The bilingual intro explains the available assistant and planned AI options
 through an accessible typewriter presentation. The full message is available
@@ -70,11 +105,13 @@ See [`docs/AI_ASSISTANT_AND_CLOUD_BOUNDARIES.md`](docs/AI_ASSISTANT_AND_CLOUD_BO
 
 ## Product areas
 
-1. **Library** — source books, articles, papers, notes and summaries.
-2. **Structured Study** — contents, chapters, sections, concepts, references and diagrams.
-3. **Learn & Practice** — flashcards, due review, quizzes and progress.
-4. **Split PDF Tool** — local PDF splitting and download.
-5. **AI Assistant** — StudyApp AI Assistant now; ChatGPT App/MCP and paid StudyApp AI later.
+1. **Sources** — hub for source material and structured study.
+   - **Library** — books, articles, papers, notes, summaries and supported local files.
+   - **Structured Study** — contents, chapters, sections, concepts, references and diagrams.
+2. **Practice** — practice-content management, flashcards, due review, quizzes and progress.
+3. **AI Studio** — StudyApp AI Assistant now; ChatGPT App/MCP and paid StudyApp AI later.
+4. **Split PDF Tool** — secondary local PDF splitting and download utility.
+5. **Important Info** — secondary product, usage, privacy and supporting information.
 
 ## Local-first storage and privacy
 
@@ -123,6 +160,7 @@ significantly mismatched file types are rejected.
   account, plan, privacy and sharing rules.
 - ChatGPT App / MCP is not active yet.
 - StudyApp AI, real credits and payments are not active yet.
+- Workspace BETA is a planned UX experiment, not an active connected workspace yet.
 - Complete local-file export/import and broader cross-browser coverage remain
   future work.
 

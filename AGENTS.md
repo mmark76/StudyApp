@@ -25,6 +25,49 @@ with React, TypeScript, Vite, React Router, Dexie, PDF.js, `pdf-lib`, Vitest and
 Core study data remains in the browser. The current product has no user account,
 cloud storage, cloud sync, first-party analytics, advertising or telemetry.
 
+The owner-approved stable top-level UI model is:
+
+```text
+Home → Sources → Practice → AI Studio
+```
+
+`Split PDF Tool` and `Important Info` are secondary navigation. `Sources` groups
+the existing Library and Structured Study areas; `Practice` groups flashcards,
+review, quiz, progress and practice-content management; `AI Studio` is the
+current entry point for the available StudyApp AI Assistant and planned AI modes.
+
+## Stable UI baseline and Workspace BETA
+
+The completed stable UI baseline is preserved at:
+
+- branch: `stable/ui-final-2026-08-19`;
+- commit: `e705086af2f393e70a345f2159689446f2e41871`.
+
+Treat that checkpoint as the reference version for the current StudyApp UI/UX.
+Do not redesign the stable Home, header or top-level information architecture as
+part of unrelated work. Changes to the stable experience should be limited to
+approved feature work, defects, accessibility fixes or explicitly requested UX
+changes.
+
+`Workspace BETA` is a separate experimental direction. Its initial purpose is
+to test a simultaneous multi-panel workspace visually and ergonomically before
+connecting the panels. Unless a later task explicitly expands scope:
+
+- keep the existing stable routes and workflows intact;
+- build the beta behind a separate route and focused branch/PR;
+- start with UI/UX structure only;
+- do not add cross-panel data flow, IndexedDB changes, remote AI calls, MCP,
+  automatic source scanning or new persistence merely to make the prototype look
+  functional;
+- placeholders and clearly labelled beta/coming-soon actions are acceptable;
+- do not treat the beta as a replacement for the stable UI until the owner
+  explicitly approves that transition.
+
+The intended first-pass desktop concept is three simultaneous panels, broadly
+`Sources | Workspace/Practice | AI Studio`. Exact labels, proportions,
+collapsing/resizing behaviour and mobile adaptation remain design decisions to
+be validated in the beta.
+
 ## AI Assistant terminology
 
 Use these names consistently:
@@ -75,11 +118,13 @@ The interface supports English and Greek.
 ## UX boundaries
 
 ```text
-Library             = source material
+Sources             = hub for Library source files and Structured Study
+Library             = source books, articles, papers, notes and summaries
 Structured Study    = material by structure and level
-Learn & Practice    = flashcards, review, quiz and progress
+Practice            = flashcards, review, quiz, progress and practice content
+AI Studio           = StudyApp AI Assistant now; MCP and paid API later
 Split PDF Tool      = local PDF utility
-AI Assistant        = StudyApp AI Assistant now; MCP and paid API later
+Important Info      = supporting product, privacy and usage information
 ```
 
 The AI Assistant is a supporting workflow, not a material store or replacement
