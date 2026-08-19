@@ -6,9 +6,10 @@ function readRepositoryFile(path: string): string {
 }
 
 describe("release safety configuration", () => {
-  it("runs every required check before the production deployment build", () => {
-    const workflow = readRepositoryFile(".github/workflows/deploy-pages.yml");
-    const commands = [
+  it("runs every required check in CI before allowing the production deployment path", () => {
+    const ciWorkflow = readRepositoryFile(".github/workflows/ci.yml");
+    const deployWorkflow = readRepositoryFile(".github/workflows/deploy-pages.yml");
+    const requiredChecks = [
       "npm ci",
       "npm run typecheck",
       "npm test",
@@ -16,12 +17,24 @@ describe("release safety configuration", () => {
       "npm run test:e2e",
       "npm run build",
     ];
-    const positions = commands.map((command) => workflow.indexOf(command));
+    const positions = requiredChecks.map((command) => ciWorkflow.indexOf(command));
 
+    expect(ciWorkflow).toContain("pull_request:");
     expect(positions.every((position) => position >= 0)).toBe(true);
     expect(positions).toEqual([...positions].sort((first, second) => first - second));
-    expect(workflow).not.toMatch(/run: npm install\s/u);
-    expect(workflow).not.toMatch(/uses: [^\s]+@v\d/u);
+    expect(ciWorkflow).toContain("timeout-minutes: 10");
+    expect(ciWorkflow).not.toMatch(/run: npm install\s/u);
+    expect(ciWorkflow).not.toMatch(/uses: [^\s]+@v\d/u);
+
+    expect(deployWorkflow).toContain("branches: [main]");
+    expect(deployWorkflow).toContain("npm ci");
+    expect(deployWorkflow).toContain("npm run build");
+    expect(deployWorkflow).not.toContain("npm run typecheck");
+    expect(deployWorkflow).not.toContain("npm test");
+    expect(deployWorkflow).not.toContain("playwright install");
+    expect(deployWorkflow).not.toContain("npm run test:e2e");
+    expect(deployWorkflow).not.toMatch(/run: npm install\s/u);
+    expect(deployWorkflow).not.toMatch(/uses: [^\s]+@v\d/u);
   });
 
   it("precaches offline PDF and import resources", () => {
