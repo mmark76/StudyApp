@@ -17,6 +17,7 @@ import { SourcesPage } from "../features/sources/SourcesPage";
 import { StudyLearnPage } from "../features/study/StudyLearnPage";
 import { StudyTheoryPage } from "../features/study/StudyTheoryPage";
 import { UnitsPage } from "../features/units/UnitsPage";
+import { WorkspaceBetaPage } from "../features/workspace-beta/WorkspaceBetaPage";
 import { AppLayout } from "../shared/components/AppLayout";
 import { createE2EStudyFailureInjectors } from "./e2eStudyFailureInjection";
 import { createE2ELocalWriteFailureInjector } from "./e2eLocalWriteFailureInjection";
@@ -81,6 +82,7 @@ export const router = createHashRouter([
       },
       { path: "progress", element: <ProgressPage /> },
       { path: "import", element: <ContentImportPage /> },
+      { path: "workspace-beta", element: <WorkspaceBetaPage /> },
       { path: "study-materials", element: <Navigate replace to="/library" /> },
       {
         path: "tools",
