@@ -20,24 +20,85 @@ function focusCurrentWorkspaceFrame(): void {
   window.focus();
 }
 
-function handleWorkspaceFrameWheel(event: WheelEvent): void {
-  if (!isWorkspaceFrameWindow()) return;
-
-  const hadFocus = document.hasFocus();
-  window.focus();
-
-  // Chromium can occasionally keep focus in the parent document after a
-  // divider drag. In that state the first wheel event reaches the iframe but
-  // its native scrolling may be skipped until the user clicks or selects text.
-  // Preserve that first wheel movement explicitly; later events remain native.
-  if (!hadFocus && (event.deltaX !== 0 || event.deltaY !== 0)) {
-    event.preventDefault();
-    window.scrollBy({
-      behavior: "auto",
-      left: event.deltaX,
-      top: event.deltaY,
-    });
+function normaliseWheelDelta(event: WheelEvent): { left: number; top: number } {
+  if (event.deltaMode === WheelEvent.DOM_DELTA_LINE) {
+    return { left: event.deltaX * 16, top: event.deltaY * 16 };
   }
+  if (event.deltaMode === WheelEvent.DOM_DELTA_PAGE) {
+    return {
+      left: event.deltaX * window.innerWidth,
+      top: event.deltaY * window.innerHeight,
+    };
+  }
+  return { left: event.deltaX, top: event.deltaY };
+}
+
+function canScrollInDirection(
+  element: HTMLElement,
+  left: number,
+  top: number,
+): boolean {
+  const style = getComputedStyle(element);
+  const canScrollY = element.scrollHeight > element.clientHeight + 1
+    && style.overflowY !== "hidden"
+    && style.overflowY !== "clip"
+    && (
+      (top < 0 && element.scrollTop > 0)
+      || (top > 0 && element.scrollTop + element.clientHeight < element.scrollHeight - 1)
+    );
+  const canScrollX = element.scrollWidth > element.clientWidth + 1
+    && style.overflowX !== "hidden"
+    && style.overflowX !== "clip"
+    && (
+      (left < 0 && element.scrollLeft > 0)
+      || (left > 0 && element.scrollLeft + element.clientWidth < element.scrollWidth - 1)
+    );
+  return canScrollY || canScrollX;
+}
+
+function findWheelScroller(
+  target: EventTarget | null,
+  left: number,
+  top: number,
+): HTMLElement | null {
+  let element = target instanceof Element ? target : null;
+
+  while (element instanceof HTMLElement) {
+    if (canScrollInDirection(element, left, top)) return element;
+    element = element.parentElement;
+  }
+
+  const documentScroller = document.scrollingElement;
+  if (
+    documentScroller instanceof HTMLElement
+    && canScrollInDirection(documentScroller, left, top)
+  ) {
+    return documentScroller;
+  }
+
+  return null;
+}
+
+function handleWorkspaceFrameWheel(event: WheelEvent): void {
+  if (!isWorkspaceFrameWindow() || event.ctrlKey) return;
+
+  focusCurrentWorkspaceFrame();
+
+  const delta = normaliseWheelDelta(event);
+  if (delta.left === 0 && delta.top === 0) return;
+
+  const scroller = findWheelScroller(event.target, delta.left, delta.top);
+  if (!scroller) return;
+
+  // Do not depend on Chromium's iframe focus heuristics after a divider drag.
+  // Workspace frames explicitly scroll the element underneath the pointer,
+  // including nested scroll containers and the document scroller.
+  event.preventDefault();
+  scroller.scrollBy({
+    behavior: "auto",
+    left: delta.left,
+    top: delta.top,
+  });
 }
 
 function releasePointerDividerFocus(): void {
@@ -52,9 +113,6 @@ function releasePointerDividerFocus(): void {
 
 if (typeof document !== "undefined") {
   if (isWorkspaceFrameWindow()) {
-    // These listeners run inside each same-origin Workspace iframe. Unlike
-    // parent-document listeners, they receive the pointer/wheel events that
-    // occur over the embedded StudyApp content itself.
     document.addEventListener("pointerenter", focusCurrentWorkspaceFrame, true);
     document.addEventListener("pointermove", focusCurrentWorkspaceFrame, {
       capture: true,
