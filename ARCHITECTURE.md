@@ -1,19 +1,59 @@
 # Architecture
 
-_Last updated: 2026-08-16_
+_Last updated: 2026-08-19_
 
 ## Summary
 
 StudyApp is a bilingual, local-first React single-page application. Core study
 features run in the browser and store data in IndexedDB.
 
-The AI Assistant now exposes three separate modes:
+The owner-approved stable top-level information architecture is:
+
+```text
+Home → Sources → Practice → AI Studio
+```
+
+`Split PDF Tool` and `Important Info` are secondary navigation. `Sources` is a
+hub over the existing Library and Structured Study areas. `Practice` groups
+practice-content management, flashcards, review, quiz and progress. `AI Studio`
+is the current entry point for the available StudyApp AI Assistant and the two
+planned AI modes.
+
+The completed stable UI baseline is preserved at branch
+`stable/ui-final-2026-08-19`, commit
+`e705086af2f393e70a345f2159689446f2e41871`.
+
+The AI Assistant exposes three separate modes:
 
 - StudyApp AI Assistant — active external link to the dedicated Custom GPT;
 - ChatGPT App / MCP — visible but inactive;
 - StudyApp AI — visible but inactive paid/API mode.
 
 No production AI request, real credit operation or payment is currently enabled.
+
+## Workspace BETA boundary
+
+Workspace BETA is a planned, separate UX experiment rather than a replacement
+for the stable application shell.
+
+The first iteration should test a simultaneous multi-panel desktop workspace,
+broadly:
+
+```text
+Sources | Workspace / Practice | AI Studio
+```
+
+The initial beta is intentionally presentation-first. Unless a later task
+explicitly expands scope, it must not introduce cross-panel data flow, new
+IndexedDB persistence, a data-model migration, automatic source transfer,
+remote AI calls or MCP. A separate route and focused branch/PR should isolate the
+experiment from stable routes and workflows.
+
+The beta should first validate panel proportions, header/footer treatment,
+scrolling, collapsing/resizing, responsive/mobile adaptation, focus order,
+keyboard behaviour and whether the multi-panel model is actually easier to use.
+Only after that interaction model is approved should panels be connected to real
+StudyApp state and services.
 
 ## Technology stack
 
@@ -22,6 +62,7 @@ No production AI request, real credit operation or payment is currently enabled.
 - Dexie over IndexedDB;
 - PDF.js and `pdf-lib`;
 - Vitest;
+- Playwright Chromium for E2E;
 - `vite-plugin-pwa`.
 
 ## Runtime layers
@@ -46,6 +87,27 @@ storage. It does not change the IndexedDB schema or create an account preference
 
 New primary user interface must support both languages. Feature data supplied by
 the user is not translated automatically.
+
+### Stable application shell
+
+`src/shared/components/AppLayout.tsx` owns the stable header, primary and
+secondary navigation, main content outlet, PWA update toast and fixed footer.
+
+Primary navigation:
+
+```text
+Home | Sources | Practice | AI Studio
+```
+
+Secondary navigation:
+
+```text
+Split PDF Tool | Important Info
+```
+
+The lower navigation is intentionally link-like rather than pill-button UI. The
+stable shell remains the production reference while Workspace BETA is evaluated
+separately.
 
 ### AI Assistant presentation layer
 
@@ -93,7 +155,7 @@ that approved destination.
 bilingual documentation for the manual return path. It does not inspect
 ChatGPT, read StudyApp data or perform imports. The user downloads generated
 files to their device, adds a PDF through Library when applicable, and manually
-imports Chapters CSV before Flashcards CSV through Learn & Practice.
+imports Chapters CSV before Flashcards CSV through Practice.
 
 #### ChatGPT App / MCP
 
@@ -140,18 +202,27 @@ service-worker registration and caching strategy remain owned by `src/main.tsx`.
 
 ## Routing
 
+Current stable routes include:
+
 - `/` — Home;
+- `/sources` — Sources hub;
 - `/library` — Library;
-- `/study/theory` — Structured Study;
-- `/learn` — Learn & Practice;
+- `/study` and `/study/theory` — Structured Study flows;
+- `/units` — structured units;
+- `/learn` — Practice hub;
 - `/flashcards`, `/review`, `/quiz`, `/progress` — practice flows;
-- `/import` — content import;
+- `/import` — practice-content import;
 - `/tools` — Split PDF Tool;
+- `/important-info` — Important Info;
 - `/appearance` — appearance settings;
-- `/ai-assistant-guide` — AI mode guide;
+- `/ai-assistant-guide` — AI Studio / AI mode guide;
 - `/ai-assistant-comparison` — bilingual comparison of current and planned AI modes;
 - `/instructions` — manual AI-generated file instructions;
 - `/legal/*` — legal information.
+
+Workspace BETA does not yet have an active production route. When implemented,
+it should use a separate route so the stable shell and workflows remain intact
+while the prototype is evaluated.
 
 ## Data-flow boundaries
 
@@ -204,8 +275,8 @@ User activates external link → browser opens approved Custom GPT in a new tab
 → user works directly in ChatGPT
 ```
 
-No study material is read or sent by StudyApp. Opening the configured
-ChatGPT page is a normal external navigation controlled by the user.
+No study material is read or sent by StudyApp. Opening the configured ChatGPT
+page is a normal external navigation controlled by the user.
 
 ### Manual generated-file return flow
 
@@ -213,7 +284,7 @@ ChatGPT page is a normal external navigation controlled by the user.
 User downloads files in ChatGPT
 → user opens StudyApp
 → user manually adds the PDF to Library when applicable
-→ user manually imports Chapters CSV before Flashcards CSV in Learn & Practice
+→ user manually imports Chapters CSV before Flashcards CSV through Practice
 ```
 
 The instructions page documents this flow only. It does not receive, discover,
@@ -227,6 +298,24 @@ Explicit selection → review → confirmation → remote task → validated dra
 
 No automatic library scan and no automatic result save are allowed.
 
+## CI and deployment
+
+Pull-request CI runs in the pinned Playwright container
+`mcr.microsoft.com/playwright:v1.62.1-noble` and executes:
+
+```text
+npm ci → typecheck → unit tests → Playwright E2E → production build
+```
+
+GitHub Pages deployment runs only after pushes to `main` and stays focused on:
+
+```text
+npm ci → production build → upload → deploy
+```
+
+The Pages workflow does not repeat the full Playwright suite. Required PR CI
+must pass before merge; deployment success is a separate production step.
+
 ## Safety boundaries
 
 - External input is validated at runtime.
@@ -239,6 +328,7 @@ No automatic library scan and no automatic result save are allowed.
 - English and Greek wording must communicate the same material facts.
 - The StudyApp AI Assistant link does not inspect, automate or embed the ChatGPT website.
 - The AI options comparison page is static local presentation and does not itself access or transmit study data.
+- Workspace BETA must not silently gain data, persistence or remote-service behaviour while it is still a UI/UX prototype.
 
 ## High-risk areas
 
@@ -259,14 +349,15 @@ No automatic library scan and no automatic result save are allowed.
 Existing unit and IndexedDB tests cover local study logic, files, imports,
 backups and updates.
 
-Playwright Chromium tests cover the two Assistant screens, exact link
-attributes, English and Greek copy, focus trapping/restoration, inert
-background, Escape handling, absence of clipboard/scripted-popup behaviour and
-transaction failure/retry behaviour for flashcards, quizzes and review. They
-also inject deterministic local-write delay/failure states for chapter,
-flashcard and appearance-setting persistence. PWA coverage verifies the compact
-desktop and mobile update toast, explicit Update/Later actions, pending-state
-duplicate prevention and live error retranslation.
+Playwright Chromium tests cover navigation, key study flows, Assistant behaviour,
+exact external-link attributes, English and Greek copy, focus
+trapping/restoration, inert background, Escape handling, absence of
+clipboard/scripted-popup behaviour and transaction failure/retry behaviour for
+flashcards, quizzes and review. They also inject deterministic local-write
+delay/failure states for chapter, flashcard and appearance-setting persistence.
+PWA coverage verifies the compact desktop and mobile update toast, explicit
+Update/Later actions, pending-state duplicate prevention and live error
+retranslation.
 
 Assistant coverage includes:
 
@@ -281,4 +372,6 @@ Assistant coverage includes:
 - keyboard operation and focus behaviour;
 - comparison-page content, availability labels and user-cost row ordering.
 
-Future MCP and paid API work requires separate integration and browser tests.
+Workspace BETA should receive separate layout, keyboard, narrow-screen and zoom
+coverage as the prototype becomes interactive. Future MCP and paid API work
+requires separate integration and browser tests.
