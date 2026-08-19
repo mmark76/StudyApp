@@ -27,7 +27,7 @@ export function SourcesPage() {
             "Πρόσθεσε και διαχειρίσου βιβλία, άρθρα, εργασίες, σημειώσεις, περιλήψεις και αρχεία πηγών.",
           )}</p>
           <Link className="button primary" to="/library">
-            {text("Open Library", "Άνοιγμα Βιβλιοθήκης")}
+            {text("Library", "Βιβλιοθήκη")}
           </Link>
         </article>
 
@@ -39,7 +39,7 @@ export function SourcesPage() {
             "Μελέτησε το υλικό μέσα από κεφάλαια, ενότητες, έννοιες και διαγράμματα.",
           )}</p>
           <Link className="button study" to="/study/theory">
-            {text("Open Structured Study", "Άνοιγμα Δομημένης Μελέτης")}
+            {text("Structured Study", "Δομημένη Μελέτη")}
           </Link>
         </article>
       </section>
