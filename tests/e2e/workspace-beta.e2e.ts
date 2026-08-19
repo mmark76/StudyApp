@@ -101,7 +101,7 @@ test("Workspace BETA desktop dividers resize adjacent panels and can reset", asy
   }).toBeLessThan(4);
 });
 
-test("Workspace BETA mouse wheel works after dragging a divider without clicking the panel", async ({ page }) => {
+test("Workspace BETA wheel scrolls a frame even when parent focus is left outside it", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/#/workspace-beta");
 
@@ -141,12 +141,19 @@ test("Workspace BETA mouse wheel works after dragging a divider without clicking
     practiceBox.y + Math.min(practiceBox.height / 2, 320),
   );
 
+  // Recreate the real failure mode: focus stays in the parent document even
+  // though the pointer is already over the iframe. The wheel must still work
+  // without a click or text selection inside Practice.
+  await divider.focus();
   await expect.poll(() => page.evaluate(() =>
-    document.activeElement?.getAttribute("name"),
-  )).toBe("studyapp-workspace-practice");
+    document.activeElement?.classList.contains("workspace-beta-resizer"),
+  )).toBe(true);
+  await expect(practiceFrame.evaluate(() => document.hasFocus())).resolves.toBe(false);
 
   await page.mouse.wheel(0, 600);
+
   await expect.poll(() => practiceFrame.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  await expect.poll(() => practiceFrame.evaluate(() => document.hasFocus())).toBe(true);
 });
 
 test("Workspace BETA Practice content uses readable content-sized columns", async ({ page }) => {
