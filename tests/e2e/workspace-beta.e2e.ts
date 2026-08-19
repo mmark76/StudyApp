@@ -36,6 +36,49 @@ test("Workspace BETA keeps three independent functional StudyApp panels", async 
   await expect(assistantLink).toHaveAttribute("href", /^https:\/\/chatgpt\.com\//u);
 });
 
+test("Workspace BETA desktop dividers resize adjacent panels and can reset", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/#/workspace-beta");
+
+  const panels = page.locator(".workspace-beta-functional-panel");
+  const dividers = page.locator(".workspace-beta-resizer");
+  await expect(dividers).toHaveCount(2);
+  await expect(dividers.first()).toBeVisible();
+
+  const before = await panels.evaluateAll((items) =>
+    items.map((item) => item.getBoundingClientRect().width),
+  );
+  const dividerBox = await dividers.first().boundingBox();
+  if (!dividerBox) throw new Error("Workspace divider was not measurable");
+
+  await page.mouse.move(
+    dividerBox.x + dividerBox.width / 2,
+    dividerBox.y + dividerBox.height / 2,
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    dividerBox.x + dividerBox.width / 2 + 96,
+    dividerBox.y + dividerBox.height / 2,
+    { steps: 6 },
+  );
+  await page.mouse.up();
+
+  const afterDrag = await panels.evaluateAll((items) =>
+    items.map((item) => item.getBoundingClientRect().width),
+  );
+  expect(afterDrag[0]).toBeGreaterThan(before[0] + 50);
+  expect(afterDrag[1]).toBeLessThan(before[1] - 50);
+  expect(Math.abs(afterDrag[2] - before[2])).toBeLessThan(4);
+
+  await dividers.first().dblclick();
+  await expect.poll(async () => {
+    const resetWidths = await panels.evaluateAll((items) =>
+      items.map((item) => item.getBoundingClientRect().width),
+    );
+    return Math.abs(resetWidths[0] - before[0]);
+  }).toBeLessThan(4);
+});
+
 test("Workspace BETA language sync reaches panels and narrow overflow stays contained", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/#/workspace-beta");
@@ -44,6 +87,7 @@ test("Workspace BETA language sync reaches panels and narrow overflow stays cont
   const practice = page.frameLocator('iframe[name="studyapp-workspace-practice"]');
 
   await expect(sources.getByRole("heading", { name: "Sources" })).toBeVisible();
+  await expect(page.locator(".workspace-beta-resizer").first()).toBeHidden();
   await page.getByRole("button", { name: "GR", exact: true }).click();
 
   await expect(page.getByRole("heading", { name: "Πηγές" })).toBeVisible();
