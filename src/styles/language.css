@@ -1,3 +1,5 @@
+@import "./workspaceBetaLinkCards.css";
+
 .language-switcher {
   align-items: center;
   background: color-mix(in srgb, var(--surface-strong, #ffffff) 90%, var(--blue-600, #1d4ed8));
