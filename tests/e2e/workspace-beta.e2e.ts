@@ -79,6 +79,53 @@ test("Workspace BETA desktop dividers resize adjacent panels and can reset", asy
   }).toBeLessThan(4);
 });
 
+test("Workspace BETA content reflows with the resized Practice panel", async ({ page }) => {
+  await page.setViewportSize({ width: 1800, height: 900 });
+  await page.goto("/#/workspace-beta");
+
+  const panels = page.locator(".workspace-beta-functional-panel");
+  const secondDivider = page.locator(".workspace-beta-resizer").nth(1);
+  const practice = page.frameLocator('iframe[name="studyapp-workspace-practice"]');
+  const practiceLists = practice.locator(".practice-content-lists");
+
+  await expect(practiceLists).toBeVisible();
+  const initialPracticeWidth = await panels.nth(1).evaluate((panel) =>
+    panel.getBoundingClientRect().width,
+  );
+  expect(initialPracticeWidth).toBeLessThan(860);
+
+  await expect.poll(async () =>
+    practiceLists.evaluate((element) =>
+      getComputedStyle(element).gridTemplateColumns.trim().split(/\s+/u).length,
+    ),
+  ).toBe(1);
+
+  const dividerBox = await secondDivider.boundingBox();
+  if (!dividerBox) throw new Error("Practice/AI divider was not measurable");
+
+  await page.mouse.move(
+    dividerBox.x + dividerBox.width / 2,
+    dividerBox.y + dividerBox.height / 2,
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    dividerBox.x + dividerBox.width / 2 + 140,
+    dividerBox.y + dividerBox.height / 2,
+    { steps: 8 },
+  );
+  await page.mouse.up();
+
+  await expect.poll(async () =>
+    panels.nth(1).evaluate((panel) => panel.getBoundingClientRect().width),
+  ).toBeGreaterThan(860);
+
+  await expect.poll(async () =>
+    practiceLists.evaluate((element) =>
+      getComputedStyle(element).gridTemplateColumns.trim().split(/\s+/u).length,
+    ),
+  ).toBe(2);
+});
+
 test("Workspace BETA language sync reaches panels and narrow overflow stays contained", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/#/workspace-beta");
