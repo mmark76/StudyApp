@@ -412,3 +412,203 @@
     padding: 0.62rem;
   }
 }
+
+/*
+ * Workspace-only minimal presentation.
+ * Keep the same components and actions, but reduce dashboard weight inside
+ * embedded panels so content reads as a working surface rather than a set of
+ * large promotional cards.
+ */
+.workspace-panel-embed-main .stack-lg > * + * {
+  margin-top: 0.8rem;
+}
+
+.workspace-panel-embed-main .page-heading {
+  margin-bottom: 0.55rem;
+}
+
+.workspace-panel-embed-main .page-heading .eyebrow,
+.workspace-panel-embed-main .assistant-guide-page .eyebrow {
+  margin-bottom: 0.25rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.09em;
+}
+
+.workspace-panel-embed-main .page-heading h2 {
+  margin: 0;
+  font-size: clamp(1.08rem, 3vw, 1.35rem);
+}
+
+.workspace-panel-embed-main .page-heading > p:last-child {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.workspace-panel-embed-main .dashboard-action-grid,
+.workspace-panel-embed-main .learning-stage-grid,
+.workspace-panel-embed-main .assistant-guide-grid {
+  gap: 0.6rem;
+}
+
+.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid > .learning-stage-card,
+.workspace-panel-embed-main .dashboard-action-card,
+.workspace-panel-embed-main .assistant-guide-card {
+  min-height: 0;
+  height: auto;
+  padding: 0.78rem 0.82rem;
+  border: 1px solid #e1e1dc;
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--surface) 92%, #ffffff);
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main .learning-stage-card h3,
+.workspace-panel-embed-main .dashboard-action-card h3,
+.workspace-panel-embed-main .assistant-guide-card h3 {
+  margin: 0.18rem 0 0.32rem;
+  font-size: 0.96rem;
+}
+
+.workspace-panel-embed-main .learning-stage-card p,
+.workspace-panel-embed-main .dashboard-action-card p,
+.workspace-panel-embed-main .assistant-guide-card > p:not(.eyebrow) {
+  margin: 0 0 0.62rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.workspace-panel-embed-main .stage-number {
+  width: 1.45rem;
+  height: 1.45rem;
+  background: #f0f0ec;
+  color: #686861;
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .learning-stage-card .button,
+.workspace-panel-embed-main .dashboard-action-card .button,
+.workspace-panel-embed-main .assistant-guide-page .button,
+.workspace-panel-embed-main .local-file-actions .button,
+.workspace-panel-embed-main .practice-content-option > .button-row .button,
+.workspace-panel-embed-main .practice-content-pagination-actions .button {
+  width: fit-content;
+  min-width: 0;
+  min-height: 1.9rem;
+  flex: 0 0 auto;
+  padding: 0.32rem 0.52rem;
+  border: 1px solid #d8d8d2;
+  border-radius: 0.34rem;
+  background: #f7f7f4;
+  color: #44443f;
+  box-shadow: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .learning-stage-card .button:hover,
+.workspace-panel-embed-main .dashboard-action-card .button:hover,
+.workspace-panel-embed-main .assistant-guide-page .button:hover,
+.workspace-panel-embed-main .local-file-actions .button:hover,
+.workspace-panel-embed-main .practice-content-option > .button-row .button:hover,
+.workspace-panel-embed-main .practice-content-pagination-actions .button:hover {
+  border-color: #bcbcb5;
+  background: #efefeb;
+  color: #222222;
+}
+
+.workspace-panel-embed-main .local-file-actions .button.danger,
+.workspace-panel-embed-main .practice-content-option > .button-row .button.danger {
+  border-color: #e5c0c0;
+  background: #fff8f8;
+  color: #9f2424;
+}
+
+.workspace-panel-embed-main .local-file-actions .button.danger:hover,
+.workspace-panel-embed-main .practice-content-option > .button-row .button.danger:hover {
+  border-color: #d5a6a6;
+  background: #fff0f0;
+  color: #7f1d1d;
+}
+
+.workspace-panel-embed-main .content-panel,
+.workspace-panel-embed-main .hero-panel,
+.workspace-panel-embed-main .study-panel,
+.workspace-panel-embed-main .quiz-card,
+.workspace-panel-embed-main .empty-state,
+.workspace-panel-embed-main .practice-content-list-panel {
+  padding: 0.85rem;
+  border-radius: 0.55rem;
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main .practice-content-manager,
+.workspace-panel-embed-main .practice-content-library,
+.workspace-panel-embed-main .practice-content-option {
+  gap: 0.7rem;
+}
+
+.workspace-panel-embed-main .practice-content-list-panel h5 {
+  font-size: 0.9rem;
+}
+
+.workspace-panel-embed-main .practice-content-list-panel > p,
+.workspace-panel-embed-main .practice-content-page-status {
+  font-size: 0.78rem;
+}
+
+.workspace-panel-embed-main .assistant-guide-hero {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.8rem;
+  padding: 0.82rem;
+  border: 1px solid #e1e1dc;
+  border-radius: 0.52rem;
+  background: color-mix(in srgb, var(--surface) 92%, #ffffff);
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main .assistant-guide-hero h2 {
+  margin-bottom: 0.3rem;
+  font-size: 1.05rem;
+}
+
+.workspace-panel-embed-main .assistant-guide-hero > div > p:not(.eyebrow) {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.workspace-panel-embed-main .assistant-guide-hero img {
+  width: 4.75rem;
+  border-width: 3px;
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main .assistant-guide-page .button-row {
+  gap: 0.4rem;
+  margin-top: 0.55rem;
+}
+
+.workspace-panel-embed-main .assistant-guide-card .button-row {
+  margin-top: 0.55rem;
+}
+
+.workspace-panel-embed-main .assistant-guide-note {
+  padding: 0.72rem 0.82rem;
+  border: 1px solid #d9d9d3;
+  border-radius: 0.5rem;
+  background: #fafaf7;
+}
+
+.workspace-panel-embed-main .assistant-guide-note h3 {
+  margin-bottom: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.workspace-panel-embed-main .assistant-guide-note p:last-child {
+  margin-top: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
