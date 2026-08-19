@@ -101,6 +101,54 @@ test("Workspace BETA desktop dividers resize adjacent panels and can reset", asy
   }).toBeLessThan(4);
 });
 
+test("Workspace BETA mouse wheel works after dragging a divider without clicking the panel", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/#/workspace-beta");
+
+  const divider = page.locator(".workspace-beta-resizer").first();
+  const dividerBox = await divider.boundingBox();
+  if (!dividerBox) throw new Error("Workspace divider was not measurable");
+
+  await page.mouse.move(
+    dividerBox.x + dividerBox.width / 2,
+    dividerBox.y + dividerBox.height / 2,
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    dividerBox.x + dividerBox.width / 2 + 72,
+    dividerBox.y + dividerBox.height / 2,
+    { steps: 5 },
+  );
+  await page.mouse.up();
+
+  const practiceFrameElement = page.locator('iframe[name="studyapp-workspace-practice"]');
+  const practiceBox = await practiceFrameElement.boundingBox();
+  if (!practiceBox) throw new Error("Practice iframe was not measurable");
+
+  const practiceFrame = page.frame({ name: "studyapp-workspace-practice" });
+  if (!practiceFrame) throw new Error("Practice iframe was not available");
+
+  await practiceFrame.evaluate(() => {
+    const spacer = document.createElement("div");
+    spacer.dataset.workspaceWheelTest = "true";
+    spacer.style.height = "1800px";
+    document.body.appendChild(spacer);
+    window.scrollTo(0, 0);
+  });
+
+  await page.mouse.move(
+    practiceBox.x + practiceBox.width / 2,
+    practiceBox.y + Math.min(practiceBox.height / 2, 320),
+  );
+
+  await expect.poll(() => page.evaluate(() =>
+    document.activeElement?.getAttribute("name"),
+  )).toBe("studyapp-workspace-practice");
+
+  await page.mouse.wheel(0, 600);
+  await expect.poll(() => practiceFrame.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+});
+
 test("Workspace BETA Practice content uses readable content-sized columns", async ({ page }) => {
   await page.setViewportSize({ width: 2200, height: 900 });
   await page.goto("/#/workspace-beta");
