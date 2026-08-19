@@ -1,0 +1,35 @@
+/* Workspace BETA only: restore the AI Assistant avatar without covering copy. */
+.workspace-panel-embed-main .assistant-guide-hero {
+  grid-template-columns: minmax(0, 1fr) 3.25rem;
+  column-gap: 0.55rem;
+  align-items: start;
+}
+
+.workspace-panel-embed-main .assistant-guide-hero > div {
+  min-width: 0;
+}
+
+.workspace-panel-embed-main .assistant-guide-hero img {
+  display: block;
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  justify-self: end;
+  width: 3rem;
+  max-width: 3rem;
+  margin: 0;
+  border-width: 2px;
+  box-shadow: none;
+}
+
+@media (max-width: 360px) {
+  .workspace-panel-embed-main .assistant-guide-hero {
+    grid-template-columns: minmax(0, 1fr) 2.65rem;
+    column-gap: 0.4rem;
+  }
+
+  .workspace-panel-embed-main .assistant-guide-hero img {
+    width: 2.45rem;
+    max-width: 2.45rem;
+  }
+}

@@ -25,6 +25,7 @@ import "./styles/assistantComparison.css";
 import "./styles/assistantModes.css";
 import "./styles/language.css";
 import "./styles/workspaceBetaSecondaryInfo.css";
+import "./styles/workspaceBetaAvatar.css";
 
 if (!enforceSecureTransport()) {
   const updateServiceWorker = registerSW({
