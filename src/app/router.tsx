@@ -31,6 +31,10 @@ const e2eLocalWriteFailureInjector =
 
 export const router = createHashRouter([
   {
+    path: "/workspace-beta",
+    element: <WorkspaceBetaPage />,
+  },
+  {
     path: "/",
     element: <AppLayout />,
     children: [
@@ -82,7 +86,6 @@ export const router = createHashRouter([
       },
       { path: "progress", element: <ProgressPage /> },
       { path: "import", element: <ContentImportPage /> },
-      { path: "workspace-beta", element: <WorkspaceBetaPage /> },
       { path: "study-materials", element: <Navigate replace to="/library" /> },
       {
         path: "tools",
