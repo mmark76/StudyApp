@@ -14,7 +14,7 @@ export function LearnPage({ failureInjector }: LearnPageProps = {}) {
     {
       title: text("Flashcards", "Κάρτες"),
       description: text("Practise active recall.", "Εξασκήσου στην ενεργή ανάκληση."),
-      action: text("Open flashcards", "Άνοιγμα καρτών"),
+      action: text("Practice with flashcards", "Εξάσκηση με κάρτες"),
       actionClass: "button practice",
       to: "/flashcards",
     },
