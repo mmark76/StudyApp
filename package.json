@@ -16,7 +16,7 @@
     "benchmark:capacity": "playwright test --config=playwright.capacity.config.ts --grep @capacity-baseline"
   },
   "dependencies": {
-    "dexie": "4.4.4",
+    "dexie": "4.4.5",
     "dexie-react-hooks": "4.4.0",
     "pdf-lib": "1.17.1",
     "pdfjs-dist": "^6.2.108",
