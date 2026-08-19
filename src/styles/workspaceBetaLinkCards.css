@@ -149,6 +149,22 @@
   font-size: 0.78rem;
 }
 
+/* Keep per-item View / Rename / Remove controls on one horizontal row. */
+.workspace-panel-embed-main .practice-content-item .local-file-actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  width: auto;
+  gap: 0.36rem;
+}
+
+.workspace-panel-embed-main .practice-content-item .local-file-actions .button {
+  width: auto;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
 /* AI Studio: keep the same options while removing promotional-card weight. */
 .workspace-panel-embed-main .assistant-guide-hero {
   grid-template-columns: minmax(0, 1fr);
