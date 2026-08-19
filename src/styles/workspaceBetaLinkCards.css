@@ -1,0 +1,235 @@
+/*
+ * Workspace BETA only: present existing choices as compact link-style rows.
+ * No markup, routes, handlers, data, or behaviour are changed here.
+ */
+.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.34rem;
+}
+
+.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid > .learning-stage-card {
+  display: grid;
+  grid-template-columns: 1.25rem minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+  column-gap: 0.52rem;
+  row-gap: 0.08rem;
+  align-items: start;
+  min-height: 0;
+  padding: 0.56rem 0.64rem;
+  border: 1px solid #e5e4df;
+  border-radius: 0.38rem;
+  background: color-mix(in srgb, var(--surface) 96%, #ffffff);
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .stage-number {
+  grid-column: 1;
+  grid-row: 1 / 4;
+  width: 1.18rem;
+  height: 1.18rem;
+  margin-top: 0.02rem;
+  background: #f2f2ee;
+  color: #777770;
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid h3 {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.25;
+}
+
+.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid p {
+  grid-column: 2;
+  grid-row: 2;
+  margin: 0.08rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.38;
+}
+
+.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .button {
+  grid-column: 2;
+  grid-row: 3;
+  justify-self: start;
+  min-height: 0;
+  margin-top: 0.18rem;
+  padding: 0.12rem 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--navy-800);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: left;
+}
+
+.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .button::after,
+.workspace-panel-embed-main .dashboard-action-card .button::after,
+.workspace-panel-embed-main .assistant-guide-page .button::after {
+  content: "\2192";
+  margin-left: 0.32rem;
+  font-weight: 600;
+}
+
+.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .button:hover,
+.workspace-panel-embed-main .dashboard-action-card .button:hover,
+.workspace-panel-embed-main .assistant-guide-page .button:hover {
+  border: 0;
+  background: transparent;
+  color: var(--navy-900);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+/* Sources: two quiet navigation choices rather than dashboard cards. */
+.workspace-panel-embed-main .dashboard-action-grid {
+  gap: 0.36rem;
+}
+
+.workspace-panel-embed-main .dashboard-action-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 0.65rem;
+  row-gap: 0.12rem;
+  align-items: center;
+  min-height: 0;
+  padding: 0.62rem 0.68rem;
+  border: 1px solid #e5e4df;
+  border-radius: 0.38rem;
+  background: color-mix(in srgb, var(--surface) 96%, #ffffff);
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main .dashboard-action-card .eyebrow {
+  grid-column: 1 / -1;
+  margin: 0 0 0.05rem;
+  font-size: 0.58rem;
+}
+
+.workspace-panel-embed-main .dashboard-action-card h3 {
+  grid-column: 1;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.workspace-panel-embed-main .dashboard-action-card > p:not(.eyebrow) {
+  grid-column: 1;
+  margin: 0.08rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.38;
+}
+
+.workspace-panel-embed-main .dashboard-action-card .button {
+  grid-column: 2;
+  grid-row: 2 / 4;
+  align-self: center;
+  min-height: 0;
+  margin: 0;
+  padding: 0.14rem 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--navy-800);
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Practice guidance should inform, not dominate the working surface. */
+.workspace-panel-embed-main .practice-import-order {
+  padding: 0.5rem 0.62rem;
+  border-left: 2px solid #d4cfc3;
+  border-radius: 0.3rem;
+  background: #faf9f5;
+  color: var(--slate-700);
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.workspace-panel-embed-main .practice-content-add-import-note {
+  padding: 0.5rem 0.62rem;
+  background: #f7f7f4;
+  font-size: 0.78rem;
+}
+
+/* AI Studio: keep the same options while removing promotional-card weight. */
+.workspace-panel-embed-main .assistant-guide-hero {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: 0.64rem 0.68rem;
+}
+
+.workspace-panel-embed-main .assistant-guide-hero img {
+  display: none;
+}
+
+.workspace-panel-embed-main .assistant-guide-hero h2 {
+  margin: 0.08rem 0 0.18rem;
+  font-size: 0.96rem;
+}
+
+.workspace-panel-embed-main .assistant-guide-hero > div > p:not(.eyebrow) {
+  font-size: 0.75rem;
+  line-height: 1.38;
+}
+
+.workspace-panel-embed-main .assistant-guide-page .button-row {
+  gap: 0.7rem;
+  margin-top: 0.34rem;
+}
+
+.workspace-panel-embed-main .assistant-guide-page .button {
+  min-height: 0;
+  padding: 0.12rem 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--navy-800);
+  font-size: 0.71rem;
+  font-weight: 700;
+}
+
+.workspace-panel-embed-main .assistant-guide-grid {
+  gap: 0.34rem;
+}
+
+.workspace-panel-embed-main .assistant-guide-card {
+  padding: 0.58rem 0.66rem;
+  border-radius: 0.38rem;
+  border-color: #e5e4df;
+}
+
+.workspace-panel-embed-main .assistant-guide-card h3 {
+  margin: 0.08rem 0 0.18rem;
+  font-size: 0.88rem;
+}
+
+.workspace-panel-embed-main .assistant-guide-card > p:not(.eyebrow) {
+  margin-bottom: 0.28rem;
+  font-size: 0.74rem;
+  line-height: 1.38;
+}
+
+.workspace-panel-embed-main .assistant-guide-note {
+  padding: 0.55rem 0.64rem;
+  border-color: #e1e0db;
+  background: #fafaf8;
+}
+
+@media (max-width: 560px) {
+  .workspace-panel-embed-main .dashboard-action-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .workspace-panel-embed-main .dashboard-action-card .button {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+    margin-top: 0.12rem;
+  }
+}
