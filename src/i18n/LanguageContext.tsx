@@ -47,6 +47,18 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
   }, [language]);
 
+  useEffect(() => {
+    function handleStorage(event: StorageEvent) {
+      if (event.key !== LANGUAGE_STORAGE_KEY) return;
+      if (event.newValue === "en" || event.newValue === "el") {
+        setLanguage(event.newValue);
+      }
+    }
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
   const value = useMemo<LanguageContextValue>(
     () => ({
       language,
