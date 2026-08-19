@@ -15,6 +15,9 @@ jobs:
   checks:
     name: Typecheck, test, and build
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --user 1001
 
     steps:
       - name: Checkout
@@ -34,10 +37,6 @@ jobs:
 
       - name: Test
         run: npm test
-
-      - name: Install Playwright Chromium
-        timeout-minutes: 10
-        run: npx playwright install --with-deps chromium
 
       - name: End-to-end test
         run: npm run test:e2e
