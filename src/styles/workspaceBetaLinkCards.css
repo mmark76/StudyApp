@@ -279,3 +279,216 @@
     margin-top: 0.12rem;
   }
 }
+
+/*
+ * AI comparison is a narrow workspace surface, not a standalone desktop page.
+ * Keep the existing semantic table and links, but make the presentation compact
+ * and remove the 980px minimum that causes horizontal clipping in the AI panel.
+ */
+.workspace-panel-embed-main .assistant-comparison-page {
+  max-width: none;
+}
+
+.workspace-panel-embed-main .assistant-comparison-page.stack-lg > * + * {
+  margin-top: 0.55rem;
+}
+
+.workspace-panel-embed-main .assistant-comparison-hero {
+  padding: 0.62rem 0.68rem;
+  border: 1px solid #e2e1dc;
+  border-radius: 0.42rem;
+  background: color-mix(in srgb, var(--surface) 96%, #ffffff);
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main .assistant-comparison-hero .eyebrow {
+  margin-bottom: 0.2rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+}
+
+.workspace-panel-embed-main .assistant-comparison-hero h2 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.workspace-panel-embed-main .assistant-comparison-hero p:not(.eyebrow) {
+  max-width: none;
+  margin: 0.28rem 0 0;
+  font-size: 0.74rem;
+  line-height: 1.42;
+}
+
+.workspace-panel-embed-main .assistant-comparison-hero .button-row {
+  margin-top: 0.34rem;
+}
+
+.workspace-panel-embed-main .assistant-comparison-hero .button {
+  min-height: 0;
+  padding: 0.12rem 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--navy-800);
+  box-shadow: none;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.workspace-panel-embed-main .assistant-comparison-hero .button:hover {
+  border: 0;
+  background: transparent;
+  color: var(--navy-900);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.workspace-panel-embed-main .assistant-comparison-table-wrap {
+  max-width: 100%;
+  border: 1px solid #e2e1dc;
+  border-radius: 0.42rem;
+  box-shadow: none;
+  overflow-x: hidden;
+}
+
+.workspace-panel-embed-main .assistant-comparison-table {
+  min-width: 0;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.workspace-panel-embed-main .assistant-comparison-table th,
+.workspace-panel-embed-main .assistant-comparison-table td {
+  min-width: 0;
+  padding: 0.46rem 0.5rem;
+  font-size: 0.7rem;
+  line-height: 1.36;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.workspace-panel-embed-main .assistant-comparison-table thead th {
+  min-width: 0;
+  background: #faf9f5;
+  font-size: 0.68rem;
+}
+
+.workspace-panel-embed-main .assistant-comparison-table thead th:first-child {
+  width: 18%;
+  min-width: 0;
+}
+
+.workspace-panel-embed-main .assistant-comparison-table tbody th {
+  width: 18%;
+  font-size: 0.7rem;
+}
+
+.workspace-panel-embed-main .assistant-comparison-table thead strong {
+  margin-top: 0.2rem;
+  font-size: 0.7rem;
+  line-height: 1.3;
+}
+
+.workspace-panel-embed-main .assistant-comparison-status {
+  padding: 0.13rem 0.32rem;
+  font-size: 0.54rem;
+  letter-spacing: 0.025em;
+}
+
+.workspace-panel-embed-main .assistant-comparison-note {
+  margin-top: 0;
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 620px) {
+  .workspace-panel-embed-main .assistant-comparison-table {
+    display: block;
+    table-layout: auto;
+  }
+
+  .workspace-panel-embed-main .assistant-comparison-table thead,
+  .workspace-panel-embed-main .assistant-comparison-table tbody {
+    display: block;
+  }
+
+  .workspace-panel-embed-main .assistant-comparison-table thead {
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid #e2e1dc;
+    background: #faf9f5;
+  }
+
+  .workspace-panel-embed-main .assistant-comparison-table thead tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.2rem;
+  }
+
+  .workspace-panel-embed-main .assistant-comparison-table thead th {
+    display: flex;
+    width: auto;
+    min-width: 0;
+    align-items: center;
+    gap: 0.38rem;
+    padding: 0.12rem 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .workspace-panel-embed-main .assistant-comparison-table thead th:first-child {
+    display: none;
+  }
+
+  .workspace-panel-embed-main .assistant-comparison-table thead strong {
+    display: inline;
+    margin: 0;
+  }
+
+  .workspace-panel-embed-main .assistant-comparison-table tbody tr {
+    display: block;
+    padding: 0.46rem 0.52rem;
+    border-bottom: 1px solid #e7e6e1;
+  }
+
+  .workspace-panel-embed-main .assistant-comparison-table tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  .workspace-panel-embed-main .assistant-comparison-table tbody th {
+    display: block;
+    width: auto;
+    padding: 0 0 0.28rem;
+    border: 0;
+    font-size: 0.73rem;
+    font-weight: 750;
+  }
+
+  .workspace-panel-embed-main .assistant-comparison-table tbody td {
+    display: grid;
+    grid-template-columns: minmax(6.8rem, 0.42fr) minmax(0, 1fr);
+    gap: 0.42rem;
+    width: auto;
+    padding: 0.2rem 0;
+    border: 0;
+    font-size: 0.69rem;
+  }
+
+  .workspace-panel-embed-main .assistant-comparison-table tbody td::before {
+    color: var(--slate-600);
+    font-size: 0.64rem;
+    font-weight: 700;
+  }
+
+  .workspace-panel-embed-main .assistant-comparison-table tbody td:nth-of-type(1)::before {
+    content: "Custom GPT";
+  }
+
+  .workspace-panel-embed-main .assistant-comparison-table tbody td:nth-of-type(2)::before {
+    content: "ChatGPT App / MCP";
+  }
+
+  .workspace-panel-embed-main .assistant-comparison-table tbody td:nth-of-type(3)::before {
+    content: "StudyApp AI";
+  }
+}
