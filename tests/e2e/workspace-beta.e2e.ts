@@ -36,6 +36,28 @@ test("Workspace BETA keeps three independent functional StudyApp panels", async 
   await expect(assistantLink).toHaveAttribute("href", /^https:\/\/chatgpt\.com\//u);
 });
 
+test("Workspace BETA keeps legal, feedback and version information in the Info menu", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/#/workspace-beta");
+
+  const infoMenu = page.locator(".workspace-beta-info-menu");
+  await infoMenu.locator("summary").click();
+
+  await expect(page.locator(".workspace-beta-info-popover")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Important Info" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Feedback" })).toHaveAttribute("href", /^mailto:/u);
+  await expect(page.getByRole("link", { name: "Back to markellosecosystem" })).toHaveAttribute(
+    "target",
+    "_blank",
+  );
+  await expect(page.getByRole("link", { name: "License" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Privacy" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Analytics choices" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Copyright protected" })).toBeVisible();
+  await expect(page.getByText("© 2026 Markellos Markides. All rights reserved.")).toBeVisible();
+  await expect(page.locator(".workspace-beta-info-version")).toContainText(/^v/u);
+});
+
 test("Workspace BETA desktop dividers resize adjacent panels and can reset", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/#/workspace-beta");
