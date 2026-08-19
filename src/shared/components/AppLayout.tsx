@@ -62,6 +62,10 @@ function isActiveMainArea(pathname: string, matches: readonly string[]): boolean
   return matches.some((match) => pathname === match || (match !== "/" && pathname.startsWith(`${match}/`)));
 }
 
+function isWorkspacePanelFrame(): boolean {
+  return typeof window !== "undefined" && window.name.startsWith("studyapp-workspace-");
+}
+
 export function AppLayout() {
   useAppearanceSettings();
   const location = useLocation();
@@ -71,6 +75,7 @@ export function AppLayout() {
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
   const hasHandledInitialRouteRef = useRef(false);
+  const embeddedInWorkspace = isWorkspacePanelFrame();
 
   function focusMainContent() {
     mainRef.current?.focus();
@@ -107,6 +112,21 @@ export function AppLayout() {
     : internetStatus === "offline"
       ? "assistant-service-dot-unavailable"
       : "assistant-service-dot-checking";
+
+  if (embeddedInWorkspace) {
+    return (
+      <div className="workspace-panel-embed-shell">
+        <main
+          className="workspace-panel-embed-main"
+          id="main-content"
+          ref={mainRef}
+          tabIndex={-1}
+        >
+          <Outlet />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="app-shell">
