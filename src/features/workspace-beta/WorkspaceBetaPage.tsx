@@ -11,6 +11,7 @@ import { useLanguage } from "../../i18n/LanguageContext";
 import { LanguageSwitcher } from "../../shared/components/LanguageSwitcher";
 import { getStudyAppAssistantUrl } from "../assistant/assistantDestination";
 import { useAppearanceSettings } from "../appearance/useAppearanceSettings";
+import "../../styles/workspaceBetaInfo.css";
 
 type WorkspacePanelId = "sources" | "practice" | "ai";
 type WorkspaceDivider = 0 | 1;
@@ -216,6 +217,41 @@ export function WorkspaceBetaPage() {
         <div className="workspace-beta-header-actions">
           <LanguageSwitcher />
           <Link to="/appearance">{text("Settings", "Ρυθμίσεις")}</Link>
+          <details className="workspace-beta-info-menu">
+            <summary>{text("Info", "Πληροφορίες")}</summary>
+            <div className="workspace-beta-info-popover">
+              <nav aria-label={text("Workspace information", "Πληροφορίες χώρου εργασίας")}>
+                <Link rel="noopener noreferrer" target="_blank" to="/important-info">
+                  {text("Important Info", "Σημαντικές πληροφορίες")}
+                </Link>
+                <a href="mailto:markellos.markides@gmail.com?subject=StudyApp%20Feedback">
+                  {text("Feedback", "Σχόλια")}
+                </a>
+                <a href="https://markellosecosystem.com/" rel="noopener noreferrer" target="_blank">
+                  {text("Back to markellosecosystem", "Πίσω στο markellosecosystem")}
+                </a>
+                <span className="workspace-beta-info-separator" aria-hidden="true" />
+                <Link rel="noopener noreferrer" target="_blank" to="/legal/license">
+                  {text("License", "Άδεια")}
+                </Link>
+                <Link rel="noopener noreferrer" target="_blank" to="/legal/privacy">
+                  {text("Privacy", "Απόρρητο")}
+                </Link>
+                <Link rel="noopener noreferrer" target="_blank" to="/legal/analytics">
+                  {text("Analytics choices", "Αναλυτικά στοιχεία")}
+                </Link>
+                <Link rel="noopener noreferrer" target="_blank" to="/legal/copyright">
+                  {text("Copyright protected", "Πνευματικά δικαιώματα")}
+                </Link>
+              </nav>
+              <div className="workspace-beta-info-meta">
+                <p>
+                  © 2026 Markellos Markides. {text("All rights reserved.", "Με επιφύλαξη παντός δικαιώματος.")}
+                </p>
+                <small className="workspace-beta-info-version">{__APP_BUILD_ID__}</small>
+              </div>
+            </div>
+          </details>
           <Link className="workspace-beta-exit" to="/">{text("Exit", "Έξοδος")}</Link>
         </div>
       </header>
