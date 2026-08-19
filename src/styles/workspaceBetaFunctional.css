@@ -213,6 +213,42 @@
   min-width: 0;
 }
 
+/*
+ * Workspace panels are independent iframe viewports. These rules therefore
+ * respond to the actual resized panel width rather than the outer browser.
+ */
+@media (max-width: 860px) {
+  .workspace-panel-embed-main .practice-content-options,
+  .workspace-panel-embed-main .practice-content-lists,
+  .workspace-panel-embed-main .material-option-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-panel-embed-main .practice-content-option {
+    height: auto;
+  }
+
+  .workspace-panel-embed-main .local-file-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .workspace-panel-embed-main .local-file-actions {
+    width: 100%;
+  }
+
+  .workspace-panel-embed-main .local-file-actions .button {
+    min-width: 0;
+    flex: 1 1 0;
+  }
+
+  .workspace-panel-embed-main .local-file-row strong,
+  .workspace-panel-embed-main .local-file-row span {
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+}
+
 @media (max-width: 1180px) {
   .workspace-beta-functional-grid {
     grid-template-columns: minmax(340px, 34vw) minmax(500px, 48vw) minmax(360px, 36vw);
