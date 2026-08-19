@@ -49,7 +49,7 @@ export function HomePage() {
       ),
       actions: [
         {
-          label: text("Open Library", "Άνοιγμα Βιβλιοθήκης"),
+          label: text("Library", "Βιβλιοθήκη"),
           className: "button primary",
           to: "/library",
         },
@@ -92,7 +92,7 @@ export function HomePage() {
       ),
       actions: [
         {
-          label: text("Open AI options", "Άνοιγμα επιλογών AI"),
+          label: text("AI options", "Επιλογές AI"),
           className: "button assistant",
           to: "/ai-assistant-guide",
         },
@@ -200,7 +200,7 @@ export function HomePage() {
               "Διαχώρισε μεγάλα PDF τοπικά όταν χρειάζεσαι μικρότερα αρχεία μελέτης.",
             )}</p>
             <Link className="button utility" to="/tools#split-pdf">
-              {text("Open tool", "Άνοιγμα εργαλείου")}
+              {text("Split PDF Tool", "Διαχωρισμός PDF")}
             </Link>
           </article>
 
@@ -212,7 +212,7 @@ export function HomePage() {
               onClick={() => setIsGuideOpen(true)}
               type="button"
             >
-              {text("Open guide", "Άνοιγμα οδηγού")}
+              {text("Guide", "Οδηγός")}
             </button>
           </article>
 
@@ -223,7 +223,7 @@ export function HomePage() {
               "Απόρρητο, αντίγραφα ασφαλείας, περιορισμοί και άλλες σημαντικές πληροφορίες του StudyApp.",
             )}</p>
             <Link className="button secondary" to="/important-info">
-              {text("Open information", "Άνοιγμα πληροφοριών")}
+              {text("Important Info", "Σημαντικές πληροφορίες")}
             </Link>
           </article>
         </div>
