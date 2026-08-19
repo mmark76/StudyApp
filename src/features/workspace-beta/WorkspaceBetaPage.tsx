@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useRef,
   useState,
   type CSSProperties,
@@ -16,6 +17,7 @@ import "../../styles/workspaceBetaInfo.css";
 type WorkspacePanelId = "sources" | "practice" | "ai";
 type WorkspaceDivider = 0 | 1;
 type PanelWidths = [number, number, number];
+type WorkspaceInfoRoute = "/ai-assistant-comparison" | "/instructions" | "/important-info";
 
 interface ResizeDragState {
   divider: WorkspaceDivider;
@@ -30,12 +32,34 @@ const panelRoutes: Record<WorkspacePanelId, string> = {
   ai: "/#/ai-assistant-guide",
 };
 
+const workspaceInfoRoutes = new Set<WorkspaceInfoRoute>([
+  "/ai-assistant-comparison",
+  "/instructions",
+  "/important-info",
+]);
 const defaultPanelWeights: PanelWidths = [0.82, 1.38, 0.92];
 const minimumPanelWidths: PanelWidths = [260, 400, 280];
 const keyboardResizeStep = 32;
 
 function clamp(value: number, minimum: number, maximum: number): number {
   return Math.min(Math.max(value, minimum), maximum);
+}
+
+function getWorkspaceHashPath(href: string): string | null {
+  try {
+    const url = new URL(href, window.location.href);
+    if (!url.hash.startsWith("#/")) return null;
+    return url.hash.slice(1).split(/[?#]/u)[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function getWorkspaceInfoRoute(href: string): WorkspaceInfoRoute | null {
+  const path = getWorkspaceHashPath(href);
+  return path && workspaceInfoRoutes.has(path as WorkspaceInfoRoute)
+    ? path as WorkspaceInfoRoute
+    : null;
 }
 
 function resizeAdjacentPanels(
@@ -78,9 +102,30 @@ export function WorkspaceBetaPage() {
   });
   const [panelWeights, setPanelWeights] = useState<PanelWidths | null>(null);
   const [activeDivider, setActiveDivider] = useState<WorkspaceDivider | null>(null);
+  const [infoModalRoute, setInfoModalRoute] = useState<WorkspaceInfoRoute | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const resizeDragRef = useRef<ResizeDragState | null>(null);
+  const modalReturnFocusRef = useRef<HTMLElement | null>(null);
+  const modalCloseButtonRef = useRef<HTMLButtonElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
   const assistantUrl = getStudyAppAssistantUrl();
+
+  useEffect(() => {
+    const modalOpen = infoModalRoute !== null;
+    if (headerRef.current) headerRef.current.inert = modalOpen;
+    if (mainRef.current) mainRef.current.inert = modalOpen;
+    if (!modalOpen) return undefined;
+
+    modalCloseButtonRef.current?.focus();
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      closeInfoModal();
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [infoModalRoute]);
 
   const gridStyle = panelWeights
     ? ({
@@ -95,6 +140,109 @@ export function WorkspaceBetaPage() {
       ...current,
       [panel]: current[panel] + 1,
     }));
+  }
+
+  function openInfoModal(route: WorkspaceInfoRoute) {
+    modalReturnFocusRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    setInfoModalRoute(route);
+  }
+
+  function closeInfoModal(focusPanel?: WorkspacePanelId) {
+    setInfoModalRoute(null);
+    window.requestAnimationFrame(() => {
+      if (focusPanel) {
+        document.querySelector<HTMLIFrameElement>(
+          `iframe[name="studyapp-workspace-${focusPanel}"]`,
+        )?.focus();
+      } else {
+        modalReturnFocusRef.current?.focus();
+      }
+      modalReturnFocusRef.current = null;
+    });
+  }
+
+  function wirePanelInfoLinks(frame: HTMLIFrameElement) {
+    try {
+      const frameDocument = frame.contentDocument;
+      if (!frameDocument || frameDocument.documentElement.dataset.workspaceInfoModalWired === "true") {
+        return;
+      }
+
+      frameDocument.documentElement.dataset.workspaceInfoModalWired = "true";
+      frameDocument.addEventListener("click", (event) => {
+        const mouseEvent = event as MouseEvent;
+        if (
+          mouseEvent.button !== 0
+          || mouseEvent.metaKey
+          || mouseEvent.ctrlKey
+          || mouseEvent.shiftKey
+          || mouseEvent.altKey
+        ) {
+          return;
+        }
+
+        const target = event.target as Element | null;
+        const anchor = target?.closest?.("a[href]") as HTMLAnchorElement | null;
+        if (!anchor) return;
+        const route = getWorkspaceInfoRoute(anchor.href);
+        if (!route) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        openInfoModal(route);
+      }, true);
+    } catch {
+      // Workspace panels are same-origin; fail open if access is blocked.
+    }
+  }
+
+  function wireModalFrame(frame: HTMLIFrameElement) {
+    try {
+      const frameDocument = frame.contentDocument;
+      if (!frameDocument || frameDocument.documentElement.dataset.workspaceInfoModalFrameWired === "true") {
+        return;
+      }
+
+      frameDocument.documentElement.dataset.workspaceInfoModalFrameWired = "true";
+      frameDocument.addEventListener("keydown", (event) => {
+        if ((event as KeyboardEvent).key !== "Escape") return;
+        event.preventDefault();
+        closeInfoModal();
+      }, true);
+      frameDocument.addEventListener("click", (event) => {
+        const mouseEvent = event as MouseEvent;
+        if (
+          mouseEvent.button !== 0
+          || mouseEvent.metaKey
+          || mouseEvent.ctrlKey
+          || mouseEvent.shiftKey
+          || mouseEvent.altKey
+        ) {
+          return;
+        }
+
+        const target = event.target as Element | null;
+        const anchor = target?.closest?.("a[href]") as HTMLAnchorElement | null;
+        if (!anchor) return;
+        const route = getWorkspaceHashPath(anchor.href);
+        const focusPanel: WorkspacePanelId | null = route === "/sources"
+          ? "sources"
+          : route === "/learn"
+            ? "practice"
+            : route === "/ai-assistant-guide"
+              ? "ai"
+              : null;
+        if (!focusPanel && route !== "/") return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        closeInfoModal(focusPanel ?? undefined);
+      }, true);
+    } catch {
+      // The modal uses same-origin StudyApp routes; fail open if access is blocked.
+    }
   }
 
   function resetPanelWidths() {
@@ -196,6 +344,13 @@ export function WorkspaceBetaPage() {
     "Drag to resize. Use Left/Right arrow keys. Double-click to reset.",
     "Σύρε για αλλαγή πλάτους. Χρησιμοποίησε τα βέλη Αριστερά/Δεξιά. Διπλό κλικ για επαναφορά.",
   );
+  const infoModalTitle = infoModalRoute === "/ai-assistant-comparison"
+    ? text("Compare AI options", "Σύγκριση επιλογών AI")
+    : infoModalRoute === "/instructions"
+      ? text("StudyApp instructions", "Οδηγίες StudyApp")
+      : infoModalRoute === "/important-info"
+        ? text("Important Info", "Σημαντικές πληροφορίες")
+        : "";
 
   return (
     <div
@@ -205,7 +360,7 @@ export function WorkspaceBetaPage() {
         {text("Skip to workspace", "Μετάβαση στον χώρο εργασίας")}
       </a>
 
-      <header className="workspace-beta-header">
+      <header className="workspace-beta-header" ref={headerRef}>
         <div className="workspace-beta-brand">
           <strong>{studyConfig.appName}</strong>
           <span className="workspace-beta-badge">BETA</span>
@@ -218,7 +373,14 @@ export function WorkspaceBetaPage() {
             <summary>{text("Info", "Πληροφορίες")}</summary>
             <div className="workspace-beta-info-popover">
               <nav aria-label={text("Workspace information", "Πληροφορίες χώρου εργασίας")}>
-                <Link rel="noopener noreferrer" target="_blank" to="/important-info">
+                <Link
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.currentTarget.closest("details")?.removeAttribute("open");
+                    openInfoModal("/important-info");
+                  }}
+                  to="/important-info"
+                >
                   {text("Important Info", "Σημαντικές πληροφορίες")}
                 </Link>
                 <a href="mailto:markellos.markides@gmail.com?subject=StudyApp%20Feedback">
@@ -253,7 +415,7 @@ export function WorkspaceBetaPage() {
         </div>
       </header>
 
-      <main className="workspace-beta-main" id="workspace-beta-main">
+      <main className="workspace-beta-main" id="workspace-beta-main" ref={mainRef}>
         <div
           className="workspace-beta-grid workspace-beta-functional-grid"
           aria-label={text("Workspace panels", "Πάνελ χώρου εργασίας")}
@@ -281,6 +443,7 @@ export function WorkspaceBetaPage() {
                 key={`sources-${frameVersions.sources}`}
                 className="workspace-beta-frame"
                 name="studyapp-workspace-sources"
+                onLoad={(event) => wirePanelInfoLinks(event.currentTarget)}
                 src={panelRoutes.sources}
                 title={text("Functional Sources panel", "Λειτουργικό πάνελ Πηγών")}
               />
@@ -327,6 +490,7 @@ export function WorkspaceBetaPage() {
                 key={`practice-${frameVersions.practice}`}
                 className="workspace-beta-frame"
                 name="studyapp-workspace-practice"
+                onLoad={(event) => wirePanelInfoLinks(event.currentTarget)}
                 src={panelRoutes.practice}
                 title={text("Functional Practice panel", "Λειτουργικό πάνελ Εξάσκησης")}
               />
@@ -384,6 +548,7 @@ export function WorkspaceBetaPage() {
                 key={`ai-${frameVersions.ai}`}
                 className="workspace-beta-frame"
                 name="studyapp-workspace-ai"
+                onLoad={(event) => wirePanelInfoLinks(event.currentTarget)}
                 src={panelRoutes.ai}
                 title={text("Functional AI Studio panel", "Λειτουργικό πάνελ AI Studio")}
               />
@@ -391,6 +556,44 @@ export function WorkspaceBetaPage() {
           </section>
         </div>
       </main>
+
+      {infoModalRoute ? (
+        <div
+          className="workspace-beta-info-modal-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closeInfoModal();
+          }}
+        >
+          <section
+            aria-labelledby="workspace-beta-info-modal-title"
+            aria-modal="true"
+            className="workspace-beta-info-modal"
+            role="dialog"
+          >
+            <header className="workspace-beta-info-modal-header">
+              <div>
+                <p>{text("Information", "Πληροφορίες")}</p>
+                <h2 id="workspace-beta-info-modal-title">{infoModalTitle}</h2>
+              </div>
+              <button
+                aria-label={text("Close", "Κλείσιμο")}
+                onClick={() => closeInfoModal()}
+                ref={modalCloseButtonRef}
+                type="button"
+              >
+                {text("Close", "Κλείσιμο")}
+              </button>
+            </header>
+            <iframe
+              className="workspace-beta-info-modal-frame"
+              name="studyapp-workspace-info-modal"
+              onLoad={(event) => wireModalFrame(event.currentTarget)}
+              src={`/#${infoModalRoute}`}
+              title={infoModalTitle}
+            />
+          </section>
+        </div>
+      ) : null}
     </div>
   );
 }
