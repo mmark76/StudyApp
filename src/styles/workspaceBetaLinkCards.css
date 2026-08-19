@@ -67,14 +67,6 @@
   text-align: left;
 }
 
-.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .button::after,
-.workspace-panel-embed-main .dashboard-action-card .button::after,
-.workspace-panel-embed-main .assistant-guide-page .button::after {
-  content: "\2192";
-  margin-left: 0.32rem;
-  font-weight: 600;
-}
-
 .workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .button:hover,
 .workspace-panel-embed-main .dashboard-action-card .button:hover,
 .workspace-panel-embed-main .assistant-guide-page .button:hover {
