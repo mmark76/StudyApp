@@ -19,7 +19,7 @@ test("Workspace BETA keeps three independent functional StudyApp panels", async 
 
   await expect(sources.getByRole("heading", { name: "Sources" })).toBeVisible();
   await expect(practice.getByRole("heading", { name: "Learn" })).toBeVisible();
-  await expect(ai.getByRole("heading", { name: "AI Assistant" })).toBeVisible();
+  await expect(ai.getByRole("heading", { name: "AI Assistant", exact: true })).toBeVisible();
 
   await expect(sources.locator(".app-header")).toHaveCount(0);
   await expect(sources.locator(".app-footer")).toHaveCount(0);
