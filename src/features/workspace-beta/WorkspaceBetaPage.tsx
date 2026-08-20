@@ -12,6 +12,7 @@ import { useLanguage } from "../../i18n/LanguageContext";
 import { LanguageSwitcher } from "../../shared/components/LanguageSwitcher";
 import { getStudyAppAssistantUrl } from "../assistant/assistantDestination";
 import { useAppearanceSettings } from "../appearance/useAppearanceSettings";
+import { WorkspaceThemeToggle } from "./WorkspaceThemeToggle";
 import "../../styles/workspaceBetaInfo.css";
 
 type WorkspacePanelId = "sources" | "practice" | "ai";
@@ -374,6 +375,7 @@ export function WorkspaceBetaPage() {
         </div>
         <div className="workspace-beta-header-actions">
           <LanguageSwitcher />
+          <WorkspaceThemeToggle />
           <Link
             onClick={(event) => {
               event.preventDefault();
@@ -447,7 +449,7 @@ export function WorkspaceBetaPage() {
               </div>
               <div className="workspace-beta-panel-tools">
                 <button onClick={() => resetPanel("sources")} type="button">
-                  {text("Go to Sources", "Μετάβαση στις Πηγές")}
+                  {text("Go to Sources home", "Μετάβαση στην αρχική Πηγών")}
                 </button>
               </div>
             </div>
@@ -493,7 +495,7 @@ export function WorkspaceBetaPage() {
               </div>
               <div className="workspace-beta-panel-tools">
                 <button onClick={() => resetPanel("practice")} type="button">
-                  {text("Go to Practice", "Μετάβαση στην Εξάσκηση")}
+                  {text("Go to Practice home", "Μετάβαση στην αρχική Εξάσκησης")}
                 </button>
               </div>
             </div>
