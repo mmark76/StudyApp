@@ -1,18 +1,9 @@
 const workspaceFrameNamePrefix = "studyapp-workspace-";
-const workspaceFrameSelector = `iframe.workspace-beta-frame[name^="${workspaceFrameNamePrefix}"]`;
 
 function isWorkspaceFrameWindow(): boolean {
   return typeof window !== "undefined"
     && window.parent !== window
     && window.name.startsWith(workspaceFrameNamePrefix);
-}
-
-function focusWorkspaceFrameElement(target: EventTarget | null): void {
-  if (!(target instanceof HTMLIFrameElement)) return;
-  if (!target.matches(workspaceFrameSelector)) return;
-
-  target.focus({ preventScroll: true });
-  target.contentWindow?.focus();
 }
 
 function focusCurrentWorkspaceFrame(): void {
@@ -113,20 +104,11 @@ function releasePointerDividerFocus(): void {
 
 if (typeof document !== "undefined") {
   if (isWorkspaceFrameWindow()) {
-    document.addEventListener("pointerenter", focusCurrentWorkspaceFrame, true);
-    document.addEventListener("pointermove", focusCurrentWorkspaceFrame, {
-      capture: true,
-      passive: true,
-    });
     document.addEventListener("wheel", handleWorkspaceFrameWheel, {
       capture: true,
       passive: false,
     });
   } else {
-    document.addEventListener("pointerover", (event) => {
-      focusWorkspaceFrameElement(event.target);
-    }, true);
-
     document.addEventListener("pointerup", releasePointerDividerFocus, true);
     document.addEventListener("pointercancel", releasePointerDividerFocus, true);
   }

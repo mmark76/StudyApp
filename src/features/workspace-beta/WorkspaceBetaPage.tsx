@@ -42,6 +42,22 @@ const workspaceInfoRoutes = new Set<WorkspaceInfoRoute>([
 const defaultPanelWeights: PanelWidths = [0.82, 1.38, 0.92];
 const minimumPanelWidths: PanelWidths = [260, 400, 280];
 const keyboardResizeStep = 32;
+const focusableSelector = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled]):not([type='hidden'])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  "[tabindex]:not([tabindex='-1'])",
+].join(",");
+
+function getFocusableElements(document: Document): HTMLElement[] {
+  return [...document.querySelectorAll<HTMLElement>(focusableSelector)].filter((element) => (
+    element.getClientRects().length > 0
+    && element.getAttribute("aria-hidden") !== "true"
+    && !element.closest("[inert]")
+  ));
+}
 
 function clamp(value: number, minimum: number, maximum: number): number {
   return Math.min(Math.max(value, minimum), maximum);
@@ -109,15 +125,41 @@ export function WorkspaceBetaPage() {
   const resizeDragRef = useRef<ResizeDragState | null>(null);
   const modalReturnFocusRef = useRef<HTMLElement | null>(null);
   const modalCloseButtonRef = useRef<HTMLButtonElement>(null);
+  const modalFrameRef = useRef<HTMLIFrameElement>(null);
+  const modalRef = useRef<HTMLElement>(null);
+  const shellRef = useRef<HTMLDivElement>(null);
+  const skipLinkRef = useRef<HTMLAnchorElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const mainRef = useRef<HTMLElement>(null);
   const assistantUrl = getStudyAppAssistantUrl();
 
   useEffect(() => {
-    const modalOpen = infoModalRoute !== null;
-    if (headerRef.current) headerRef.current.inert = modalOpen;
-    if (mainRef.current) mainRef.current.inert = modalOpen;
-    if (!modalOpen) return undefined;
+    if (infoModalRoute === null) return undefined;
+
+    const inertStates = new Map<HTMLElement, boolean>();
+    const makeInert = (element: HTMLElement | null) => {
+      if (!element || inertStates.has(element)) return;
+      inertStates.set(element, element.inert);
+      element.inert = true;
+    };
+    makeInert(skipLinkRef.current);
+    makeInert(headerRef.current);
+    makeInert(mainRef.current);
+
+    const workspaceShell = shellRef.current;
+    const workspaceHost = workspaceShell?.parentElement ?? null;
+    const inertOutsideWorkspace = (node: Node) => {
+      if (node instanceof HTMLElement && node !== workspaceShell) makeInert(node);
+    };
+    workspaceHost?.childNodes.forEach(inertOutsideWorkspace);
+    const workspaceHostObserver = workspaceHost
+      ? new MutationObserver((records) => {
+          records.forEach((record) => record.addedNodes.forEach(inertOutsideWorkspace));
+        })
+      : null;
+    if (workspaceHost && workspaceHostObserver) {
+      workspaceHostObserver.observe(workspaceHost, { childList: true });
+    }
 
     modalCloseButtonRef.current?.focus();
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -125,8 +167,22 @@ export function WorkspaceBetaPage() {
       event.preventDefault();
       closeInfoModal();
     };
+    const keepFocusInModal = (event: FocusEvent) => {
+      const target = event.target;
+      if (target instanceof Node && !modalRef.current?.contains(target)) {
+        modalCloseButtonRef.current?.focus();
+      }
+    };
     window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
+    document.addEventListener("focusin", keepFocusInModal);
+    return () => {
+      window.removeEventListener("keydown", closeOnEscape);
+      document.removeEventListener("focusin", keepFocusInModal);
+      workspaceHostObserver?.disconnect();
+      inertStates.forEach((wasInert, element) => {
+        element.inert = wasInert;
+      });
+    };
   }, [infoModalRoute]);
 
   const gridStyle = panelWeights
@@ -144,10 +200,9 @@ export function WorkspaceBetaPage() {
     }));
   }
 
-  function openInfoModal(route: WorkspaceInfoRoute) {
-    modalReturnFocusRef.current = document.activeElement instanceof HTMLElement
-      ? document.activeElement
-      : null;
+  function openInfoModal(route: WorkspaceInfoRoute, returnFocusTarget?: HTMLElement) {
+    modalReturnFocusRef.current = returnFocusTarget
+      ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
     setInfoModalRoute(route);
   }
 
@@ -159,10 +214,49 @@ export function WorkspaceBetaPage() {
           `iframe[name="studyapp-workspace-${focusPanel}"]`,
         )?.focus();
       } else {
-        modalReturnFocusRef.current?.focus();
+        const returnFocusTarget = modalReturnFocusRef.current;
+        if (returnFocusTarget?.isConnected) {
+          const details = returnFocusTarget.closest("details");
+          if (details instanceof HTMLDetailsElement) details.open = true;
+          returnFocusTarget.focus();
+        }
       }
       modalReturnFocusRef.current = null;
     });
+  }
+
+  function focusModalFrameEdge(edge: "first" | "last") {
+    const frame = modalFrameRef.current;
+    if (!frame) return;
+    try {
+      const focusableElements = frame.contentDocument
+        ? getFocusableElements(frame.contentDocument)
+        : [];
+      const target = edge === "first"
+        ? focusableElements[0]
+        : focusableElements[focusableElements.length - 1];
+      if (target) target.focus();
+      else frame.focus();
+    } catch {
+      frame.focus();
+    }
+  }
+
+  function trapParentModalFocus(event: ReactKeyboardEvent<HTMLElement>) {
+    if (event.key !== "Tab") return;
+    const activeElement = document.activeElement;
+    if (activeElement !== modalCloseButtonRef.current && activeElement !== modalFrameRef.current) {
+      return;
+    }
+
+    event.preventDefault();
+    if (activeElement === modalCloseButtonRef.current) {
+      focusModalFrameEdge(event.shiftKey ? "last" : "first");
+    } else if (event.shiftKey) {
+      modalCloseButtonRef.current?.focus();
+    } else {
+      focusModalFrameEdge("first");
+    }
   }
 
   function wirePanelInfoLinks(frame: HTMLIFrameElement) {
@@ -209,9 +303,26 @@ export function WorkspaceBetaPage() {
 
       frameDocument.documentElement.dataset.workspaceInfoModalFrameWired = "true";
       frameDocument.addEventListener("keydown", (event) => {
-        if ((event as KeyboardEvent).key !== "Escape") return;
+        const keyboardEvent = event as KeyboardEvent;
+        if (keyboardEvent.key === "Escape") {
+          event.preventDefault();
+          closeInfoModal();
+          return;
+        }
+        if (keyboardEvent.key !== "Tab") return;
+
+        const focusableElements = getFocusableElements(frameDocument);
+        const activeElement = frameDocument.activeElement;
+        const first = focusableElements[0];
+        const last = focusableElements[focusableElements.length - 1];
+        const leavingStart = keyboardEvent.shiftKey
+          && (!first || activeElement === first || activeElement === frameDocument.body);
+        const leavingEnd = !keyboardEvent.shiftKey
+          && (!last || activeElement === last || activeElement === frameDocument.body);
+        if (!leavingStart && !leavingEnd) return;
+
         event.preventDefault();
-        closeInfoModal();
+        modalCloseButtonRef.current?.focus();
       }, true);
       frameDocument.addEventListener("click", (event) => {
         const mouseEvent = event as MouseEvent;
@@ -362,8 +473,18 @@ export function WorkspaceBetaPage() {
   return (
     <div
       className={`workspace-beta-shell workspace-beta-functional-shell${activeDivider !== null ? " is-resizing" : ""}`}
+      ref={shellRef}
     >
-      <a className="skip-link workspace-beta-skip" href="#workspace-beta-main">
+      <a
+        className="skip-link workspace-beta-skip"
+        href="#workspace-beta-main"
+        onClick={(event) => {
+          event.preventDefault();
+          mainRef.current?.focus();
+          mainRef.current?.scrollIntoView({ block: "start" });
+        }}
+        ref={skipLinkRef}
+      >
         {text("Skip to workspace", "Μετάβαση στον χώρο εργασίας")}
       </a>
 
@@ -392,7 +513,7 @@ export function WorkspaceBetaPage() {
           <Link
             onClick={(event) => {
               event.preventDefault();
-              openInfoModal("/appearance");
+              openInfoModal("/appearance", event.currentTarget);
             }}
             to="/appearance"
           >
@@ -405,8 +526,7 @@ export function WorkspaceBetaPage() {
                 <Link
                   onClick={(event) => {
                     event.preventDefault();
-                    event.currentTarget.closest("details")?.removeAttribute("open");
-                    openInfoModal("/important-info");
+                    openInfoModal("/important-info", event.currentTarget);
                   }}
                   to="/important-info"
                 >
@@ -440,7 +560,7 @@ export function WorkspaceBetaPage() {
         </div>
       </header>
 
-      <main className="workspace-beta-main" id="workspace-beta-main" ref={mainRef}>
+      <main className="workspace-beta-main" id="workspace-beta-main" ref={mainRef} tabIndex={-1}>
         <div
           className="workspace-beta-grid workspace-beta-functional-grid"
           aria-label={text("Workspace panels", "Πάνελ χώρου εργασίας")}
@@ -590,6 +710,8 @@ export function WorkspaceBetaPage() {
             aria-labelledby="workspace-beta-info-modal-title"
             aria-modal="true"
             className="workspace-beta-info-modal"
+            onKeyDown={trapParentModalFocus}
+            ref={modalRef}
             role="dialog"
           >
             <header className="workspace-beta-info-modal-header">
@@ -610,6 +732,7 @@ export function WorkspaceBetaPage() {
               className="workspace-beta-info-modal-frame"
               name="studyapp-workspace-info-modal"
               onLoad={(event) => wireModalFrame(event.currentTarget)}
+              ref={modalFrameRef}
               src={`/#${infoModalRoute}`}
               title={infoModalTitle}
             />

@@ -82,6 +82,11 @@ export function AppLayout() {
   }
 
   useEffect(() => {
+    if (embeddedInWorkspace) {
+      hasHandledInitialRouteRef.current = true;
+      return undefined;
+    }
+
     const isInitialRoute = !hasHandledInitialRouteRef.current;
     const animationFrame = window.requestAnimationFrame(() => {
       hasHandledInitialRouteRef.current = true;
@@ -101,7 +106,7 @@ export function AppLayout() {
     });
     return () => window.cancelAnimationFrame(animationFrame);
     // Only a logical route or in-app fragment change should reposition the page.
-  }, [location.hash, location.pathname]);
+  }, [embeddedInWorkspace, location.hash, location.pathname, navigationType]);
   const internetStatusLabel = internetStatus === "online"
     ? text("Internet connection: Online", "Σύνδεση στο διαδίκτυο: Online")
     : internetStatus === "offline"
