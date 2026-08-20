@@ -32,6 +32,7 @@ import "./styles/workspaceBetaTypography.css";
 import "./styles/workspaceBetaHeaderControls.css";
 import "./styles/workspaceBetaTheme.css";
 import "./styles/workspaceBetaPwaUpdate.css";
+import "./styles/workspaceBetaButtons.css";
 
 if (!enforceSecureTransport()) {
   const updateServiceWorker = registerSW({
