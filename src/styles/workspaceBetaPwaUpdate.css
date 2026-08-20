@@ -1,14 +1,41 @@
 /* Workspace BETA has no fixed footer, so keep update notices close to the viewport edge. */
 .workspace-beta-functional-shell ~ .pwa-update-toast {
-  bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
   z-index: 1400;
+  gap: 0.5rem;
+  width: min(19rem, calc(100vw - 1.5rem));
+  padding: 0.65rem 0.7rem;
+  border-radius: 0.55rem;
+}
+
+.workspace-beta-functional-shell ~ .pwa-update-toast .pwa-update-toast-title {
+  font-size: var(--ws-text-body, 0.8rem);
+  line-height: 1.2;
+}
+
+.workspace-beta-functional-shell ~ .pwa-update-toast .pwa-update-toast-message {
+  margin-top: 0.12rem;
+  font-size: var(--ws-text-small, 0.72rem);
+  line-height: 1.35;
+}
+
+.workspace-beta-functional-shell ~ .pwa-update-toast .pwa-update-toast-actions {
+  gap: 0.35rem;
+}
+
+.workspace-beta-functional-shell ~ .pwa-update-toast .pwa-update-toast-actions .button {
+  min-width: 4.25rem;
+  min-height: 2rem;
+  padding: 0.4rem 0.62rem;
+  font-size: var(--ws-text-small, 0.72rem);
+  line-height: 1.1;
 }
 
 :root[data-workspace-theme="dark"] .workspace-beta-functional-shell ~ .pwa-update-toast {
   border-color: #484843;
   background: #20201f;
   color: #ecece8;
-  box-shadow: 0 12px 32px rgb(0 0 0 / 0.32);
+  box-shadow: 0 10px 24px rgb(0 0 0 / 0.28);
 }
 
 :root[data-workspace-theme="dark"] .workspace-beta-functional-shell ~ .pwa-update-toast .pwa-update-toast-title {
