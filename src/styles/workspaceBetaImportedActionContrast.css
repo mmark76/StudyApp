@@ -1,0 +1,46 @@
+/* Workspace BETA only: make imported-chapter utility actions distinct in dark mode. */
+:root[data-workspace-theme="dark"]
+  .workspace-panel-embed-main
+  #imported-practice-chapters-list
+  .practice-content-item
+  .local-file-actions
+  > .button.secondary:first-of-type {
+  border-color: #5d7078;
+  background: #34444a;
+  color: var(--ws-btn-text);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.025);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-panel-embed-main
+  #imported-practice-chapters-list
+  .practice-content-item
+  .local-file-actions
+  > .button.secondary:first-of-type:hover {
+  border-color: #6c818a;
+  background: #3d5058;
+  color: var(--ws-btn-text);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-panel-embed-main
+  #imported-practice-chapters-list
+  .practice-content-item
+  .local-file-actions
+  > .button.secondary:nth-of-type(2) {
+  border-color: #816850;
+  background: #5a493a;
+  color: var(--ws-btn-text);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.025);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-panel-embed-main
+  #imported-practice-chapters-list
+  .practice-content-item
+  .local-file-actions
+  > .button.secondary:nth-of-type(2):hover {
+  border-color: #92765a;
+  background: #665342;
+  color: var(--ws-btn-text);
+}
