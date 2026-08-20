@@ -174,6 +174,40 @@ describe("practice content repository", () => {
     await expect(storedCards()).resolves.toEqual([practiceCard, secondCard]);
   });
 
+  it("updates same-number CSV metadata while preserving relationships transactionally", async () => {
+    await addImportedPracticeUnit(practiceUnit, database);
+    await addImportedPracticeFlashcard(practiceCard, database);
+    const progress = {
+      cardId: practiceCard.id,
+      score: 2 as const,
+      repetitions: 3,
+      intervalDays: 7,
+      nextReviewAt: "2026-08-27T00:00:00.000Z",
+      lastReviewedAt: "2026-08-20T00:00:00.000Z",
+      lapses: 0,
+    };
+    await database.cardProgress.put(progress);
+
+    await importPracticeUnits([{
+      ...practiceUnit,
+      id: "csv-generated-replacement-id",
+      title: "CSV replacement title",
+      objectives: ["CSV replacement goal"],
+      summary: ["CSV replacement point"],
+      keyTerms: ["csv-term"],
+    }], database);
+
+    await expect(storedUnits()).resolves.toEqual([{
+      ...practiceUnit,
+      title: "CSV replacement title",
+      objectives: ["CSV replacement goal"],
+      summary: ["CSV replacement point"],
+      keyTerms: ["csv-term"],
+    }]);
+    await expect(storedCards()).resolves.toEqual([practiceCard]);
+    await expect(database.cardProgress.get(practiceCard.id)).resolves.toEqual(progress);
+  });
+
   it("accepts the exact chapter limit and rejects one more without changing it", async () => {
     const relatedCard = {
       ...practiceCard,

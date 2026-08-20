@@ -94,6 +94,11 @@
   overflow: hidden;
 }
 
+.workspace-beta-main:focus {
+  outline: 3px solid #315f85;
+  outline-offset: -3px;
+}
+
 .workspace-beta-grid {
   display: grid;
   grid-template-columns: minmax(250px, 0.82fr) minmax(380px, 1.38fr) minmax(270px, 0.92fr);

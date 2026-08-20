@@ -147,6 +147,86 @@ function splitCommaList(value: string): string[] {
     .filter(Boolean);
 }
 
+function equalStringLists(first: readonly string[], second: readonly string[]): boolean {
+  return first.length === second.length
+    && first.every((value, index) => value === second[index]);
+}
+
+function changedChapterFields(
+  current: StudyUnit,
+  incoming: StudyUnit,
+  language: AppLanguage,
+): string[] {
+  const fields: string[] = [];
+  if (current.title !== incoming.title) {
+    fields.push(language === "en" ? "title" : "τίτλος");
+  }
+  if (!equalStringLists(current.objectives, incoming.objectives)) {
+    fields.push(language === "en" ? "learning goals" : "μαθησιακοί στόχοι");
+  }
+  if (!equalStringLists(current.summary, incoming.summary)) {
+    fields.push(language === "en" ? "key points" : "βασικά σημεία");
+  }
+  if (!equalStringLists(current.keyTerms, incoming.keyTerms)) {
+    fields.push(language === "en" ? "important terms" : "σημαντικοί όροι");
+  }
+  return fields;
+}
+
+function buildChapterImportConfirmation(
+  incomingUnits: readonly StudyUnit[],
+  currentUnits: readonly StudyUnit[],
+  language: AppLanguage,
+): string | null {
+  const currentByNumber = new Map(currentUnits.map((unit) => [unit.number, unit] as const));
+  const updates = incomingUnits.flatMap((unit) => {
+    const current = currentByNumber.get(unit.number);
+    if (!current) return [];
+    const changedFields = changedChapterFields(current, unit, language);
+    return changedFields.length > 0 ? [{ unit, current, changedFields }] : [];
+  });
+  if (updates.length === 0) return null;
+
+  const additions = incomingUnits.filter((unit) => !currentByNumber.has(unit.number)).length;
+  const previewLimit = 8;
+  const affectedPreview = updates.slice(0, previewLimit).map(({ unit, current, changedFields }) => (
+    language === "en"
+      ? `• Chapter ${unit.number}: “${current.title}” → “${unit.title}” (${changedFields.join(", ")})`
+      : `• Κεφάλαιο ${unit.number}: «${current.title}» → «${unit.title}» (${changedFields.join(", ")})`
+  ));
+  if (updates.length > previewLimit) {
+    affectedPreview.push(
+      language === "en"
+        ? `• …and ${updates.length - previewLimit} more`
+        : `• …και ${updates.length - previewLimit} ακόμη`,
+    );
+  }
+
+  return language === "en"
+    ? [
+        "Chapter import preview",
+        "",
+        `Add: ${additions}`,
+        `Update with changed metadata: ${updates.length}`,
+        "",
+        "The CSV will replace the listed title, learning goals, key points, or important terms:",
+        ...affectedPreview,
+        "",
+        "Linked flashcards and saved progress will stay connected. Continue?",
+      ].join("\n")
+    : [
+        "Προεπισκόπηση εισαγωγής κεφαλαίων",
+        "",
+        `Προσθήκη: ${additions}`,
+        `Ενημέρωση με αλλαγμένα μεταδεδομένα: ${updates.length}`,
+        "",
+        "Το CSV θα αντικαταστήσει τον αναφερόμενο τίτλο, τους μαθησιακούς στόχους, τα βασικά σημεία ή τους σημαντικούς όρους:",
+        ...affectedPreview,
+        "",
+        "Οι συνδεδεμένες flashcards και η αποθηκευμένη πρόοδος θα παραμείνουν συνδεδεμένες. Συνέχεια;",
+      ].join("\n");
+}
+
 function FlashcardEditor({
   card,
   units,
@@ -352,10 +432,19 @@ export function PracticeContentManager({
       if (file.size > MAX_SPREADSHEET_FILE_SIZE) {
         throw new Error("The CSV file is larger than the 10 MB limit.");
       }
-      const spreadsheetUnits = parseUnitsSpreadsheet(await readFile(file)).map((unit) => {
-        const existing = projection.unitByNumber.get(unit.number);
-        return existing ? { ...unit, id: existing.id } : unit;
-      });
+      const spreadsheetUnits = parseUnitsSpreadsheet(await readFile(file));
+      const confirmation = buildChapterImportConfirmation(
+        spreadsheetUnits,
+        importedUnits,
+        language,
+      );
+      if (confirmation && !window.confirm(confirmation)) {
+        setMessage(text(
+          "Import cancelled. Existing practice chapters are unchanged.",
+          "Η εισαγωγή ακυρώθηκε. Τα υπάρχοντα κεφάλαια εξάσκησης δεν άλλαξαν.",
+        ));
+        return;
+      }
       await importPracticeUnits(spreadsheetUnits);
       setChapterPage(1);
       setViewedUnitId(null);

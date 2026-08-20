@@ -95,7 +95,10 @@ export async function importPracticeUnits(
     const byNumber = new Map<number, StudyUnit>(
       currentUnits.map((unit) => [unit.number, unit] as const),
     );
-    for (const unit of validatedUnits) byNumber.set(unit.number, unit);
+    for (const unit of validatedUnits) {
+      const existing = byNumber.get(unit.number);
+      byNumber.set(unit.number, existing ? { ...unit, id: existing.id } : unit);
+    }
     const nextUnits = parseImportedUnits(
       [...byNumber.values()].sort(
         (first, second) => first.number - second.number,
