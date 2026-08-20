@@ -42,3 +42,8 @@
   background: #373734;
   color: #d9d9d3;
 }
+
+/* The parent Workspace modal already provides Close, so avoid a second exit control. */
+:root[data-workspace-info-modal="true"] .assistant-comparison-hero .button-row {
+  display: none;
+}
