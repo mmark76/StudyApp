@@ -1,0 +1,118 @@
+/* Workspace BETA only: keep action buttons visible without letting some dominate the panel. */
+
+/* Primary working actions: noticeable, but deliberately quieter than the global semantic colours. */
+.workspace-panel-embed-main .practice-content-option .button.primary,
+.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .button {
+  border: 1px solid #bdbdb6;
+  background: #e8e8e3;
+  color: #292926;
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main .practice-content-option .button.primary:hover,
+.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .button:hover {
+  border-color: #a8a8a0;
+  background: #ddddD7;
+  color: #171715;
+}
+
+/* Secondary / management actions remain clearly clickable but visually quieter. */
+.workspace-panel-embed-main .practice-content-option .button.secondary,
+.workspace-panel-embed-main .practice-content-item .button.secondary,
+.workspace-panel-embed-main .practice-content-pagination-actions .button.secondary {
+  border: 1px solid #d0d0c9;
+  background: #f7f7f4;
+  color: #3b3b37;
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main .practice-content-option .button.secondary:hover,
+.workspace-panel-embed-main .practice-content-item .button.secondary:hover,
+.workspace-panel-embed-main .practice-content-pagination-actions .button.secondary:hover {
+  border-color: #b9b9b1;
+  background: #ecece7;
+  color: #20201e;
+}
+
+/* Destructive actions stay distinct without becoming the brightest control in the row. */
+.workspace-panel-embed-main .practice-content-item .button.danger {
+  border: 1px solid #d8aaa5;
+  background: #fff4f2;
+  color: #9b3028;
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main .practice-content-item .button.danger:hover {
+  border-color: #c88983;
+  background: #fbe7e4;
+  color: #7f211b;
+  filter: none;
+}
+
+/* Keep the external AI launch as the single stronger CTA, but avoid stark black/white contrast. */
+.workspace-beta-ai-launch-row a {
+  border: 1px solid #3e3e39;
+  background: #3e3e39;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.workspace-beta-ai-launch-row a:hover {
+  border-color: #2e2e2a;
+  background: #2e2e2a;
+}
+
+/* Dark mode uses the same hierarchy: modest primary, quiet secondary, muted destructive. */
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-option .button.primary,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .button {
+  border-color: #5a5a53;
+  background: #343431;
+  color: #f0f0ec;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-option .button.primary:hover,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .button:hover {
+  border-color: #707068;
+  background: #41413d;
+  color: #ffffff;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-option .button.secondary,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-item .button.secondary,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-pagination-actions .button.secondary {
+  border-color: #4a4a45;
+  background: #262624;
+  color: #deded9;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-option .button.secondary:hover,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-item .button.secondary:hover,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-pagination-actions .button.secondary:hover {
+  border-color: #62625b;
+  background: #30302d;
+  color: #ffffff;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-item .button.danger {
+  border-color: #71423e;
+  background: #392523;
+  color: #efb7b1;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-item .button.danger:hover {
+  border-color: #8b514b;
+  background: #472d2a;
+  color: #ffd5d0;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-launch-row a {
+  border-color: #56564f;
+  background: #363633;
+  color: #f2f2ee;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-launch-row a:hover {
+  border-color: #6a6a62;
+  background: #41413d;
+  color: #ffffff;
+}
