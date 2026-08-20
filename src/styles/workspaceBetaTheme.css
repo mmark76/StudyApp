@@ -1,0 +1,247 @@
+/* Workspace BETA-only light/dark presentation. The attribute exists only while Workspace is mounted. */
+:root[data-workspace-theme="dark"] {
+  color-scheme: dark;
+  --page-background: #171716;
+  --page-gradient-start: #171716;
+  --surface: #20201f;
+  --input-background: #252523;
+  --navy-900: #f2f2ef;
+  --navy-800: #e7b477;
+  --blue-600: #d39a58;
+  --blue-100: #3a2d20;
+  --slate-700: #deded9;
+  --slate-600: #c5c5bf;
+  --slate-500: #a5a59e;
+  --slate-300: #484843;
+  --slate-100: #2a2a28;
+  --focus-ring: #e1ad6f;
+  --shadow: none;
+}
+
+:root[data-workspace-theme="dark"] body {
+  background: #171716;
+  color: #ededE9;
+}
+
+/* Parent Workspace shell. */
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell {
+  background: #171716;
+  color: #efefec;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-header {
+  border-bottom-color: #3a3a36;
+  background: rgb(24 24 23 / 0.96);
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-brand strong,
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-functional-panel-header h2 {
+  color: #f2f2ef;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-title,
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-panel-kicker,
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-header-actions a,
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-header-actions button,
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-info-menu > summary {
+  color: #c7c7c1;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-badge {
+  background: #ededE9;
+  color: #181817;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-grid,
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-panel,
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-frame-wrap {
+  background: #171716;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-functional-panel-header,
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-launch-row {
+  border-color: #3b3b37;
+  background: #1d1d1c;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-resizer {
+  background: #20201f;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-resizer::before {
+  background: #41413d;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-resizer::after {
+  background: #77776f;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-resizer:hover,
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-resizer:focus-visible,
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-resizer.is-active {
+  background: #292927;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-panel-tools button,
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-exit {
+  border-color: #4a4a45;
+  background: #242422;
+  color: #d9d9d4;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-panel-tools button:hover,
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-exit:hover {
+  border-color: #6b6b64;
+  background: #30302d;
+  color: #f4f4f1;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-launch-row a {
+  background: #f0f0ec;
+  color: #181817;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-launch-row a:hover {
+  background: #ffffff;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-launch-row span {
+  color: #aaa9a2;
+}
+
+/* Language + theme controls stay quiet in both modes. */
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .language-switcher button {
+  color: #aaa9a2;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .language-switcher button + button {
+  border-left-color: #4b4b46;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .language-switcher button.active {
+  background: #343431;
+  color: #f1f1ee;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .language-switcher button:hover {
+  background: #2b2b29;
+  color: #ffffff;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-theme-toggle:hover {
+  color: #ffffff;
+}
+
+/* Info menu and modal shell in the parent document. */
+:root[data-workspace-theme="dark"] .workspace-beta-info-popover,
+:root[data-workspace-theme="dark"] .workspace-beta-info-modal {
+  border-color: #464641;
+  background: #20201f;
+  color: #ededE9;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-info-modal-header {
+  border-bottom-color: #3f3f3b;
+  background: #20201f;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-info-modal-header h2,
+:root[data-workspace-theme="dark"] .workspace-beta-info-popover a,
+:root[data-workspace-theme="dark"] .workspace-beta-info-meta p {
+  color: #e9e9e5;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-info-modal-header p,
+:root[data-workspace-theme="dark"] .workspace-beta-info-version {
+  color: #aaa9a2;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-info-modal-header button {
+  border-color: #4b4b46;
+  background: #292927;
+  color: #e8e8e4;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-info-separator {
+  background: #44443f;
+}
+
+/* Embedded Sources / Practice / AI Studio and Workspace information pages. */
+:root[data-workspace-theme="dark"] .workspace-panel-embed-shell,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main {
+  background: #171716;
+  color: #deded9;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .content-panel,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .hero-panel,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .study-panel,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .template-card,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .assistant-guide-hero,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .assistant-guide-card,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .assistant-comparison-hero {
+  border-color: #41413d;
+  background: #20201f;
+  box-shadow: none;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .dashboard-action-card {
+  border-color: #41413d;
+  background: #20201f;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .learning-stage-grid.learn-tools-grid {
+  border-top-color: #3f3f3b;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .learning-stage-grid.learn-tools-grid > .learning-stage-card {
+  border-bottom-color: #3f3f3b;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .stage-number {
+  background: #2c2c29;
+  color: #b8b8b1;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-import-order,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-add-import-note,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .assistant-guide-note,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .storage-notice-details {
+  border-color: #44443f;
+  background: #252523;
+  color: #d4d4cf;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .local-file-row {
+  border-bottom-color: #41413d;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .button.secondary,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main button.secondary,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main select,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main input,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main textarea {
+  border-color: #4a4a45;
+  background: #262624;
+  color: #ecece8;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .button.secondary:hover,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main button.secondary:hover {
+  border-color: #6a6a63;
+  background: #30302d;
+  color: #ffffff;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-form-panel,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-item,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .important-info-callout,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .important-info-warning {
+  border-color: #44443f;
+  background: #222220;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main code {
+  background: #2c2c29;
+  color: #efefeb;
+}
