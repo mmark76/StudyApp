@@ -7,7 +7,8 @@
   padding-bottom: 2.15rem;
 }
 
-.workspace-beta-practice-footer {
+.workspace-beta-functional-panel.workspace-beta-panel-practice::after {
+  content: "© 2026 Markellos Markides. All rights reserved.  Your data stays under your control.";
   position: absolute;
   right: 0;
   bottom: 0;
@@ -23,12 +24,14 @@
   background: rgb(253 253 251 / 0.96);
   color: #74746e;
   font-size: var(--workspace-type-micro, 0.6rem);
+  font-weight: 600;
   line-height: 1.35;
   text-align: center;
   backdrop-filter: blur(8px);
 }
 
-:root[data-workspace-theme="dark"] .workspace-beta-practice-footer {
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-panel.workspace-beta-panel-practice::after {
   border-top-color: #3b3b37;
   background: rgb(29 29 28 / 0.96);
   color: #aaa9a2;
