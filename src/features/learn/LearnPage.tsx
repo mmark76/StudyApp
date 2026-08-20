@@ -55,7 +55,7 @@ export function LearnPage({ failureInjector }: LearnPageProps = {}) {
   );
 
   return (
-    <div className="stack-lg">
+    <div className="stack-lg workspace-beta-practice-page">
       <header className="page-heading">
         <p className="eyebrow">{text("Practice and memory", "Εξάσκηση και μνήμη")}</p>
         <h2>{text("Learn", "Μάθηση")}</h2>
