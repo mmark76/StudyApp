@@ -46,6 +46,28 @@ test("Workspace BETA opens Important Info in the same modal pattern", async ({ p
   await expect(page).toHaveURL(/#\/workspace-beta$/u);
 });
 
+test("Workspace BETA opens Settings in a modal and applies appearance changes without leaving the workspace", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/#/workspace-beta");
+
+  await page.getByRole("link", { name: "Settings", exact: true }).click();
+
+  const modal = page.locator(".workspace-beta-info-modal");
+  const modalFrame = page.frameLocator('iframe[name="studyapp-workspace-info-modal"]');
+  await expect(modal).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Settings", exact: true })).toBeVisible();
+  await expect(modalFrame.getByRole("heading", { name: "Settings", exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/#\/workspace-beta$/u);
+  await expect(page.locator(".workspace-beta-functional-panel > .workspace-beta-frame-wrap > iframe.workspace-beta-frame")).toHaveCount(3);
+
+  await modalFrame.getByLabel("Accent colour").selectOption("blue");
+  await expect.poll(async () => page.locator("html").getAttribute("data-color-scheme")).toBe("blue");
+
+  await page.getByRole("button", { name: "Close" }).click();
+  await expect(modal).toHaveCount(0);
+  await expect(page).toHaveURL(/#\/workspace-beta$/u);
+});
+
 test("Workspace BETA keeps the imported flashcard list hidden while flashcard study actions remain available", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/#/workspace-beta");
