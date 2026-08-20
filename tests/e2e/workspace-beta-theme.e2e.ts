@@ -28,3 +28,21 @@ test("Workspace BETA toggles light and dark presentation across its live panels"
   await page.getByRole("button", { name: "Switch to light mode" }).click();
   await expect.poll(() => page.evaluate(() => document.documentElement.dataset.workspaceTheme)).toBe("light");
 });
+
+test("Workspace BETA shows the standard StudyApp update notification", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/#/workspace-beta");
+
+  await page.evaluate(() => {
+    window.__STUDYAPP_E2E_PWA_UPDATE__?.show("success");
+  });
+
+  const toast = page.locator(".pwa-update-toast");
+  await expect(toast).toBeVisible();
+  await expect(toast.getByRole("heading", { name: "Update available" })).toBeVisible();
+  await expect(toast.getByRole("button", { name: "Update" })).toBeVisible();
+  await expect(toast.getByRole("button", { name: "Later" })).toBeVisible();
+
+  await toast.getByRole("button", { name: "Later" }).click();
+  await expect(toast).toHaveCount(0);
+});
