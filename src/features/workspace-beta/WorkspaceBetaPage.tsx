@@ -17,7 +17,7 @@ import "../../styles/workspaceBetaInfo.css";
 type WorkspacePanelId = "sources" | "practice" | "ai";
 type WorkspaceDivider = 0 | 1;
 type PanelWidths = [number, number, number];
-type WorkspaceInfoRoute = "/ai-assistant-comparison" | "/instructions" | "/important-info";
+type WorkspaceInfoRoute = "/appearance" | "/ai-assistant-comparison" | "/instructions" | "/important-info";
 
 interface ResizeDragState {
   divider: WorkspaceDivider;
@@ -33,6 +33,7 @@ const panelRoutes: Record<WorkspacePanelId, string> = {
 };
 
 const workspaceInfoRoutes = new Set<WorkspaceInfoRoute>([
+  "/appearance",
   "/ai-assistant-comparison",
   "/instructions",
   "/important-info",
@@ -344,13 +345,18 @@ export function WorkspaceBetaPage() {
     "Drag to resize. Use Left/Right arrow keys. Double-click to reset.",
     "Σύρε για αλλαγή πλάτους. Χρησιμοποίησε τα βέλη Αριστερά/Δεξιά. Διπλό κλικ για επαναφορά.",
   );
-  const infoModalTitle = infoModalRoute === "/ai-assistant-comparison"
-    ? text("Compare AI options", "Σύγκριση επιλογών AI")
-    : infoModalRoute === "/instructions"
-      ? text("StudyApp instructions", "Οδηγίες StudyApp")
-      : infoModalRoute === "/important-info"
-        ? text("Important Info", "Σημαντικές πληροφορίες")
-        : "";
+  const infoModalTitle = infoModalRoute === "/appearance"
+    ? text("Settings", "Ρυθμίσεις")
+    : infoModalRoute === "/ai-assistant-comparison"
+      ? text("Compare AI options", "Σύγκριση επιλογών AI")
+      : infoModalRoute === "/instructions"
+        ? text("StudyApp instructions", "Οδηγίες StudyApp")
+        : infoModalRoute === "/important-info"
+          ? text("Important Info", "Σημαντικές πληροφορίες")
+          : "";
+  const infoModalKicker = infoModalRoute === "/appearance"
+    ? text("Workspace", "Χώρος εργασίας")
+    : text("Information", "Πληροφορίες");
 
   return (
     <div
@@ -368,7 +374,15 @@ export function WorkspaceBetaPage() {
         </div>
         <div className="workspace-beta-header-actions">
           <LanguageSwitcher />
-          <Link to="/appearance">{text("Settings", "Ρυθμίσεις")}</Link>
+          <Link
+            onClick={(event) => {
+              event.preventDefault();
+              openInfoModal("/appearance");
+            }}
+            to="/appearance"
+          >
+            {text("Settings", "Ρυθμίσεις")}
+          </Link>
           <details className="workspace-beta-info-menu">
             <summary>{text("Info", "Πληροφορίες")}</summary>
             <div className="workspace-beta-info-popover">
@@ -572,7 +586,7 @@ export function WorkspaceBetaPage() {
           >
             <header className="workspace-beta-info-modal-header">
               <div>
-                <p>{text("Information", "Πληροφορίες")}</p>
+                <p>{infoModalKicker}</p>
                 <h2 id="workspace-beta-info-modal-title">{infoModalTitle}</h2>
               </div>
               <button
