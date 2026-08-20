@@ -4,14 +4,16 @@ test("Workspace BETA toggles light and dark presentation across its live panels"
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/#/workspace-beta");
 
+  await expect(page.locator("iframe.workspace-beta-frame")).toHaveCount(3);
+  await expect(page.getByRole("button", { name: "Switch to dark mode" })).toBeVisible();
+
   const sourcesFrame = page.frame({ name: "studyapp-workspace-sources" });
   const practiceFrame = page.frame({ name: "studyapp-workspace-practice" });
   const aiFrame = page.frame({ name: "studyapp-workspace-ai" });
   if (!sourcesFrame || !practiceFrame || !aiFrame) {
-    throw new Error("Workspace frames were not available");
+    throw new Error("Workspace frames were not available after the panel iframes mounted");
   }
 
-  await expect(page.getByRole("button", { name: "Switch to dark mode" })).toBeVisible();
   await expect.poll(() => page.evaluate(() => document.documentElement.dataset.workspaceTheme)).toBe("light");
 
   await page.getByRole("button", { name: "Switch to dark mode" }).click();
