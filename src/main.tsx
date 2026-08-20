@@ -27,6 +27,7 @@ import "./styles/language.css";
 import "./styles/workspaceBetaSecondaryInfo.css";
 import "./styles/workspaceBetaAvatar.css";
 import "./styles/workspaceBetaAiPanelNavigation.css";
+import "./styles/workspaceBetaTypography.css";
 
 if (!enforceSecureTransport()) {
   const updateServiceWorker = registerSW({
