@@ -9,6 +9,7 @@ import {
 } from "./app/pwaUpdate";
 import "./features/workspace-beta/workspaceFramePointerFocus";
 import "./features/workspace-beta/workspaceInfoMenuAutoClose";
+import "./features/workspace-beta/workspaceInfoModalDocument";
 import "./styles/global.css";
 import "./styles/headerNavigation.css";
 import "./styles/workspaceBeta.css";
@@ -34,6 +35,7 @@ import "./styles/workspaceBetaTheme.css";
 import "./styles/workspaceBetaPwaUpdate.css";
 import "./styles/workspaceBetaButtons.css";
 import "./styles/workspaceBetaModalContrast.css";
+import "./styles/workspaceBetaComparison.css";
 
 if (!enforceSecureTransport()) {
   const updateServiceWorker = registerSW({

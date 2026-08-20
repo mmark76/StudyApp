@@ -1,0 +1,49 @@
+/*
+ * Workspace BETA only: keep the AI comparison table consistent with the dark
+ * modal surface. The standalone StudyApp comparison page is unaffected.
+ */
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .assistant-comparison-table-wrap {
+  border-color: #56564f;
+  background: #20201f;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .assistant-comparison-table {
+  background: #20201f;
+  color: #ecece8;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .assistant-comparison-table thead,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .assistant-comparison-table thead th {
+  border-color: #56564f;
+  background: #2d2d2a;
+  color: #e8e8e3;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .assistant-comparison-table thead strong {
+  color: #f1f1ed;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .assistant-comparison-table tbody th,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .assistant-comparison-table tbody td {
+  border-bottom-color: #454540;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .assistant-comparison-table tbody th {
+  color: #f0f0ec;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .assistant-comparison-status.available {
+  background: #b87a3b;
+  color: #fffaf3;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .assistant-comparison-status.soon {
+  border-color: #5d5d56;
+  background: #373734;
+  color: #d9d9d3;
+}
+
+/* The parent Workspace modal already provides Close, so avoid a second exit control. */
+:root[data-workspace-info-modal="true"] .assistant-comparison-hero .button-row {
+  display: none;
+}
