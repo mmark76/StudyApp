@@ -1,0 +1,26 @@
+/* Workspace BETA has no fixed footer, so keep update notices close to the viewport edge. */
+.workspace-beta-functional-shell ~ .pwa-update-toast {
+  bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  z-index: 1400;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell ~ .pwa-update-toast {
+  border-color: #484843;
+  background: #20201f;
+  color: #ecece8;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.32);
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell ~ .pwa-update-toast .pwa-update-toast-title {
+  color: #f2f2ef;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell ~ .pwa-update-toast .pwa-update-toast-message {
+  color: #c5c5bf;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell ~ .pwa-update-toast .button.secondary {
+  border-color: #4a4a45;
+  background: #292927;
+  color: #e8e8e4;
+}
