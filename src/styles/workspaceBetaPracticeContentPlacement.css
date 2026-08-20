@@ -1,0 +1,34 @@
+/*
+ * Workspace BETA presentation only.
+ * Practice-content management remains the same component and uses the same
+ * local data/repository logic. In the three-panel Workspace it is presented
+ * under Sources, while Practice shows only the learning tools.
+ */
+.workspace-panel-embed-main
+  .workspace-beta-practice-page
+  .practice-content-manager {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main
+  .workspace-beta-practice-page
+  .practice-content-manager
+  > *:not(.learn-tools-grid) {
+  display: none;
+}
+
+.workspace-panel-embed-main
+  .workspace-beta-sources-page
+  .practice-content-manager {
+  margin-top: 0.7rem;
+}
+
+.workspace-panel-embed-main
+  .workspace-beta-sources-page
+  .practice-content-manager
+  .learn-tools-grid {
+  display: none;
+}
