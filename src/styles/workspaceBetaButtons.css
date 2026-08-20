@@ -1,118 +1,278 @@
-/* Workspace BETA only: keep action buttons visible without letting some dominate the panel. */
+/* Workspace BETA only: semantic, muted action colours.
+ * Green = create/start/do, gold = import/information, wood = navigation,
+ * slate = neutral utility, red = destructive.
+ */
+:root {
+  --ws-btn-text: #f0f0ea;
+  --ws-btn-green-bg: #4a604f;
+  --ws-btn-green-border: #657a68;
+  --ws-btn-green-hover: #556d5a;
+  --ws-btn-gold-bg: #6a5833;
+  --ws-btn-gold-border: #857044;
+  --ws-btn-gold-hover: #78643a;
+  --ws-btn-wood-bg: #5c493c;
+  --ws-btn-wood-border: #735d4c;
+  --ws-btn-wood-hover: #685344;
+  --ws-btn-slate-bg: #44484b;
+  --ws-btn-slate-border: #5e6366;
+  --ws-btn-slate-hover: #505558;
+  --ws-btn-red-bg: #674141;
+  --ws-btn-red-border: #815656;
+  --ws-btn-red-hover: #744a4a;
+}
 
-/* Primary working actions: noticeable, but deliberately quieter than the global semantic colours. */
-.workspace-panel-embed-main .practice-content-option .button.primary,
-.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .button {
-  border: 1px solid #bdbdb6;
-  background: #e8e8e3;
-  color: #292926;
+:root[data-workspace-theme="dark"] {
+  --ws-btn-green-bg: #3f5546;
+  --ws-btn-green-border: #58715e;
+  --ws-btn-green-hover: #496250;
+  --ws-btn-gold-bg: #645330;
+  --ws-btn-gold-border: #816c3f;
+  --ws-btn-gold-hover: #725f36;
+  --ws-btn-wood-bg: #57453a;
+  --ws-btn-wood-border: #70594b;
+  --ws-btn-wood-hover: #624f42;
+  --ws-btn-slate-bg: #383c3f;
+  --ws-btn-slate-border: #51565a;
+  --ws-btn-slate-hover: #44494d;
+  --ws-btn-red-bg: #5f3b3b;
+  --ws-btn-red-border: #7c4f4f;
+  --ws-btn-red-hover: #6b4444;
+}
+
+/* Neutral fallback for ordinary secondary / utility actions in embedded Workspace pages. */
+.workspace-panel-embed-main .button.secondary,
+.workspace-panel-embed-main .button.utility {
+  border: 1px solid var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-bg);
+  color: var(--ws-btn-text);
   box-shadow: none;
 }
 
-.workspace-panel-embed-main .practice-content-option .button.primary:hover,
-.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .button:hover {
-  border-color: #a8a8a0;
-  background: #ddddD7;
-  color: #171715;
+.workspace-panel-embed-main .button.secondary:hover,
+.workspace-panel-embed-main .button.utility:hover {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-hover);
+  color: var(--ws-btn-text);
 }
 
-/* Secondary / management actions remain clearly clickable but visually quieter. */
-.workspace-panel-embed-main .practice-content-option .button.secondary,
+/* Create / start / study actions. */
+.workspace-panel-embed-main .button.primary,
+.workspace-panel-embed-main .button.study,
+.workspace-panel-embed-main .button.practice,
+.workspace-panel-embed-main .button.review,
+.workspace-panel-embed-main .button.quiz,
+.workspace-panel-embed-main .button.success {
+  border: 1px solid var(--ws-btn-green-border);
+  background: var(--ws-btn-green-bg);
+  color: var(--ws-btn-text);
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main .button.primary:hover,
+.workspace-panel-embed-main .button.study:hover,
+.workspace-panel-embed-main .button.practice:hover,
+.workspace-panel-embed-main .button.review:hover,
+.workspace-panel-embed-main .button.quiz:hover,
+.workspace-panel-embed-main .button.success:hover {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-hover);
+  color: var(--ws-btn-text);
+}
+
+/* AI / information actions use muted gold. */
+.workspace-panel-embed-main .button.assistant,
+.workspace-panel-embed-main .assistant-guide-page .button.secondary {
+  border: 1px solid var(--ws-btn-gold-border);
+  background: var(--ws-btn-gold-bg);
+  color: var(--ws-btn-text);
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main .button.assistant:hover,
+.workspace-panel-embed-main .assistant-guide-page .button.secondary:hover {
+  border-color: var(--ws-btn-gold-border);
+  background: var(--ws-btn-gold-hover);
+  color: var(--ws-btn-text);
+}
+
+/* Practice-content actions: Add = green, Import = gold, template/download = slate. */
+.workspace-panel-embed-main
+  .practice-content-option
+  > .button-row
+  > button.button.secondary {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-bg);
+  color: var(--ws-btn-text);
+}
+
+.workspace-panel-embed-main
+  .practice-content-option
+  > .button-row
+  > button.button.secondary:hover {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-hover);
+  color: var(--ws-btn-text);
+}
+
+.workspace-panel-embed-main
+  .practice-content-option
+  > .button-row
+  > button.button.primary {
+  border-color: var(--ws-btn-gold-border);
+  background: var(--ws-btn-gold-bg);
+  color: var(--ws-btn-text);
+}
+
+.workspace-panel-embed-main
+  .practice-content-option
+  > .button-row
+  > button.button.primary:hover {
+  border-color: var(--ws-btn-gold-border);
+  background: var(--ws-btn-gold-hover);
+  color: var(--ws-btn-text);
+}
+
+.workspace-panel-embed-main
+  .practice-content-option
+  > .button-row
+  > a.button.secondary {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-bg);
+  color: var(--ws-btn-text);
+}
+
+.workspace-panel-embed-main
+  .practice-content-option
+  > .button-row
+  > a.button.secondary:hover {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-hover);
+  color: var(--ws-btn-text);
+}
+
+/* View / edit / rename / pagination stay neutral. */
 .workspace-panel-embed-main .practice-content-item .button.secondary,
-.workspace-panel-embed-main .practice-content-pagination-actions .button.secondary {
-  border: 1px solid #d0d0c9;
-  background: #f7f7f4;
-  color: #3b3b37;
-  box-shadow: none;
+.workspace-panel-embed-main .practice-content-pagination-actions .button.secondary,
+.workspace-panel-embed-main .practice-content-editor .button.secondary {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-bg);
+  color: var(--ws-btn-text);
 }
 
-.workspace-panel-embed-main .practice-content-option .button.secondary:hover,
 .workspace-panel-embed-main .practice-content-item .button.secondary:hover,
-.workspace-panel-embed-main .practice-content-pagination-actions .button.secondary:hover {
-  border-color: #b9b9b1;
-  background: #ecece7;
-  color: #20201e;
+.workspace-panel-embed-main .practice-content-pagination-actions .button.secondary:hover,
+.workspace-panel-embed-main .practice-content-editor .button.secondary:hover {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-hover);
+  color: var(--ws-btn-text);
 }
 
-/* Destructive actions stay distinct without becoming the brightest control in the row. */
+/* Destructive actions are muted dark red, never bright red. */
+.workspace-panel-embed-main .button.danger,
 .workspace-panel-embed-main .practice-content-item .button.danger {
-  border: 1px solid #d8aaa5;
-  background: #fff4f2;
-  color: #9b3028;
+  border: 1px solid var(--ws-btn-red-border);
+  background: var(--ws-btn-red-bg);
+  color: var(--ws-btn-text);
   box-shadow: none;
-}
-
-.workspace-panel-embed-main .practice-content-item .button.danger:hover {
-  border-color: #c88983;
-  background: #fbe7e4;
-  color: #7f211b;
   filter: none;
 }
 
-/* Keep the external AI launch as the single stronger CTA, but avoid stark black/white contrast. */
-.workspace-beta-ai-launch-row a {
-  border: 1px solid #3e3e39;
-  background: #3e3e39;
-  color: #ffffff;
+.workspace-panel-embed-main .button.danger:hover,
+.workspace-panel-embed-main .practice-content-item .button.danger:hover {
+  border-color: var(--ws-btn-red-border);
+  background: var(--ws-btn-red-hover);
+  color: var(--ws-btn-text);
+  filter: none;
+}
+
+/* Source-home actions and panel resets are navigation: muted wood. */
+.workspace-panel-embed-main
+  .workspace-beta-sources-page
+  .dashboard-action-card
+  .button,
+.workspace-beta-functional-shell .workspace-beta-panel-tools button,
+.workspace-beta-functional-shell .workspace-beta-standard-version {
+  border: 1px solid var(--ws-btn-wood-border);
+  background: var(--ws-btn-wood-bg);
+  color: var(--ws-btn-text);
   box-shadow: none;
 }
 
-.workspace-beta-ai-launch-row a:hover {
-  border-color: #2e2e2a;
-  background: #2e2e2a;
+.workspace-panel-embed-main
+  .workspace-beta-sources-page
+  .dashboard-action-card
+  .button:hover,
+.workspace-beta-functional-shell .workspace-beta-panel-tools button:hover,
+.workspace-beta-functional-shell .workspace-beta-standard-version:hover {
+  border-color: var(--ws-btn-wood-border);
+  background: var(--ws-btn-wood-hover);
+  color: var(--ws-btn-text);
 }
 
-/* Dark mode uses the same hierarchy: modest primary, quiet secondary, muted destructive. */
-:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-option .button.primary,
-:root[data-workspace-theme="dark"] .workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .button {
-  border-color: #5a5a53;
-  background: #343431;
-  color: #f0f0ec;
+/* The AI launch is an action, not a high-contrast black/white banner. */
+.workspace-beta-functional-shell .workspace-beta-ai-launch-row a {
+  border: 1px solid var(--ws-btn-green-border);
+  background: var(--ws-btn-green-bg);
+  color: var(--ws-btn-text);
+  box-shadow: none;
 }
 
-:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-option .button.primary:hover,
-:root[data-workspace-theme="dark"] .workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .button:hover {
-  border-color: #707068;
-  background: #41413d;
-  color: #ffffff;
+.workspace-beta-functional-shell .workspace-beta-ai-launch-row a:hover {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-hover);
+  color: var(--ws-btn-text);
 }
 
-:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-option .button.secondary,
-:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-item .button.secondary,
-:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-pagination-actions .button.secondary {
-  border-color: #4a4a45;
-  background: #262624;
-  color: #deded9;
+/* Parent Workspace utility controls remain neutral. */
+.workspace-beta-functional-shell .workspace-beta-info-modal-header > button {
+  border: 1px solid var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-bg);
+  color: var(--ws-btn-text);
 }
 
-:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-option .button.secondary:hover,
-:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-item .button.secondary:hover,
-:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-pagination-actions .button.secondary:hover {
-  border-color: #62625b;
-  background: #30302d;
-  color: #ffffff;
+.workspace-beta-functional-shell .workspace-beta-info-modal-header > button:hover {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-hover);
+  color: var(--ws-btn-text);
 }
 
-:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-item .button.danger {
-  border-color: #71423e;
-  background: #392523;
-  color: #efb7b1;
+/* PWA update: act = green, postpone = slate. */
+.workspace-beta-functional-shell ~ .pwa-update-toast .button.primary {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-bg);
+  color: var(--ws-btn-text);
 }
 
-:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-item .button.danger:hover {
-  border-color: #8b514b;
-  background: #472d2a;
-  color: #ffd5d0;
+.workspace-beta-functional-shell ~ .pwa-update-toast .button.primary:hover {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-hover);
+  color: var(--ws-btn-text);
 }
 
-:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-launch-row a {
-  border-color: #56564f;
-  background: #363633;
-  color: #f2f2ee;
+.workspace-beta-functional-shell ~ .pwa-update-toast .button.secondary {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-bg);
+  color: var(--ws-btn-text);
 }
 
-:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-launch-row a:hover {
-  border-color: #6a6a62;
-  background: #41413d;
-  color: #ffffff;
+.workspace-beta-functional-shell ~ .pwa-update-toast .button.secondary:hover {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-hover);
+  color: var(--ws-btn-text);
+}
+
+.workspace-panel-embed-main .button:focus-visible,
+.workspace-beta-functional-shell .workspace-beta-panel-tools button:focus-visible,
+.workspace-beta-functional-shell .workspace-beta-standard-version:focus-visible,
+.workspace-beta-functional-shell .workspace-beta-ai-launch-row a:focus-visible,
+.workspace-beta-functional-shell .workspace-beta-info-modal-header > button:focus-visible,
+.workspace-beta-functional-shell ~ .pwa-update-toast .button:focus-visible {
+  outline: 2px solid #c8a761;
+  outline-offset: 2px;
+}
+
+.workspace-panel-embed-main .button:disabled,
+.workspace-beta-functional-shell .workspace-beta-panel-tools button:disabled,
+.workspace-beta-functional-shell ~ .pwa-update-toast .button:disabled {
+  opacity: 0.52;
 }
