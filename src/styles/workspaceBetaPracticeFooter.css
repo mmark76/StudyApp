@@ -1,0 +1,38 @@
+/* Workspace BETA only: fixed informational footer at the bottom of the middle panel. */
+.workspace-beta-functional-panel.workspace-beta-panel-practice {
+  position: relative;
+}
+
+.workspace-beta-functional-panel.workspace-beta-panel-practice .workspace-beta-frame-wrap {
+  padding-bottom: 2.15rem;
+}
+
+.workspace-beta-functional-panel.workspace-beta-panel-practice::after {
+  content: "© 2026 Markellos Markides. All rights reserved.  Your data stays under your control.";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  min-height: 2.15rem;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  padding: 0.42rem 0.7rem;
+  border-top: 1px solid #dfdfda;
+  background: rgb(253 253 251 / 0.96);
+  color: #74746e;
+  font-size: var(--workspace-type-micro, 0.6rem);
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+  backdrop-filter: blur(8px);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-panel.workspace-beta-panel-practice::after {
+  border-top-color: #3b3b37;
+  background: rgb(29 29 28 / 0.96);
+  color: #aaa9a2;
+}

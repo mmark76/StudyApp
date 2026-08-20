@@ -1,0 +1,4 @@
+/* Workspace BETA regression guard: the AI panel already has its own reset/navigation control. */
+.workspace-panel-embed-main .assistant-guide-hero .button-row > .button:first-child {
+  display: none;
+}
