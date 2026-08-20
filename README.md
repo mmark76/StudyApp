@@ -4,6 +4,16 @@ A bilingual, local-first personal knowledge and learning application.
 
 ## Current status
 
+StudyApp v1.0.0 is **release verified** in production as of 2026-08-20.
+
+- production `main` SHA: `5d94e2744014e1d87a4e65d8462ac98082d3e1ce`;
+- deployed build: `v1.0.0_20260820_2202_5d94e27`;
+- stable release branch: `stable/release-2026-08-20`;
+- DATA-04, WB-01, WB-02 and WB-03: resolved and production smoke-verified;
+- Linux CI: typecheck, production build, 268/268 unit tests and 49/49 E2E tests passed;
+- production dependency audit: 0 vulnerabilities;
+- interactive Chrome production smoke verification: PASS for DATA-04 and WB-01/WB-02/WB-03.
+
 StudyApp supports English and Greek through the **EN / GR** switch in the header.
 The selected language is stored locally on the device.
 
@@ -23,34 +33,33 @@ The core study workflow is available:
 - store progress in the current browser;
 - export and restore a progress/settings backup.
 
-## Stable UI baseline
+## Stable release checkpoints
 
-The completed current UI/UX baseline is preserved at:
+The current verified release is preserved at:
+
+- branch: `stable/release-2026-08-20`;
+- verified production source commit: `5d94e2744014e1d87a4e65d8462ac98082d3e1ce`.
+
+The earlier approved UI-only checkpoint remains available for historical reference at:
 
 - branch: `stable/ui-final-2026-08-19`;
 - commit: `e705086af2f393e70a345f2159689446f2e41871`.
 
-This checkpoint represents the approved stable StudyApp interface before the
-separate Workspace BETA experiment. Normal feature, defect and accessibility
-work may continue, but the beta is not assumed to replace this stable model.
+The August 20 release keeps the approved product model while incorporating the
+verified DATA-04 and Workspace blocker fixes. Documentation-only commits on the
+stable release branch do not change the application code represented by the
+verified production release.
 
-## Workspace BETA — planned experiment
+## Workspace BETA — active experiment
 
-The next UX experiment is a separate multi-panel workspace. The first iteration
-is intentionally UI/UX-only and is expected to test three simultaneous areas,
-broadly:
+Workspace BETA is an implemented multi-panel UX experiment that remains
+separate from the stable top-level product model. Its blocker-remediation paths
+for WB-01, WB-02 and WB-03 were verified in production on 2026-08-20, including
+interactive pointer/focus and layout behavior.
 
-**Sources | Workspace / Practice | AI Studio**
-
-The initial beta should validate layout, panel proportions, header/footer
-behaviour, responsive adaptation, collapsing/resizing choices and overall ease
-of use before adding real connectivity between panels.
-
-Unless explicitly approved in a later task, the first Workspace BETA does **not**
-change IndexedDB, the data model, persistence, the existing stable routes, MCP,
-remote AI behaviour or automatic source transfer. It may use placeholders or
-clearly labelled beta/coming-soon controls while the interaction model is being
-evaluated.
+The workspace is still treated as beta. It does not by itself redefine the
+stable navigation, data ownership model, local-first persistence boundary, MCP,
+remote AI behavior or automatic source transfer.
 
 ## AI Assistant
 
@@ -160,7 +169,12 @@ significantly mismatched file types are rejected.
   account, plan, privacy and sharing rules.
 - ChatGPT App / MCP is not active yet.
 - StudyApp AI, real credits and payments are not active yet.
-- Workspace BETA is a planned UX experiment, not an active connected workspace yet.
+- Workspace remains a beta UX area even though its current release-blocking
+  interaction defects are resolved.
+- DATA-02 and WB-04 remain documented low/non-blocking findings.
+- Two high-severity advisories remain in transitive build/dev dependencies;
+  the production-only dependency audit is clean.
+- Firefox, WebKit and manual screen-reader verification remain follow-up gaps.
 - Complete local-file export/import and broader cross-browser coverage remain
   future work.
 
