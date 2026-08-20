@@ -368,10 +368,15 @@ export function WorkspaceBetaPage() {
       </a>
 
       <header className="workspace-beta-header" ref={headerRef}>
-        <div className="workspace-beta-brand">
-          <strong>{studyConfig.appName}</strong>
-          <span className="workspace-beta-badge">BETA</span>
-          <span className="workspace-beta-title">{text("Workspace", "Χώρος εργασίας")}</span>
+        <div className="workspace-beta-header-left">
+          <Link className="workspace-beta-standard-version" to="/">
+            {text("Back to Standard Version", "Επιστροφή στην κανονική έκδοση")}
+          </Link>
+          <div className="workspace-beta-brand">
+            <strong>{studyConfig.appName}</strong>
+            <span className="workspace-beta-badge">BETA</span>
+            <span className="workspace-beta-title">{text("Workspace", "Χώρος εργασίας")}</span>
+          </div>
         </div>
         <div className="workspace-beta-header-actions">
           <LanguageSwitcher />
@@ -427,7 +432,6 @@ export function WorkspaceBetaPage() {
               </div>
             </div>
           </details>
-          <Link className="workspace-beta-exit" to="/">{text("Exit", "Έξοδος")}</Link>
         </div>
       </header>
 

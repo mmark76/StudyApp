@@ -12,6 +12,12 @@ test("Workspace BETA keeps three independent functional StudyApp panels", async 
   await expect(page.getByRole("heading", { name: "Sources" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Practice" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "AI Studio" })).toBeVisible();
+  await expect(
+    page.locator(".workspace-beta-header-left").getByRole("link", { name: "Back to Standard Version" }),
+  ).toBeVisible();
+  await expect(
+    page.locator(".workspace-beta-header-actions").getByRole("link", { name: "Back to Standard Version" }),
+  ).toHaveCount(0);
 
   const sources = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
   const practice = page.frameLocator('iframe[name="studyapp-workspace-practice"]');
@@ -213,7 +219,7 @@ test("Workspace BETA language sync reaches panels and narrow overflow stays cont
 
   await expect(page.getByRole("heading", { name: "Πηγές" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Εξάσκηση" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Έξοδος" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Επιστροφή στην κανονική έκδοση" })).toBeVisible();
   await expect(sources.getByRole("heading", { name: "Πηγές" })).toBeVisible();
   await expect(practice.getByRole("heading", { name: "Μάθηση" })).toBeVisible();
 

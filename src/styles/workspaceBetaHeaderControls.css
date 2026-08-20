@@ -1,4 +1,31 @@
 /* Workspace BETA only: quiet, non-pill header controls. */
+.workspace-beta-functional-shell .workspace-beta-header-left {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.workspace-beta-functional-shell .workspace-beta-standard-version {
+  flex: none;
+  padding: 0.3rem 0.46rem;
+  border: 1px solid #d4d4cf;
+  border-radius: 0.35rem;
+  background: transparent;
+  color: #4c4c47;
+  font-size: var(--ws-text-small, 0.72rem);
+  font-weight: 650;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.workspace-beta-functional-shell .workspace-beta-standard-version:hover {
+  border-color: #aaa9a3;
+  background: #f4f4f1;
+  color: #20201e;
+}
+
 .workspace-beta-functional-shell .language-switcher {
   gap: 0;
   padding: 0;
@@ -51,7 +78,36 @@
 }
 
 .workspace-beta-functional-shell .workspace-beta-theme-toggle:focus-visible,
+.workspace-beta-functional-shell .workspace-beta-standard-version:focus-visible,
 .workspace-beta-functional-shell .language-switcher button:focus-visible {
   outline-width: 2px;
   outline-offset: 2px;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-standard-version {
+  border-color: #4a4a45;
+  background: #242422;
+  color: #d9d9d4;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-standard-version:hover {
+  border-color: #6b6b64;
+  background: #30302d;
+  color: #f4f4f1;
+}
+
+@media (max-width: 760px) {
+  .workspace-beta-functional-shell .workspace-beta-header-left {
+    gap: 0.42rem;
+  }
+
+  .workspace-beta-functional-shell .workspace-beta-standard-version {
+    max-width: 8.5rem;
+    padding: 0.26rem 0.36rem;
+    white-space: normal;
+  }
+
+  .workspace-beta-functional-shell .workspace-beta-title {
+    display: none;
+  }
 }
