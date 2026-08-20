@@ -1,0 +1,275 @@
+/*
+ * Workspace BETA typography system.
+ * Keep the workspace UI on four reusable text sizes instead of one-off values.
+ * This file is loaded last so it normalizes presentation without changing
+ * markup, routes, handlers, study data, IndexedDB, or AI behaviour.
+ */
+.workspace-beta-shell,
+.workspace-panel-embed-shell {
+  --workspace-type-micro: 0.6rem;
+  --workspace-type-small: 0.72rem;
+  --workspace-type-body: 0.8rem;
+  --workspace-type-heading: 0.96rem;
+}
+
+/* Parent workspace shell and header. */
+.workspace-beta-functional-shell .workspace-beta-brand strong,
+.workspace-beta-functional-shell .workspace-beta-functional-panel-header h2,
+.workspace-beta-info-modal-header h2 {
+  font-size: var(--workspace-type-heading);
+}
+
+.workspace-beta-functional-shell .workspace-beta-title,
+.workspace-beta-info-popover nav a {
+  font-size: var(--workspace-type-body);
+}
+
+.workspace-beta-functional-shell .workspace-beta-header-actions a,
+.workspace-beta-functional-shell .workspace-beta-header-actions button,
+.workspace-beta-functional-shell .workspace-beta-info-menu > summary,
+.workspace-beta-functional-shell .language-switcher button,
+.workspace-beta-panel-tools button,
+.workspace-beta-ai-launch-row a,
+.workspace-beta-info-meta p,
+.workspace-beta-info-modal-header button {
+  font-size: var(--workspace-type-small);
+}
+
+.workspace-beta-functional-shell .workspace-beta-badge,
+.workspace-beta-functional-panel-header .workspace-beta-panel-kicker,
+.workspace-beta-live-label,
+.workspace-beta-ai-launch-row span,
+.workspace-beta-info-version,
+.workspace-beta-info-modal-header p {
+  font-size: var(--workspace-type-micro);
+}
+
+/* Any remaining prototype/fallback workspace controls use the same scale. */
+.workspace-beta-preview-label,
+.workspace-beta-work-label,
+.workspace-beta-demo-card-label,
+.workspace-beta-studio-preview > span {
+  font-size: var(--workspace-type-micro);
+}
+
+.workspace-beta-search-label,
+.workspace-beta-inline-note,
+.workspace-beta-empty-copy,
+.workspace-beta-source-item small,
+.workspace-beta-mode-switcher button,
+.workspace-beta-studio-preview p {
+  font-size: var(--workspace-type-small);
+}
+
+.workspace-beta-search,
+.workspace-beta-primary-action,
+.workspace-beta-work-area > p:not(.workspace-beta-work-label),
+.workspace-beta-demo-card > span:last-child,
+.workspace-beta-panel-intro,
+.workspace-beta-studio-tool {
+  font-size: var(--workspace-type-body);
+}
+
+.workspace-beta-work-area h3,
+.workspace-beta-demo-card strong {
+  font-size: var(--workspace-type-heading);
+}
+
+/* Shared embedded page heading. */
+.workspace-panel-embed-main .page-heading .eyebrow,
+.workspace-panel-embed-main .assistant-guide-page .eyebrow,
+.workspace-panel-embed-main .practice-content-heading .eyebrow,
+.workspace-panel-embed-main .practice-content-library .eyebrow {
+  font-size: var(--workspace-type-micro);
+}
+
+.workspace-panel-embed-main .page-heading h2,
+.workspace-panel-embed-main .practice-content-heading h3,
+.workspace-panel-embed-main .practice-content-library > div > h4 {
+  font-size: var(--workspace-type-heading);
+}
+
+.workspace-panel-embed-main .page-heading > p:last-child,
+.workspace-panel-embed-main .practice-content-heading > p:not(.eyebrow) {
+  font-size: var(--workspace-type-body);
+}
+
+/* Sources. */
+.workspace-panel-embed-main .dashboard-action-card .eyebrow {
+  font-size: var(--workspace-type-micro);
+}
+
+.workspace-panel-embed-main .dashboard-action-card h3 {
+  font-size: var(--workspace-type-body);
+}
+
+.workspace-panel-embed-main .dashboard-action-card > p:not(.eyebrow),
+.workspace-panel-embed-main .dashboard-action-card .button {
+  font-size: var(--workspace-type-small);
+}
+
+/* Practice: compact navigation rows. */
+.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .stage-number {
+  font-size: var(--workspace-type-micro);
+}
+
+.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid h3 {
+  font-size: var(--workspace-type-body);
+}
+
+.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid p,
+.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .button {
+  font-size: var(--workspace-type-small);
+}
+
+/* Practice: content management surface. */
+.workspace-panel-embed-main .practice-import-order,
+.workspace-panel-embed-main .practice-content-add-import-note,
+.workspace-panel-embed-main .storage-notice--compact summary,
+.workspace-panel-embed-main .practice-content-option h4,
+.workspace-panel-embed-main .practice-content-list-panel h5,
+.workspace-panel-embed-main .practice-content-item .local-file-row strong {
+  font-size: var(--workspace-type-body);
+}
+
+.workspace-panel-embed-main .practice-content-option > p,
+.workspace-panel-embed-main .practice-content-list-panel > p,
+.workspace-panel-embed-main .practice-content-page-status,
+.workspace-panel-embed-main .practice-content-item .local-file-row span,
+.workspace-panel-embed-main .practice-content-details dt,
+.workspace-panel-embed-main .practice-content-details dd,
+.workspace-panel-embed-main .storage-notice-details p,
+.workspace-panel-embed-main .local-file-actions .button,
+.workspace-panel-embed-main .practice-content-option > .button-row .button,
+.workspace-panel-embed-main .practice-content-pagination-actions .button,
+.workspace-panel-embed-main .button.compact-square,
+.workspace-panel-embed-main .inline-message {
+  font-size: var(--workspace-type-small);
+}
+
+.workspace-panel-embed-main .storage-notice-details strong {
+  font-size: var(--workspace-type-body);
+}
+
+/* AI Studio. */
+.workspace-panel-embed-main .assistant-guide-hero .eyebrow,
+.workspace-panel-embed-main .assistant-guide-card .eyebrow {
+  font-size: var(--workspace-type-micro);
+}
+
+.workspace-panel-embed-main .assistant-guide-hero h2 {
+  font-size: var(--workspace-type-heading);
+}
+
+.workspace-panel-embed-main .assistant-guide-hero > div > p:not(.eyebrow) {
+  font-size: var(--workspace-type-body);
+}
+
+.workspace-panel-embed-main .assistant-guide-card h3,
+.workspace-panel-embed-main .assistant-guide-note h3 {
+  font-size: var(--workspace-type-body);
+}
+
+.workspace-panel-embed-main .assistant-guide-card > p:not(.eyebrow),
+.workspace-panel-embed-main .assistant-guide-note p:last-child,
+.workspace-panel-embed-main .assistant-guide-page .button {
+  font-size: var(--workspace-type-small);
+}
+
+/* AI comparison modal content. */
+.workspace-panel-embed-main .assistant-comparison-hero .eyebrow,
+.workspace-panel-embed-main .assistant-comparison-status {
+  font-size: var(--workspace-type-micro);
+}
+
+.workspace-panel-embed-main .assistant-comparison-hero h2 {
+  font-size: var(--workspace-type-heading);
+}
+
+.workspace-panel-embed-main .assistant-comparison-hero p:not(.eyebrow) {
+  font-size: var(--workspace-type-body);
+}
+
+.workspace-panel-embed-main .assistant-comparison-hero .button,
+.workspace-panel-embed-main .assistant-comparison-table th,
+.workspace-panel-embed-main .assistant-comparison-table td,
+.workspace-panel-embed-main .assistant-comparison-table thead th,
+.workspace-panel-embed-main .assistant-comparison-table tbody th,
+.workspace-panel-embed-main .assistant-comparison-table thead strong,
+.workspace-panel-embed-main .assistant-comparison-note,
+.workspace-panel-embed-main .assistant-comparison-table tbody td::before {
+  font-size: var(--workspace-type-small);
+}
+
+/* Instructions modal content. */
+.workspace-panel-embed-main .instructions-hero h2 {
+  font-size: var(--workspace-type-heading);
+}
+
+.workspace-panel-embed-main .instructions-introduction,
+.workspace-panel-embed-main .instructions-case h3,
+.workspace-panel-embed-main .instructions-step h4,
+.workspace-panel-embed-main .instructions-import-order {
+  font-size: var(--workspace-type-body);
+}
+
+.workspace-panel-embed-main .instructions-case-heading .eyebrow,
+.workspace-panel-embed-main .instructions-hero .eyebrow {
+  font-size: var(--workspace-type-micro);
+}
+
+.workspace-panel-embed-main .instructions-notice,
+.workspace-panel-embed-main .instructions-case-heading > p:last-child,
+.workspace-panel-embed-main .instructions-step-number,
+.workspace-panel-embed-main .instructions-step p,
+.workspace-panel-embed-main .instructions-import-reminder,
+.workspace-panel-embed-main .instructions-actions .button {
+  font-size: var(--workspace-type-small);
+}
+
+.workspace-panel-embed-main .instructions-import-arrow {
+  font-size: var(--workspace-type-body);
+}
+
+/* Appearance Settings when rendered inside the Workspace modal. */
+.workspace-panel-embed-main .page-heading:has(+ .content-panel .appearance-settings-grid) .eyebrow {
+  font-size: var(--workspace-type-micro);
+}
+
+.workspace-panel-embed-main .page-heading:has(+ .content-panel .appearance-settings-grid) h2 {
+  font-size: var(--workspace-type-heading);
+}
+
+.workspace-panel-embed-main .page-heading:has(+ .content-panel .appearance-settings-grid) > p:last-child,
+.workspace-panel-embed-main .appearance-settings-grid .field-label,
+.workspace-panel-embed-main .appearance-settings-grid select {
+  font-size: var(--workspace-type-body);
+}
+
+.workspace-panel-embed-main .appearance-settings-grid .field-help,
+.workspace-panel-embed-main .appearance-actions .button,
+.workspace-panel-embed-main .content-panel:has(.appearance-settings-grid) .inline-message {
+  font-size: var(--workspace-type-small);
+}
+
+/* Important Info when rendered as secondary Workspace information. */
+.workspace-panel-embed-main .important-info-page .content-panel h3,
+.workspace-panel-embed-main .important-info-page .content-panel h4,
+.workspace-panel-embed-main .important-info-page .important-info-callout strong,
+.workspace-panel-embed-main .important-info-page .important-info-warning strong {
+  font-size: var(--workspace-type-body);
+}
+
+.workspace-panel-embed-main .important-info-page .content-panel p,
+.workspace-panel-embed-main .important-info-page .content-panel li,
+.workspace-panel-embed-main .important-info-page .important-info-callout p,
+.workspace-panel-embed-main .important-info-page .important-info-warning p {
+  font-size: var(--workspace-type-body);
+}
+
+.workspace-panel-embed-main .important-info-page .important-info-jump-links a,
+.workspace-panel-embed-main .important-info-page .important-info-actions .button,
+.workspace-panel-embed-main .important-info-page .important-info-footer-actions .button,
+.workspace-panel-embed-main .important-info-page .text-link {
+  font-size: var(--workspace-type-small);
+}
