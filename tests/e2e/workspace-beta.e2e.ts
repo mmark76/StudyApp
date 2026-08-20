@@ -28,7 +28,7 @@ test("Workspace BETA keeps three independent functional StudyApp panels", async 
   await expect(sources.getByRole("heading", { name: "Library" })).toBeVisible();
   await expect(practice.getByRole("heading", { name: "Learn" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Go to Sources" }).click();
+  await page.getByRole("button", { name: "Go to Sources home" }).click();
   await expect(sources.getByRole("heading", { name: "Sources" })).toBeVisible();
 
   const assistantLink = page.getByRole("link", { name: "Start StudyApp AI Assistant" });
@@ -141,9 +141,6 @@ test("Workspace BETA wheel scrolls a frame even when parent focus is left outsid
     practiceBox.y + Math.min(practiceBox.height / 2, 320),
   );
 
-  // Recreate the real failure mode: focus stays in the parent document even
-  // though the pointer is already over the iframe. The wheel must still work
-  // without a click or text selection inside Practice.
   await divider.focus();
   await expect.poll(() => page.evaluate(() =>
     document.activeElement?.classList.contains("workspace-beta-resizer"),
