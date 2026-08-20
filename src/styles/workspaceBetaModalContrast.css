@@ -1,0 +1,22 @@
+/* Workspace BETA only: make dark-mode modal surfaces read clearly above the workspace. */
+:root[data-workspace-theme="dark"] .workspace-beta-info-modal-backdrop {
+  background: rgb(4 4 4 / 0.72);
+  backdrop-filter: blur(2px);
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-info-modal {
+  border-color: #6a6a62;
+  background: #292927;
+  box-shadow:
+    0 28px 90px rgb(0 0 0 / 0.72),
+    0 0 0 1px rgb(255 255 255 / 0.05);
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-info-modal-header {
+  border-bottom-color: #565650;
+  background: #30302d;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-info-modal-frame {
+  background: #1d1d1c;
+}
