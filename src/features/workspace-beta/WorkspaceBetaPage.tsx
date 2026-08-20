@@ -446,9 +446,8 @@ export function WorkspaceBetaPage() {
                 <h2 id="workspace-sources-title">{text("Sources", "Πηγές")}</h2>
               </div>
               <div className="workspace-beta-panel-tools">
-                <span className="workspace-beta-live-label">{text("Live", "Ενεργό")}</span>
                 <button onClick={() => resetPanel("sources")} type="button">
-                  {text("Sources home", "Αρχική Πηγών")}
+                  {text("Go to Sources", "Μετάβαση στις Πηγές")}
                 </button>
               </div>
             </div>
@@ -493,9 +492,8 @@ export function WorkspaceBetaPage() {
                 <h2 id="workspace-practice-title">{text("Practice", "Εξάσκηση")}</h2>
               </div>
               <div className="workspace-beta-panel-tools">
-                <span className="workspace-beta-live-label">{text("Live", "Ενεργό")}</span>
                 <button onClick={() => resetPanel("practice")} type="button">
-                  {text("Practice home", "Αρχική Εξάσκησης")}
+                  {text("Go to Practice", "Μετάβαση στην Εξάσκηση")}
                 </button>
               </div>
             </div>
@@ -540,9 +538,8 @@ export function WorkspaceBetaPage() {
                 <h2 id="workspace-studio-title">AI Studio</h2>
               </div>
               <div className="workspace-beta-panel-tools">
-                <span className="workspace-beta-live-label">{text("Live", "Ενεργό")}</span>
                 <button onClick={() => resetPanel("ai")} type="button">
-                  {text("AI options", "Επιλογές AI")}
+                  {text("Go to AI options", "Μετάβαση στις επιλογές AI")}
                 </button>
               </div>
             </div>
