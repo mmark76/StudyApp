@@ -1,11 +1,17 @@
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { PracticeContentManager } from "../content-import/PracticeContentManager";
+
+function isWorkspaceSourcesFrame(): boolean {
+  return typeof window !== "undefined" && window.name === "studyapp-workspace-sources";
+}
 
 export function SourcesPage() {
   const { text } = useLanguage();
+  const workspaceSourcesFrame = isWorkspaceSourcesFrame();
 
   return (
-    <div className="stack-lg">
+    <div className="stack-lg workspace-beta-sources-page">
       <header className="page-heading">
         <p className="eyebrow">{text("Add & organize", "Πρόσθεσε & οργάνωσε")}</p>
         <h2>{text("Sources", "Πηγές")}</h2>
@@ -43,6 +49,8 @@ export function SourcesPage() {
           </Link>
         </article>
       </section>
+
+      {workspaceSourcesFrame ? <PracticeContentManager /> : null}
     </div>
   );
 }

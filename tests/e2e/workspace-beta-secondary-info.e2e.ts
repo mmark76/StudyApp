@@ -68,14 +68,18 @@ test("Workspace BETA opens Settings in a modal and applies appearance changes wi
   await expect(page).toHaveURL(/#\/workspace-beta$/u);
 });
 
-test("Workspace BETA keeps the imported flashcard list hidden while flashcard study actions remain available", async ({ page }) => {
+test("Workspace BETA keeps practice-content management in Sources while study actions remain in Practice", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/#/workspace-beta");
 
+  const sources = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
   const practice = page.frameLocator('iframe[name="studyapp-workspace-practice"]');
+
   await expect(practice.getByRole("heading", { name: "Learn" })).toBeVisible();
   await expect(practice.getByRole("link", { name: "Practice with flashcards" })).toBeVisible();
-  await expect(practice.getByRole("button", { name: "Import Flashcards CSV" })).toBeVisible();
-  await expect(practice.locator('[aria-labelledby="imported-practice-chapters-title"]')).toBeVisible();
-  await expect(practice.locator('[aria-labelledby="imported-flashcards-title"]')).toBeHidden();
+  await expect(practice.getByRole("button", { name: "Import Flashcards CSV" })).toHaveCount(0);
+
+  await expect(sources.getByRole("button", { name: "Import Flashcards CSV" })).toBeVisible();
+  await expect(sources.locator('[aria-labelledby="imported-practice-chapters-title"]')).toBeVisible();
+  await expect(sources.locator('[aria-labelledby="imported-flashcards-title"]')).toBeHidden();
 });

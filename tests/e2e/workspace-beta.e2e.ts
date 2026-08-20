@@ -146,7 +146,6 @@ test("Workspace BETA wheel scrolls a frame even when parent focus is left outsid
     practiceBox.x + practiceBox.width / 2,
     practiceBox.y + Math.min(practiceBox.height / 2, 320),
   );
-
   await divider.focus();
   await expect.poll(() => page.evaluate(() =>
     document.activeElement?.classList.contains("workspace-beta-resizer"),
@@ -159,20 +158,20 @@ test("Workspace BETA wheel scrolls a frame even when parent focus is left outsid
   await expect.poll(() => practiceFrame.evaluate(() => document.hasFocus())).toBe(true);
 });
 
-test("Workspace BETA Practice content uses readable content-sized columns", async ({ page }) => {
+test("Workspace BETA Sources practice content uses readable content-sized columns", async ({ page }) => {
   await page.setViewportSize({ width: 2200, height: 900 });
   await page.goto("/#/workspace-beta");
 
   const panels = page.locator(".workspace-beta-functional-panel");
-  const secondDivider = page.locator(".workspace-beta-resizer").nth(1);
-  const practice = page.frameLocator('iframe[name="studyapp-workspace-practice"]');
-  const practiceLists = practice.locator(".practice-content-lists");
+  const firstDivider = page.locator(".workspace-beta-resizer").first();
+  const sources = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
+  const practiceLists = sources.locator(".practice-content-lists");
 
   await expect(practiceLists).toBeVisible();
-  const initialPracticeWidth = await panels.nth(1).evaluate((panel) =>
+  const initialSourcesWidth = await panels.nth(0).evaluate((panel) =>
     panel.getBoundingClientRect().width,
   );
-  expect(initialPracticeWidth).toBeLessThan(1056);
+  expect(initialSourcesWidth).toBeLessThan(1056);
 
   await expect.poll(async () =>
     practiceLists.evaluate((element) =>
@@ -180,8 +179,8 @@ test("Workspace BETA Practice content uses readable content-sized columns", asyn
     ),
   ).toBe(1);
 
-  const dividerBox = await secondDivider.boundingBox();
-  if (!dividerBox) throw new Error("Practice/AI divider was not measurable");
+  const dividerBox = await firstDivider.boundingBox();
+  if (!dividerBox) throw new Error("Sources/Practice divider was not measurable");
 
   await page.mouse.move(
     dividerBox.x + dividerBox.width / 2,
@@ -189,14 +188,14 @@ test("Workspace BETA Practice content uses readable content-sized columns", asyn
   );
   await page.mouse.down();
   await page.mouse.move(
-    dividerBox.x + dividerBox.width / 2 + 220,
+    dividerBox.x + dividerBox.width / 2 + 560,
     dividerBox.y + dividerBox.height / 2,
     { steps: 10 },
   );
   await page.mouse.up();
 
   await expect.poll(async () =>
-    panels.nth(1).evaluate((panel) => panel.getBoundingClientRect().width),
+    panels.nth(0).evaluate((panel) => panel.getBoundingClientRect().width),
   ).toBeGreaterThan(1056);
 
   await expect.poll(async () =>

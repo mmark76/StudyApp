@@ -36,6 +36,7 @@ import "./styles/workspaceBetaPwaUpdate.css";
 import "./styles/workspaceBetaButtons.css";
 import "./styles/workspaceBetaModalContrast.css";
 import "./styles/workspaceBetaComparison.css";
+import "./styles/workspaceBetaPracticeContentPlacement.css";
 
 if (!enforceSecureTransport()) {
   const updateServiceWorker = registerSW({
