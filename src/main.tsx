@@ -40,6 +40,7 @@ import "./styles/workspaceBetaPracticeContentPlacement.css";
 import "./styles/workspaceBetaButtonPolish.css";
 import "./styles/workspaceBetaPracticeFooter.css";
 import "./styles/workspaceBetaRegressionFixes.css";
+import "./styles/workspaceBetaImportedActionContrast.css";
 
 if (!enforceSecureTransport()) {
   const updateServiceWorker = registerSW({
