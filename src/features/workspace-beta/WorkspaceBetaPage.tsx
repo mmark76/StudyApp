@@ -447,7 +447,7 @@ export function WorkspaceBetaPage() {
               </div>
               <div className="workspace-beta-panel-tools">
                 <button onClick={() => resetPanel("sources")} type="button">
-                  {text("Go to Sources", "Μετάβαση στις Πηγές")}
+                  {text("Go to Sources home", "Μετάβαση στην αρχική Πηγών")}
                 </button>
               </div>
             </div>
@@ -493,7 +493,7 @@ export function WorkspaceBetaPage() {
               </div>
               <div className="workspace-beta-panel-tools">
                 <button onClick={() => resetPanel("practice")} type="button">
-                  {text("Go to Practice", "Μετάβαση στην Εξάσκηση")}
+                  {text("Go to Practice home", "Μετάβαση στην αρχική Εξάσκησης")}
                 </button>
               </div>
             </div>
