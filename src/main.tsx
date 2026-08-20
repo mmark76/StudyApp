@@ -8,6 +8,7 @@ import {
   setPwaUpdateHandler,
 } from "./app/pwaUpdate";
 import "./features/workspace-beta/workspaceFramePointerFocus";
+import "./features/workspace-beta/workspaceInfoMenuAutoClose";
 import "./styles/global.css";
 import "./styles/headerNavigation.css";
 import "./styles/workspaceBeta.css";
