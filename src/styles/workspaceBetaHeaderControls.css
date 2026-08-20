@@ -61,6 +61,22 @@
   color: #20201e;
 }
 
+.workspace-beta-functional-shell .workspace-beta-ecosystem-link {
+  flex: none;
+  padding: 0.3rem 0.05rem;
+  color: #97671f;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.workspace-beta-functional-shell .workspace-beta-ecosystem-link:hover {
+  color: #765019;
+  text-decoration: underline;
+  text-underline-offset: 0.24em;
+}
+
 .workspace-beta-functional-shell .workspace-beta-theme-toggle {
   padding: 0.3rem 0.05rem;
   border: 0;
@@ -79,6 +95,7 @@
 
 .workspace-beta-functional-shell .workspace-beta-theme-toggle:focus-visible,
 .workspace-beta-functional-shell .workspace-beta-standard-version:focus-visible,
+.workspace-beta-functional-shell .workspace-beta-ecosystem-link:focus-visible,
 .workspace-beta-functional-shell .language-switcher button:focus-visible {
   outline-width: 2px;
   outline-offset: 2px;
@@ -96,6 +113,14 @@
   color: #f4f4f1;
 }
 
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ecosystem-link {
+  color: #c89b4d;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ecosystem-link:hover {
+  color: #ddb568;
+}
+
 @media (max-width: 760px) {
   .workspace-beta-functional-shell .workspace-beta-header-left {
     gap: 0.42rem;
@@ -109,5 +134,10 @@
 
   .workspace-beta-functional-shell .workspace-beta-title {
     display: none;
+  }
+
+  .workspace-beta-functional-shell .workspace-beta-ecosystem-link {
+    max-width: 8.5rem;
+    white-space: normal;
   }
 }
