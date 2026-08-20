@@ -380,6 +380,14 @@ export function WorkspaceBetaPage() {
         </div>
         <div className="workspace-beta-header-actions">
           <LanguageSwitcher />
+          <a
+            className="workspace-beta-ecosystem-link"
+            href="https://markellosecosystem.com/"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            {text("Back to markellosecosystem", "Πίσω στο markellosecosystem")}
+          </a>
           <WorkspaceThemeToggle />
           <Link
             onClick={(event) => {
@@ -406,9 +414,6 @@ export function WorkspaceBetaPage() {
                 </Link>
                 <a href="mailto:markellos.markides@gmail.com?subject=StudyApp%20Feedback">
                   {text("Feedback", "Σχόλια")}
-                </a>
-                <a href="https://markellosecosystem.com/" rel="noopener noreferrer" target="_blank">
-                  {text("Back to markellosecosystem", "Πίσω στο markellosecosystem")}
                 </a>
                 <span className="workspace-beta-info-separator" aria-hidden="true" />
                 <Link rel="noopener noreferrer" target="_blank" to="/legal/license">
