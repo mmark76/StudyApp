@@ -1,0 +1,237 @@
+/*
+ * Workspace BETA final button normalization.
+ *
+ * Earlier compact/dark-theme rules intentionally have high specificity. This
+ * last-loaded layer keeps the agreed semantic colours authoritative in both
+ * themes and gives link-style actions consistent button padding/borders.
+ * Presentation only: no handlers, routes or study behaviour are changed.
+ */
+
+/* Practice study actions: do/start = green, progress = neutral slate. */
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.practice,
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.review,
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.quiz {
+  min-height: 1.9rem;
+  padding: 0.34rem 0.58rem;
+  border: 1px solid var(--ws-btn-green-border);
+  border-radius: 0.36rem;
+  background: var(--ws-btn-green-bg);
+  color: var(--ws-btn-text);
+  box-shadow: none;
+  text-decoration: none;
+}
+
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.practice:hover,
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.review:hover,
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.quiz:hover {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-hover);
+  color: var(--ws-btn-text);
+}
+
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.utility {
+  min-height: 1.9rem;
+  padding: 0.34rem 0.58rem;
+  border: 1px solid var(--ws-btn-slate-border);
+  border-radius: 0.36rem;
+  background: var(--ws-btn-slate-bg);
+  color: var(--ws-btn-text);
+  box-shadow: none;
+  text-decoration: none;
+}
+
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.utility:hover {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-hover);
+  color: var(--ws-btn-text);
+}
+
+/* Sources navigation actions: keep the wood tone, but make them read as buttons. */
+.workspace-panel-embed-main
+  .workspace-beta-sources-page
+  .dashboard-action-card
+  .button {
+  display: inline-flex;
+  min-height: 1.9rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.34rem 0.58rem;
+  border: 1px solid var(--ws-btn-wood-border);
+  border-radius: 0.36rem;
+  background: var(--ws-btn-wood-bg);
+  color: var(--ws-btn-text);
+  box-shadow: none;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.workspace-panel-embed-main
+  .workspace-beta-sources-page
+  .dashboard-action-card
+  .button:hover {
+  border-color: var(--ws-btn-wood-border);
+  background: var(--ws-btn-wood-hover);
+  color: var(--ws-btn-text);
+}
+
+/* AI information links: gold/bronze with proper breathing room. */
+.workspace-panel-embed-main
+  .assistant-guide-page
+  .assistant-guide-hero
+  .button.secondary,
+.workspace-panel-embed-main
+  .assistant-guide-page
+  .assistant-guide-card
+  .button.secondary {
+  display: inline-flex;
+  min-height: 1.9rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.34rem 0.58rem;
+  border: 1px solid var(--ws-btn-gold-border);
+  border-radius: 0.36rem;
+  background: var(--ws-btn-gold-bg);
+  color: var(--ws-btn-text);
+  box-shadow: none;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.workspace-panel-embed-main
+  .assistant-guide-page
+  .assistant-guide-hero
+  .button.secondary:hover,
+.workspace-panel-embed-main
+  .assistant-guide-page
+  .assistant-guide-card
+  .button.secondary:hover {
+  border-color: var(--ws-btn-gold-border);
+  background: var(--ws-btn-gold-hover);
+  color: var(--ws-btn-text);
+}
+
+/*
+ * Dark parent-shell rules in workspaceBetaTheme.css are intentionally more
+ * specific than the generic semantic layer. Match that specificity here so
+ * dark mode uses the same semantic hierarchy rather than reverting to white or
+ * neutral controls.
+ */
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  .workspace-beta-panel-tools
+  button,
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  .workspace-beta-standard-version {
+  border-color: var(--ws-btn-wood-border);
+  background: var(--ws-btn-wood-bg);
+  color: var(--ws-btn-text);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  .workspace-beta-panel-tools
+  button:hover,
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  .workspace-beta-standard-version:hover {
+  border-color: var(--ws-btn-wood-border);
+  background: var(--ws-btn-wood-hover);
+  color: var(--ws-btn-text);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  .workspace-beta-ai-launch-row
+  a {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-bg);
+  color: var(--ws-btn-text);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  .workspace-beta-ai-launch-row
+  a:hover {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-hover);
+  color: var(--ws-btn-text);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  .workspace-beta-info-modal-header
+  > button {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-bg);
+  color: var(--ws-btn-text);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  .workspace-beta-info-modal-header
+  > button:hover {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-hover);
+  color: var(--ws-btn-text);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  ~ .pwa-update-toast
+  .button.primary {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-bg);
+  color: var(--ws-btn-text);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  ~ .pwa-update-toast
+  .button.primary:hover {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-hover);
+  color: var(--ws-btn-text);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  ~ .pwa-update-toast
+  .button.secondary {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-bg);
+  color: var(--ws-btn-text);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  ~ .pwa-update-toast
+  .button.secondary:hover {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-hover);
+  color: var(--ws-btn-text);
+}
