@@ -316,11 +316,13 @@ function FlashcardEditor({
 interface PracticeContentManagerProps {
   failureInjector?: LocalWriteFailureInjector;
   learningTools?: ReactNode;
+  pageLayout?: boolean;
 }
 
 export function PracticeContentManager({
   failureInjector,
   learningTools,
+  pageLayout = false,
 }: PracticeContentManagerProps = {}) {
   const { language, text } = useLanguage();
   const {
@@ -343,6 +345,9 @@ export function PracticeContentManager({
   const chaptersInputRef = useRef<HTMLInputElement>(null);
   const chapterResultsHeadingRef = useRef<HTMLHeadingElement>(null);
   const flashcardResultsHeadingRef = useRef<HTMLHeadingElement>(null);
+  const OptionHeading = pageLayout ? "h3" : "h4";
+  const ImportedContentHeading = pageLayout ? "h3" : "h4";
+  const ImportedListHeading = pageLayout ? "h4" : "h5";
   const pendingAddedUnitIdRef = useRef<string | null>(null);
   const pendingAddedCardIdRef = useRef<string | null>(null);
   const projection = useMemo(
@@ -561,17 +566,25 @@ export function PracticeContentManager({
   }
 
   return (
-    <section aria-labelledby="practice-content-title" className="content-panel practice-content-manager" id="practice-content">
-      <div className="practice-content-heading">
-        <p className="eyebrow">{text("PRACTICE CONTENT", "ΠΕΡΙΕΧΟΜΕΝΟ ΕΞΑΣΚΗΣΗΣ")}</p>
-        <h3 id="practice-content-title">{text("Manage practice content", "Διαχείριση περιεχομένου εξάσκησης")}</h3>
-        <p>{text(
-          "Add, import or manage your flashcards and practice chapters.",
-          "Προσθέστε, εισαγάγετε ή διαχειριστείτε τις flashcards και τα κεφάλαια εξάσκησης.",
-        )}</p>
-      </div>
+    <section
+      aria-labelledby="practice-content-title"
+      className={`practice-content-manager${pageLayout ? " practice-content-manager--page" : " content-panel"}`}
+      id="practice-content"
+    >
+      {!pageLayout ? (
+        <>
+          <div className="practice-content-heading">
+            <p className="eyebrow">{text("PRACTICE CONTENT", "ΠΕΡΙΕΧΟΜΕΝΟ ΕΞΑΣΚΗΣΗΣ")}</p>
+            <h3 id="practice-content-title">{text("Manage practice content", "Διαχείριση περιεχομένου εξάσκησης")}</h3>
+            <p>{text(
+              "Add, import or manage your flashcards and practice chapters.",
+              "Προσθέστε, εισαγάγετε ή διαχειριστείτε τις flashcards και τα κεφάλαια εξάσκησης.",
+            )}</p>
+          </div>
 
-      <StorageNotice kind={storageNoticePlacements.contentImport} />
+          <StorageNotice kind={storageNoticePlacements.contentImport} />
+        </>
+      ) : null}
 
       {hasStoredContentError ? (
         <p className="inline-message status-banner" role="alert">
@@ -582,10 +595,12 @@ export function PracticeContentManager({
         </p>
       ) : null}
 
-      <p className="practice-import-order">{text(
-        "New content? Import the Chapters CSV first, then the Flashcards CSV.",
-        "Νέο περιεχόμενο; Εισαγάγετε πρώτα το Chapters CSV και μετά το Flashcards CSV.",
-      )}</p>
+      {!pageLayout ? (
+        <p className="practice-import-order">{text(
+          "New content? Import the Chapters CSV first, then the Flashcards CSV.",
+          "Νέο περιεχόμενο; Εισαγάγετε πρώτα το Chapters CSV και μετά το Flashcards CSV.",
+        )}</p>
+      ) : null}
 
       {message ? <p className="inline-message status-banner" role="status" aria-live="polite">{message}</p> : null}
 
@@ -596,7 +611,7 @@ export function PracticeContentManager({
         role="group"
       >
         <article className="template-card practice-content-option">
-          <h4>{text("Practice Chapters", "Κεφάλαια εξάσκησης")}</h4>
+          <OptionHeading>{text("Practice Chapters", "Κεφάλαια εξάσκησης")}</OptionHeading>
           <p>{text(
             "Practice chapters group and organize your flashcards. They are not files stored in Structured Study.",
             "Τα κεφάλαια εξάσκησης οργανώνουν τις flashcards. Δεν είναι αρχεία του Structured Study.",
@@ -641,7 +656,7 @@ export function PracticeContentManager({
         </article>
 
         <article className="template-card practice-content-option">
-          <h4>{text("Flashcards", "Flashcards")}</h4>
+          <OptionHeading>{text("Flashcards", "Flashcards")}</OptionHeading>
           <p>{text(
             "Add one flashcard or import many from CSV.",
             "Προσθέστε μία flashcard ή εισαγάγετε πολλές από CSV.",
@@ -696,18 +711,18 @@ export function PracticeContentManager({
       <div aria-labelledby="imported-practice-content-title" className="practice-content-library">
         <div>
           <p className="eyebrow">{text("IMPORTED PRACTICE CONTENT", "ΕΙΣΑΓΟΜΕΝΟ ΠΕΡΙΕΧΟΜΕΝΟ ΕΞΑΣΚΗΣΗΣ")}</p>
-          <h4 id="imported-practice-content-title">{text("Manage imported content", "Διαχείριση εισαγόμενου περιεχομένου")}</h4>
+          <ImportedContentHeading id="imported-practice-content-title">{text("Manage imported content", "Διαχείριση εισαγόμενου περιεχομένου")}</ImportedContentHeading>
         </div>
 
         <div className="practice-content-lists">
           <section aria-labelledby="imported-practice-chapters-title" className="practice-content-list-panel">
-            <h5
+            <ImportedListHeading
               id="imported-practice-chapters-title"
               ref={chapterResultsHeadingRef}
               tabIndex={-1}
             >
               {text("Practice Chapters", "Κεφάλαια εξάσκησης")} ({importedUnits.length})
-            </h5>
+            </ImportedListHeading>
             {importedUnits.length === 0 ? (
               <p>{text("No imported practice chapters yet.", "Δεν υπάρχουν ακόμη εισαγόμενα κεφάλαια εξάσκησης.")}</p>
             ) : (
@@ -752,13 +767,13 @@ export function PracticeContentManager({
           </section>
 
           <section aria-labelledby="imported-flashcards-title" className="practice-content-list-panel">
-            <h5
+            <ImportedListHeading
               id="imported-flashcards-title"
               ref={flashcardResultsHeadingRef}
               tabIndex={-1}
             >
               {text("Flashcards", "Flashcards")} ({importedFlashcards.length})
-            </h5>
+            </ImportedListHeading>
             {importedFlashcards.length === 0 ? (
               <p>{text("No imported flashcards yet.", "Δεν υπάρχουν ακόμη εισαγόμενες flashcards.")}</p>
             ) : (
