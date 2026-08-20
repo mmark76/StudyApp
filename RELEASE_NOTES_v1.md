@@ -1,13 +1,41 @@
 # StudyApp v1.0.0 Release Notes
 
-_Release gate date: 2026-07-28_
+_Current production verification: 2026-08-20_
 
-## Release-hardening follow-up
+## August 20 verified production release
 
-The July 28 follow-up preserves the v1 feature scope while making its limited
+StudyApp v1.0.0 is now **RELEASE VERIFIED** for the current deployed build.
+
+Release identity:
+
+- PR: `#186`;
+- production `main` SHA: `5d94e2744014e1d87a4e65d8462ac98082d3e1ce`;
+- deployed build: `v1.0.0_20260820_2202_5d94e27`;
+- stable release branch: `stable/release-2026-08-20`.
+
+The August remediation resolved four confirmed release blockers:
+
+- DATA-04;
+- WB-01;
+- WB-02;
+- WB-03.
+
+Verification for the exact remediation state passed typecheck, the production
+build, 268/268 unit tests, 49/49 E2E tests, Linux CI and the production-only
+dependency audit with 0 vulnerabilities.
+
+Interactive production smoke verification then passed DATA-04 and
+WB-01/WB-02/WB-03 in Google Chrome `151.0.7922.138` using Playwright `1.62.1`.
+No runtime/React error or critical request failure was observed. Temporary smoke
+data was removed through the normal UI and cleanup was confirmed after reload.
+A non-material `/favicon.ico` 404 remains.
+
+## July 28 release-hardening follow-up
+
+The July 28 follow-up preserved the v1 feature scope while making its limited
 personal-use model explicit:
 
-- visible shared notices now explain local browser storage, data-loss risk,
+- visible shared notices explain local browser storage, data-loss risk,
   original-file retention, and the exact progress/settings backup boundary;
 - adding a file is described as importing a local browser copy, not sending it
   to a server;
@@ -33,6 +61,9 @@ personal-use model explicit:
 - A progress/settings JSON backup with strict validation, preview, explicit
   confirmation, and transactional restore.
 - Central safe handling for every uploaded or reopened local study file.
+- Workspace BETA as a separate experimental multi-panel UX area. The current
+  DATA-04 and WB-01/WB-02/WB-03 release-blocking defects are resolved without
+  changing the stable top-level product scope.
 
 ## Local-first storage limitations
 
@@ -64,6 +95,8 @@ significant type mismatches are rejected.
 
 ## Known non-blocking limitations
 
+- DATA-02 remains Low/non-blocking.
+- WB-04 remains Low/non-blocking.
 - Complete local-file backup/export is not implemented.
 - Browsers may prompt for permission before allowing several files from
   **Download all**.
@@ -71,18 +104,14 @@ significant type mismatches are rejected.
   multi-chunk processing has limited progress/cancellation feedback.
 - Nested split-PDF relationships are not traversed recursively during source
   deletion; retained descendants remain stored but may lose source lineage.
-- Some study-session timing and persistence-failure UX needs stronger lifecycle
-  handling.
-- Browser/E2E, accessibility, coverage, linting, and dependency-advisory
-  automation are not yet part of the standard test gate.
-- `npm audit --omit=dev` flags
-  [GHSA-qwww-vcr4-c8h2](https://github.com/advisories/GHSA-qwww-vcr4-c8h2)
-  in React Router. The advisory applies only to unstable RSC APIs; StudyApp is
-  a client-only hash-routed SPA with no RSC, server actions, or backend, so the
-  vulnerable path is not present. Moving to the patched major release is
-  deferred as a separately reviewed dependency migration.
+- Some study-session timing and persistence-failure UX may benefit from further
+  lifecycle hardening.
+- Two high-severity advisories remain in transitive build/dev dependencies;
+  the production-only dependency audit is clean.
+- Firefox and WebKit interactive verification remain future cross-browser work.
+- Manual screen-reader verification remains future accessibility work.
 - Existing legacy row-based flashcard progress is preserved and is not
   automatically migrated to new content-based IDs.
 
-The scoped follow-up list is in [`V1_1_BACKLOG.md`](V1_1_BACKLOG.md). No v1.1
-work is included in this release.
+The scoped follow-up list remains in [`V1_1_BACKLOG.md`](V1_1_BACKLOG.md). No
+unrelated v1.1 feature expansion is implied by the August release verification.
