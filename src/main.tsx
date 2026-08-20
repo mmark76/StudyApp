@@ -9,6 +9,7 @@ import {
 } from "./app/pwaUpdate";
 import "./features/workspace-beta/workspaceFramePointerFocus";
 import "./features/workspace-beta/workspaceInfoMenuAutoClose";
+import "./features/workspace-beta/workspaceInfoModalDocument";
 import "./styles/global.css";
 import "./styles/headerNavigation.css";
 import "./styles/workspaceBeta.css";
