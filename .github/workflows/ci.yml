@@ -4,6 +4,9 @@ on:
   pull_request:
   push:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - '.github/**'
   workflow_dispatch:
 
 permissions:
