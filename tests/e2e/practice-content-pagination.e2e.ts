@@ -4,8 +4,10 @@ async function readHorizontalLayout(page: Page) {
   const manager = page.locator(".practice-content-manager");
   return manager.evaluate((element) => {
     const managerBounds = element.getBoundingClientRect();
-    const heading = element.querySelector<HTMLElement>(".practice-content-heading");
-    const title = element.querySelector<HTMLElement>("#practice-content-title");
+    const heading = document.querySelector<HTMLElement>(
+      ".workspace-beta-practice-page > .page-heading",
+    );
+    const title = document.querySelector<HTMLElement>("#practice-content-title");
     const root = document.querySelector<HTMLElement>("#root");
     const appShell = document.querySelector<HTMLElement>(".app-shell");
     const main = document.querySelector<HTMLElement>(".app-main");

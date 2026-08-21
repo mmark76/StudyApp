@@ -37,11 +37,24 @@
   height: 100%;
 }
 
+.practice-content-option h3,
 .practice-content-option h4,
 .practice-content-option p,
+.practice-content-library h3,
 .practice-content-library h4,
+.practice-content-list-panel h4,
 .practice-content-list-panel h5 {
   margin: 0;
+}
+
+.practice-content-manager--page .practice-content-option h3,
+.practice-content-manager--page .practice-content-library h3 {
+  font-size: 1em;
+}
+
+.practice-content-manager--page .practice-content-list-panel h4 {
+  font-size: 0.83em;
+  line-height: normal;
 }
 
 .practice-content-option p {

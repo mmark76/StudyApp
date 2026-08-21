@@ -1000,16 +1000,27 @@ test("Learn manages bilingual practice content inline before four responsive stu
   const optionCards = options.locator(".practice-content-option");
   const actionRows = optionCards.locator(":scope > .button-row");
   const guidance = manager.locator("#practice-content-add-import-note");
+  const pageHeading = page.locator(".workspace-beta-practice-page > .page-heading");
   const englishGrid = page.getByRole("region", { name: "Learning tools" });
-  await expect(manager.getByText("PRACTICE CONTENT", { exact: true })).toBeVisible();
-  await expect(manager.getByText(
+  await expect(pageHeading.getByText("PRACTICE CONTENT", { exact: true })).toBeVisible();
+  await expect(pageHeading.getByRole("heading", {
+    level: 2,
+    name: "Manage practice content",
+  })).toBeVisible();
+  await expect(pageHeading.getByText(
     "Add, import or manage your flashcards and practice chapters.",
     { exact: true },
   )).toBeVisible();
-  await expect(manager.getByText(
-    "New content? Import the Chapters CSV first, then the Flashcards CSV.",
+  await expect(pageHeading.getByText(
+    "Import the Chapters CSV first, then the Flashcards CSV.",
     { exact: true },
   )).toBeVisible();
+  await expect(manager).not.toHaveClass(/\bcontent-panel\b/u);
+  await expect(page.getByText(
+    "Study content is stored locally in this browser and device.",
+    { exact: true },
+  )).toHaveCount(0);
+  await expect(page.getByText("Learn more", { exact: true })).toHaveCount(0);
   await expect(manager.getByText(
     "Add one flashcard or import many from CSV.",
     { exact: true },
@@ -1104,13 +1115,14 @@ test("Learn manages bilingual practice content inline before four responsive stu
 
   await page.getByRole("button", { name: "GR" }).click();
   const greekManager = page.getByRole("region", { name: "Διαχείριση περιεχομένου εξάσκησης" });
-  await expect(greekManager.getByText("ΠΕΡΙΕΧΟΜΕΝΟ ΕΞΑΣΚΗΣΗΣ", { exact: true })).toBeVisible();
-  await expect(greekManager.getByText(
+  const greekPageHeading = page.locator(".workspace-beta-practice-page > .page-heading");
+  await expect(greekPageHeading.getByText("ΠΕΡΙΕΧΟΜΕΝΟ ΕΞΑΣΚΗΣΗΣ", { exact: true })).toBeVisible();
+  await expect(greekPageHeading.getByText(
     "Προσθέστε, εισαγάγετε ή διαχειριστείτε τις flashcards και τα κεφάλαια εξάσκησης.",
     { exact: true },
   )).toBeVisible();
-  await expect(greekManager.getByText(
-    "Νέο περιεχόμενο; Εισαγάγετε πρώτα το Chapters CSV και μετά το Flashcards CSV.",
+  await expect(greekPageHeading.getByText(
+    "Εισαγάγετε πρώτα το Chapters CSV και μετά το Flashcards CSV.",
     { exact: true },
   )).toBeVisible();
   await expect(greekManager.locator("#practice-content-add-import-note")).toHaveText(

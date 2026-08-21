@@ -4,6 +4,13 @@
   min-width: 0;
 }
 
+.practice-content-page-import-order {
+  margin-top: -0.35rem;
+  color: var(--slate-700);
+  font-size: 0.95rem;
+  font-weight: 650;
+}
+
 .learning-stage-grid.learn-tools-grid > .learning-stage-card {
   min-width: 0;
   min-height: 240px;

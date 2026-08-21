@@ -8,8 +8,13 @@ interface LearnPageProps {
   failureInjector?: LocalWriteFailureInjector;
 }
 
+function isWorkspacePracticeFrame(): boolean {
+  return typeof window !== "undefined" && window.name === "studyapp-workspace-practice";
+}
+
 export function LearnPage({ failureInjector }: LearnPageProps = {}) {
   const { text } = useLanguage();
+  const workspacePracticeFrame = isWorkspacePracticeFrame();
   const learnTools = [
     {
       title: text("Flashcards", "Κάρτες"),
@@ -57,14 +62,32 @@ export function LearnPage({ failureInjector }: LearnPageProps = {}) {
   return (
     <div className="stack-lg workspace-beta-practice-page">
       <header className="page-heading">
-        <p className="eyebrow">{text("Practice and memory", "Εξάσκηση και μνήμη")}</p>
-        <h2>{text("Learn", "Μάθηση")}</h2>
-        <p>{text("Practise with flashcards, review and quizzes.", "Εξασκήσου με κάρτες, επανάληψη και κουίζ.")}</p>
+        {workspacePracticeFrame ? (
+          <>
+            <p className="eyebrow">{text("Practice and memory", "Εξάσκηση και μνήμη")}</p>
+            <h2>{text("Learn", "Μάθηση")}</h2>
+            <p>{text("Practise with flashcards, review and quizzes.", "Εξασκήσου με κάρτες, επανάληψη και κουίζ.")}</p>
+          </>
+        ) : (
+          <>
+            <p className="eyebrow">{text("PRACTICE CONTENT", "ΠΕΡΙΕΧΟΜΕΝΟ ΕΞΑΣΚΗΣΗΣ")}</p>
+            <h2 id="practice-content-title">{text("Manage practice content", "Διαχείριση περιεχομένου εξάσκησης")}</h2>
+            <p>{text(
+              "Add, import or manage your flashcards and practice chapters.",
+              "Προσθέστε, εισαγάγετε ή διαχειριστείτε τις flashcards και τα κεφάλαια εξάσκησης.",
+            )}</p>
+            <p className="practice-content-page-import-order" role="note">{text(
+              "Import the Chapters CSV first, then the Flashcards CSV.",
+              "Εισαγάγετε πρώτα το Chapters CSV και μετά το Flashcards CSV.",
+            )}</p>
+          </>
+        )}
       </header>
 
       <PracticeContentManager
         failureInjector={failureInjector}
         learningTools={learningTools}
+        pageLayout={!workspacePracticeFrame}
       />
     </div>
   );
