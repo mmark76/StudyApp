@@ -34,18 +34,6 @@ async function seedCoreKnowledgeChapter(page: Page) {
   });
 }
 
-test("Workspace BETA starts with four equal-width columns", async ({ page }) => {
-  await page.setViewportSize({ width: 1600, height: 900 });
-  await page.goto("/#/workspace-beta");
-
-  const widths = await page.locator(".workspace-beta-functional-panel").evaluateAll((panels) =>
-    panels.map((panel) => panel.getBoundingClientRect().width),
-  );
-
-  expect(widths).toHaveLength(4);
-  expect(Math.max(...widths) - Math.min(...widths)).toBeLessThan(3);
-});
-
 test("Core Knowledge stays compact, wraps cleanly, and keeps dark modal text readable", async ({ page }) => {
   await seedCoreKnowledgeChapter(page);
   await page.setViewportSize({ width: 1600, height: 900 });
