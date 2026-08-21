@@ -17,6 +17,7 @@ import { SourcesPage } from "../features/sources/SourcesPage";
 import { StudyLearnPage } from "../features/study/StudyLearnPage";
 import { StudyTheoryPage } from "../features/study/StudyTheoryPage";
 import { UnitsPage } from "../features/units/UnitsPage";
+import { CoreKnowledgePage } from "../features/workspace-beta/CoreKnowledgePage";
 import { WorkspaceBetaPage } from "../features/workspace-beta/WorkspaceBetaPage";
 import { AppLayout } from "../shared/components/AppLayout";
 import { PwaUpdateToast } from "../shared/components/PwaUpdateToast";
@@ -64,6 +65,7 @@ export const router = createHashRouter([
       },
       { path: "instructions", element: <StudyAppInstructionsPage /> },
       { path: "sources", element: <SourcesPage /> },
+      { path: "core-knowledge", element: <CoreKnowledgePage /> },
       { path: "study", element: <StudyLearnPage /> },
       { path: "study/theory", element: <StudyTheoryPage /> },
       {

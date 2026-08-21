@@ -66,9 +66,12 @@ export function LearnPage({ failureInjector }: LearnPageProps = {}) {
     <div className="stack-lg workspace-beta-practice-page">
       {workspacePracticeFrame ? (
         <header className="page-heading" id="practice-content">
-          <p className="eyebrow">{text("Practice and memory", "Εξάσκηση και μνήμη")}</p>
-          <h2 id="practice-content-title">{text("Learn", "Μάθηση")}</h2>
-          <p>{text("Practise with flashcards, review and quizzes.", "Εξασκήσου με κάρτες, επανάληψη και κουίζ.")}</p>
+          <p className="eyebrow">{text("PRACTICE & MASTERY", "ΕΞΑΣΚΗΣΗ & ΕΜΠΕΔΩΣΗ")}</p>
+          <h2 id="practice-content-title">{text("Practice & Mastery", "Εξάσκηση & Εμπέδωση")}</h2>
+          <p>{text(
+            "Use flashcards, review and quizzes to strengthen recall and track progress.",
+            "Χρησιμοποίησε κάρτες, επανάληψη και κουίζ για να ενισχύσεις την ανάκληση και να παρακολουθείς την πρόοδο.",
+          )}</p>
         </header>
       ) : <PracticeContentPageHeading />}
 
