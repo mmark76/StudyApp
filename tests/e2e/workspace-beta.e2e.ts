@@ -246,7 +246,7 @@ test("Workspace BETA Core Knowledge keeps chapter titles hidden until its modal 
   await expect(chapterButton).toBeFocused();
 });
 
-test("Workspace BETA language sync reaches four panels and mobile single-panel layout stays contained", async ({ page }) => {
+test("Workspace BETA language sync follows active mobile panels and layout stays contained", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/#/workspace-beta");
 
@@ -261,8 +261,6 @@ test("Workspace BETA language sync reaches four panels and mobile single-panel l
 
   await expect(page.getByRole("heading", { name: "Πηγές & Υλικό", exact: true })).toBeVisible();
   await expect(sources.getByRole("heading", { name: "Πηγές & Υλικό" })).toBeVisible();
-  await expect(knowledge.locator("h2", { hasText: "Βασική Γνώση" })).toHaveCount(1);
-  await expect(practice.locator("h2", { hasText: "Εξάσκηση & Εμπέδωση" })).toHaveCount(1);
 
   await tabs.getByRole("button", { name: "Γνώση", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Βασική Γνώση", exact: true })).toBeVisible();
