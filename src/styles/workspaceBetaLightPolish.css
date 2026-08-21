@@ -154,14 +154,23 @@
 }
 
 /* AI Studio: the outer panel already identifies the area. Keep only the
- * useful actions visible inside the embedded frame and stack them cleanly. */
+ * useful actions visible inside the embedded frame and stack them cleanly.
+ * The duplicated heading remains available to assistive technology. */
 .workspace-panel-embed-main
   .assistant-guide-page--workspace
   .assistant-guide-workspace-primary > .eyebrow,
 .workspace-panel-embed-main
   .assistant-guide-page--workspace
   .assistant-guide-workspace-primary > h2 {
-  display: none;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .workspace-panel-embed-main
