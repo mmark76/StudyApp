@@ -4,43 +4,49 @@ _Last updated: 2026-08-21_
 
 ## Current assessment
 
-The production release verified on August 20, 2026 remains the current
-production-attested checkpoint:
+The August 21, 2026 deployment is the latest production-attested checkpoint:
 
-- verified `main` SHA: `5d94e2744014e1d87a4e65d8462ac98082d3e1ce`;
-- verified build: `v1.0.0_20260820_2202_5d94e27`;
-- production URL: `https://studyapp.markellosecosystem.com/#/`;
-- stable release branch: `stable/release-2026-08-20`.
+**RELEASE VERIFIED**
 
-That checkpoint remains **RELEASE VERIFIED** for its reviewed scope. It must not
-be interpreted as a blanket attestation of later `main` commits.
+- verified `main` SHA: `9ab9ab11c443fb1f3dcdbc759063b9301e2a3461`;
+- deployed build: `v1.0.0_20260821_1405_9ab9ab1`;
+- production URL: `https://studyapp.markellosecosystem.com/`;
+- release-governance PR: `#197` — merged;
+- main-branch CI: `#366` — PASS;
+- GitHub Pages deployment: `#435` — PASS.
 
-The current post-release development head reviewed on August 21 is:
+Repository inspection immediately before this documentation update confirmed
+that `9ab9ab11c443fb1f3dcdbc759063b9301e2a3461` is still the current `main`
+SHA. `main` has not advanced beyond the production-smoke checkpoint.
 
-- `main` SHA: `3db3cf6c746f5ea4dca3abe0d3d187b4917cdac0`;
-- 10 commits ahead of the verified August 20 release SHA;
-- latest merged change: PR `#196`, compact single-panel Workspace mobile UX.
+The exact deployed build matched `main`, and the focused production smoke
+completed successfully against the production URL.
 
-PR #196 passed the complete automated CI gate before merge:
+| August 21 production check | Result |
+| --- | --- |
+| Current `main` SHA | PASS — `9ab9ab11c443fb1f3dcdbc759063b9301e2a3461` |
+| Deployed build | PASS — `v1.0.0_20260821_1405_9ab9ab1`, matches `main` |
+| Production URL | PASS — `https://studyapp.markellosecosystem.com/` |
+| Desktop smoke | PASS |
+| Workspace BETA desktop | PASS — four panels, 22/22/34/22 proportions, keyboard/pointer resizing and reset |
+| Mobile 360px | PASS — single-panel Workspace navigation, no overflow |
+| Mobile 390px | PASS — single-panel navigation and modal controls |
+| Mobile 412px | PASS — single-panel Workspace navigation, no overflow |
+| Local persistence | PASS — temporary chapter survived refresh |
+| Cleanup | PASS — temporary chapter removed; count returned from 14 to 13 |
+| Refresh/routing | PASS — direct routes, refresh, back and forward |
+| Console diagnostics | PASS — no errors; two non-blocking hydration warnings |
+| Network diagnostics | PASS — critical resources loaded successfully; only the documented non-material `/favicon.ico` 404 |
 
-- typecheck;
-- 268/268 unit tests;
-- 61/61 Playwright E2E tests;
-- production build.
-
-No new release-blocking functional or data-safety defect was identified in the
-August 21 repository audit. The current `main` is therefore considered
-**AUTOMATED-GATE PASS / PRODUCTION RE-VERIFICATION REQUIRED** rather than being
-silently promoted to a new `RELEASE VERIFIED` checkpoint.
-
-A new production attestation requires deployment of the exact reviewed SHA and
-a focused production smoke verification before recording a new verified build
-identity.
+No repository code, GitHub settings, production configuration or existing user
+data was changed during the production smoke. Only temporary local test data was
+created, verified and removed through the normal UI.
 
 ## Release-governance hardening — 2026-08-21
 
-The deployment pipeline is hardened so production deployment follows successful
-full CI on `main` instead of starting independently from the same push:
+PR #197 hardened the deployment pipeline so production deployment follows
+successful full CI on `main` instead of starting independently from the same
+push:
 
 ```text
 push/merge to main
@@ -55,7 +61,9 @@ push/merge to main
 ```
 
 The Pages workflow checks out `workflow_run.head_sha`, so the deployed source is
-the same commit that passed the main-branch CI run.
+the same commit that passed the main-branch CI run. For the current checkpoint,
+CI #366 and Pages deployment #435 both passed for the release-governance state
+merged through PR #197.
 
 Repository branch metadata inspected during the August 21 audit did not expose
 required status checks as enforced classic branch-protection checks. GitHub
@@ -63,31 +71,45 @@ Rulesets may be configured separately and are not asserted here. Repository
 settings should continue to require the CI gate before merges to `main` where
 supported.
 
-## August 20 blocker outcome
+## Historical verified checkpoint — 2026-08-20
 
-### DATA-04 — RESOLVED
+The previous production-attested checkpoint remains preserved as historical
+verification evidence:
+
+- verified `main` SHA: `5d94e2744014e1d87a4e65d8462ac98082d3e1ce`;
+- verified build: `v1.0.0_20260820_2202_5d94e27`;
+- production URL at verification: `https://studyapp.markellosecosystem.com/#/`;
+- stable release branch: `stable/release-2026-08-20`.
+
+That exact checkpoint remains **RELEASE VERIFIED** for its reviewed historical
+scope. Its evidence is not replaced or rewritten by the later August 21
+verification.
+
+### Historical August 20 blocker outcome
+
+#### DATA-04 — RESOLVED
 
 The affected practice/content data behavior was corrected and protected by
 regression coverage. Production smoke verification exercised creation/import,
 persistence, reload/reopen behavior, repeated operation and cleanup through the
 normal UI. The test data was removed and cleanup was confirmed after reload.
 
-### WB-01 — RESOLVED
+#### WB-01 — RESOLVED
 
 The affected Workspace behavior was corrected and verified through repeated
 real browser interaction in production.
 
-### WB-02 — RESOLVED
+#### WB-02 — RESOLVED
 
 Pointer/focus behavior was corrected and verified interactively, including
 repeated focus transitions and Workspace/frame interaction.
 
-### WB-03 — RESOLVED
+#### WB-03 — RESOLVED
 
 The affected Workspace layout behavior was corrected and verified against the
 deployed build, including interactive use after layout/viewport changes.
 
-## Verified August 20 evidence
+### Verified August 20 evidence
 
 The exact August 20 remediation state passed:
 
@@ -98,29 +120,35 @@ The exact August 20 remediation state passed:
 - Linux CI;
 - production dependency audit with 0 vulnerabilities.
 
-The production smoke verification used Google Chrome `151.0.7922.138` with
-Playwright `1.62.1`. No runtime/React errors or critical request failures were
-observed. The only noted browser/network issue was a non-material
+The August 20 production smoke verification used Google Chrome `151.0.7922.138`
+with Playwright `1.62.1`. No runtime/React errors or critical request failures
+were observed. The only noted browser/network issue was a non-material
 `/favicon.ico` 404.
 
-## August 21 non-blocking findings
+## Non-blocking observations and follow-ups
 
+- Two `No HydrateFallback element provided` warnings were observed during the
+  August 21 console diagnostics. No console errors were observed, and the
+  warnings did not affect the smoke result.
+- The documented non-material `/favicon.ico` 404 was observed; critical page and
+  application resources loaded successfully.
 - The production-only dependency audit recorded for the verified August 20
   release is clean, while two high-severity advisories remain in transitive
   build/dev dependencies.
 - The production build reports JavaScript chunks larger than 500 kB after
   minification. Route-level/code splitting remains a performance and
   maintainability follow-up, not a functional blocker.
-- Playwright E2E currently uses Chromium/Desktop Chrome. Firefox and WebKit
-  interactive verification remain follow-up gaps.
+- Playwright E2E and the August 21 production smoke used Chromium/Chrome.
+  Firefox and WebKit interactive verification remain follow-up gaps.
 - Manual screen-reader verification remains a follow-up gap.
 - User-saved study-material links currently support HTTP and HTTPS. The v1.1
   backlog retains the decision about an HTTPS-only policy for new links and
   compatibility with existing HTTP records.
 - DATA-02 and WB-04 remain Low/non-blocking historical findings.
 
-These items do not overturn the August 20 verified release and do not currently
-constitute a new release blocker for the reviewed personal-use scope.
+These observations do not overturn the August 21 `RELEASE VERIFIED` decision
+for the reviewed personal-use scope. Firefox, WebKit and manual screen-reader
+verification are not claimed as completed.
 
 ## Historical July assessment
 
@@ -138,8 +166,8 @@ the intended-use scope, visible browser-storage notices, progress/settings
 backup wording and direct download of generated split PDFs.
 
 That earlier evidence and its partial manual-gate limitations remain part of the
-historical record. The August 20 verification remains the current production
-release assessment until a later deployed SHA is separately smoke-verified.
+historical record. The August 20 verification remains the previous verified
+checkpoint, and the August 21 verification is the latest production assessment.
 
 ## Accepted v1 boundaries
 
@@ -154,6 +182,6 @@ current release decision are recorded in
 [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md).
 
 Within this reviewed personal-use scope, no known release-blocking security or
-functional issue remains for the verified August 20 production release. This is
+functional issue remains for the verified August 21 production release. This is
 a scoped assessment, not a claim that the application has no possible security,
 accessibility, performance or cross-browser gaps.
