@@ -18,7 +18,7 @@ import { StudyLearnPage } from "../features/study/StudyLearnPage";
 import { StudyTheoryPage } from "../features/study/StudyTheoryPage";
 import { UnitsPage } from "../features/units/UnitsPage";
 import { CoreKnowledgePage } from "../features/workspace-beta/CoreKnowledgePage";
-import { WorkspaceBetaPage } from "../features/workspace-beta/WorkspaceBetaPage";
+import { WorkspaceBetaResponsivePage } from "../features/workspace-beta/WorkspaceBetaResponsivePage";
 import { AppLayout } from "../shared/components/AppLayout";
 import { PwaUpdateToast } from "../shared/components/PwaUpdateToast";
 import { createE2EStudyFailureInjectors } from "./e2eStudyFailureInjection";
@@ -36,7 +36,7 @@ export const router = createHashRouter([
     path: "/workspace-beta",
     element: (
       <>
-        <WorkspaceBetaPage />
+        <WorkspaceBetaResponsivePage />
         <PwaUpdateToast />
       </>
     ),
