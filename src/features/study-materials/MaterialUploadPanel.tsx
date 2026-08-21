@@ -9,6 +9,10 @@ import { LocalPdfForm } from "./LocalPdfForm";
 import type { MaterialDestination } from "./materialDestination";
 import type { StudyMaterialLink } from "./studyMaterials";
 
+function isWorkspaceSourcesFrame(): boolean {
+  return typeof window !== "undefined" && window.name === "studyapp-workspace-sources";
+}
+
 export function MaterialUploadPanel({
   destination,
   files,
@@ -27,12 +31,8 @@ export function MaterialUploadPanel({
     ? text("Structured Study", "Δομημένη Μελέτη")
     : text("Library", "Βιβλιοθήκη");
 
-  return (
-    <section className="content-panel" aria-label={text(`Add material to ${destinationLabel}`, `Προσθήκη υλικού στη ${destinationLabel}`)}>
-      <p className="eyebrow">{text("Local import", "Τοπική εισαγωγή")}</p>
-      <h3>{text("Add material", "Προσθήκη υλικού")}</h3>
-      <p>{text("Add a local file or save a link.", "Πρόσθεσε τοπικό αρχείο ή αποθήκευσε σύνδεσμο.")}</p>
-
+  const uploadOptions = (
+    <>
       <StorageNotice kind={storageNoticePlacements.materialUpload} />
 
       <div className="library-grid" style={{ alignItems: "stretch" }}>
@@ -59,6 +59,33 @@ export function MaterialUploadPanel({
           />
         </section>
       </div>
+    </>
+  );
+
+  if (isWorkspaceSourcesFrame()) {
+    return (
+      <section
+        aria-label={text(`Add material to ${destinationLabel}`, `Προσθήκη υλικού στη ${destinationLabel}`)}
+        className="workspace-material-upload"
+      >
+        <details className="workspace-material-upload-details">
+          <summary>{text("Add material", "Προσθήκη υλικού")}</summary>
+          <div className="workspace-material-upload-content">
+            <p>{text("Add a local file or save a link.", "Πρόσθεσε τοπικό αρχείο ή αποθήκευσε σύνδεσμο.")}</p>
+            {uploadOptions}
+          </div>
+        </details>
+      </section>
+    );
+  }
+
+  return (
+    <section className="content-panel" aria-label={text(`Add material to ${destinationLabel}`, `Προσθήκη υλικού στη ${destinationLabel}`)}>
+      <p className="eyebrow">{text("Local import", "Τοπική εισαγωγή")}</p>
+      <h3>{text("Add material", "Προσθήκη υλικού")}</h3>
+      <p>{text("Add a local file or save a link.", "Πρόσθεσε τοπικό αρχείο ή αποθήκευσε σύνδεσμο.")}</p>
+
+      {uploadOptions}
     </section>
   );
 }

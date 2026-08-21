@@ -43,6 +43,7 @@ import "./styles/workspaceBetaRegressionFixes.css";
 import "./styles/workspaceBetaImportedActionContrast.css";
 import "./styles/workspaceBetaPracticeActionColors.css";
 import "./styles/workspaceBetaFourPanel.css";
+import "./styles/workspaceBetaCompactUi.css";
 
 if (!enforceSecureTransport()) {
   const updateServiceWorker = registerSW({

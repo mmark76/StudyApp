@@ -1,31 +1,31 @@
 /* Workspace BETA four-panel information architecture. */
 .workspace-beta-functional-grid {
   grid-template-columns:
-    minmax(260px, var(--workspace-sources-track, 0.9fr))
+    minmax(0, var(--workspace-sources-track, 1fr))
     10px
-    minmax(240px, var(--workspace-knowledge-track, 0.72fr))
+    minmax(0, var(--workspace-knowledge-track, 1fr))
     10px
-    minmax(340px, var(--workspace-practice-track, 1.15fr))
+    minmax(0, var(--workspace-practice-track, 1fr))
     10px
-    minmax(280px, var(--workspace-ai-track, 0.9fr));
+    minmax(0, var(--workspace-ai-track, 1fr));
 }
 
 @media (max-width: 1180px) {
   .workspace-beta-functional-grid {
     grid-template-columns:
-      minmax(320px, 34vw)
-      minmax(280px, 30vw)
-      minmax(380px, 40vw)
-      minmax(340px, 36vw);
+      minmax(300px, 32vw)
+      minmax(300px, 32vw)
+      minmax(300px, 32vw)
+      minmax(300px, 32vw);
   }
 }
 
 @media (max-width: 760px) {
   .workspace-beta-functional-grid {
     grid-template-columns:
-      minmax(330px, 92vw)
-      minmax(320px, 90vw)
-      minmax(350px, 94vw)
-      minmax(330px, 92vw);
+      minmax(320px, 92vw)
+      minmax(320px, 92vw)
+      minmax(320px, 92vw)
+      minmax(320px, 92vw);
   }
 }

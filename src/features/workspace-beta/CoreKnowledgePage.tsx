@@ -97,16 +97,20 @@ export function CoreKnowledgePage() {
     };
   }, [selectedUnit]);
 
+  const chaptersHeading = text(
+    `Chapters (${importedUnits.length})`,
+    `Κεφάλαια (${importedUnits.length})`,
+  );
+  const chaptersAccessibleHeading = text(
+    `Core Knowledge — ${chaptersHeading}`,
+    `Βασική Γνώση — ${chaptersHeading}`,
+  );
+
   return (
     <div className="core-knowledge-page">
       <div ref={contentRef}>
-        <header className="page-heading">
-          <p className="eyebrow">{text("CORE KNOWLEDGE", "ΒΑΣΙΚΗ ΓΝΩΣΗ")}</p>
-          <h2>{text("Core Knowledge", "Βασική Γνώση")}</h2>
-          <p>{text(
-            "Open a chapter to review its learning goals, key points and important terms.",
-            "Άνοιξε ένα κεφάλαιο για να δεις τους στόχους μάθησης, τα βασικά σημεία και τους σημαντικούς όρους.",
-          )}</p>
+        <header className="core-knowledge-heading">
+          <h2 aria-label={chaptersAccessibleHeading}>{chaptersHeading}</h2>
         </header>
 
         {hasStoredContentError ? (
