@@ -1,6 +1,6 @@
 # Architecture
 
-_Last updated: 2026-08-19_
+_Last updated: 2026-08-21_
 
 ## Summary
 
@@ -33,27 +33,32 @@ No production AI request, real credit operation or payment is currently enabled.
 
 ## Workspace BETA boundary
 
-Workspace BETA is a planned, separate UX experiment rather than a replacement
-for the stable application shell.
+Workspace BETA is an active, separate UX experiment rather than a replacement
+for the stable application shell. It is isolated at `/workspace-beta` while the
+stable routes remain intact.
 
-The first iteration should test a simultaneous multi-panel desktop workspace,
-broadly:
+The current desktop workspace presents four independent StudyApp areas:
 
 ```text
-Sources | Workspace / Practice | AI Studio
+Sources | Core Knowledge | Practice | AI Studio
 ```
 
-The initial beta is intentionally presentation-first. Unless a later task
-explicitly expands scope, it must not introduce cross-panel data flow, new
-IndexedDB persistence, a data-model migration, automatic source transfer,
-remote AI calls or MCP. A separate route and focused branch/PR should isolate the
-experiment from stable routes and workflows.
+The default desktop proportions are 22/22/34/22 and adjacent panels can be
+resized. On narrow/mobile viewports below 760px the responsive shell changes to
+single-panel navigation: Sources, Knowledge, Practice and AI are activated one
+at a time instead of keeping a horizontally scrolling four-panel canvas.
 
-The beta should first validate panel proportions, header/footer treatment,
-scrolling, collapsing/resizing, responsive/mobile adaptation, focus order,
-keyboard behaviour and whether the multi-panel model is actually easier to use.
-Only after that interaction model is approved should panels be connected to real
-StudyApp state and services.
+The beta reuses existing StudyApp capabilities and local state, but it does not
+introduce a new IndexedDB schema, automatic source transfer between panels,
+production remote AI calls, MCP, real credits or payment behavior. New
+cross-panel data flow, persistence, data-model migration or remote-service
+behavior requires separate explicit design and review.
+
+The current beta has focused browser coverage for desktop proportions and
+resizing, independent panel scrolling, focus behavior, bilingual presentation,
+theme behavior, compact UI, secondary information/modals, PWA update placement,
+narrow panels and the mobile single-panel shell. The stable application remains
+the production reference while the Workspace interaction model is evaluated.
 
 ## Technology stack
 
@@ -108,6 +113,22 @@ Split PDF Tool | Important Info
 The lower navigation is intentionally link-like rather than pill-button UI. The
 stable shell remains the production reference while Workspace BETA is evaluated
 separately.
+
+### Workspace BETA shell
+
+`src/features/workspace-beta/WorkspaceBetaResponsivePage.tsx` selects the
+responsive Workspace presentation. Desktop retains the four-panel Workspace
+layout; mobile uses the compact header, menu and one-active-panel navigation.
+
+`src/features/workspace-beta/WorkspaceBetaPage.tsx` owns the functional desktop
+Workspace composition and the shared panel content used by the responsive
+presentation. Workspace-specific helpers manage pointer/focus behavior, Info
+menu auto-close behavior and modal document interactions.
+
+Workspace presentation styles remain separate from the stable shell at the CSS
+module/file level even though they are currently imported from the application
+entry point. Route-level code/style splitting remains a maintainability and
+bundle-size follow-up.
 
 ### AI Assistant presentation layer
 
@@ -220,8 +241,11 @@ Current stable routes include:
 - `/instructions` — manual AI-generated file instructions;
 - `/legal/*` — legal information.
 
-Workspace BETA does not yet have an active production route. When implemented,
-it should use a separate route so the stable shell and workflows remain intact
+Workspace BETA has the separate active route:
+
+- `/workspace-beta` — responsive Workspace BETA shell.
+
+Keeping Workspace on a separate route preserves the stable shell and workflows
 while the prototype is evaluated.
 
 ## Data-flow boundaries
@@ -300,21 +324,35 @@ No automatic library scan and no automatic result save are allowed.
 
 ## CI and deployment
 
-Pull-request CI runs in the pinned Playwright container
-`mcr.microsoft.com/playwright:v1.62.1-noble` and executes:
+The full CI workflow runs for pull requests, direct `main` updates and explicit
+manual CI dispatches. It executes in the pinned Playwright container
+`mcr.microsoft.com/playwright:v1.62.1-noble`:
 
 ```text
 npm ci → typecheck → unit tests → Playwright E2E → production build
 ```
 
-GitHub Pages deployment runs only after pushes to `main` and stays focused on:
+GitHub Pages no longer deploys independently from a `main` push. Deployment is
+triggered by successful completion of the `CI` workflow on `main`:
 
 ```text
-npm ci → production build → upload → deploy
+main update
+→ full CI on exact SHA
+→ successful CI workflow_run
+→ checkout workflow_run.head_sha
+→ npm ci
+→ production build
+→ upload
+→ deploy
 ```
 
-The Pages workflow does not repeat the full Playwright suite. Required PR CI
-must pass before merge; deployment success is a separate production step.
+This preserves separation between verification and publishing while ensuring
+that Pages rebuilds and deploys the exact commit that passed the full
+main-branch CI gate.
+
+Repository settings should additionally require the CI gate for merges to
+`main` where supported. Workflow-level gating does not replace branch/ruleset
+protection against bypassing review or required checks.
 
 ## Safety boundaries
 
@@ -328,7 +366,7 @@ must pass before merge; deployment success is a separate production step.
 - English and Greek wording must communicate the same material facts.
 - The StudyApp AI Assistant link does not inspect, automate or embed the ChatGPT website.
 - The AI options comparison page is static local presentation and does not itself access or transmit study data.
-- Workspace BETA must not silently gain data, persistence or remote-service behaviour while it is still a UI/UX prototype.
+- Workspace BETA must not silently gain new persistence, automatic cross-panel transfer or remote-service behaviour without explicit review.
 
 ## High-risk areas
 
@@ -372,6 +410,19 @@ Assistant coverage includes:
 - keyboard operation and focus behaviour;
 - comparison-page content, availability labels and user-cost row ordering.
 
-Workspace BETA should receive separate layout, keyboard, narrow-screen and zoom
-coverage as the prototype becomes interactive. Future MCP and paid API work
-requires separate integration and browser tests.
+Workspace BETA browser coverage includes:
+
+- independent functional desktop panels and default 22/22/34/22 proportions;
+- divider resizing and reset;
+- wheel scrolling and pointer/focus behavior;
+- compact Core Knowledge, Sources and AI presentation;
+- dark/light themes and narrow-panel containment;
+- secondary information and modal actions;
+- PWA update presentation inside the Workspace modal host;
+- compact mobile header/menu behavior;
+- one-active-panel mobile navigation at 360px, 390px and 412px widths;
+- language synchronization when mobile panels activate;
+- desktop regression coverage while the mobile shell is enabled responsively.
+
+Firefox, WebKit and manual screen-reader verification remain follow-up gaps.
+Future MCP and paid API work requires separate integration and browser tests.
