@@ -97,11 +97,11 @@
 @media (max-width: 760px) {
   .workspace-beta-info-popover {
     position: fixed;
-    top: 4.3rem;
+    top: 8rem;
     right: 0.75rem;
     left: 0.75rem;
     width: auto;
-    max-height: calc(100dvh - 5.1rem);
+    max-height: calc(100dvh - 8.75rem);
     overflow-y: auto;
   }
 }

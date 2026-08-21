@@ -122,22 +122,98 @@
 }
 
 @media (max-width: 760px) {
-  .workspace-beta-functional-shell .workspace-beta-header-left {
-    gap: 0.42rem;
+  .workspace-beta-functional-shell {
+    display: flex;
+    height: 100dvh;
+    min-height: 0;
+    flex-direction: column;
+  }
+
+  .workspace-beta-functional-shell .workspace-beta-header {
+    display: grid;
+    min-height: 0;
+    flex: none;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.35rem 0.5rem;
+    padding: 0.5rem 0.7rem 0.6rem;
+  }
+
+  .workspace-beta-functional-shell .workspace-beta-header-left,
+  .workspace-beta-functional-shell .workspace-beta-header-actions {
+    display: contents;
+  }
+
+  .workspace-beta-functional-shell .workspace-beta-brand {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+    gap: 0.38rem;
+  }
+
+  .workspace-beta-functional-shell .workspace-beta-brand strong {
+    white-space: nowrap;
+  }
+
+  .workspace-beta-functional-shell .workspace-beta-badge {
+    flex: none;
+  }
+
+  .workspace-beta-functional-shell .language-switcher {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .workspace-beta-functional-shell .workspace-beta-info-menu {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
   }
 
   .workspace-beta-functional-shell .workspace-beta-standard-version {
-    max-width: 8.5rem;
-    padding: 0.26rem 0.36rem;
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+    padding: 0.32rem 0.4rem;
+    line-height: 1.25;
+    text-align: center;
     white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .workspace-beta-functional-shell .workspace-beta-ecosystem-link {
+    grid-column: 2 / 4;
+    grid-row: 2;
+    max-width: none;
+    justify-self: end;
+    padding: 0.32rem 0.05rem;
+    text-align: right;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .workspace-beta-functional-shell .workspace-beta-theme-toggle {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: end;
+  }
+
+  .workspace-beta-functional-shell .workspace-beta-header-actions > a:not(.workspace-beta-ecosystem-link) {
+    grid-column: 3;
+    grid-row: 3;
+    justify-self: end;
   }
 
   .workspace-beta-functional-shell .workspace-beta-title {
     display: none;
   }
 
-  .workspace-beta-functional-shell .workspace-beta-ecosystem-link {
-    max-width: 8.5rem;
-    white-space: normal;
+  .workspace-beta-functional-shell .workspace-beta-main {
+    min-height: 0;
+    height: auto;
+    flex: 1 1 auto;
   }
 }
