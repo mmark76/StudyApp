@@ -20,7 +20,6 @@ import { UnitsPage } from "../features/units/UnitsPage";
 import { CoreKnowledgePage } from "../features/workspace-beta/CoreKnowledgePage";
 import { WorkspaceBetaResponsivePage } from "../features/workspace-beta/WorkspaceBetaResponsivePage";
 import { AppLayout } from "../shared/components/AppLayout";
-import { PwaUpdateToast } from "../shared/components/PwaUpdateToast";
 import { createE2EStudyFailureInjectors } from "./e2eStudyFailureInjection";
 import { createE2ELocalWriteFailureInjector } from "./e2eLocalWriteFailureInjection";
 
@@ -34,12 +33,7 @@ const e2eLocalWriteFailureInjector =
 export const router = createHashRouter([
   {
     path: "/workspace-beta",
-    element: (
-      <>
-        <WorkspaceBetaResponsivePage />
-        <PwaUpdateToast />
-      </>
-    ),
+    element: <WorkspaceBetaResponsivePage />,
   },
   {
     path: "/",
