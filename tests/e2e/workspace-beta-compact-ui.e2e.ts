@@ -61,6 +61,15 @@ test("Core Knowledge stays compact, wraps cleanly, and keeps dark modal text rea
   expect(box?.width).toBeLessThanOrEqual(44);
   expect(box?.height).toBeLessThanOrEqual(44);
 
+  const chapterStyle = await chapter.evaluate((element) => ({
+    color: getComputedStyle(element).color,
+    fontSize: getComputedStyle(element).fontSize,
+    fontWeight: getComputedStyle(element).fontWeight,
+  }));
+  expect(chapterStyle.color).toBe("rgb(102, 116, 132)");
+  expect(chapterStyle.fontSize).toBe("9.92px");
+  expect(chapterStyle.fontWeight).toBe("600");
+
   const overflow = await knowledge.locator(".core-knowledge-page").evaluate((element) => ({
     clientWidth: element.clientWidth,
     scrollWidth: element.scrollWidth,
@@ -110,9 +119,29 @@ test("Workspace AI Studio keeps primary actions visible and secondary status on 
   await page.goto("/#/workspace-beta");
 
   const ai = page.frameLocator('iframe[name="studyapp-workspace-ai"]');
-  await expect(ai.getByRole("heading", { name: "AI Assistant", exact: true })).toBeVisible();
-  await expect(ai.getByRole("link", { name: "Compare AI options" })).toBeVisible();
-  await expect(ai.getByRole("link", { name: "Step-by-step StudyApp instructions" })).toBeVisible();
+  const compare = ai.getByRole("link", { name: "Compare AI options" });
+  const instructions = ai.getByRole("link", { name: "Step-by-step StudyApp instructions" });
+  await expect(ai.getByRole("heading", { name: "AI Assistant", exact: true })).toBeAttached();
+  await expect(compare).toBeVisible();
+  await expect(instructions).toBeVisible();
+
+  const compareBox = await compare.boundingBox();
+  const instructionsBox = await instructions.boundingBox();
+  expect(compareBox).not.toBeNull();
+  expect(instructionsBox).not.toBeNull();
+  expect(Math.abs((compareBox?.x ?? 0) - (instructionsBox?.x ?? 0))).toBeLessThan(2);
+  expect(instructionsBox?.y ?? 0).toBeGreaterThan((compareBox?.y ?? 0) + (compareBox?.height ?? 0));
+
+  const hiddenHeadingStyle = await ai.getByRole("heading", { name: "AI Assistant", exact: true }).evaluate((element) => ({
+    position: getComputedStyle(element).position,
+    width: getComputedStyle(element).width,
+    height: getComputedStyle(element).height,
+    overflow: getComputedStyle(element).overflow,
+  }));
+  expect(hiddenHeadingStyle.position).toBe("absolute");
+  expect(hiddenHeadingStyle.width).toBe("1px");
+  expect(hiddenHeadingStyle.height).toBe("1px");
+  expect(hiddenHeadingStyle.overflow).toBe("hidden");
 
   const more = ai.getByText("More AI options", { exact: true });
   await expect(more).toBeVisible();
@@ -120,4 +149,41 @@ test("Workspace AI Studio keeps primary actions visible and secondary status on 
   await more.click();
   await expect(ai.getByRole("heading", { name: "ChatGPT App / MCP", exact: true })).toBeVisible();
   await expect(ai.getByRole("heading", { name: "StudyApp AI", exact: true })).toBeVisible();
+});
+
+test("Workspace light mode softens action colours without changing Standard Version", async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.goto("/#/workspace-beta");
+
+  const practice = page.frameLocator('iframe[name="studyapp-workspace-practice"]');
+  const flashcards = practice.getByRole("link", { name: "Practice with flashcards" });
+  await expect(flashcards).toBeVisible();
+  await expect(practice.getByRole("heading", { name: "Practice & Mastery", exact: true })).toBeAttached();
+
+  const lightStyle = await flashcards.evaluate((element) => ({
+    background: getComputedStyle(element).backgroundColor,
+    color: getComputedStyle(element).color,
+  }));
+  expect(lightStyle.background).toBe("rgb(238, 233, 242)");
+  expect(lightStyle.color).toBe("rgb(89, 70, 109)");
+
+  const practiceHeadingStyle = await practice.getByRole("heading", { name: "Practice & Mastery", exact: true }).evaluate((element) => ({
+    position: getComputedStyle(element).position,
+    width: getComputedStyle(element).width,
+    height: getComputedStyle(element).height,
+  }));
+  expect(practiceHeadingStyle.position).toBe("absolute");
+  expect(practiceHeadingStyle.width).toBe("1px");
+  expect(practiceHeadingStyle.height).toBe("1px");
+
+  await page.getByRole("button", { name: "Switch to dark mode" }).click();
+  const darkBackground = await flashcards.evaluate((element) => getComputedStyle(element).backgroundColor);
+  expect(darkBackground).toBe("rgb(89, 72, 111)");
+
+  await page.goto("/#/learn");
+  const standardFlashcards = page.getByRole("link", { name: "Practice with flashcards" });
+  await expect(standardFlashcards).toBeVisible();
+  const standardBackground = await standardFlashcards.evaluate((element) => getComputedStyle(element).backgroundColor);
+  expect(standardBackground).toBe("rgb(124, 58, 237)");
+  await expect(page.getByRole("heading", { name: "Manage practice content", exact: true })).toBeVisible();
 });
