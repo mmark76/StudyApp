@@ -1,0 +1,215 @@
+/*
+ * Workspace BETA-only finishing pass.
+ * Every selector is scoped to the Workspace shell or embedded Workspace
+ * content so Standard Version presentation remains unchanged.
+ */
+
+/* Light mode: preserve semantic meaning while reducing resting saturation. */
+:root:not([data-workspace-theme="dark"])
+  .workspace-beta-functional-shell
+  .workspace-beta-panel-tools button {
+  border-color: #d4c8bd;
+  background: #eee8e2;
+  color: #5b4637;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-beta-functional-shell
+  .workspace-beta-panel-tools button:hover {
+  border-color: #bfae9f;
+  background: #e2d8cf;
+  color: #49372b;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-beta-functional-shell
+  .workspace-beta-ai-launch-row a {
+  border: 1px solid #b8cbbf;
+  background: #e6eee9;
+  color: #365947;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-beta-functional-shell
+  .workspace-beta-ai-launch-row a:hover {
+  border-color: #9eb7a8;
+  background: #d8e5dd;
+  color: #294b3a;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.practice {
+  border-color: #cfc3d9;
+  background: #eee9f2;
+  color: #59466d;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.practice:hover {
+  border-color: #b7a7c5;
+  background: #e2d9e8;
+  color: #49375c;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.review {
+  border-color: #d8caab;
+  background: #f3eee2;
+  color: #6b572f;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.review:hover {
+  border-color: #c1ae82;
+  background: #e9dfc9;
+  color: #59461f;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.quiz {
+  border-color: #bfd0c7;
+  background: #e7efeb;
+  color: #365c4a;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.quiz:hover {
+  border-color: #9fb9ab;
+  background: #d7e5de;
+  color: #284c3b;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.utility {
+  border-color: #c3cdd5;
+  background: #e8edf1;
+  color: #435766;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.utility:hover {
+  border-color: #a5b4bf;
+  background: #d9e1e7;
+  color: #334957;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .assistant-guide-page--workspace
+  .button.secondary {
+  border-color: #d4c7b7;
+  background: #eee8e0;
+  color: #5a4635;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .assistant-guide-page--workspace
+  .button.secondary:hover {
+  border-color: #bdac98;
+  background: #e1d6ca;
+  color: #493828;
+}
+
+/* Core Knowledge: keep compact controls, but make chapter numbers quieter. */
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .core-knowledge-chapter-button {
+  color: #667484;
+  font-size: 0.62rem;
+  font-weight: 600;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .core-knowledge-chapter-button:hover,
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .core-knowledge-chapter-button:focus-visible {
+  color: #33475a;
+}
+
+/* AI Studio: the outer panel already identifies the area. Keep only the
+ * useful actions visible inside the embedded frame and stack them cleanly. */
+.workspace-panel-embed-main
+  .assistant-guide-page--workspace
+  .assistant-guide-workspace-primary > .eyebrow,
+.workspace-panel-embed-main
+  .assistant-guide-page--workspace
+  .assistant-guide-workspace-primary > h2 {
+  display: none;
+}
+
+.workspace-panel-embed-main
+  .assistant-guide-page--workspace
+  .assistant-guide-workspace-primary .button-row {
+  display: grid;
+  width: fit-content;
+  max-width: 100%;
+  grid-template-columns: minmax(0, max-content);
+  gap: 0.36rem;
+  margin-top: 0;
+}
+
+.workspace-panel-embed-main
+  .assistant-guide-page--workspace
+  .assistant-guide-workspace-primary .button-row .button {
+  width: fit-content;
+  max-width: 100%;
+  white-space: normal;
+  text-align: left;
+}
+
+/* Practice & Mastery: the outer panel already supplies the visible title.
+ * Preserve an accessible heading in the iframe but remove visible duplication. */
+.workspace-panel-embed-main
+  .workspace-beta-practice-page > .page-heading > .eyebrow,
+.workspace-panel-embed-main
+  .workspace-beta-practice-page > .page-heading > h2 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.workspace-panel-embed-main
+  .workspace-beta-practice-page > .page-heading {
+  margin: 0 0 0.58rem;
+}
+
+.workspace-panel-embed-main
+  .workspace-beta-practice-page > .page-heading > p:last-child {
+  margin: 0;
+  color: var(--slate-600, #475569);
+  font-size: var(--workspace-type-small, 0.72rem);
+  line-height: 1.45;
+}
