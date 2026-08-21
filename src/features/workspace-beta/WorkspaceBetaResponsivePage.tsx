@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { studyConfig } from "../../app/studyConfig";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { LanguageSwitcher } from "../../shared/components/LanguageSwitcher";
+import { PwaUpdateToast } from "../../shared/components/PwaUpdateToast";
 import { WorkspaceBetaPage } from "./WorkspaceBetaPage";
 
 type MobilePanel = "sources" | "knowledge" | "practice" | "ai";
@@ -113,6 +114,7 @@ export function WorkspaceBetaResponsivePage() {
       </nav>
 
       <WorkspaceBetaPage />
+      <PwaUpdateToast />
     </div>
   );
 }
