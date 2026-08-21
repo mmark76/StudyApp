@@ -203,7 +203,6 @@
   color: #b8b8b1;
 }
 
-:root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-import-order,
 :root[data-workspace-theme="dark"] .workspace-panel-embed-main .practice-content-add-import-note,
 :root[data-workspace-theme="dark"] .workspace-panel-embed-main .assistant-guide-note,
 :root[data-workspace-theme="dark"] .workspace-panel-embed-main .storage-notice-details {

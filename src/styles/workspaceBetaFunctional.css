@@ -439,7 +439,8 @@
   font-size: clamp(1.08rem, 3vw, 1.35rem);
 }
 
-.workspace-panel-embed-main .page-heading > p:last-child {
+.workspace-panel-embed-main .page-heading > p:last-child,
+.workspace-panel-embed-main .practice-content-page-heading > p:not(.eyebrow) {
   margin: 0.35rem 0 0;
   font-size: 0.8rem;
   line-height: 1.45;
@@ -550,6 +551,7 @@
   gap: 0.7rem;
 }
 
+.workspace-panel-embed-main .practice-content-list-panel h4,
 .workspace-panel-embed-main .practice-content-list-panel h5 {
   font-size: 0.9rem;
 }

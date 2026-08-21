@@ -29,12 +29,15 @@ test("uses the Sources page-header pattern before the responsive Practice cards"
     "Import the Chapters CSV first, then the Flashcards CSV.",
     { exact: true },
   )).toHaveAttribute("role", "note");
+  await expect(header).toHaveAttribute("id", "practice-content");
+  await expect(manager).not.toHaveAttribute("id");
   await expect(manager).not.toHaveClass(/\bcontent-panel\b/u);
   await expect(page.getByText(
     "Study content is stored locally in this browser and device.",
     { exact: true },
   )).toHaveCount(0);
   await expect(page.getByText("Learn more", { exact: true })).toHaveCount(0);
+  await expect(page.locator(".storage-notice")).toHaveCount(0);
   await expect(manager.getByRole("group", { name: "Practice content options" }))
     .toHaveAttribute("aria-describedby", "practice-content-add-import-note");
   await expect(manager.locator("#practice-content-add-import-note")).toHaveCount(1);
@@ -76,6 +79,24 @@ test("uses the Sources page-header pattern before the responsive Practice cards"
     borderTopWidth: "0px",
     boxShadow: "none",
     paddingTop: "0px",
+  });
+
+  const guidanceSurface = await header.locator(
+    ".practice-content-page-import-order",
+  ).evaluate((element) => {
+    const styles = getComputedStyle(element);
+    return {
+      backgroundColor: styles.backgroundColor,
+      borderLeftWidth: styles.borderLeftWidth,
+      borderRadius: styles.borderRadius,
+      paddingLeft: styles.paddingLeft,
+    };
+  });
+  expect(guidanceSurface).toEqual({
+    backgroundColor: "rgba(0, 0, 0, 0)",
+    borderLeftWidth: "0px",
+    borderRadius: "0px",
+    paddingLeft: "0px",
   });
 
   await expect(importedPanels).toHaveCount(2);

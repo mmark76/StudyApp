@@ -103,6 +103,33 @@ test("main-route navigation starts at the document top without resetting same-ro
   await expectRouteTopAndVisibleHeader(page);
 });
 
+test("practice-content links focus the relocated page heading and keep its guidance visible", async ({
+  page,
+}) => {
+  await page.goto("/#/flashcards");
+  await page.getByRole("link", { name: "Add content" }).click();
+  await expect(page).toHaveURL(/\/#\/learn#practice-content$/u);
+
+  const target = page.locator("#practice-content");
+  await expect(target).toHaveClass(/\bpage-heading\b/u);
+  await expect(target).toBeFocused();
+  await expect(target.getByRole("heading", {
+    level: 2,
+    name: "Manage practice content",
+  })).toBeVisible();
+  await expect(target.getByText(
+    "Import the Chapters CSV first, then the Flashcards CSV.",
+    { exact: true },
+  )).toBeVisible();
+
+  const targetPosition = await target.evaluate((element) => {
+    const bounds = element.getBoundingClientRect();
+    return { bottom: bounds.bottom, top: bounds.top };
+  });
+  expect(targetPosition.top).toBeGreaterThanOrEqual(-1);
+  expect(targetPosition.bottom).toBeGreaterThan(targetPosition.top);
+});
+
 test("Greek narrow navigation starts at top while browser history restores prior route positions", async ({
   page,
 }) => {

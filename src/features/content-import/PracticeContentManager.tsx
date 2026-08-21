@@ -9,10 +9,6 @@ import {
 } from "react";
 import { type AppLanguage, useLanguage } from "../../i18n/LanguageContext";
 import type { LocalWriteFailureInjector } from "../../infrastructure/database/localWriteFailureInjector";
-import {
-  StorageNotice,
-  storageNoticePlacements,
-} from "../../shared/components/StorageNotice";
 import type { Flashcard, StudyUnit } from "../../shared/types/models";
 import { FlashcardForm } from "./FlashcardForm";
 import {
@@ -316,13 +312,30 @@ function FlashcardEditor({
 interface PracticeContentManagerProps {
   failureInjector?: LocalWriteFailureInjector;
   learningTools?: ReactNode;
-  pageLayout?: boolean;
+}
+
+export function PracticeContentPageHeading() {
+  const { text } = useLanguage();
+
+  return (
+    <header className="page-heading practice-content-page-heading" id="practice-content">
+      <p className="eyebrow">{text("PRACTICE CONTENT", "ΠΕΡΙΕΧΟΜΕΝΟ ΕΞΑΣΚΗΣΗΣ")}</p>
+      <h2 id="practice-content-title">{text("Manage practice content", "Διαχείριση περιεχομένου εξάσκησης")}</h2>
+      <p>{text(
+        "Add, import or manage your flashcards and practice chapters.",
+        "Προσθέστε, εισαγάγετε ή διαχειριστείτε τις flashcards και τα κεφάλαια εξάσκησης.",
+      )}</p>
+      <p className="practice-content-page-import-order" role="note">{text(
+        "Import the Chapters CSV first, then the Flashcards CSV.",
+        "Εισαγάγετε πρώτα το Chapters CSV και μετά το Flashcards CSV.",
+      )}</p>
+    </header>
+  );
 }
 
 export function PracticeContentManager({
   failureInjector,
   learningTools,
-  pageLayout = false,
 }: PracticeContentManagerProps = {}) {
   const { language, text } = useLanguage();
   const {
@@ -345,9 +358,6 @@ export function PracticeContentManager({
   const chaptersInputRef = useRef<HTMLInputElement>(null);
   const chapterResultsHeadingRef = useRef<HTMLHeadingElement>(null);
   const flashcardResultsHeadingRef = useRef<HTMLHeadingElement>(null);
-  const OptionHeading = pageLayout ? "h3" : "h4";
-  const ImportedContentHeading = pageLayout ? "h3" : "h4";
-  const ImportedListHeading = pageLayout ? "h4" : "h5";
   const pendingAddedUnitIdRef = useRef<string | null>(null);
   const pendingAddedCardIdRef = useRef<string | null>(null);
   const projection = useMemo(
@@ -568,24 +578,8 @@ export function PracticeContentManager({
   return (
     <section
       aria-labelledby="practice-content-title"
-      className={`practice-content-manager${pageLayout ? " practice-content-manager--page" : " content-panel"}`}
-      id="practice-content"
+      className="practice-content-manager"
     >
-      {!pageLayout ? (
-        <>
-          <div className="practice-content-heading">
-            <p className="eyebrow">{text("PRACTICE CONTENT", "ΠΕΡΙΕΧΟΜΕΝΟ ΕΞΑΣΚΗΣΗΣ")}</p>
-            <h3 id="practice-content-title">{text("Manage practice content", "Διαχείριση περιεχομένου εξάσκησης")}</h3>
-            <p>{text(
-              "Add, import or manage your flashcards and practice chapters.",
-              "Προσθέστε, εισαγάγετε ή διαχειριστείτε τις flashcards και τα κεφάλαια εξάσκησης.",
-            )}</p>
-          </div>
-
-          <StorageNotice kind={storageNoticePlacements.contentImport} />
-        </>
-      ) : null}
-
       {hasStoredContentError ? (
         <p className="inline-message status-banner" role="alert">
           {text(
@@ -593,13 +587,6 @@ export function PracticeContentManager({
             "Το αποθηκευμένο περιεχόμενο εξάσκησης είναι κατεστραμμένο ή ασύμβατο. Δεν άλλαξε τίποτα. Επαναφέρετε έγκυρο backup πριν από προσθήκη ή εισαγωγή περιεχομένου.",
           )}
         </p>
-      ) : null}
-
-      {!pageLayout ? (
-        <p className="practice-import-order">{text(
-          "New content? Import the Chapters CSV first, then the Flashcards CSV.",
-          "Νέο περιεχόμενο; Εισαγάγετε πρώτα το Chapters CSV και μετά το Flashcards CSV.",
-        )}</p>
       ) : null}
 
       {message ? <p className="inline-message status-banner" role="status" aria-live="polite">{message}</p> : null}
@@ -611,7 +598,7 @@ export function PracticeContentManager({
         role="group"
       >
         <article className="template-card practice-content-option">
-          <OptionHeading>{text("Practice Chapters", "Κεφάλαια εξάσκησης")}</OptionHeading>
+          <h3>{text("Practice Chapters", "Κεφάλαια εξάσκησης")}</h3>
           <p>{text(
             "Practice chapters group and organize your flashcards. They are not files stored in Structured Study.",
             "Τα κεφάλαια εξάσκησης οργανώνουν τις flashcards. Δεν είναι αρχεία του Structured Study.",
@@ -656,7 +643,7 @@ export function PracticeContentManager({
         </article>
 
         <article className="template-card practice-content-option">
-          <OptionHeading>{text("Flashcards", "Flashcards")}</OptionHeading>
+          <h3>{text("Flashcards", "Flashcards")}</h3>
           <p>{text(
             "Add one flashcard or import many from CSV.",
             "Προσθέστε μία flashcard ή εισαγάγετε πολλές από CSV.",
@@ -711,18 +698,18 @@ export function PracticeContentManager({
       <div aria-labelledby="imported-practice-content-title" className="practice-content-library">
         <div>
           <p className="eyebrow">{text("IMPORTED PRACTICE CONTENT", "ΕΙΣΑΓΟΜΕΝΟ ΠΕΡΙΕΧΟΜΕΝΟ ΕΞΑΣΚΗΣΗΣ")}</p>
-          <ImportedContentHeading id="imported-practice-content-title">{text("Manage imported content", "Διαχείριση εισαγόμενου περιεχομένου")}</ImportedContentHeading>
+          <h3 id="imported-practice-content-title">{text("Manage imported content", "Διαχείριση εισαγόμενου περιεχομένου")}</h3>
         </div>
 
         <div className="practice-content-lists">
           <section aria-labelledby="imported-practice-chapters-title" className="practice-content-list-panel">
-            <ImportedListHeading
+            <h4
               id="imported-practice-chapters-title"
               ref={chapterResultsHeadingRef}
               tabIndex={-1}
             >
               {text("Practice Chapters", "Κεφάλαια εξάσκησης")} ({importedUnits.length})
-            </ImportedListHeading>
+            </h4>
             {importedUnits.length === 0 ? (
               <p>{text("No imported practice chapters yet.", "Δεν υπάρχουν ακόμη εισαγόμενα κεφάλαια εξάσκησης.")}</p>
             ) : (
@@ -767,13 +754,13 @@ export function PracticeContentManager({
           </section>
 
           <section aria-labelledby="imported-flashcards-title" className="practice-content-list-panel">
-            <ImportedListHeading
+            <h4
               id="imported-flashcards-title"
               ref={flashcardResultsHeadingRef}
               tabIndex={-1}
             >
               {text("Flashcards", "Flashcards")} ({importedFlashcards.length})
-            </ImportedListHeading>
+            </h4>
             {importedFlashcards.length === 0 ? (
               <p>{text("No imported flashcards yet.", "Δεν υπάρχουν ακόμη εισαγόμενες flashcards.")}</p>
             ) : (
