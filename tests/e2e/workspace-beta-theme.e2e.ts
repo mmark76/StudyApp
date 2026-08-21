@@ -4,13 +4,14 @@ test("Workspace BETA toggles light and dark presentation across its live panels"
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/#/workspace-beta");
 
-  await expect(page.locator("iframe.workspace-beta-frame")).toHaveCount(3);
+  await expect(page.locator("iframe.workspace-beta-frame")).toHaveCount(4);
   await expect(page.getByRole("button", { name: "Switch to dark mode" })).toBeVisible();
 
   const sourcesFrame = page.frame({ name: "studyapp-workspace-sources" });
+  const knowledgeFrame = page.frame({ name: "studyapp-workspace-knowledge" });
   const practiceFrame = page.frame({ name: "studyapp-workspace-practice" });
   const aiFrame = page.frame({ name: "studyapp-workspace-ai" });
-  if (!sourcesFrame || !practiceFrame || !aiFrame) {
+  if (!sourcesFrame || !knowledgeFrame || !practiceFrame || !aiFrame) {
     throw new Error("Workspace frames were not available after the panel iframes mounted");
   }
 
@@ -20,6 +21,7 @@ test("Workspace BETA toggles light and dark presentation across its live panels"
 
   await expect.poll(() => page.evaluate(() => document.documentElement.dataset.workspaceTheme)).toBe("dark");
   await expect.poll(() => sourcesFrame.evaluate(() => document.documentElement.dataset.workspaceTheme)).toBe("dark");
+  await expect.poll(() => knowledgeFrame.evaluate(() => document.documentElement.dataset.workspaceTheme)).toBe("dark");
   await expect.poll(() => practiceFrame.evaluate(() => document.documentElement.dataset.workspaceTheme)).toBe("dark");
   await expect.poll(() => aiFrame.evaluate(() => document.documentElement.dataset.workspaceTheme)).toBe("dark");
   await expect(page.getByRole("button", { name: "Switch to light mode" })).toBeVisible();
