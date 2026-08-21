@@ -78,19 +78,18 @@
 /* Shared embedded page heading. */
 .workspace-panel-embed-main .page-heading .eyebrow,
 .workspace-panel-embed-main .assistant-guide-page .eyebrow,
-.workspace-panel-embed-main .practice-content-heading .eyebrow,
 .workspace-panel-embed-main .practice-content-library .eyebrow {
   font-size: var(--workspace-type-micro);
 }
 
 .workspace-panel-embed-main .page-heading h2,
-.workspace-panel-embed-main .practice-content-heading h3,
+.workspace-panel-embed-main .practice-content-library > div > h3,
 .workspace-panel-embed-main .practice-content-library > div > h4 {
   font-size: var(--workspace-type-heading);
 }
 
 .workspace-panel-embed-main .page-heading > p:last-child,
-.workspace-panel-embed-main .practice-content-heading > p:not(.eyebrow) {
+.workspace-panel-embed-main .practice-content-page-heading > p:not(.eyebrow) {
   font-size: var(--workspace-type-body);
 }
 
@@ -123,10 +122,11 @@
 }
 
 /* Practice: content management surface. */
-.workspace-panel-embed-main .practice-import-order,
 .workspace-panel-embed-main .practice-content-add-import-note,
 .workspace-panel-embed-main .storage-notice--compact summary,
+.workspace-panel-embed-main .practice-content-option h3,
 .workspace-panel-embed-main .practice-content-option h4,
+.workspace-panel-embed-main .practice-content-list-panel h4,
 .workspace-panel-embed-main .practice-content-list-panel h5,
 .workspace-panel-embed-main .practice-content-item .local-file-row strong {
   font-size: var(--workspace-type-body);

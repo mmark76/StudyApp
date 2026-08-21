@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
-import { PracticeContentManager } from "../content-import/PracticeContentManager";
+import {
+  PracticeContentManager,
+  PracticeContentPageHeading,
+} from "../content-import/PracticeContentManager";
 
 function isWorkspaceSourcesFrame(): boolean {
   return typeof window !== "undefined" && window.name === "studyapp-workspace-sources";
@@ -50,7 +53,12 @@ export function SourcesPage() {
         </article>
       </section>
 
-      {workspaceSourcesFrame ? <PracticeContentManager /> : null}
+      {workspaceSourcesFrame ? (
+        <>
+          <PracticeContentPageHeading />
+          <PracticeContentManager />
+        </>
+      ) : null}
     </div>
   );
 }

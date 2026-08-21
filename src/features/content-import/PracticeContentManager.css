@@ -4,7 +4,6 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
-.practice-content-heading > :last-child,
 .practice-content-option > :last-child,
 .practice-content-library > :last-child {
   margin-bottom: 0;
@@ -47,14 +46,21 @@
   margin: 0;
 }
 
-.practice-content-manager--page .practice-content-option h3,
-.practice-content-manager--page .practice-content-library h3 {
+.practice-content-option h3,
+.practice-content-library h3 {
   font-size: 1em;
 }
 
-.practice-content-manager--page .practice-content-list-panel h4 {
+.practice-content-list-panel h4 {
   font-size: 0.83em;
   line-height: normal;
+}
+
+.practice-content-page-import-order {
+  margin-top: -0.35rem;
+  color: var(--slate-700);
+  font-size: 0.95rem;
+  font-weight: 650;
 }
 
 .practice-content-option p {
@@ -72,16 +78,6 @@
   margin-top: 0.25rem;
   padding-top: 1rem;
   border-top: 1px solid var(--slate-300);
-}
-
-.practice-import-order {
-  margin: 0;
-  padding: 0.85rem 1rem;
-  border-left: 4px solid var(--blue-600);
-  border-radius: var(--radius-sm);
-  background: var(--blue-100);
-  color: var(--navy-800);
-  font-weight: 750;
 }
 
 .practice-content-add-import-note {

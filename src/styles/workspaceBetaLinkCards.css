@@ -138,18 +138,6 @@
   white-space: nowrap;
 }
 
-/* Practice guidance should inform, not dominate the working surface. */
-.workspace-panel-embed-main .practice-import-order {
-  padding: 0.5rem 0.62rem;
-  border-left: 2px solid #d4cfc3;
-  border-radius: 0.3rem;
-  background: #faf9f5;
-  color: var(--slate-700);
-  font-size: 0.78rem;
-  font-weight: 650;
-  line-height: 1.4;
-}
-
 .workspace-panel-embed-main .practice-content-add-import-note {
   padding: 0.5rem 0.62rem;
   background: #f7f7f4;

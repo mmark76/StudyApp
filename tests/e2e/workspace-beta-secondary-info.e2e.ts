@@ -79,7 +79,72 @@ test("Workspace BETA keeps practice-content management in Sources while study ac
   await expect(practice.getByRole("link", { name: "Practice with flashcards" })).toBeVisible();
   await expect(practice.getByRole("button", { name: "Import Flashcards CSV" })).toHaveCount(0);
 
-  await expect(sources.getByRole("button", { name: "Import Flashcards CSV" })).toBeVisible();
+  const practiceHeading = sources.locator("#practice-content.page-heading");
+  const manager = sources.getByRole("region", { name: "Manage practice content" });
+  const options = manager.getByRole("group", { name: "Practice content options" });
+  await expect(practiceHeading.locator(".eyebrow")).toHaveText("PRACTICE CONTENT");
+  await expect(practiceHeading.getByRole("heading", {
+    level: 2,
+    name: "Manage practice content",
+  })).toBeVisible();
+  await expect(practiceHeading.getByText(
+    "Add, import or manage your flashcards and practice chapters.",
+    { exact: true },
+  )).toBeVisible();
+  await expect(practiceHeading.getByText(
+    "Import the Chapters CSV first, then the Flashcards CSV.",
+    { exact: true },
+  )).toBeVisible();
+  await expect(manager).not.toHaveClass(/\bcontent-panel\b/u);
+  await expect(sources.getByText(
+    "Study content is stored locally in this browser and device.",
+    { exact: true },
+  )).toHaveCount(0);
+  await expect(sources.getByText("Learn more", { exact: true })).toHaveCount(0);
+  await expect(sources.locator(".storage-notice")).toHaveCount(0);
+  await expect(sources.getByText(
+    "New content? Import the Chapters CSV first, then the Flashcards CSV.",
+    { exact: true },
+  )).toHaveCount(0);
+  await expect(options.locator(".practice-content-option")).toHaveCount(2);
+  await expect(options.locator(".practice-content-option").nth(0).getByRole(
+    "heading",
+    { level: 3, name: "Practice Chapters" },
+  )).toBeVisible();
+  await expect(options.locator(".practice-content-option").nth(1).getByRole(
+    "heading",
+    { level: 3, name: "Flashcards" },
+  )).toBeVisible();
+  await expect.poll(() => practiceHeading.evaluate((heading) => {
+    const managerElement = document.querySelector(".practice-content-manager");
+    return Boolean(managerElement
+      && (heading.compareDocumentPosition(managerElement) & Node.DOCUMENT_POSITION_FOLLOWING));
+  })).toBe(true);
+
+  const surfaces = await manager.evaluate((element) => {
+    const managerStyles = getComputedStyle(element);
+    const guidance = document.querySelector<HTMLElement>(
+      ".practice-content-page-import-order",
+    );
+    if (!guidance) throw new Error("Practice guidance is missing.");
+    const guidanceStyles = getComputedStyle(guidance);
+    return {
+      guidanceBackground: guidanceStyles.backgroundColor,
+      guidanceBorder: guidanceStyles.borderLeftWidth,
+      guidancePadding: guidanceStyles.paddingLeft,
+      managerBorder: managerStyles.borderTopWidth,
+      managerShadow: managerStyles.boxShadow,
+    };
+  });
+  expect(surfaces).toEqual({
+    guidanceBackground: "rgba(0, 0, 0, 0)",
+    guidanceBorder: "0px",
+    guidancePadding: "0px",
+    managerBorder: "0px",
+    managerShadow: "none",
+  });
+
+  await expect(manager.getByRole("button", { name: "Import Flashcards CSV" })).toBeVisible();
   await expect(sources.locator('[aria-labelledby="imported-practice-chapters-title"]')).toBeVisible();
   await expect(sources.locator('[aria-labelledby="imported-flashcards-title"]')).toBeHidden();
 });

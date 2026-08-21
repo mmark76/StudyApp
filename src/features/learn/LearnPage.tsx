@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
 import type { LocalWriteFailureInjector } from "../../infrastructure/database/localWriteFailureInjector";
-import { PracticeContentManager } from "../content-import/PracticeContentManager";
+import {
+  PracticeContentManager,
+  PracticeContentPageHeading,
+} from "../content-import/PracticeContentManager";
 import "./LearnPage.css";
 
 interface LearnPageProps {
@@ -61,33 +64,17 @@ export function LearnPage({ failureInjector }: LearnPageProps = {}) {
 
   return (
     <div className="stack-lg workspace-beta-practice-page">
-      <header className="page-heading">
-        {workspacePracticeFrame ? (
-          <>
-            <p className="eyebrow">{text("Practice and memory", "Εξάσκηση και μνήμη")}</p>
-            <h2>{text("Learn", "Μάθηση")}</h2>
-            <p>{text("Practise with flashcards, review and quizzes.", "Εξασκήσου με κάρτες, επανάληψη και κουίζ.")}</p>
-          </>
-        ) : (
-          <>
-            <p className="eyebrow">{text("PRACTICE CONTENT", "ΠΕΡΙΕΧΟΜΕΝΟ ΕΞΑΣΚΗΣΗΣ")}</p>
-            <h2 id="practice-content-title">{text("Manage practice content", "Διαχείριση περιεχομένου εξάσκησης")}</h2>
-            <p>{text(
-              "Add, import or manage your flashcards and practice chapters.",
-              "Προσθέστε, εισαγάγετε ή διαχειριστείτε τις flashcards και τα κεφάλαια εξάσκησης.",
-            )}</p>
-            <p className="practice-content-page-import-order" role="note">{text(
-              "Import the Chapters CSV first, then the Flashcards CSV.",
-              "Εισαγάγετε πρώτα το Chapters CSV και μετά το Flashcards CSV.",
-            )}</p>
-          </>
-        )}
-      </header>
+      {workspacePracticeFrame ? (
+        <header className="page-heading" id="practice-content">
+          <p className="eyebrow">{text("Practice and memory", "Εξάσκηση και μνήμη")}</p>
+          <h2 id="practice-content-title">{text("Learn", "Μάθηση")}</h2>
+          <p>{text("Practise with flashcards, review and quizzes.", "Εξασκήσου με κάρτες, επανάληψη και κουίζ.")}</p>
+        </header>
+      ) : <PracticeContentPageHeading />}
 
       <PracticeContentManager
         failureInjector={failureInjector}
         learningTools={learningTools}
-        pageLayout={!workspacePracticeFrame}
       />
     </div>
   );
