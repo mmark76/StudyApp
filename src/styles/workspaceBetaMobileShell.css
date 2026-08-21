@@ -1,0 +1,335 @@
+.workspace-beta-mobile-shell {
+  display: contents;
+}
+
+.workspace-beta-mobile-header,
+.workspace-beta-mobile-panel-tabs {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .workspace-beta-mobile-shell {
+    display: flex;
+    width: 100%;
+    height: 100dvh;
+    min-width: 0;
+    min-height: 0;
+    flex-direction: column;
+    overflow: hidden;
+    background: #ffffff;
+    color: #1d1d1b;
+  }
+
+  .workspace-beta-mobile-header {
+    position: relative;
+    z-index: 700;
+    display: flex;
+    min-width: 0;
+    min-height: 54px;
+    flex: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.55rem;
+    padding: 0.42rem 0.65rem;
+    border-bottom: 1px solid #d7d7d2;
+    background: rgb(255 255 255 / 0.97);
+  }
+
+  .workspace-beta-mobile-brand,
+  .workspace-beta-mobile-header-actions {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+  }
+
+  .workspace-beta-mobile-brand {
+    gap: 0.42rem;
+  }
+
+  .workspace-beta-mobile-brand strong {
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .workspace-beta-mobile-badge {
+    display: inline-flex;
+    min-height: 1.55rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0.22rem 0.45rem;
+    border-radius: 0.34rem;
+    background: #111111;
+    color: #ffffff;
+    font-size: 0.63rem;
+    font-weight: 850;
+    letter-spacing: 0.09em;
+    line-height: 1;
+  }
+
+  .workspace-beta-mobile-header-actions {
+    flex: none;
+    gap: 0.38rem;
+  }
+
+  .workspace-beta-mobile-header .language-switcher {
+    display: inline-flex;
+    gap: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .workspace-beta-mobile-header .language-switcher button {
+    min-width: 2rem;
+    min-height: 2rem;
+    padding: 0.28rem 0.32rem;
+    border: 0;
+    border-radius: 0.28rem;
+    background: transparent;
+    color: #6b6b65;
+    font-size: 0.75rem;
+    font-weight: 750;
+  }
+
+  .workspace-beta-mobile-header .language-switcher button.active {
+    background: #ecece8;
+    color: #1d1d1b;
+  }
+
+  .workspace-beta-mobile-menu {
+    position: relative;
+  }
+
+  .workspace-beta-mobile-menu > summary {
+    display: inline-flex;
+    width: 2.25rem;
+    height: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #d3d3ce;
+    border-radius: 0.38rem;
+    background: #f8f8f5;
+    color: #292927;
+    cursor: pointer;
+    font-size: 1.18rem;
+    font-weight: 800;
+    line-height: 1;
+    list-style: none;
+  }
+
+  .workspace-beta-mobile-menu > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .workspace-beta-mobile-menu > summary:focus-visible {
+    outline: 2px solid #6a6a64;
+    outline-offset: 2px;
+  }
+
+  .workspace-beta-mobile-menu-popover {
+    position: absolute;
+    top: calc(100% + 0.45rem);
+    right: 0;
+    z-index: 900;
+    width: min(290px, calc(100vw - 1rem));
+    max-height: calc(100dvh - 4.5rem);
+    overflow-y: auto;
+    padding: 0.45rem;
+    border: 1px solid #d2d2cc;
+    border-radius: 0.6rem;
+    background: #ffffff;
+    box-shadow: 0 14px 36px rgb(0 0 0 / 0.18);
+  }
+
+  .workspace-beta-mobile-menu-popover nav {
+    display: grid;
+    gap: 0.15rem;
+  }
+
+  .workspace-beta-mobile-menu-popover a,
+  .workspace-beta-mobile-menu-popover button {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 0.62rem 0.68rem;
+    border: 0;
+    border-radius: 0.4rem;
+    background: transparent;
+    color: #33332f;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.3;
+    text-align: left;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+  }
+
+  .workspace-beta-mobile-menu-popover a:hover,
+  .workspace-beta-mobile-menu-popover button:hover,
+  .workspace-beta-mobile-menu-popover a:focus-visible,
+  .workspace-beta-mobile-menu-popover button:focus-visible {
+    background: #f1f1ed;
+    color: #171715;
+  }
+
+  .workspace-beta-mobile-panel-tabs {
+    position: relative;
+    z-index: 600;
+    display: grid;
+    min-width: 0;
+    flex: none;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-bottom: 1px solid #d9d9d4;
+    background: #f8f8f5;
+  }
+
+  .workspace-beta-mobile-panel-tabs button {
+    min-width: 0;
+    min-height: 2.55rem;
+    padding: 0.42rem 0.18rem;
+    border: 0;
+    border-right: 1px solid #e2e2dd;
+    border-radius: 0;
+    background: transparent;
+    color: #676761;
+    font-size: clamp(0.65rem, 3vw, 0.78rem);
+    font-weight: 750;
+    line-height: 1.15;
+    text-align: center;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+  }
+
+  .workspace-beta-mobile-panel-tabs button:last-child {
+    border-right: 0;
+  }
+
+  .workspace-beta-mobile-panel-tabs button.is-active {
+    background: #ffffff;
+    color: #1e1e1c;
+    box-shadow: inset 0 -2px 0 #6b5546;
+  }
+
+  .workspace-beta-mobile-panel-tabs button:focus-visible {
+    position: relative;
+    z-index: 1;
+    outline: 2px solid #6a6a64;
+    outline-offset: -2px;
+  }
+
+  .workspace-beta-mobile-shell > .workspace-beta-functional-shell {
+    width: 100%;
+    height: auto;
+    min-width: 0;
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+
+  .workspace-beta-mobile-shell > .workspace-beta-functional-shell > .workspace-beta-header {
+    display: none;
+  }
+
+  .workspace-beta-mobile-shell > .workspace-beta-functional-shell .workspace-beta-main {
+    display: flex;
+    width: 100%;
+    height: auto;
+    min-width: 0;
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+  }
+
+  .workspace-beta-mobile-shell .workspace-beta-functional-grid {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    grid-template-columns: 1fr !important;
+  }
+
+  .workspace-beta-mobile-shell .workspace-beta-resizer {
+    display: none !important;
+  }
+
+  .workspace-beta-mobile-shell .workspace-beta-functional-panel {
+    display: none !important;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    border-left: 0 !important;
+  }
+
+  .workspace-beta-mobile-shell[data-mobile-panel="sources"] .workspace-beta-panel-sources,
+  .workspace-beta-mobile-shell[data-mobile-panel="knowledge"] .workspace-beta-panel-knowledge,
+  .workspace-beta-mobile-shell[data-mobile-panel="practice"] .workspace-beta-panel-practice,
+  .workspace-beta-mobile-shell[data-mobile-panel="ai"] .workspace-beta-panel-studio {
+    display: flex !important;
+  }
+
+  :root[data-workspace-theme="dark"] .workspace-beta-mobile-shell {
+    background: #151514;
+    color: #f0f0ec;
+  }
+
+  :root[data-workspace-theme="dark"] .workspace-beta-mobile-header {
+    border-bottom-color: #393936;
+    background: rgb(22 22 21 / 0.98);
+  }
+
+  :root[data-workspace-theme="dark"] .workspace-beta-mobile-header .language-switcher button {
+    color: #bdbdb7;
+  }
+
+  :root[data-workspace-theme="dark"] .workspace-beta-mobile-header .language-switcher button.active {
+    background: #30302d;
+    color: #f4f4f1;
+  }
+
+  :root[data-workspace-theme="dark"] .workspace-beta-mobile-menu > summary {
+    border-color: #454541;
+    background: #242422;
+    color: #f0f0ec;
+  }
+
+  :root[data-workspace-theme="dark"] .workspace-beta-mobile-menu-popover {
+    border-color: #44443f;
+    background: #20201e;
+    box-shadow: 0 14px 36px rgb(0 0 0 / 0.4);
+  }
+
+  :root[data-workspace-theme="dark"] .workspace-beta-mobile-menu-popover a,
+  :root[data-workspace-theme="dark"] .workspace-beta-mobile-menu-popover button {
+    color: #e0e0da;
+  }
+
+  :root[data-workspace-theme="dark"] .workspace-beta-mobile-menu-popover a:hover,
+  :root[data-workspace-theme="dark"] .workspace-beta-mobile-menu-popover button:hover,
+  :root[data-workspace-theme="dark"] .workspace-beta-mobile-menu-popover a:focus-visible,
+  :root[data-workspace-theme="dark"] .workspace-beta-mobile-menu-popover button:focus-visible {
+    background: #30302d;
+    color: #ffffff;
+  }
+
+  :root[data-workspace-theme="dark"] .workspace-beta-mobile-panel-tabs {
+    border-bottom-color: #393936;
+    background: #1c1c1a;
+  }
+
+  :root[data-workspace-theme="dark"] .workspace-beta-mobile-panel-tabs button {
+    border-right-color: #343431;
+    color: #b9b9b3;
+  }
+
+  :root[data-workspace-theme="dark"] .workspace-beta-mobile-panel-tabs button.is-active {
+    background: #252523;
+    color: #ffffff;
+    box-shadow: inset 0 -2px 0 #b9977e;
+  }
+}
