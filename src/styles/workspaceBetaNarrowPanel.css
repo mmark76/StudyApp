@@ -1,0 +1,115 @@
+/*
+ * Workspace BETA narrow-panel containment.
+ *
+ * The Standard Version intentionally keeps a 320px document minimum. Embedded
+ * Workspace documents can be narrower than that, so reset the minimum only
+ * when the AppLayout has rendered its Workspace embed shell.
+ */
+:root:has(.workspace-panel-embed-shell),
+body:has(.workspace-panel-embed-shell),
+#root:has(.workspace-panel-embed-shell) {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.workspace-panel-embed-shell,
+.workspace-panel-embed-main,
+.workspace-panel-embed-main > * {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Keep every outer Workspace panel and its header inside the assigned track. */
+.workspace-beta-functional-panel,
+.workspace-beta-frame-wrap,
+.workspace-beta-frame,
+.workspace-beta-functional-panel-header,
+.workspace-beta-functional-panel-header > div {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.workspace-beta-functional-panel-header {
+  flex-wrap: wrap;
+}
+
+.workspace-beta-functional-panel-header > div:first-child {
+  flex: 1 1 6.5rem;
+}
+
+.workspace-beta-functional-panel-header h2 {
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+.workspace-beta-functional-panel-header .workspace-beta-panel-tools {
+  flex: 0 1 auto;
+}
+
+.workspace-beta-functional-panel-header .workspace-beta-panel-tools button {
+  max-width: 100%;
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Sources & Materials: use shrinkable tracks and keep prose, cards, and
+ * controls within the iframe viewport. */
+.workspace-panel-embed-main .workspace-beta-sources-page,
+.workspace-panel-embed-main .workspace-beta-sources-page .page-heading,
+.workspace-panel-embed-main .workspace-beta-sources-page .dashboard-action-grid,
+.workspace-panel-embed-main .workspace-beta-sources-page .dashboard-action-card {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.workspace-panel-embed-main .workspace-beta-sources-page .dashboard-action-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.workspace-panel-embed-main .workspace-beta-sources-page :where(h2, h3, p) {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+.workspace-panel-embed-main .workspace-beta-sources-page .button {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Library and Structured Study can replace the Sources home inside the same
+ * iframe. Their shared cards and grids must also be allowed to shrink. */
+.workspace-panel-embed-main :where(
+  .content-panel,
+  .learning-stage-grid,
+  .learning-stage-card,
+  .library-grid,
+  .library-card,
+  .template-grid,
+  .template-card,
+  .material-option-panel,
+  .workspace-material-upload
+) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Core Knowledge: retain the compact fixed-size chapter controls while the
+ * container decides naturally how many fit on each row. */
+.workspace-panel-embed-main .core-knowledge-page,
+.workspace-panel-embed-main .core-knowledge-page > div,
+.workspace-panel-embed-main .core-knowledge-page section,
+.workspace-panel-embed-main .core-knowledge-heading,
+.workspace-panel-embed-main .core-knowledge-chapter-grid {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.workspace-panel-embed-main .core-knowledge-chapter-grid {
+  width: 100%;
+}
