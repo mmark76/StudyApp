@@ -16,6 +16,10 @@ function expectDefaultRatios(ratios: number[]) {
   });
 }
 
+function maximumRatioError(ratios: number[]): number {
+  return Math.max(...ratios.map((ratio, index) => Math.abs(ratio - expectedRatios[index])));
+}
+
 test("Workspace BETA defaults and resets to 22/22/34/22 panel proportions", async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/#/workspace-beta");
@@ -31,7 +35,5 @@ test("Workspace BETA defaults and resets to 22/22/34/22 panel proportions", asyn
   expect(resizedRatios[0]).toBeGreaterThan(expectedRatios[0]);
 
   await page.keyboard.press("Home");
-  await expect.poll(async () => readPanelRatios(panels)).toEqual(
-    expect.arrayContaining(expectedRatios.map((ratio) => expect.closeTo(ratio, 2))),
-  );
+  await expect.poll(async () => maximumRatioError(await readPanelRatios(panels))).toBeLessThan(0.006);
 });
