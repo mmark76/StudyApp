@@ -246,31 +246,41 @@ test("Workspace BETA Core Knowledge keeps chapter titles hidden until its modal 
   await expect(chapterButton).toBeFocused();
 });
 
-test("Workspace BETA language sync reaches four panels and narrow overflow stays contained", async ({ page }) => {
+test("Workspace BETA language sync follows active mobile panels and layout stays contained", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/#/workspace-beta");
 
   const sources = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
   const knowledge = page.frameLocator('iframe[name="studyapp-workspace-knowledge"]');
   const practice = page.frameLocator('iframe[name="studyapp-workspace-practice"]');
+  const tabs = page.locator(".workspace-beta-mobile-panel-tabs");
 
   await expect(sources.getByRole("heading", { name: "Sources & Materials" })).toBeVisible();
   await expect(page.locator(".workspace-beta-resizer").first()).toBeHidden();
   await page.getByRole("button", { name: "GR", exact: true }).click();
 
   await expect(page.getByRole("heading", { name: "Πηγές & Υλικό", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Βασική Γνώση", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Εξάσκηση & Εμπέδωση", exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Επιστροφή στην κανονική έκδοση" })).toBeVisible();
   await expect(sources.getByRole("heading", { name: "Πηγές & Υλικό" })).toBeVisible();
+
+  await tabs.getByRole("button", { name: "Γνώση", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Βασική Γνώση", exact: true })).toBeVisible();
   await expect(knowledge.getByRole("heading", { name: "Βασική Γνώση" })).toBeVisible();
+
+  await tabs.getByRole("button", { name: "Εξάσκηση", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Εξάσκηση & Εμπέδωση", exact: true })).toBeVisible();
   await expect(practice.getByRole("heading", { name: "Εξάσκηση & Εμπέδωση" })).toBeVisible();
+
+  const mobileMenu = page.locator(".workspace-beta-mobile-menu");
+  await mobileMenu.locator("summary").click();
+  await expect(
+    mobileMenu.getByRole("link", { name: "Επιστροφή στην κανονική έκδοση" }),
+  ).toBeVisible();
 
   const overflow = await page.locator(".workspace-beta-main").evaluate((main) => ({
     clientWidth: main.clientWidth,
     scrollWidth: main.scrollWidth,
     documentFits: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
   }));
-  expect(overflow.scrollWidth).toBeGreaterThan(overflow.clientWidth);
+  expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth + 1);
   expect(overflow.documentFits).toBe(true);
 });
