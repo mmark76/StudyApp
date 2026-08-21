@@ -1,9 +1,5 @@
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
-import {
-  PracticeContentManager,
-  PracticeContentPageHeading,
-} from "../content-import/PracticeContentManager";
 
 function isWorkspaceSourcesFrame(): boolean {
   return typeof window !== "undefined" && window.name === "studyapp-workspace-sources";
@@ -17,7 +13,9 @@ export function SourcesPage() {
     <div className="stack-lg workspace-beta-sources-page">
       <header className="page-heading">
         <p className="eyebrow">{text("Add & organize", "Πρόσθεσε & οργάνωσε")}</p>
-        <h2>{text("Sources", "Πηγές")}</h2>
+        <h2>{workspaceSourcesFrame
+          ? text("Sources & Materials", "Πηγές & Υλικό")
+          : text("Sources", "Πηγές")}</h2>
         <p>{text(
           "Choose how you want to work with your study material.",
           "Επίλεξε πώς θέλεις να δουλέψεις με το υλικό μελέτης σου.",
@@ -52,13 +50,6 @@ export function SourcesPage() {
           </Link>
         </article>
       </section>
-
-      {workspaceSourcesFrame ? (
-        <>
-          <PracticeContentPageHeading />
-          <PracticeContentManager />
-        </>
-      ) : null}
     </div>
   );
 }

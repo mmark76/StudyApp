@@ -1,41 +1,98 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
-test("Workspace BETA keeps three independent functional StudyApp panels", async ({ page }) => {
+async function seedCoreKnowledgeChapter(page: Page) {
+  await page.goto("/");
+  await page.evaluate(async () => {
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open("generic-study-app");
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        const database = request.result;
+        const transaction = database.transaction("settings", "readwrite");
+        transaction.onerror = () => reject(transaction.error);
+        transaction.oncomplete = () => {
+          database.close();
+          resolve();
+        };
+
+        transaction.objectStore("settings").put({
+          key: "imported-study-units",
+          value: [
+            {
+              id: "core-knowledge-e2e-unit",
+              number: 7,
+              title: "Cognitive Psychology",
+              objectives: ["Explain attention", "Describe working memory"],
+              summary: ["Attention is selective", "Working memory is limited"],
+              keyTerms: ["attention", "working memory"],
+            },
+          ],
+        });
+        transaction.objectStore("settings").put({
+          key: "imported-flashcards",
+          value: [
+            {
+              id: "core-knowledge-e2e-card-1",
+              unitId: "core-knowledge-e2e-unit",
+              number: 1,
+              question: "What is selective attention?",
+              answer: "Prioritising some information over other information.",
+              tags: [],
+            },
+            {
+              id: "core-knowledge-e2e-card-2",
+              unitId: "core-knowledge-e2e-unit",
+              number: 2,
+              question: "Is working memory unlimited?",
+              answer: "No.",
+              tags: [],
+            },
+          ],
+        });
+      };
+    });
+  });
+}
+
+test("Workspace BETA keeps four independent functional StudyApp panels", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/#/workspace-beta");
 
   await expect(page.locator(".workspace-beta-header")).toBeVisible();
   await expect(page.locator(".app-header")).toHaveCount(0);
   await expect(page.locator(".app-footer")).toHaveCount(0);
-  await expect(page.locator("iframe.workspace-beta-frame")).toHaveCount(3);
+  await expect(page.locator("iframe.workspace-beta-frame")).toHaveCount(4);
 
-  await expect(page.getByRole("heading", { name: "Sources" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Practice" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "AI Studio" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sources & Materials", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Core Knowledge", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Practice & Mastery", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "AI Studio", exact: true })).toBeVisible();
   await expect(
     page.locator(".workspace-beta-header-left").getByRole("link", { name: "Back to Standard Version" }),
   ).toBeVisible();
-  await expect(
-    page.locator(".workspace-beta-header-actions").getByRole("link", { name: "Back to Standard Version" }),
-  ).toHaveCount(0);
 
   const sources = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
+  const knowledge = page.frameLocator('iframe[name="studyapp-workspace-knowledge"]');
   const practice = page.frameLocator('iframe[name="studyapp-workspace-practice"]');
   const ai = page.frameLocator('iframe[name="studyapp-workspace-ai"]');
 
-  await expect(sources.getByRole("heading", { name: "Sources" })).toBeVisible();
-  await expect(practice.getByRole("heading", { name: "Learn" })).toBeVisible();
+  await expect(sources.getByRole("heading", { name: "Sources & Materials" })).toBeVisible();
+  await expect(knowledge.getByRole("heading", { name: "Core Knowledge" })).toBeVisible();
+  await expect(practice.getByRole("heading", { name: "Practice & Mastery" })).toBeVisible();
   await expect(ai.getByRole("heading", { name: "AI Assistant", exact: true })).toBeVisible();
 
   await expect(sources.locator(".app-header")).toHaveCount(0);
+  await expect(knowledge.locator(".app-header")).toHaveCount(0);
   await expect(sources.locator(".app-footer")).toHaveCount(0);
+  await expect(knowledge.getByText("No chapters imported yet.")).toBeVisible();
 
   await sources.getByRole("link", { name: "Library", exact: true }).click();
   await expect(sources.getByRole("heading", { name: "Library" })).toBeVisible();
-  await expect(practice.getByRole("heading", { name: "Learn" })).toBeVisible();
+  await expect(knowledge.getByRole("heading", { name: "Core Knowledge" })).toBeVisible();
+  await expect(practice.getByRole("heading", { name: "Practice & Mastery" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Go to Sources home" }).click();
-  await expect(sources.getByRole("heading", { name: "Sources" })).toBeVisible();
+  await page.getByRole("button", { name: "Go to Sources & Materials home" }).click();
+  await expect(sources.getByRole("heading", { name: "Sources & Materials" })).toBeVisible();
 
   const assistantLink = page.getByRole("link", { name: "Start StudyApp AI Assistant" });
   await expect(assistantLink).toHaveAttribute("target", "_blank");
@@ -65,12 +122,12 @@ test("Workspace BETA keeps legal, feedback and version information in the Info m
 });
 
 test("Workspace BETA desktop dividers resize adjacent panels and can reset", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/#/workspace-beta");
 
   const panels = page.locator(".workspace-beta-functional-panel");
   const dividers = page.locator(".workspace-beta-resizer");
-  await expect(dividers).toHaveCount(2);
+  await expect(dividers).toHaveCount(3);
   await expect(dividers.first()).toBeVisible();
 
   const before = await panels.evaluateAll((items) =>
@@ -85,7 +142,7 @@ test("Workspace BETA desktop dividers resize adjacent panels and can reset", asy
   );
   await page.mouse.down();
   await page.mouse.move(
-    dividerBox.x + dividerBox.width / 2 + 96,
+    dividerBox.x + dividerBox.width / 2 + 72,
     dividerBox.y + dividerBox.height / 2,
     { steps: 6 },
   );
@@ -94,9 +151,10 @@ test("Workspace BETA desktop dividers resize adjacent panels and can reset", asy
   const afterDrag = await panels.evaluateAll((items) =>
     items.map((item) => item.getBoundingClientRect().width),
   );
-  expect(afterDrag[0]).toBeGreaterThan(before[0] + 50);
-  expect(afterDrag[1]).toBeLessThan(before[1] - 50);
+  expect(afterDrag[0]).toBeGreaterThan(before[0] + 35);
+  expect(afterDrag[1]).toBeLessThan(before[1] - 35);
   expect(Math.abs(afterDrag[2] - before[2])).toBeLessThan(4);
+  expect(Math.abs(afterDrag[3] - before[3])).toBeLessThan(4);
 
   await dividers.first().dblclick();
   await expect.poll(async () => {
@@ -108,10 +166,10 @@ test("Workspace BETA desktop dividers resize adjacent panels and can reset", asy
 });
 
 test("Workspace BETA wheel scrolls a frame even when parent focus is left outside it", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/#/workspace-beta");
 
-  const divider = page.locator(".workspace-beta-resizer").first();
+  const divider = page.locator(".workspace-beta-resizer").nth(1);
   const dividerBox = await divider.boundingBox();
   if (!dividerBox) throw new Error("Workspace divider was not measurable");
 
@@ -121,7 +179,7 @@ test("Workspace BETA wheel scrolls a frame even when parent focus is left outsid
   );
   await page.mouse.down();
   await page.mouse.move(
-    dividerBox.x + dividerBox.width / 2 + 72,
+    dividerBox.x + dividerBox.width / 2 + 48,
     dividerBox.y + dividerBox.height / 2,
     { steps: 5 },
   );
@@ -158,69 +216,55 @@ test("Workspace BETA wheel scrolls a frame even when parent focus is left outsid
   await expect.poll(() => practiceFrame.evaluate(() => document.hasFocus())).toBe(true);
 });
 
-test("Workspace BETA Sources practice content uses readable content-sized columns", async ({ page }) => {
-  await page.setViewportSize({ width: 2200, height: 900 });
+test("Workspace BETA Core Knowledge keeps chapter titles hidden until its modal opens", async ({ page }) => {
+  await seedCoreKnowledgeChapter(page);
+  await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/#/workspace-beta");
 
-  const panels = page.locator(".workspace-beta-functional-panel");
-  const firstDivider = page.locator(".workspace-beta-resizer").first();
-  const sources = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
-  const practiceLists = sources.locator(".practice-content-lists");
+  const knowledge = page.frameLocator('iframe[name="studyapp-workspace-knowledge"]');
+  const chapterButton = knowledge.getByRole("button", {
+    name: "Open chapter 7 — Cognitive Psychology",
+  });
 
-  await expect(practiceLists).toBeVisible();
-  const initialSourcesWidth = await panels.nth(0).evaluate((panel) =>
-    panel.getBoundingClientRect().width,
-  );
-  expect(initialSourcesWidth).toBeLessThan(1056);
+  await expect(knowledge.getByText("Cognitive Psychology", { exact: true })).toHaveCount(0);
+  await expect(knowledge.getByText("Explain attention", { exact: true })).toHaveCount(0);
+  await expect(chapterButton).toHaveText("07");
 
-  await expect.poll(async () =>
-    practiceLists.evaluate((element) =>
-      getComputedStyle(element).gridTemplateColumns.trim().split(/\s+/u).length,
-    ),
-  ).toBe(1);
+  await chapterButton.click();
+  const dialog = knowledge.getByRole("dialog", { name: "Cognitive Psychology" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("heading", { name: "Learning goals" })).toBeVisible();
+  await expect(dialog.getByText("Explain attention", { exact: true })).toBeVisible();
+  await expect(dialog.getByRole("heading", { name: "Key points" })).toBeVisible();
+  await expect(dialog.getByText("Attention is selective", { exact: true })).toBeVisible();
+  await expect(dialog.getByRole("heading", { name: "Important terms" })).toBeVisible();
+  await expect(dialog.getByText("working memory", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("2 linked flashcards", { exact: true })).toBeVisible();
 
-  const dividerBox = await firstDivider.boundingBox();
-  if (!dividerBox) throw new Error("Sources/Practice divider was not measurable");
-
-  await page.mouse.move(
-    dividerBox.x + dividerBox.width / 2,
-    dividerBox.y + dividerBox.height / 2,
-  );
-  await page.mouse.down();
-  await page.mouse.move(
-    dividerBox.x + dividerBox.width / 2 + 560,
-    dividerBox.y + dividerBox.height / 2,
-    { steps: 10 },
-  );
-  await page.mouse.up();
-
-  await expect.poll(async () =>
-    panels.nth(0).evaluate((panel) => panel.getBoundingClientRect().width),
-  ).toBeGreaterThan(1056);
-
-  await expect.poll(async () =>
-    practiceLists.evaluate((element) =>
-      getComputedStyle(element).gridTemplateColumns.trim().split(/\s+/u).length,
-    ),
-  ).toBe(2);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(chapterButton).toBeFocused();
 });
 
-test("Workspace BETA language sync reaches panels and narrow overflow stays contained", async ({ page }) => {
+test("Workspace BETA language sync reaches four panels and narrow overflow stays contained", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/#/workspace-beta");
 
   const sources = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
+  const knowledge = page.frameLocator('iframe[name="studyapp-workspace-knowledge"]');
   const practice = page.frameLocator('iframe[name="studyapp-workspace-practice"]');
 
-  await expect(sources.getByRole("heading", { name: "Sources" })).toBeVisible();
+  await expect(sources.getByRole("heading", { name: "Sources & Materials" })).toBeVisible();
   await expect(page.locator(".workspace-beta-resizer").first()).toBeHidden();
   await page.getByRole("button", { name: "GR", exact: true }).click();
 
-  await expect(page.getByRole("heading", { name: "Πηγές" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Εξάσκηση" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Πηγές & Υλικό", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Βασική Γνώση", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Εξάσκηση & Εμπέδωση", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Επιστροφή στην κανονική έκδοση" })).toBeVisible();
-  await expect(sources.getByRole("heading", { name: "Πηγές" })).toBeVisible();
-  await expect(practice.getByRole("heading", { name: "Μάθηση" })).toBeVisible();
+  await expect(sources.getByRole("heading", { name: "Πηγές & Υλικό" })).toBeVisible();
+  await expect(knowledge.getByRole("heading", { name: "Βασική Γνώση" })).toBeVisible();
+  await expect(practice.getByRole("heading", { name: "Εξάσκηση & Εμπέδωση" })).toBeVisible();
 
   const overflow = await page.locator(".workspace-beta-main").evaluate((main) => ({
     clientWidth: main.clientWidth,

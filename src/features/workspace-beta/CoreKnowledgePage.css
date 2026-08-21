@@ -1,0 +1,172 @@
+.core-knowledge-page {
+  min-width: 0;
+}
+
+.core-knowledge-status {
+  margin: 0;
+  padding: 0.75rem 0;
+  color: var(--slate-600, #475569);
+  font-size: 0.8rem;
+}
+
+.core-knowledge-chapter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(3.1rem, 1fr));
+  gap: 0.5rem;
+}
+
+.core-knowledge-chapter-button,
+.core-knowledge-pagination button,
+.core-knowledge-modal-header button {
+  min-height: 2.65rem;
+  border: 1px solid color-mix(in srgb, var(--slate-500, #64748b) 34%, transparent);
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, var(--surface, #ffffff) 92%, var(--slate-100, #f1f5f9));
+  color: var(--slate-800, #1e293b);
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.core-knowledge-chapter-button:hover,
+.core-knowledge-pagination button:hover:not(:disabled),
+.core-knowledge-modal-header button:hover {
+  border-color: var(--slate-500, #64748b);
+  background: color-mix(in srgb, var(--surface, #ffffff) 82%, var(--slate-100, #f1f5f9));
+}
+
+.core-knowledge-chapter-button:focus-visible,
+.core-knowledge-pagination button:focus-visible,
+.core-knowledge-modal-header button:focus-visible {
+  outline: 3px solid var(--blue-500, #3b82f6);
+  outline-offset: 2px;
+}
+
+.core-knowledge-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.core-knowledge-pagination button {
+  min-height: 2.25rem;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.72rem;
+}
+
+.core-knowledge-pagination button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.core-knowledge-pagination span {
+  color: var(--slate-600, #475569);
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.core-knowledge-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(15 23 42 / 0.58);
+}
+
+.core-knowledge-modal {
+  width: min(100%, 760px);
+  max-height: calc(100% - 1rem);
+  overflow: auto;
+  border: 1px solid color-mix(in srgb, var(--slate-500, #64748b) 38%, transparent);
+  border-radius: 0.75rem;
+  background: var(--surface, #ffffff);
+  color: var(--slate-800, #1e293b);
+  box-shadow: 0 24px 70px rgb(15 23 42 / 0.28);
+}
+
+.core-knowledge-modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--slate-500, #64748b) 22%, transparent);
+  background: var(--surface, #ffffff);
+}
+
+.core-knowledge-modal-header h2 {
+  margin: 0.2rem 0 0;
+  font-size: 1.15rem;
+  line-height: 1.3;
+}
+
+.core-knowledge-modal-header .eyebrow {
+  margin: 0;
+}
+
+.core-knowledge-modal-header button {
+  min-height: 2.3rem;
+  padding: 0.35rem 0.55rem;
+  flex: none;
+  font-size: 0.72rem;
+}
+
+.core-knowledge-modal-body {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+}
+
+.core-knowledge-modal-body section {
+  min-width: 0;
+  padding: 1rem;
+}
+
+.core-knowledge-modal-body section + section {
+  border-left: 1px solid color-mix(in srgb, var(--slate-500, #64748b) 20%, transparent);
+}
+
+.core-knowledge-modal-body h3 {
+  margin: 0 0 0.55rem;
+  font-size: 0.88rem;
+}
+
+.core-knowledge-modal-body ul {
+  margin: 0;
+  padding-left: 1.15rem;
+}
+
+.core-knowledge-modal-body li,
+.core-knowledge-modal-body p {
+  margin: 0.3rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.core-knowledge-linked-count {
+  margin: 0;
+  padding: 0.75rem 1rem 1rem;
+  border-top: 1px solid color-mix(in srgb, var(--slate-500, #64748b) 20%, transparent);
+  color: var(--slate-600, #475569);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+@media (max-width: 620px) {
+  .core-knowledge-modal-body {
+    grid-template-columns: 1fr;
+  }
+
+  .core-knowledge-modal-body section + section {
+    border-top: 1px solid color-mix(in srgb, var(--slate-500, #64748b) 20%, transparent);
+    border-left: 0;
+  }
+}

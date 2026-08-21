@@ -15,9 +15,9 @@ import { useAppearanceSettings } from "../appearance/useAppearanceSettings";
 import { WorkspaceThemeToggle } from "./WorkspaceThemeToggle";
 import "../../styles/workspaceBetaInfo.css";
 
-type WorkspacePanelId = "sources" | "practice" | "ai";
-type WorkspaceDivider = 0 | 1;
-type PanelWidths = [number, number, number];
+type WorkspacePanelId = "sources" | "knowledge" | "practice" | "ai";
+type WorkspaceDivider = 0 | 1 | 2;
+type PanelWidths = [number, number, number, number];
 type WorkspaceInfoRoute = "/appearance" | "/ai-assistant-comparison" | "/instructions" | "/important-info";
 
 interface ResizeDragState {
@@ -29,6 +29,7 @@ interface ResizeDragState {
 
 const panelRoutes: Record<WorkspacePanelId, string> = {
   sources: "/#/sources",
+  knowledge: "/#/core-knowledge",
   practice: "/#/learn",
   ai: "/#/ai-assistant-guide",
 };
@@ -39,8 +40,8 @@ const workspaceInfoRoutes = new Set<WorkspaceInfoRoute>([
   "/instructions",
   "/important-info",
 ]);
-const defaultPanelWeights: PanelWidths = [0.82, 1.38, 0.92];
-const minimumPanelWidths: PanelWidths = [260, 400, 280];
+const defaultPanelWeights: PanelWidths = [0.9, 0.72, 1.15, 0.9];
+const minimumPanelWidths: PanelWidths = [260, 240, 340, 280];
 const keyboardResizeStep = 32;
 const focusableSelector = [
   "a[href]",
@@ -85,28 +86,18 @@ function resizeAdjacentPanels(
   widths: PanelWidths,
   delta: number,
 ): PanelWidths {
-  const next: PanelWidths = [widths[0], widths[1], widths[2]];
-
-  if (divider === 0) {
-    const combinedWidth = widths[0] + widths[1];
-    const sourceWidth = clamp(
-      widths[0] + delta,
-      minimumPanelWidths[0],
-      combinedWidth - minimumPanelWidths[1],
-    );
-    next[0] = sourceWidth;
-    next[1] = combinedWidth - sourceWidth;
-    return next;
-  }
-
-  const combinedWidth = widths[1] + widths[2];
-  const practiceWidth = clamp(
-    widths[1] + delta,
-    minimumPanelWidths[1],
-    combinedWidth - minimumPanelWidths[2],
+  const next: PanelWidths = [widths[0], widths[1], widths[2], widths[3]];
+  const firstIndex = divider;
+  const secondIndex = divider + 1;
+  const combinedWidth = widths[firstIndex] + widths[secondIndex];
+  const firstWidth = clamp(
+    widths[firstIndex] + delta,
+    minimumPanelWidths[firstIndex],
+    combinedWidth - minimumPanelWidths[secondIndex],
   );
-  next[1] = practiceWidth;
-  next[2] = combinedWidth - practiceWidth;
+
+  next[firstIndex] = firstWidth;
+  next[secondIndex] = combinedWidth - firstWidth;
   return next;
 }
 
@@ -115,6 +106,7 @@ export function WorkspaceBetaPage() {
   const { text } = useLanguage();
   const [frameVersions, setFrameVersions] = useState<Record<WorkspacePanelId, number>>({
     sources: 0,
+    knowledge: 0,
     practice: 0,
     ai: 0,
   });
@@ -188,8 +180,9 @@ export function WorkspaceBetaPage() {
   const gridStyle = panelWeights
     ? ({
         "--workspace-sources-track": `${panelWeights[0]}fr`,
-        "--workspace-practice-track": `${panelWeights[1]}fr`,
-        "--workspace-ai-track": `${panelWeights[2]}fr`,
+        "--workspace-knowledge-track": `${panelWeights[1]}fr`,
+        "--workspace-practice-track": `${panelWeights[2]}fr`,
+        "--workspace-ai-track": `${panelWeights[3]}fr`,
       } as CSSProperties)
     : undefined;
 
@@ -342,11 +335,13 @@ export function WorkspaceBetaPage() {
         const route = getWorkspaceHashPath(anchor.href);
         const focusPanel: WorkspacePanelId | null = route === "/sources"
           ? "sources"
-          : route === "/learn"
-            ? "practice"
-            : route === "/ai-assistant-guide"
-              ? "ai"
-              : null;
+          : route === "/core-knowledge"
+            ? "knowledge"
+            : route === "/learn"
+              ? "practice"
+              : route === "/ai-assistant-guide"
+                ? "ai"
+                : null;
         if (!focusPanel && route !== "/") return;
 
         event.preventDefault();
@@ -368,12 +363,13 @@ export function WorkspaceBetaPage() {
     const panels = gridRef.current?.querySelectorAll<HTMLElement>(
       ".workspace-beta-functional-panel",
     );
-    if (!panels || panels.length !== 3) return null;
+    if (!panels || panels.length !== 4) return null;
 
     return [
       panels[0].getBoundingClientRect().width,
       panels[1].getBoundingClientRect().width,
       panels[2].getBoundingClientRect().width,
+      panels[3].getBoundingClientRect().width,
     ];
   }
 
@@ -469,6 +465,28 @@ export function WorkspaceBetaPage() {
   const infoModalKicker = infoModalRoute === "/appearance"
     ? text("Workspace", "Χώρος εργασίας")
     : text("Information", "Πληροφορίες");
+
+  const renderDivider = (
+    divider: WorkspaceDivider,
+    englishLabel: string,
+    greekLabel: string,
+  ) => (
+    <div
+      aria-label={text(englishLabel, greekLabel)}
+      aria-orientation="vertical"
+      aria-valuenow={dividerValue(divider)}
+      className={`workspace-beta-resizer${activeDivider === divider ? " is-active" : ""}`}
+      onDoubleClick={resetPanelWidths}
+      onKeyDown={(event) => resizeWithKeyboard(divider, event)}
+      onPointerDown={(event) => beginResize(divider, event)}
+      onPointerMove={continueResize}
+      onPointerUp={finishResize}
+      onPointerCancel={finishResize}
+      role="separator"
+      tabIndex={0}
+      title={resizeTitle}
+    />
+  );
 
   return (
     <div
@@ -574,11 +592,11 @@ export function WorkspaceBetaPage() {
             <div className="workspace-beta-panel-header workspace-beta-functional-panel-header">
               <div>
                 <p className="workspace-beta-panel-kicker">01</p>
-                <h2 id="workspace-sources-title">{text("Sources", "Πηγές")}</h2>
+                <h2 id="workspace-sources-title">{text("Sources & Materials", "Πηγές & Υλικό")}</h2>
               </div>
               <div className="workspace-beta-panel-tools">
                 <button onClick={() => resetPanel("sources")} type="button">
-                  {text("Go to Sources home", "Μετάβαση στην αρχική Πηγών")}
+                  {text("Go to Sources & Materials home", "Μετάβαση στην αρχική Πηγών & Υλικού")}
                 </button>
               </div>
             </div>
@@ -589,29 +607,49 @@ export function WorkspaceBetaPage() {
                 name="studyapp-workspace-sources"
                 onLoad={(event) => wirePanelInfoLinks(event.currentTarget)}
                 src={panelRoutes.sources}
-                title={text("Functional Sources panel", "Λειτουργικό πάνελ Πηγών")}
+                title={text("Functional Sources & Materials panel", "Λειτουργικό πάνελ Πηγών & Υλικού")}
               />
             </div>
           </section>
 
-          <div
-            aria-label={text(
-              "Resize Sources and Practice",
-              "Αλλαγή πλάτους Πηγών και Εξάσκησης",
-            )}
-            aria-orientation="vertical"
-            aria-valuenow={dividerValue(0)}
-            className={`workspace-beta-resizer${activeDivider === 0 ? " is-active" : ""}`}
-            onDoubleClick={resetPanelWidths}
-            onKeyDown={(event) => resizeWithKeyboard(0, event)}
-            onPointerDown={(event) => beginResize(0, event)}
-            onPointerMove={continueResize}
-            onPointerUp={finishResize}
-            onPointerCancel={finishResize}
-            role="separator"
-            tabIndex={0}
-            title={resizeTitle}
-          />
+          {renderDivider(
+            0,
+            "Resize Sources & Materials and Core Knowledge",
+            "Αλλαγή πλάτους Πηγών & Υλικού και Βασικής Γνώσης",
+          )}
+
+          <section
+            className="workspace-beta-panel workspace-beta-panel-knowledge workspace-beta-functional-panel"
+            aria-labelledby="workspace-knowledge-title"
+          >
+            <div className="workspace-beta-panel-header workspace-beta-functional-panel-header">
+              <div>
+                <p className="workspace-beta-panel-kicker">02</p>
+                <h2 id="workspace-knowledge-title">{text("Core Knowledge", "Βασική Γνώση")}</h2>
+              </div>
+              <div className="workspace-beta-panel-tools">
+                <button onClick={() => resetPanel("knowledge")} type="button">
+                  {text("Go to Core Knowledge home", "Μετάβαση στην αρχική Βασικής Γνώσης")}
+                </button>
+              </div>
+            </div>
+            <div className="workspace-beta-frame-wrap">
+              <iframe
+                key={`knowledge-${frameVersions.knowledge}`}
+                className="workspace-beta-frame"
+                name="studyapp-workspace-knowledge"
+                onLoad={(event) => wirePanelInfoLinks(event.currentTarget)}
+                src={panelRoutes.knowledge}
+                title={text("Functional Core Knowledge panel", "Λειτουργικό πάνελ Βασικής Γνώσης")}
+              />
+            </div>
+          </section>
+
+          {renderDivider(
+            1,
+            "Resize Core Knowledge and Practice & Mastery",
+            "Αλλαγή πλάτους Βασικής Γνώσης και Εξάσκησης & Εμπέδωσης",
+          )}
 
           <section
             className="workspace-beta-panel workspace-beta-panel-practice workspace-beta-functional-panel"
@@ -619,12 +657,12 @@ export function WorkspaceBetaPage() {
           >
             <div className="workspace-beta-panel-header workspace-beta-functional-panel-header">
               <div>
-                <p className="workspace-beta-panel-kicker">02</p>
-                <h2 id="workspace-practice-title">{text("Practice", "Εξάσκηση")}</h2>
+                <p className="workspace-beta-panel-kicker">03</p>
+                <h2 id="workspace-practice-title">{text("Practice & Mastery", "Εξάσκηση & Εμπέδωση")}</h2>
               </div>
               <div className="workspace-beta-panel-tools">
                 <button onClick={() => resetPanel("practice")} type="button">
-                  {text("Go to Practice home", "Μετάβαση στην αρχική Εξάσκησης")}
+                  {text("Go to Practice & Mastery home", "Μετάβαση στην αρχική Εξάσκησης & Εμπέδωσης")}
                 </button>
               </div>
             </div>
@@ -635,29 +673,16 @@ export function WorkspaceBetaPage() {
                 name="studyapp-workspace-practice"
                 onLoad={(event) => wirePanelInfoLinks(event.currentTarget)}
                 src={panelRoutes.practice}
-                title={text("Functional Practice panel", "Λειτουργικό πάνελ Εξάσκησης")}
+                title={text("Functional Practice & Mastery panel", "Λειτουργικό πάνελ Εξάσκησης & Εμπέδωσης")}
               />
             </div>
           </section>
 
-          <div
-            aria-label={text(
-              "Resize Practice and AI Studio",
-              "Αλλαγή πλάτους Εξάσκησης και AI Studio",
-            )}
-            aria-orientation="vertical"
-            aria-valuenow={dividerValue(1)}
-            className={`workspace-beta-resizer${activeDivider === 1 ? " is-active" : ""}`}
-            onDoubleClick={resetPanelWidths}
-            onKeyDown={(event) => resizeWithKeyboard(1, event)}
-            onPointerDown={(event) => beginResize(1, event)}
-            onPointerMove={continueResize}
-            onPointerUp={finishResize}
-            onPointerCancel={finishResize}
-            role="separator"
-            tabIndex={0}
-            title={resizeTitle}
-          />
+          {renderDivider(
+            2,
+            "Resize Practice & Mastery and AI Studio",
+            "Αλλαγή πλάτους Εξάσκησης & Εμπέδωσης και AI Studio",
+          )}
 
           <section
             className="workspace-beta-panel workspace-beta-panel-studio workspace-beta-functional-panel"
@@ -665,7 +690,7 @@ export function WorkspaceBetaPage() {
           >
             <div className="workspace-beta-panel-header workspace-beta-functional-panel-header">
               <div>
-                <p className="workspace-beta-panel-kicker">03</p>
+                <p className="workspace-beta-panel-kicker">04</p>
                 <h2 id="workspace-studio-title">AI Studio</h2>
               </div>
               <div className="workspace-beta-panel-tools">
