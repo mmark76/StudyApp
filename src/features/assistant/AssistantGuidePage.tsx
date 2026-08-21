@@ -1,8 +1,70 @@
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
 
+function isWorkspaceAiFrame(): boolean {
+  return typeof window !== "undefined" && window.name === "studyapp-workspace-ai";
+}
+
 export function AssistantGuidePage() {
   const { text } = useLanguage();
+
+  if (isWorkspaceAiFrame()) {
+    return (
+      <div className="assistant-guide-page assistant-guide-page--workspace stack-lg">
+        <section className="assistant-guide-workspace-primary">
+          <p className="eyebrow">{text("AI options", "Επιλογές AI")}</p>
+          <h2>{text("AI Assistant", "Βοηθός AI")}</h2>
+          <div className="button-row">
+            <Link className="button secondary" to="/ai-assistant-comparison">
+              {text("Compare AI options", "Σύγκριση επιλογών AI")}
+            </Link>
+            <Link className="button secondary" to="/instructions">
+              {text(
+                "Step-by-step StudyApp instructions",
+                "Οδηγίες StudyApp βήμα προς βήμα",
+              )}
+            </Link>
+          </div>
+        </section>
+
+        <details className="assistant-guide-workspace-more">
+          <summary>{text("More AI options", "Περισσότερες επιλογές AI")}</summary>
+          <div className="assistant-guide-workspace-more-content">
+            <section>
+              <p className="eyebrow">{text("Available", "Διαθέσιμο")}</p>
+              <h3>{text("StudyApp AI Assistant", "Βοηθός AI του StudyApp")}</h3>
+              <p>
+                {text(
+                  "Use the dedicated StudyApp AI Assistant in ChatGPT.",
+                  "Χρησιμοποίησε τον ειδικό Βοηθό AI του StudyApp στο ChatGPT.",
+                )}
+              </p>
+            </section>
+            <section>
+              <p className="eyebrow">{text("Coming soon", "Σύντομα")}</p>
+              <h3>ChatGPT App / MCP</h3>
+              <p>
+                {text(
+                  "Use StudyApp inside ChatGPT.",
+                  "Χρησιμοποίησε το StudyApp μέσα στο ChatGPT.",
+                )}
+              </p>
+            </section>
+            <section>
+              <p className="eyebrow">{text("Coming soon", "Σύντομα")}</p>
+              <h3>StudyApp AI</h3>
+              <p>
+                {text(
+                  "Automatic AI is not active. No charges yet.",
+                  "Το αυτόματο AI δεν είναι ενεργό. Δεν γίνεται χρέωση ακόμη.",
+                )}
+              </p>
+            </section>
+          </div>
+        </details>
+      </div>
+    );
+  }
 
   return (
     <div className="assistant-guide-page stack-lg">
