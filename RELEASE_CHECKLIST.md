@@ -1,9 +1,43 @@
 # StudyApp v1.0.0 Release Checklist
 
-_Last updated: 2026-08-20_
+_Last updated: 2026-08-21_
 
 This is the v1 release gate. It does not imply that the v1.1 backlog is part of
 this release.
+
+## Post-release `main` status — 2026-08-21
+
+The production release verified on August 20 remains the current production
+attestation. Later development on `main` must be evaluated separately rather
+than inheriting that release decision automatically.
+
+Current reviewed development identity:
+
+- `main` SHA: `3db3cf6c746f5ea4dca3abe0d3d187b4917cdac0`;
+- 10 commits ahead of the verified August 20 production SHA;
+- latest merged PR: `#196` — compact single-panel Workspace mobile UX.
+
+Latest complete PR CI evidence for PR #196:
+
+| Post-release automated check | Result |
+| --- | --- |
+| Typecheck | PASS |
+| Unit tests | PASS — 268/268 |
+| Full E2E | PASS — 61/61 |
+| Production build | PASS |
+| Linux CI | PASS |
+
+Current decision for this later development state:
+
+**AUTOMATED-GATE PASS / PRODUCTION RE-VERIFICATION REQUIRED**
+
+A later `main` SHA is not recorded as `RELEASE VERIFIED` until the exact SHA is
+deployed and a focused production smoke confirms the intended critical flows.
+
+Deployment governance is also hardened so the full `CI` workflow runs on
+`main`, and GitHub Pages deployment starts only after that exact main-branch CI
+run succeeds. The deploy workflow checks out the successful CI
+`workflow_run.head_sha` before rebuilding and publishing the Pages artifact.
 
 ## Current final release decision — 2026-08-20
 
@@ -50,9 +84,11 @@ Known non-blocking follow-up items:
 - WB-04 — Low/non-blocking;
 - two high-severity advisories remain in transitive build/dev dependencies,
   while the production-only dependency audit is clean;
+- the production build still reports chunks larger than 500 kB after
+  minification;
 - Firefox, WebKit and manual screen-reader verification remain follow-up gaps.
 
-These items do not change the current `RELEASE VERIFIED` decision.
+These items do not change the August 20 `RELEASE VERIFIED` decision.
 
 ## Historical July 28 release-hardening follow-up
 
@@ -113,9 +149,9 @@ runtime path. The current August 20 production-only audit is clean.
 - [x] DATA-04 remediation preserves the verified chapter/content data behavior.
 - [x] WB-01/WB-02/WB-03 remediation passes interactive production behavior.
 
-## Current automated release gate
+## Automated release gate
 
-The August 20 release gate has current passing evidence for:
+The August 20 production-verified checkpoint has passing evidence for:
 
 - typecheck;
 - production build;
@@ -124,12 +160,16 @@ The August 20 release gate has current passing evidence for:
 - Linux CI;
 - production dependency audit with 0 vulnerabilities.
 
-The earlier July automated-gate evidence remains part of release history but is
-superseded by the current August 20 verification for the deployed release.
+The August 21 post-release development state has newer passing automated
+evidence for 268/268 unit tests and 61/61 E2E tests, but that evidence does not
+replace the production smoke requirement for a new release attestation.
+
+The CI/deployment chain now requires a successful full `CI` run on the exact
+`main` SHA before the Pages deployment workflow can publish that SHA.
 
 ## Current manual smoke gate
 
-The production interactive gate is complete for the four August release
+The production interactive gate is complete for the four August 20 release
 blockers:
 
 - DATA-04: PASS;
@@ -137,18 +177,20 @@ blockers:
 - WB-02: PASS;
 - WB-03: PASS.
 
-The deployed build ID matched the merged SHA. Page and critical assets returned
-HTTP 200. No production failure was observed during the smoke run.
+The deployed August 20 build ID matched the merged SHA. Page and critical assets
+returned HTTP 200. No production failure was observed during the smoke run.
 
-Broader Firefox, WebKit and manual screen-reader coverage is still recommended
-but is not represented as completed.
+A new manual smoke has not yet been recorded for the August 21 post-release
+`main` state. Broader Firefox, WebKit and manual screen-reader coverage is still
+recommended but is not represented as completed.
 
 ## Documentation gate
 
-- [x] Current release status is recorded as `RELEASE VERIFIED`.
+- [x] Current production release status is recorded as `RELEASE VERIFIED` for its exact SHA.
 - [x] Current production SHA and build ID are recorded.
+- [x] Later `main` development is distinguished from the production-verified checkpoint.
 - [x] DATA-04 and WB-01/WB-02/WB-03 resolution is recorded.
-- [x] Current automated and interactive verification evidence is recorded.
+- [x] Current automated and interactive verification evidence is recorded separately.
 - [x] Production-only dependency audit status is distinguished from dev/build advisories.
 - [x] Remaining non-blocking findings and untested browser/accessibility gaps are explicit.
 - [x] Historical July release decisions remain preserved as historical evidence.
@@ -161,10 +203,11 @@ The July release was accepted with partial interactive smoke and explicit owner
 waiver. That historical decision is preserved and is not rewritten as a full
 pass.
 
-## Current v1.0.0 decision — August 20, 2026
+## Current v1.0.0 production decision — August 20, 2026
 
 **RELEASE VERIFIED**
 
 Production release `5d94e27` / `v1.0.0_20260820_2202_5d94e27` is fully
 smoke-verified for the remediated DATA-04 and WB-01/WB-02/WB-03 release
-blockers.
+blockers. Later `main` commits require their own exact-SHA production
+re-verification before receiving the same status.
