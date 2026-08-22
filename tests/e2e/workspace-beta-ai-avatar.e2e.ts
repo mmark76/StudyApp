@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("Workspace BETA shows the StudyApp AI Assistant avatar above its launch action", async ({ page }) => {
+test("Workspace BETA shows the StudyApp AI Assistant identity pill above its launch action", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/#/workspace-beta");
 
@@ -10,16 +10,26 @@ test("Workspace BETA shows the StudyApp AI Assistant avatar above its launch act
     launchRow.getByRole("link", { name: "Start StudyApp AI Assistant" }),
   ).toBeVisible();
 
-  const avatar = await launchRow.evaluate((element) => {
+  const identity = await launchRow.evaluate((element) => {
     const style = window.getComputedStyle(element, "::before");
     return {
       backgroundImage: style.backgroundImage,
+      borderRadius: Number.parseFloat(style.borderRadius),
+      content: style.content,
       display: style.display,
+      height: Number.parseFloat(style.height),
       width: Number.parseFloat(style.width),
     };
   });
 
-  expect(avatar.display).toBe("block");
-  expect(avatar.backgroundImage).toContain("study-assistant-avatar.svg");
-  expect(avatar.width).toBeGreaterThan(0);
+  expect(identity.display).toBe("inline-flex");
+  expect(identity.content).toContain("StudyApp AI Assistant");
+  expect(identity.backgroundImage).toContain("study-assistant-avatar.svg");
+  expect(identity.borderRadius).toBeGreaterThan(identity.height / 2);
+  expect(identity.width).toBeGreaterThan(identity.height * 2);
+
+  await page.getByRole("button", { name: "GR" }).click();
+  await expect.poll(async () => launchRow.evaluate((element) => (
+    window.getComputedStyle(element, "::before").content
+  ))).toContain("Βοηθός AI του StudyApp");
 });
