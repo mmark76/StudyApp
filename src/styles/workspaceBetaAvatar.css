@@ -1,4 +1,27 @@
-/* Workspace BETA only: restore the AI Assistant avatar without covering copy. */
+/* Workspace BETA only: keep the AI Assistant avatar visible without covering copy. */
+.workspace-beta-ai-launch-row {
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+
+.workspace-beta-ai-launch-row::before {
+  content: "";
+  display: block;
+  width: 3rem;
+  max-width: 3rem;
+  aspect-ratio: 1;
+  margin: 0 0 0.12rem;
+  border: 1px solid var(--slate-300, #cbd5e1);
+  border-radius: 50%;
+  background-color: var(--surface, #ffffff);
+  background-image: url("/study-assistant-avatar.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  box-shadow: 0 1px 4px rgb(15 23 42 / 0.08);
+}
+
+/* Legacy embedded-guide layout remains available for non-compact Workspace views. */
 .workspace-panel-embed-main .assistant-guide-hero {
   grid-template-columns: minmax(0, 1fr) 3.25rem;
   column-gap: 0.55rem;
@@ -23,6 +46,11 @@
 }
 
 @media (max-width: 360px) {
+  .workspace-beta-ai-launch-row::before {
+    width: 2.45rem;
+    max-width: 2.45rem;
+  }
+
   .workspace-panel-embed-main .assistant-guide-hero {
     grid-template-columns: minmax(0, 1fr) 2.65rem;
     column-gap: 0.4rem;
