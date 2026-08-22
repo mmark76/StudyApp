@@ -1,24 +1,44 @@
-/* Workspace BETA only: keep the AI Assistant avatar visible without covering copy. */
+/* Workspace BETA only: present the AI Assistant identity as a compact pill above the launch action. */
 .workspace-beta-ai-launch-row {
   grid-template-columns: 1fr;
   align-items: start;
 }
 
 .workspace-beta-ai-launch-row::before {
-  content: "";
-  display: block;
-  width: 3rem;
-  max-width: 3rem;
-  aspect-ratio: 1;
-  margin: 0 0 0.12rem;
+  content: "StudyApp AI Assistant";
+  display: inline-flex;
+  align-items: center;
+  width: min(100%, 18rem);
+  min-height: 3.2rem;
+  box-sizing: border-box;
+  padding: 0.42rem 0.9rem 0.42rem 3.65rem;
+  margin: 0 0 0.14rem;
   border: 1px solid var(--slate-300, #cbd5e1);
-  border-radius: 50%;
+  border-radius: 999px;
   background-color: var(--surface, #ffffff);
-  background-image: url("/study-assistant-avatar.svg");
-  background-position: center;
+  background-image:
+    radial-gradient(
+      circle at 3.05rem 2.45rem,
+      #22a06b 0 0.28rem,
+      #ffffff 0.29rem 0.4rem,
+      transparent 0.41rem
+    ),
+    url("/study-assistant-avatar.svg");
+  background-position: 0 0, 0.7rem center;
   background-repeat: no-repeat;
-  background-size: cover;
-  box-shadow: 0 1px 4px rgb(15 23 42 / 0.08);
+  background-size: 100% 100%, 2.5rem 2.5rem;
+  box-shadow: 0 1px 5px rgb(15 23 42 / 0.07);
+  color: var(--slate-700, #334155);
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:root[lang="el"] .workspace-beta-ai-launch-row::before {
+  content: "Βοηθός AI του StudyApp";
 }
 
 /* Legacy embedded-guide layout remains available for non-compact Workspace views. */
@@ -47,8 +67,19 @@
 
 @media (max-width: 360px) {
   .workspace-beta-ai-launch-row::before {
-    width: 2.45rem;
-    max-width: 2.45rem;
+    min-height: 2.9rem;
+    padding-left: 3.3rem;
+    background-image:
+      radial-gradient(
+        circle at 2.77rem 2.2rem,
+        #22a06b 0 0.25rem,
+        #ffffff 0.26rem 0.36rem,
+        transparent 0.37rem
+      ),
+      url("/study-assistant-avatar.svg");
+    background-position: 0 0, 0.65rem center;
+    background-size: 100% 100%, 2.2rem 2.2rem;
+    font-size: 0.74rem;
   }
 
   .workspace-panel-embed-main .assistant-guide-hero {
