@@ -1,13 +1,19 @@
 /* Workspace BETA only: present the AI Assistant identity as a compact pill above the launch action. */
 .workspace-beta-ai-launch-row {
+  --workspace-ai-avatar-blend: #fdfdfb;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: start;
 }
 
+:root[data-workspace-theme="dark"] .workspace-beta-ai-launch-row {
+  --workspace-ai-avatar-blend: #1d1d1c;
+}
+
 /*
  * Keep the avatar as its own circular layer so the source artwork can never
- * read as a square thumbnail inside the pill. The green availability marker
- * stays attached to the avatar and the avatar size is intentionally unchanged.
+ * read as a square thumbnail inside the pill. The avatar edge and the status
+ * halo always use the local AI Studio launch-row background so they visually
+ * disappear in both light and dark themes. The avatar artwork size is kept.
  */
 .workspace-beta-ai-launch-row::before {
   content: "";
@@ -19,14 +25,14 @@
   width: 3.5rem;
   height: 3.5rem;
   margin-left: 0.55rem;
-  border: 0;
+  border: 2px solid var(--workspace-ai-avatar-blend);
   border-radius: 50%;
   background-color: transparent;
   background-image:
     radial-gradient(
       circle at 84% 84%,
       #22a06b 0 0.3rem,
-      #ffffff 0.31rem 0.42rem,
+      var(--workspace-ai-avatar-blend) 0.31rem 0.42rem,
       transparent 0.43rem
     ),
     url("/study-assistant-avatar.svg");
@@ -34,6 +40,7 @@
   background-repeat: no-repeat;
   background-size: 100% 100%, cover;
   box-shadow: none;
+  box-sizing: content-box;
   overflow: hidden;
 }
 
