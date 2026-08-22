@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("Workspace BETA shows the StudyApp AI Assistant identity pill above its launch action", async ({ page }) => {
+test("Workspace BETA keeps the AI Assistant avatar circular and the identity pill content-sized", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/#/workspace-beta");
 
@@ -11,28 +11,41 @@ test("Workspace BETA shows the StudyApp AI Assistant identity pill above its lau
   ).toBeVisible();
 
   const identity = await launchRow.evaluate((element) => {
-    const style = window.getComputedStyle(element, "::before");
+    const avatar = window.getComputedStyle(element, "::before");
+    const pill = window.getComputedStyle(element, "::after");
     return {
-      backgroundImage: style.backgroundImage,
-      borderRadius: Number.parseFloat(style.borderRadius),
-      content: style.content,
-      display: style.display,
-      height: Number.parseFloat(style.height),
-      width: Number.parseFloat(style.width),
+      avatar: {
+        backgroundColor: avatar.backgroundColor,
+        backgroundImage: avatar.backgroundImage,
+        borderRadius: Number.parseFloat(avatar.borderRadius),
+        height: Number.parseFloat(avatar.height),
+        width: Number.parseFloat(avatar.width),
+      },
+      pill: {
+        borderRadius: Number.parseFloat(pill.borderRadius),
+        content: pill.content,
+        display: pill.display,
+        height: Number.parseFloat(pill.height),
+        width: Number.parseFloat(pill.width),
+      },
+      rowWidth: element.getBoundingClientRect().width,
     };
   });
 
-  // Grid items may blockify inline-flex to flex in computed styles. Both preserve
-  // the intended flex pill presentation, so assert the semantic layout rather
-  // than a browser-normalized display keyword.
-  expect(["flex", "inline-flex"]).toContain(identity.display);
-  expect(identity.content).toContain("StudyApp AI Assistant");
-  expect(identity.backgroundImage).toContain("study-assistant-avatar.svg");
-  expect(identity.borderRadius).toBeGreaterThan(identity.height / 2);
-  expect(identity.width).toBeGreaterThan(identity.height * 2);
+  expect(identity.avatar.backgroundImage).toContain("study-assistant-avatar.svg");
+  expect(identity.avatar.backgroundImage).toContain("radial-gradient");
+  expect(identity.avatar.backgroundColor).toBe("rgba(0, 0, 0, 0)");
+  expect(identity.avatar.borderRadius).toBeGreaterThanOrEqual(identity.avatar.width / 2);
+  expect(identity.avatar.width).toBeGreaterThanOrEqual(56);
+  expect(identity.avatar.height).toBe(identity.avatar.width);
+
+  expect(["flex", "inline-flex"]).toContain(identity.pill.display);
+  expect(identity.pill.content).toContain("StudyApp AI Assistant");
+  expect(identity.pill.borderRadius).toBeGreaterThan(identity.pill.height / 2);
+  expect(identity.pill.width).toBeLessThan(identity.rowWidth);
 
   await page.getByRole("button", { name: "GR" }).click();
   await expect.poll(async () => launchRow.evaluate((element) => (
-    window.getComputedStyle(element, "::before").content
+    window.getComputedStyle(element, "::after").content
   ))).toContain("Βοηθός AI του StudyApp");
 });
