@@ -57,7 +57,7 @@
   box-sizing: border-box;
   padding: 0.42rem 0.95rem 0.42rem 4.55rem;
   margin: 0 0 0.14rem;
-  border: 1px solid var(--slate-300, #cbd5e1);
+  border: 1px solid var(--workspace-ai-avatar-blend);
   border-radius: 999px;
   background: transparent;
   box-shadow: 0 1px 5px rgb(15 23 42 / 0.05);
@@ -71,6 +71,10 @@
 .workspace-beta-ai-launch-row > a,
 .workspace-beta-ai-launch-row > span {
   grid-column: 1 / -1;
+}
+
+.workspace-beta-ai-launch-row > a {
+  margin-top: 0.3rem;
 }
 
 :root[lang="el"] .workspace-beta-ai-launch-row::after {
