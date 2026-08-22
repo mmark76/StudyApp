@@ -22,7 +22,10 @@ test("Workspace BETA shows the StudyApp AI Assistant identity pill above its lau
     };
   });
 
-  expect(identity.display).toBe("inline-flex");
+  // Grid items may blockify inline-flex to flex in computed styles. Both preserve
+  // the intended flex pill presentation, so assert the semantic layout rather
+  // than a browser-normalized display keyword.
+  expect(["flex", "inline-flex"]).toContain(identity.display);
   expect(identity.content).toContain("StudyApp AI Assistant");
   expect(identity.backgroundImage).toContain("study-assistant-avatar.svg");
   expect(identity.borderRadius).toBeGreaterThan(identity.height / 2);
