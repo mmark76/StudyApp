@@ -24,6 +24,7 @@ test("Workspace BETA keeps the AI Assistant avatar circular, background-blended,
         width: Number.parseFloat(avatar.width),
       },
       pill: {
+        borderColor: pill.borderTopColor,
         borderRadius: Number.parseFloat(pill.borderRadius),
         content: pill.content,
         display: pill.display,
@@ -46,6 +47,7 @@ test("Workspace BETA keeps the AI Assistant avatar circular, background-blended,
 
   expect(["flex", "inline-flex"]).toContain(identity.pill.display);
   expect(identity.pill.content).toContain("StudyApp AI Assistant");
+  expect(identity.pill.borderColor).toBe(identity.rowBackground);
   expect(identity.pill.borderRadius).toBeGreaterThan(identity.pill.height / 2);
   expect(identity.pill.width).toBeLessThan(identity.rowWidth);
 
@@ -55,7 +57,10 @@ test("Workspace BETA keeps the AI Assistant avatar circular, background-blended,
 
   await expect.poll(async () => {
     const darkIdentity = await readIdentity();
-    return darkIdentity.avatar.borderColor === darkIdentity.rowBackground;
+    return (
+      darkIdentity.avatar.borderColor === darkIdentity.rowBackground
+      && darkIdentity.pill.borderColor === darkIdentity.rowBackground
+    );
   }).toBe(true);
 
   await page.getByRole("button", { name: "GR" }).click();
