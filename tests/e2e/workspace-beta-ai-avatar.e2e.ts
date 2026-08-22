@@ -11,6 +11,7 @@ test("Workspace BETA keeps the AI Assistant avatar circular, background-blended,
   ).toBeVisible();
 
   const readIdentity = () => launchRow.evaluate((element) => {
+    const row = window.getComputedStyle(element);
     const avatar = window.getComputedStyle(element, "::before");
     const pill = window.getComputedStyle(element, "::after");
     return {
@@ -22,7 +23,6 @@ test("Workspace BETA keeps the AI Assistant avatar circular, background-blended,
         height: Number.parseFloat(avatar.height),
         width: Number.parseFloat(avatar.width),
       },
-      pageBackground: window.getComputedStyle(document.body).backgroundColor,
       pill: {
         borderRadius: Number.parseFloat(pill.borderRadius),
         content: pill.content,
@@ -30,6 +30,7 @@ test("Workspace BETA keeps the AI Assistant avatar circular, background-blended,
         height: Number.parseFloat(pill.height),
         width: Number.parseFloat(pill.width),
       },
+      rowBackground: row.backgroundColor,
       rowWidth: element.getBoundingClientRect().width,
     };
   });
@@ -38,7 +39,7 @@ test("Workspace BETA keeps the AI Assistant avatar circular, background-blended,
   expect(identity.avatar.backgroundImage).toContain("study-assistant-avatar.svg");
   expect(identity.avatar.backgroundImage).toContain("radial-gradient");
   expect(identity.avatar.backgroundColor).toBe("rgba(0, 0, 0, 0)");
-  expect(identity.avatar.borderColor).toBe(identity.pageBackground);
+  expect(identity.avatar.borderColor).toBe(identity.rowBackground);
   expect(identity.avatar.borderRadius).toBeGreaterThanOrEqual(identity.avatar.width / 2);
   expect(identity.avatar.width).toBeGreaterThanOrEqual(56);
   expect(identity.avatar.height).toBe(identity.avatar.width);
@@ -54,7 +55,7 @@ test("Workspace BETA keeps the AI Assistant avatar circular, background-blended,
 
   await expect.poll(async () => {
     const darkIdentity = await readIdentity();
-    return darkIdentity.avatar.borderColor === darkIdentity.pageBackground;
+    return darkIdentity.avatar.borderColor === darkIdentity.rowBackground;
   }).toBe(true);
 
   await page.getByRole("button", { name: "GR" }).click();
