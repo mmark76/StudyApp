@@ -196,13 +196,15 @@ export function FlashcardsPage({ failureInjector }: FlashcardsPageProps = {}) {
           {text("Card", "Κάρτα")} {card.number}
         </p>
         <h2 ref={cardHeadingRef} tabIndex={-1}>{revealed ? card.answer : card.question}</h2>
-        <div className="tag-row">
-          {card.tags.map((tag) => (
-            <span className="tag" key={tag}>
-              {tag}
-            </span>
-          ))}
-        </div>
+        {revealed ? (
+          <div className="tag-row">
+            {card.tags.map((tag) => (
+              <span className="tag" key={tag}>
+                {tag}
+              </span>
+            ))}
+          </div>
+        ) : null}
       </article>
       {!revealed ? (
         <button
