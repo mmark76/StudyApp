@@ -1,5 +1,6 @@
 import { createHashRouter, Navigate } from "react-router-dom";
 import { AppearanceSettingsPage } from "../features/appearance/AppearanceSettingsPage";
+import { AnalyticsChoicesPage } from "../features/analytics/AnalyticsChoicesPage";
 import { AssistantComparisonPage } from "../features/assistant/AssistantComparisonPage";
 import { AssistantGuidePage } from "../features/assistant/AssistantGuidePage";
 import { ContentImportPage } from "../features/content-import/ContentImportPage";
@@ -98,7 +99,7 @@ export const router = createHashRouter([
       },
       { path: "legal/license", element: <LegalPage content={legalPages.license} /> },
       { path: "legal/privacy", element: <LegalPage content={legalPages.privacy} /> },
-      { path: "legal/analytics", element: <LegalPage content={legalPages.analytics} /> },
+      { path: "legal/analytics", element: <AnalyticsChoicesPage /> },
       { path: "legal/copyright", element: <LegalPage content={legalPages.copyright} /> }
     ]
   }

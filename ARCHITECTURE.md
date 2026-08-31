@@ -1,6 +1,6 @@
 # Architecture
 
-_Last updated: 2026-08-21_
+_Last updated: 2026-08-22_
 
 ## Summary
 
@@ -92,6 +92,33 @@ storage. It does not change the IndexedDB schema or create an account preference
 
 New primary user interface must support both languages. Feature data supplied by
 the user is not translated automatically.
+
+### Traffic analytics layer
+
+`src/features/analytics/` owns the owner-approved, production-only traffic
+measurement boundary. It runs only in the top-level HTTPS document at
+`studyapp.markellosecosystem.com`; local development, preview hosts and the
+Workspace panel iframes do not load analytics.
+
+Plausible is the primary cookieless aggregate view. Its site-specific script is
+public configuration through `VITE_PLAUSIBLE_SCRIPT_URL`. The runtime disables
+automatic page capture and supplies one allowlisted virtual route on initial
+load and each hash-route transition. Optional outbound-link, file-download,
+form-submission and custom-event measurement is not enabled.
+
+GA4 is a separate consented subset. Its public Measurement ID is configured by
+`VITE_GA4_MEASUREMENT_ID`; its script is not inserted before the browser-local
+choice is `granted`. `send_page_view` is disabled in the GA configuration so the
+same allowlisted route boundary owns SPA page views. Enhanced Measurement,
+Google Signals and every advertising consent category are disabled.
+
+Both providers receive only a safe route plus allowlisted referral/campaign
+context and their standard general traffic metadata. Arbitrary URL fragments,
+study data, IndexedDB values, file names, uploads, downloads, searches, form
+values and click events remain outside the analytics boundary. The shared
+`plausible_ignore` browser flag excludes the current browser from both systems.
+The `/legal/analytics` page owns bilingual consent, revocation and device
+exclusion controls.
 
 ### Stable application shell
 

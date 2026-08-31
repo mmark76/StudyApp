@@ -190,6 +190,15 @@ code { background: var(--slate-100); border-radius: 0.35rem; padding: 0.15rem 0.
 .app-footer p { margin: 0; }
 .footer-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.35rem 1rem; margin-top: 0.3rem; font-size: 0.85rem; }
 .footer-meta a { color: var(--slate-600); text-underline-offset: 0.2em; }
+.analytics-consent-banner { position: fixed; right: 1rem; bottom: 7rem; left: 1rem; z-index: 1000; display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: min(72rem, calc(100% - 2rem)); margin-inline: auto; padding: 1rem 1.15rem; border: 2px solid var(--blue-600); border-radius: var(--radius-lg); background: var(--surface); color: var(--navy-900); box-shadow: var(--shadow); }
+.analytics-consent-banner strong { display: block; }
+.analytics-consent-banner p { margin: 0.3rem 0; color: var(--slate-700); }
+.analytics-consent-actions { display: flex; flex: 0 0 auto; flex-wrap: wrap; gap: 0.65rem; }
+.analytics-choices-panel { margin-top: var(--stack-gap); }
+.analytics-status-list { display: grid; gap: 0.75rem; margin: 1rem 0 1.25rem; }
+.analytics-status-list div { display: grid; grid-template-columns: minmax(9rem, 0.4fr) minmax(0, 1fr); gap: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--slate-300); }
+.analytics-status-list dt { font-weight: 800; }
+.analytics-status-list dd { margin: 0; color: var(--slate-600); }
 .stack-lg > * + * { margin-top: var(--stack-gap); }
 .page-heading { max-width: none; }
 .hero-panel, .content-panel, .study-panel, .quiz-card, .empty-state { background: var(--surface); border: 1px solid var(--slate-300); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: var(--panel-padding); }
@@ -269,6 +278,9 @@ th, td { border-bottom: 1px solid var(--slate-300); padding: 0.75rem; text-align
 }
 @media (max-width: 760px) {
   .app-header-top, .navigation-row, .simple-home-panel, .review-callout { align-items: stretch; flex-direction: column; }
+  .analytics-consent-banner { bottom: 7rem; align-items: stretch; flex-direction: column; max-height: calc(100vh - 2rem); overflow: auto; }
+  .analytics-consent-actions { flex-direction: column; }
+  .analytics-status-list div { grid-template-columns: 1fr; gap: 0.25rem; }
   .pwa-update-toast { right: max(1rem, env(safe-area-inset-right, 0px)); bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px)); left: max(1rem, env(safe-area-inset-left, 0px)); width: auto; }
   .dashboard-hero, .dashboard-action-grid, .library-grid, .learning-stage-grid { grid-template-columns: 1fr; }
   .utility-actions { justify-content: flex-start; }

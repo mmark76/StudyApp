@@ -1,6 +1,6 @@
 # StudyApp Vision
 
-_Last updated: 2026-08-19_
+_Last updated: 2026-08-22_
 
 ## Vision
 
@@ -19,8 +19,11 @@ technical architecture to the user.
 
 The released study workflow runs in the browser. Study material, files, links,
 progress, sessions and settings remain local by default. There is no user
-account, cloud storage, cloud sync, first-party analytics, advertising or
-telemetry.
+account, cloud storage, cloud sync, advertising or study-content telemetry. The
+owner-approved production traffic measurement is cookieless Plausible for
+aggregate human traffic and consented Google Analytics for a smaller comparison
+set. Neither service receives study content, local file information or study
+actions.
 
 The interface supports English and Greek. Language should be easy to change and
 user-facing explanations should remain short and clear.

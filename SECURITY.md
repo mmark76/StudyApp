@@ -1,6 +1,6 @@
 # Security Policy
 
-_Last updated: 2026-08-16_
+_Last updated: 2026-08-22_
 
 ## Current security model
 
@@ -24,7 +24,7 @@ behaviour.
 
 - Keep core study data local by default.
 - Do not upload study material without explicit selection and confirmation.
-- Do not add analytics, tracking, accounts, storage or sync without owner approval.
+- Do not add or expand analytics, tracking, accounts, storage or sync without owner approval.
 - Treat files, imported data, remote responses and generated content as untrusted.
 - Do not render user-controlled or model-generated HTML.
 - Allow only approved URL protocols.
@@ -32,6 +32,33 @@ behaviour.
 - Never commit secrets, tokens, private URLs, backups, database exports or payment credentials.
 - Provider and payment secrets must remain server-side.
 - Vite environment variables are public configuration and must not contain secrets.
+
+## Analytics boundary
+
+The owner-approved analytics scope is limited to production traffic measurement:
+
+- Plausible Analytics is the primary cookieless aggregate view;
+- Google Analytics loads only after an explicit browser-local opt-in;
+- both runtimes are disabled on localhost, non-production hosts, Workspace panel
+  iframes and browsers marked with the local `plausible_ignore` exclusion;
+- only allowlisted StudyApp routes and allowlisted campaign parameters may be
+  sent; arbitrary hash fragments, query parameters and user-controlled titles
+  must be replaced with a safe route;
+- study content, IndexedDB values, flashcards, file names, uploads, downloads,
+  searches, form entries and click events must never be analytics inputs;
+- Plausible optional outbound-link, file-download, form and custom-event
+  measurements remain disabled;
+- GA4 Enhanced Measurement, Google Signals and advertising consent categories
+  remain disabled;
+- the two dashboards are separate measurement populations and must never be
+  summed.
+
+The GA4 Measurement ID and Plausible script URL are public runtime
+configuration, not secrets. Credentials for either analytics dashboard must not
+be included in the application. Revoking GA4 consent must disable future GA4
+events and expire the StudyApp GA cookies where the browser permits. Device
+exclusion applies only to that browser and does not delete already aggregated
+statistics.
 
 ## StudyApp AI Assistant
 

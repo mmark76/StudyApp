@@ -38,8 +38,8 @@ export const legalPages = {
   },
   privacy: {
     title: copy("Privacy", "Απόρρητο"),
-    summary: copy("StudyApp is local-first and sends no study content automatically.", "Το StudyApp είναι local-first και δεν αποστέλλει αυτόματα υλικό μελέτης."),
-    lastUpdated: copy("16 August 2026", "16 Αυγούστου 2026"),
+    summary: copy("StudyApp is local-first. Limited traffic measurement never includes study content.", "Το StudyApp είναι local-first. Η περιορισμένη μέτρηση επισκεψιμότητας δεν περιλαμβάνει ποτέ υλικό μελέτης."),
+    lastUpdated: copy("22 August 2026", "22 Αυγούστου 2026"),
     sections: [
       {
         heading: copy("Local data", "Τοπικά δεδομένα"),
@@ -62,16 +62,47 @@ export const legalPages = {
         heading: copy("External links", "Εξωτερικοί σύνδεσμοι"),
         paragraphs: [copy("External services apply their own privacy and sharing rules.", "Οι εξωτερικές υπηρεσίες εφαρμόζουν τους δικούς τους κανόνες απορρήτου και κοινοποίησης.")],
       },
+      {
+        heading: copy("Traffic measurement", "Μέτρηση επισκεψιμότητας"),
+        paragraphs: [
+          copy("StudyApp uses Plausible Analytics for aggregate, cookieless traffic measurement. It receives a controlled page route, referral or campaign source, browser, operating system, device type and approximate location. Plausible derives a daily identifier from the IP address and user agent, rotates it every 24 hours and does not store the raw IP address.", "Το StudyApp χρησιμοποιεί το Plausible Analytics για συγκεντρωτική μέτρηση επισκεψιμότητας χωρίς cookies. Λαμβάνει μια ελεγχόμενη διαδρομή σελίδας, την πηγή παραπομπής ή καμπάνιας, τον browser, το λειτουργικό σύστημα, τον τύπο συσκευής και κατά προσέγγιση τοποθεσία. Το Plausible παράγει ένα ημερήσιο αναγνωριστικό από τη διεύθυνση IP και το user agent, το ανανεώνει κάθε 24 ώρες και δεν αποθηκεύει την αρχική διεύθυνση IP."),
+          copy("Google Analytics is optional and loads only after consent on the current browser. It measures page views, sessions, traffic source, general device and location information and engagement time. Google advertising signals and automatic enhanced measurements are disabled.", "Το Google Analytics είναι προαιρετικό και φορτώνεται μόνο μετά από συγκατάθεση στον συγκεκριμένο browser. Μετρά προβολές σελίδων, συνεδρίες, πηγή επισκεψιμότητας, γενικές πληροφορίες συσκευής και τοποθεσίας και χρόνο αλληλεπίδρασης. Τα διαφημιστικά σήματα της Google και οι αυτόματες ενισχυμένες μετρήσεις είναι απενεργοποιημένα."),
+          copy("Neither analytics service receives study material, IndexedDB content, flashcards, form entries, searches, local file names, uploads, downloads or click events. Analytics configuration values are public identifiers, not access credentials.", "Καμία υπηρεσία analytics δεν λαμβάνει υλικό μελέτης, περιεχόμενο IndexedDB, κάρτες, στοιχεία φορμών, αναζητήσεις, ονόματα τοπικών αρχείων, μεταφορτώσεις, λήψεις ή συμβάντα κλικ. Οι τιμές ρύθμισης analytics είναι δημόσια αναγνωριστικά και όχι διαπιστευτήρια πρόσβασης."),
+        ],
+      },
     ],
   },
   analytics: {
     title: copy("Analytics choices", "Αναλυτικά στοιχεία"),
-    summary: copy("StudyApp does not include its own analytics or advertising system.", "Το StudyApp δεν περιλαμβάνει δικό του σύστημα analytics ή διαφημίσεων."),
-    lastUpdated: copy("30 July 2026", "30 Ιουλίου 2026"),
+    summary: copy("StudyApp uses minimal traffic measurement without recording study activity or content.", "Το StudyApp χρησιμοποιεί ελάχιστη μέτρηση επισκεψιμότητας χωρίς να καταγράφει δραστηριότητα ή περιεχόμενο μελέτης."),
+    lastUpdated: copy("22 August 2026", "22 Αυγούστου 2026"),
     sections: [
       {
-        heading: copy("Current behaviour", "Τρέχουσα λειτουργία"),
-        paragraphs: [copy("The application does not install a first-party analytics tracker.", "Η εφαρμογή δεν εγκαθιστά tracker analytics πρώτου μέρους.")],
+        heading: copy("Plausible Analytics", "Plausible Analytics"),
+        paragraphs: [
+          copy("Plausible provides the primary aggregate view of human traffic. It runs without analytics cookies or persistent identifiers and automatically filters known bots, crawlers, data-centre traffic and referrer spam. No bot filter is perfect and some privacy tools may block measurement.", "Το Plausible παρέχει την κύρια συγκεντρωτική εικόνα της ανθρώπινης επισκεψιμότητας. Λειτουργεί χωρίς cookies analytics ή μόνιμα αναγνωριστικά και φιλτράρει αυτόματα γνωστά bots, crawlers, κίνηση από data centres και referrer spam. Κανένα φίλτρο bots δεν είναι τέλειο και ορισμένα εργαλεία απορρήτου μπορεί να εμποδίζουν τη μέτρηση."),
+          copy("The Plausible measurement is independent of the Google Analytics cookie choice. You can exclude this browser from all analytics below.", "Η μέτρηση του Plausible είναι ανεξάρτητη από την επιλογή cookies του Google Analytics. Μπορείς παρακάτω να εξαιρέσεις αυτόν τον browser από όλα τα analytics."),
+        ],
+      },
+      {
+        heading: copy("Optional Google Analytics", "Προαιρετικό Google Analytics"),
+        paragraphs: [
+          copy("Google Analytics does not load until you select Allow Google Analytics. If you block it or make no choice, no Google Analytics request or analytics cookie is created by StudyApp.", "Το Google Analytics δεν φορτώνεται πριν επιλέξεις Αποδοχή Google Analytics. Αν το αποκλείσεις ή δεν κάνεις επιλογή, το StudyApp δεν δημιουργεί αίτημα Google Analytics ή cookie analytics."),
+          copy("Enhanced Measurement is off. StudyApp does not configure automatic outbound-click, download, form, search, scroll or video events. Advertising storage, advertising user data, advertising personalisation and Google Signals remain disabled.", "Το Enhanced Measurement είναι κλειστό. Το StudyApp δεν ρυθμίζει αυτόματα συμβάντα εξωτερικών κλικ, λήψεων, φορμών, αναζητήσεων, κύλισης ή βίντεο. Η αποθήκευση για διαφημίσεις, τα διαφημιστικά δεδομένα χρήστη, η εξατομίκευση διαφημίσεων και τα Google Signals παραμένουν απενεργοποιημένα."),
+        ],
+      },
+      {
+        heading: copy("What is measured", "Τι μετράται"),
+        paragraphs: [
+          copy("Measurements are limited to visits, safe StudyApp route names, referral and approved campaign source, general browser, operating system and device category, approximate location and engagement duration. Moving between StudyApp areas may create additional page views, but not additional visits or click events.", "Οι μετρήσεις περιορίζονται σε επισκέψεις, ασφαλή ονόματα διαδρομών του StudyApp, πηγή παραπομπής και εγκεκριμένης καμπάνιας, γενική κατηγορία browser, λειτουργικού συστήματος και συσκευής, κατά προσέγγιση τοποθεσία και διάρκεια αλληλεπίδρασης. Η μετάβαση μεταξύ περιοχών του StudyApp μπορεί να δημιουργεί πρόσθετες προβολές σελίδων, αλλά όχι πρόσθετες επισκέψεις ή συμβάντα κλικ."),
+          copy("The two dashboards use different methods and must not be added together. Plausible is the broad traffic view; Google Analytics is the consented subset.", "Τα δύο dashboards χρησιμοποιούν διαφορετικές μεθόδους και δεν πρέπει να αθροίζονται. Το Plausible είναι η ευρεία εικόνα επισκεψιμότητας· το Google Analytics είναι το υποσύνολο που έχει δώσει συγκατάθεση."),
+        ],
+      },
+      {
+        heading: copy("Your controls", "Οι επιλογές σου"),
+        paragraphs: [
+          copy("The controls below are stored only in this browser. Blocking Google Analytics removes its StudyApp cookies where the browser permits. Excluding this device prevents future Plausible and Google Analytics measurements from this browser; repeat the choice on every browser or device you use.", "Οι παρακάτω επιλογές αποθηκεύονται μόνο σε αυτόν τον browser. Ο αποκλεισμός του Google Analytics αφαιρεί τα cookies του για το StudyApp όπου το επιτρέπει ο browser. Η εξαίρεση αυτής της συσκευής εμποδίζει μελλοντικές μετρήσεις Plausible και Google Analytics από αυτόν τον browser· επανάλαβε την επιλογή σε κάθε browser ή συσκευή που χρησιμοποιείς."),
+        ],
       },
     ],
   },

@@ -126,7 +126,13 @@ See [`docs/AI_ASSISTANT_AND_CLOUD_BOUNDARIES.md`](docs/AI_ASSISTANT_AND_CLOUD_BO
 
 Study content, progress, settings, links and uploaded file blobs are stored in
 the current browser and device. StudyApp currently has no account, cloud
-storage, cloud sync, first-party analytics, telemetry or advertising.
+storage, cloud sync, advertising or study-content telemetry. Production uses
+minimal website traffic measurement: cookieless Plausible for aggregate traffic
+and optional Google Analytics only after consent. Both receive sanitized page
+routes and general traffic metadata, never study content, IndexedDB records,
+file names, uploads, downloads, searches, form entries or click events. The
+analytics choices page also allows the current browser to be excluded from all
+future measurement.
 
 Local browser data can be lost if site data is cleared or the browser or device
 fails. StudyApp is not a permanent-storage service or a complete backup
