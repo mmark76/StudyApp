@@ -79,7 +79,7 @@ verification evidence:
 - verified `main` SHA: `5d94e2744014e1d87a4e65d8462ac98082d3e1ce`;
 - verified build: `v1.0.0_20260820_2202_5d94e27`;
 - production URL at verification: `https://studyapp.markellosecosystem.com/#/`;
-- stable release branch: `stable/release-2026-08-20`.
+- archival release tag: `archive/stable-release-2026-08-20`, targeting the former `stable/release-2026-08-20` branch tip `4c6846bcc849969c367ddf121a34fad1088e5b64`.
 
 That exact checkpoint remains **RELEASE VERIFIED** for its reviewed historical
 scope. Its evidence is not replaced or rewritten by the later August 21

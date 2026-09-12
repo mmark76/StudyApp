@@ -99,7 +99,7 @@ Historical August 20 release identity:
 - squash-merged `main` SHA: `5d94e2744014e1d87a4e65d8462ac98082d3e1ce`;
 - deployed build: `v1.0.0_20260820_2202_5d94e27`;
 - production URL at verification: `https://studyapp.markellosecosystem.com/#/`;
-- stable release branch: `stable/release-2026-08-20`.
+- archival release tag: `archive/stable-release-2026-08-20`, preserving the former `stable/release-2026-08-20` branch tip `4c6846bcc849969c367ddf121a34fad1088e5b64`.
 
 The August 20 production smoke test used Google Chrome `151.0.7922.138` with
 Playwright `1.62.1`. DATA-04 and WB-01/WB-02/WB-03 all passed through real
