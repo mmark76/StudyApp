@@ -8,7 +8,7 @@ StudyApp v1.0.0 is **release verified** in production as of 2026-08-20.
 
 - production `main` SHA: `5d94e2744014e1d87a4e65d8462ac98082d3e1ce`;
 - deployed build: `v1.0.0_20260820_2202_5d94e27`;
-- stable release branch: `stable/release-2026-08-20`;
+- archival release tag: `archive/stable-release-2026-08-20` (converted from the former `stable/release-2026-08-20` branch);
 - DATA-04, WB-01, WB-02 and WB-03: resolved and production smoke-verified;
 - Linux CI: typecheck, production build, 268/268 unit tests and 49/49 E2E tests passed;
 - production dependency audit: 0 vulnerabilities;
@@ -35,9 +35,10 @@ The core study workflow is available:
 
 ## Stable release checkpoints
 
-The current verified release is preserved at:
+The current verified release history is preserved at:
 
-- branch: `stable/release-2026-08-20`;
+- archival tag: `archive/stable-release-2026-08-20`;
+- archived former branch tip: `4c6846bcc849969c367ddf121a34fad1088e5b64`;
 - verified production source commit: `5d94e2744014e1d87a4e65d8462ac98082d3e1ce`.
 
 The earlier approved UI-only checkpoint remains available for historical reference at:
@@ -46,8 +47,8 @@ The earlier approved UI-only checkpoint remains available for historical referen
 - commit: `e705086af2f393e70a345f2159689446f2e41871`.
 
 The August 20 release keeps the approved product model while incorporating the
-verified DATA-04 and Workspace blocker fixes. Documentation-only commits on the
-stable release branch do not change the application code represented by the
+verified DATA-04 and Workspace blocker fixes. Documentation-only commits preserved
+by the archival release tag do not change the application code represented by the
 verified production release.
 
 ## Workspace BETA — active experiment
