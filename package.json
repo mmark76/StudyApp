@@ -16,18 +16,18 @@
     "benchmark:capacity": "playwright test --config=playwright.capacity.config.ts --grep @capacity-baseline"
   },
   "dependencies": {
-    "dexie": "4.4.5",
+    "dexie": "4.4.6",
     "dexie-react-hooks": "4.4.0",
     "pdf-lib": "1.17.1",
-    "pdfjs-dist": "^6.2.108",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "react-router-dom": "7.18.2"
+    "pdfjs-dist": "^6.3.289",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-router-dom": "7.18.3"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",
-    "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.4",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.1.0",
     "fake-indexeddb": "6.2.5",
     "typescript": "7.0.2",
