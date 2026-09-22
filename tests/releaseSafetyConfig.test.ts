@@ -20,7 +20,7 @@ describe("release safety configuration", () => {
 
     expect(ciWorkflow).toContain("pull_request:");
     expect(ciWorkflow).toContain("container:");
-    expect(ciWorkflow).toContain("mcr.microsoft.com/playwright:v1.62.1-noble");
+    expect(ciWorkflow).toContain("mcr.microsoft.com/playwright:v1.63.0-noble");
     expect(ciWorkflow).not.toContain("playwright install");
     expect(positions.every((position) => position >= 0)).toBe(true);
     expect(positions).toEqual([...positions].sort((first, second) => first - second));
