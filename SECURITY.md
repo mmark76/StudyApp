@@ -20,6 +20,17 @@ compares the current and planned modes but does not activate a remote mode,
 inspect local study data, call an AI provider or change account or charging
 behaviour.
 
+## Analytics boundary
+
+Google Analytics uses the dedicated StudyApp GA4 web stream and is optional.
+The application must not load the Google Analytics script until the user has
+explicitly allowed analytics in the current browser. The choice is stored
+locally and remains reversible through the Analytics choices page.
+
+Analytics must not read or transmit study content, uploaded files, flashcards,
+library records, IndexedDB content, AI prompts, or generated study material.
+Only page/navigation analytics needed for traffic measurement are permitted.
+
 ## General boundaries
 
 - Keep core study data local by default.

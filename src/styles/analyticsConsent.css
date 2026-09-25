@@ -1,0 +1,26 @@
+.analytics-consent-banner {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  left: 1rem;
+  z-index: 1000;
+  max-width: 54rem;
+  margin-inline: auto;
+  padding: 1rem;
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 0.75rem;
+  background: var(--surface, #ffffff);
+  box-shadow: 0 0.75rem 2rem rgb(15 23 42 / 18%);
+}
+
+.analytics-consent-banner p,
+.analytics-choice-panel p {
+  margin-top: 0;
+}
+
+.analytics-consent-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}

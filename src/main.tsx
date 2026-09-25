@@ -11,6 +11,7 @@ import "./features/workspace-beta/workspaceFramePointerFocus";
 import "./features/workspace-beta/workspaceInfoMenuAutoClose";
 import "./features/workspace-beta/workspaceInfoModalDocument";
 import "./styles/global.css";
+import "./styles/analyticsConsent.css";
 import "./styles/headerNavigation.css";
 import "./styles/workspaceBeta.css";
 import "./styles/workspaceBetaFunctional.css";
