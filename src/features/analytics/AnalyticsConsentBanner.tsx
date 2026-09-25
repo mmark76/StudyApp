@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
 import {
   analyticsConsentChangeEvent,
@@ -44,9 +43,9 @@ export function AnalyticsConsentBanner() {
         <button className="button secondary" type="button" onClick={() => setAnalyticsConsent("denied")}>
           {text("No thanks", "Όχι, ευχαριστώ")}
         </button>
-        <Link to="/legal/analytics">
+        <a href="#/legal/analytics">
           {text("Analytics choices", "Επιλογές analytics")}
-        </Link>
+        </a>
       </div>
     </aside>
   );
