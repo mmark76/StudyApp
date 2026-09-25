@@ -19,8 +19,9 @@ technical architecture to the user.
 
 The released study workflow runs in the browser. Study material, files, links,
 progress, sessions and settings remain local by default. There is no user
-account, cloud storage, cloud sync, first-party analytics, advertising or
-telemetry.
+account, cloud storage, cloud sync or advertising. Optional Google Analytics is
+disabled by default and is loaded only after explicit user consent; it must not
+send study content or local library data.
 
 The interface supports English and Greek. Language should be easy to change and
 user-facing explanations should remain short and clear.
