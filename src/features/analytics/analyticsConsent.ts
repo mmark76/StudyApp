@@ -13,6 +13,16 @@ declare global {
 
 let hashTrackingInstalled = false;
 
+export function isTopLevelAnalyticsContext(): boolean {
+  if (typeof window === "undefined") return false;
+
+  try {
+    return window.self === window.top;
+  } catch {
+    return false;
+  }
+}
+
 export function readAnalyticsConsent(): AnalyticsConsent | null {
   if (typeof window === "undefined") return null;
 
@@ -48,7 +58,13 @@ function ensureGtag(): NonNullable<Window["gtag"]> {
 }
 
 function trackHashPageView(): void {
-  if (readAnalyticsConsent() !== "granted" || !window.gtag) return;
+  if (
+    !isTopLevelAnalyticsContext()
+    || readAnalyticsConsent() !== "granted"
+    || !window.gtag
+  ) {
+    return;
+  }
 
   window.gtag("event", "page_view", {
     page_location: window.location.href,
@@ -58,7 +74,10 @@ function trackHashPageView(): void {
 }
 
 export function enableGoogleAnalytics(): void {
-  if (typeof window === "undefined" || readAnalyticsConsent() !== "granted") {
+  if (
+    !isTopLevelAnalyticsContext()
+    || readAnalyticsConsent() !== "granted"
+  ) {
     return;
   }
 
