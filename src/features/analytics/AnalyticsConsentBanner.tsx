@@ -3,6 +3,7 @@ import { useLanguage } from "../../i18n/LanguageContext";
 import {
   analyticsConsentChangeEvent,
   enableGoogleAnalytics,
+  isTopLevelAnalyticsContext,
   readAnalyticsConsent,
   setAnalyticsConsent,
   type AnalyticsConsent,
@@ -13,8 +14,10 @@ export function AnalyticsConsentBanner() {
   const [consent, setConsent] = useState<AnalyticsConsent | null>(
     readAnalyticsConsent,
   );
+  const isTopLevel = isTopLevelAnalyticsContext();
 
   useEffect(() => {
+    if (!isTopLevel) return undefined;
     if (consent === "granted") enableGoogleAnalytics();
 
     function handleChange(event: Event) {
@@ -24,9 +27,9 @@ export function AnalyticsConsentBanner() {
     window.addEventListener(analyticsConsentChangeEvent, handleChange);
     return () =>
       window.removeEventListener(analyticsConsentChangeEvent, handleChange);
-  }, [consent]);
+  }, [consent, isTopLevel]);
 
-  if (consent !== null) return null;
+  if (!isTopLevel || consent !== null) return null;
 
   return (
     <aside className="analytics-consent-banner" aria-label={text("Analytics choice", "Επιλογή analytics")}>
