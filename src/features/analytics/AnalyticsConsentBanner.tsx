@@ -35,8 +35,8 @@ export function AnalyticsConsentBanner() {
     <aside className="analytics-consent-banner" aria-label={text("Analytics choice", "Επιλογή analytics")}>
       <p>
         {text(
-          "StudyApp can use Google Analytics only if you allow it. Study content and local files are not sent.",
-          "Το StudyApp μπορεί να χρησιμοποιεί Google Analytics μόνο αν το επιτρέψεις. Το υλικό μελέτης και τα τοπικά αρχεία δεν αποστέλλονται.",
+          "Optional Google Analytics is off until you allow it. Study content and local files are never sent.",
+          "Το προαιρετικό Google Analytics παραμένει κλειστό μέχρι να το επιτρέψεις. Το υλικό μελέτης και τα τοπικά αρχεία δεν αποστέλλονται.",
         )}
       </p>
       <div className="analytics-consent-actions">
