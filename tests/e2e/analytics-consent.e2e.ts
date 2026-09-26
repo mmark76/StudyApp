@@ -67,6 +67,7 @@ test("Workspace BETA shows one consent banner and never loads GA4 in panel frame
 
   await page.goto("/");
   await page.evaluate((key) => window.localStorage.removeItem(key), consentKey);
+  await page.reload();
   await page.goto("/#/workspace-beta");
 
   const banner = page.getByRole("complementary", {
