@@ -359,7 +359,9 @@ with React, TypeScript, Vite, React Router, Dexie, PDF.js, `pdf-lib`, Vitest and
 `vite-plugin-pwa`.
 
 Core study data remains in the browser. The current product has no user account,
-cloud storage, cloud sync, first-party analytics, advertising or telemetry.
+cloud storage, cloud sync or advertising. Optional Google Analytics is
+owner-approved, disabled by default, and may load only after explicit user
+consent. It must not send study content or local library data.
 
 The owner-approved stable top-level UI model is:
 

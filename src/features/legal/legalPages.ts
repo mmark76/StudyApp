@@ -66,12 +66,28 @@ export const legalPages = {
   },
   analytics: {
     title: copy("Analytics choices", "Αναλυτικά στοιχεία"),
-    summary: copy("StudyApp does not include its own analytics or advertising system.", "Το StudyApp δεν περιλαμβάνει δικό του σύστημα analytics ή διαφημίσεων."),
-    lastUpdated: copy("30 July 2026", "30 Ιουλίου 2026"),
+    summary: copy(
+      "Google Analytics is optional and remains off unless you allow it.",
+      "Το Google Analytics είναι προαιρετικό και παραμένει απενεργοποιημένο αν δεν το επιτρέψεις.",
+    ),
+    lastUpdated: copy("25 September 2026", "25 Σεπτεμβρίου 2026"),
     sections: [
       {
         heading: copy("Current behaviour", "Τρέχουσα λειτουργία"),
-        paragraphs: [copy("The application does not install a first-party analytics tracker.", "Η εφαρμογή δεν εγκαθιστά tracker analytics πρώτου μέρους.")],
+        paragraphs: [
+          copy(
+            "StudyApp loads Google Analytics only after an explicit analytics choice in this browser. If analytics is not allowed, the Google Analytics script is not loaded.",
+            "Το StudyApp φορτώνει το Google Analytics μόνο μετά από ρητή επιλογή analytics σε αυτόν τον browser. Αν δεν επιτρέπονται τα analytics, το script του Google Analytics δεν φορτώνεται.",
+          ),
+          copy(
+            "When allowed, StudyApp sends page and navigation analytics to the dedicated StudyApp GA4 stream. Study content, uploaded files, flashcards and local library data are not sent as analytics content.",
+            "Όταν επιτρέπονται, το StudyApp αποστέλλει analytics σελίδων και πλοήγησης στο αποκλειστικό GA4 stream του StudyApp. Το υλικό μελέτης, τα αρχεία, οι κάρτες και τα τοπικά δεδομένα βιβλιοθήκης δεν αποστέλλονται ως περιεχόμενο analytics.",
+          ),
+          copy(
+            "The choice is stored locally and can be changed here at any time.",
+            "Η επιλογή αποθηκεύεται τοπικά και μπορεί να αλλάξει εδώ οποτεδήποτε.",
+          ),
+        ],
       },
     ],
   },
