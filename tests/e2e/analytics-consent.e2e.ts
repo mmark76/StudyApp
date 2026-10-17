@@ -35,6 +35,30 @@ test("analytics remains off until explicit consent and can be disabled", async (
     `https://www.googletagmanager.com/gtag/js?id=${measurementId}`,
   );
   await expect
+    .poll(() =>
+      page.evaluate(
+        (id) =>
+          window.dataLayer?.some(
+            (entry) =>
+              Array.isArray(entry) &&
+              entry[0] === "config" &&
+              entry[1] === id &&
+              entry[2]?.send_page_view === false,
+          ) ?? false,
+        measurementId,
+      ),
+    )
+    .toBe(true);
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        window.dataLayer?.some(
+          (entry) => Array.isArray(entry) && entry[0] === "event" && entry[1] === "page_view",
+        ) ?? false,
+      ),
+    )
+    .toBe(true);
+  await expect
     .poll(() => page.evaluate((key) => window.localStorage.getItem(key), consentKey))
     .toBe("granted");
 
