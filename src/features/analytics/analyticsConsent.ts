@@ -57,7 +57,7 @@ function ensureGtag(): NonNullable<Window["gtag"]> {
   return window.gtag;
 }
 
-function trackHashPageView(): void {
+function trackPageView(): void {
   if (
     !isTopLevelAnalyticsContext()
     || readAnalyticsConsent() !== "granted"
@@ -84,18 +84,19 @@ export function enableGoogleAnalytics(): void {
   const gtag = ensureGtag();
   gtag("consent", "default", { analytics_storage: "granted" });
   gtag("js", new Date());
-  gtag("config", studyAppGa4MeasurementId, { send_page_view: true });
+  gtag("config", studyAppGa4MeasurementId, { send_page_view: false });
 
   if (!document.getElementById("studyapp-ga4-script")) {
     const script = document.createElement("script");
     script.id = "studyapp-ga4-script";
     script.async = true;
     script.src = `https://www.googletagmanager.com/gtag/js?id=${studyAppGa4MeasurementId}`;
+    script.addEventListener("load", trackPageView, { once: true });
     document.head.append(script);
   }
 
   if (!hashTrackingInstalled) {
-    window.addEventListener("hashchange", trackHashPageView);
+    window.addEventListener("hashchange", trackPageView);
     hashTrackingInstalled = true;
   }
 }
