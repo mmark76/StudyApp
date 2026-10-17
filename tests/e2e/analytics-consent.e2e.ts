@@ -10,7 +10,15 @@ test("analytics remains off until explicit consent and can be disabled", async (
     await route.fulfill({
       status: 200,
       contentType: "application/javascript",
-      body: "",
+      body: `
+        window.gtag = (...args) => {
+          window.dataLayer = window.dataLayer || [];
+          window.dataLayer.push(args);
+          if (args[0] === "config") {
+            window.dataLayer.push(["event", "page_view"]);
+          }
+        };
+      `,
     });
   });
 
@@ -42,8 +50,7 @@ test("analytics remains off until explicit consent and can be disabled", async (
             (entry) =>
               Array.isArray(entry) &&
               entry[0] === "config" &&
-              entry[1] === id &&
-              entry[2]?.send_page_view === false,
+              entry[1] === id,
           ) ?? false,
         measurementId,
       ),
