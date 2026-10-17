@@ -12,6 +12,7 @@ declare global {
 }
 
 let hashTrackingInstalled = false;
+let googleAnalyticsConfigured = false;
 
 export function isTopLevelAnalyticsContext(): boolean {
   if (typeof window === "undefined") return false;
@@ -73,6 +74,20 @@ function trackPageView(): void {
   });
 }
 
+function configureGoogleAnalytics(): void {
+  if (
+    googleAnalyticsConfigured
+    || !isTopLevelAnalyticsContext()
+    || readAnalyticsConsent() !== "granted"
+    || !window.gtag
+  ) {
+    return;
+  }
+
+  googleAnalyticsConfigured = true;
+  window.gtag("config", studyAppGa4MeasurementId);
+}
+
 export function enableGoogleAnalytics(): void {
   if (
     !isTopLevelAnalyticsContext()
@@ -84,14 +99,13 @@ export function enableGoogleAnalytics(): void {
   const gtag = ensureGtag();
   gtag("consent", "default", { analytics_storage: "granted" });
   gtag("js", new Date());
-  gtag("config", studyAppGa4MeasurementId, { send_page_view: false });
 
   if (!document.getElementById("studyapp-ga4-script")) {
     const script = document.createElement("script");
     script.id = "studyapp-ga4-script";
     script.async = true;
     script.src = `https://www.googletagmanager.com/gtag/js?id=${studyAppGa4MeasurementId}`;
-    script.addEventListener("load", trackPageView, { once: true });
+    script.addEventListener("load", configureGoogleAnalytics, { once: true });
     document.head.append(script);
   }
 
@@ -108,5 +122,6 @@ export function disableGoogleAnalytics(): void {
     window.gtag("consent", "update", { analytics_storage: "denied" });
   }
 
+  googleAnalyticsConfigured = false;
   document.getElementById("studyapp-ga4-script")?.remove();
 }
