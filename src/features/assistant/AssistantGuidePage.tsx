@@ -31,6 +31,15 @@ export function AssistantGuidePage() {
           <summary>{text("More AI options", "Περισσότερες επιλογές AI")}</summary>
           <div className="assistant-guide-workspace-more-content">
             <section>
+              <p className="eyebrow">StudyApp Local</p>
+              <h3>{text("ChatGPT plan connection", "Σύνδεση με πλάνο ChatGPT")}</h3>
+              <p>{text(
+                "Connect your own ChatGPT plan in the local Windows edition. No API key is required.",
+                "Σύνδεσε το δικό σου πλάνο ChatGPT στην τοπική έκδοση Windows. Δεν απαιτείται API key.",
+              )}</p>
+              <Link className="button secondary" to="/local-chatgpt-plan">{text("Open local connection", "Άνοιγμα τοπικής σύνδεσης")}</Link>
+            </section>
+            <section>
               <p className="eyebrow">{text("Available", "Διαθέσιμο")}</p>
               <h3>{text("StudyApp AI Assistant", "Βοηθός AI του StudyApp")}</h3>
               <p>
@@ -94,6 +103,18 @@ export function AssistantGuidePage() {
         aria-label={text("AI Assistant options", "Επιλογές Βοηθού AI")}
         className="assistant-guide-grid"
       >
+        <article className="assistant-guide-card">
+          <p className="eyebrow">StudyApp Local</p>
+          <h3>{text("ChatGPT plan connection", "Σύνδεση με πλάνο ChatGPT")}</h3>
+          <p>{text(
+            "In the optional local Windows edition, connect your ChatGPT account and use its eligible plan allowance without an API key. Study material stays local until you explicitly enter a question.",
+            "Στην προαιρετική τοπική έκδοση Windows, σύνδεσε τον λογαριασμό ChatGPT και χρησιμοποίησε το επιλέξιμο πλάνο του χωρίς API key. Το υλικό μελέτης μένει τοπικό μέχρι να γράψεις ρητά μια ερώτηση.",
+          )}</p>
+          <div className="button-row">
+            <Link className="button secondary" to="/local-chatgpt-plan">{text("Open local connection", "Άνοιγμα τοπικής σύνδεσης")}</Link>
+          </div>
+        </article>
+
         <article className="assistant-guide-card">
           <p className="eyebrow">{text("Available", "Διαθέσιμο")}</p>
           <h3>{text("StudyApp AI Assistant", "Βοηθός AI του StudyApp")}</h3>

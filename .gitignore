@@ -1,4 +1,6 @@
 node_modules/
+local-companion/.chatgpt-plan-venv/
+local-companion/__pycache__/
 dist/
 .vite/
 coverage/

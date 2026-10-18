@@ -42,7 +42,7 @@
   --assistant-mode-surface: #f0fdf4;
 }
 
-.assistant-mode-card:nth-child(2) {
+.assistant-mode-card:nth-child(2):not(.assistant-mode-card--local-plan) {
   --assistant-mode-accent: #b45309;
   --assistant-mode-badge-bg: #fef3c7;
   --assistant-mode-border: #fde68a;
@@ -56,6 +56,88 @@
   --assistant-mode-border: #bfdbfe;
   --assistant-mode-label: "3 · API";
   --assistant-mode-surface: #eff6ff;
+}
+
+.assistant-mode-card--local-plan {
+  --assistant-mode-accent: #0f766e;
+  --assistant-mode-badge-bg: #ccfbf1;
+  --assistant-mode-border: #99f6e4;
+  --assistant-mode-label: "2 · LOCAL PLAN";
+  --assistant-mode-surface: #f0fdfa;
+}
+
+.assistant-mode-card--local-plan ~ .assistant-mode-card:nth-child(3) {
+  --assistant-mode-accent: #b45309;
+  --assistant-mode-badge-bg: #fef3c7;
+  --assistant-mode-border: #fde68a;
+  --assistant-mode-label: "3 · MCP";
+  --assistant-mode-surface: #fffbeb;
+}
+
+.assistant-mode-card--local-plan ~ .assistant-mode-card:nth-child(4) {
+  --assistant-mode-accent: #1d4ed8;
+  --assistant-mode-badge-bg: #dbeafe;
+  --assistant-mode-border: #bfdbfe;
+  --assistant-mode-label: "4 · API";
+  --assistant-mode-surface: #eff6ff;
+}
+
+.local-chatgpt-plan-card {
+  background: color-mix(in srgb, #f0fdfa 72%, var(--surface-strong, #ffffff));
+  border: 1px solid #99f6e4;
+  border-left: 4px solid #0f766e;
+  border-radius: 1rem;
+  padding: 1.25rem;
+}
+
+.local-chatgpt-plan-heading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.local-chatgpt-plan-heading h3 { margin-top: 0; }
+
+.local-chatgpt-plan-dot {
+  background: #94a3b8;
+  border-radius: 50%;
+  height: 0.8rem;
+  width: 0.8rem;
+}
+
+.local-chatgpt-plan-dot.is-connected { background: #16a34a; }
+
+.local-chatgpt-plan-question {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.local-chatgpt-plan-question textarea {
+  min-height: 8rem;
+  resize: vertical;
+}
+
+.local-chatgpt-plan-answer {
+  background: var(--surface-strong, #ffffff);
+  border: 1px solid #99f6e4;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  white-space: pre-wrap;
+}
+
+.local-chatgpt-plan-answer h4 { margin-top: 0; }
+
+.local-chatgpt-plan-message {
+  background: #ecfeff;
+  border-radius: 0.75rem;
+  color: #155e75;
+  padding: 0.85rem 1rem;
+}
+
+.local-chatgpt-plan-message.is-error {
+  background: #fef2f2;
+  color: #991b1b;
 }
 
 .assistant-mode-card::before {
@@ -128,6 +210,11 @@
 .assistant-mode-status.available {
   background: #dcfce7;
   color: #166534;
+}
+
+.assistant-mode-status.local {
+  background: #ccfbf1;
+  color: #115e59;
 }
 
 .assistant-mode-status.soon {

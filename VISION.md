@@ -75,13 +75,23 @@ to copy another product's visual design or increase visible complexity.
 
 ## AI direction
 
-The AI Assistant has three modes with distinct purposes.
+The browser/PWA AI Assistant has three modes with distinct purposes. StudyApp
+Local provides one additional optional, explicit connection with its own local
+security boundary.
 
 ### StudyApp AI Assistant
 
 Available now. It provides a normal external link to the dedicated StudyApp AI
 Assistant in ChatGPT. StudyApp does not read, copy or send study material for
 this handoff, and it does not use StudyApp credits.
+
+### StudyApp Local ChatGPT plan connection
+
+Available only in the separately started Windows Local edition. After browser
+approval, an eligible ChatGPT plan can answer a question that the user types and
+explicitly submits. The connection is protected for the current Windows user;
+StudyApp does not automatically read or send Library/IndexedDB material, and the
+answer is transient unless the user chooses to keep it elsewhere.
 
 ### ChatGPT App / MCP
 

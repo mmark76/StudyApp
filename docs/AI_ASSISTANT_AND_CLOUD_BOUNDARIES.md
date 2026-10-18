@@ -5,7 +5,8 @@ _Last updated: 2026-08-16_
 ## Purpose
 
 This document defines the boundary between StudyApp's local-first study workflow
-and its three AI Assistant modes.
+and its three browser/PWA AI Assistant modes. A separately started StudyApp
+Local edition has one additional, explicit local connection described below.
 
 ## Current modes
 
@@ -57,7 +58,21 @@ controls. StudyApp does not receive files from ChatGPT automatically. For a new
 practice-content set, the documented order is Chapters CSV first and Flashcards
 CSV second.
 
-### 2. ChatGPT App / MCP — coming soon
+### 2. StudyApp Local ChatGPT plan connection — optional Windows Local edition
+
+This is not a browser/PWA feature. The separately started StudyApp Local server
+listens only on `127.0.0.1`, requests browser approval from an eligible ChatGPT
+account, and stores the resulting connection encrypted with Windows DPAPI for
+the current Windows user. No OpenAI API key, StudyApp credit, or browser token
+storage is used.
+
+The connection sends only a question the user types and explicitly submits.
+It does not scan, read, select, upload, or automatically include Library,
+IndexedDB, progress, or study history. Answers use `store: false`, are shown
+only in the active Local page session, and are not added to StudyApp data.
+Disconnect deletes the protected local connection record.
+
+### 3. ChatGPT App / MCP — coming soon
 
 The planned ChatGPT App will expose approved StudyApp tools through a remote MCP
 server. It is visible in the interface but inactive.
@@ -72,7 +87,7 @@ Before activation it requires:
 - privacy and security review;
 - ChatGPT platform testing.
 
-### 3. StudyApp AI — coming soon
+### 4. StudyApp AI — coming soon
 
 The planned StudyApp AI will call an AI provider through Markellos Cloud Core.
 The OpenAI API key must remain a server secret and must never enter the browser
