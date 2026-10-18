@@ -14,6 +14,7 @@ import {
   ASSISTANT_WELCOME_COPY,
   TypewriterWelcome,
 } from "./TypewriterWelcome";
+import { Link } from "react-router-dom";
 
 type AssistantScreen = "intro" | "modes";
 
@@ -455,6 +456,19 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
                     )}
                   </small>
                 </a>
+
+                <Link className="assistant-mode-card assistant-mode-card--local-plan" to="/local-chatgpt-plan">
+                  <span className="assistant-mode-status available">{text("StudyApp Local", "StudyApp Local")}</span>
+                  <strong>{text("ChatGPT plan connection", "Σύνδεση με πλάνο ChatGPT")}</strong>
+                  <small>{text(
+                    "Connect your ChatGPT account in the local Windows edition. Your plan, your limits — no API key.",
+                    "Σύνδεσε τον λογαριασμό ChatGPT στην τοπική έκδοση Windows. Το πλάνο σου, τα όριά σου — χωρίς API key.",
+                  )}</small>
+                  <small>{text(
+                    "The web version keeps the current external-link flow.",
+                    "Η web έκδοση διατηρεί την υπάρχουσα ροή εξωτερικού συνδέσμου.",
+                  )}</small>
+                </Link>
 
                 <button
                   className="assistant-mode-card"

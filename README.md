@@ -64,7 +64,9 @@ remote AI behavior or automatic source transfer.
 
 ## AI Assistant
 
-The AI Assistant presents three clearly separated options.
+The browser/PWA edition presents three clearly separated options. StudyApp Local
+adds a fourth, separate optional connection without changing those browser
+boundaries.
 
 The bilingual `/#/ai-assistant-comparison` page compares the current Custom GPT handoff with the planned ChatGPT App / MCP and StudyApp AI modes. It is informational only and does not activate a remote AI mode, read study data or change charging behaviour.
 
@@ -98,6 +100,16 @@ The available StudyApp AI Assistant link:
   HTTPS ChatGPT destination;
 - does not automate, position, scrape or inspect the ChatGPT tab.
 
+### StudyApp Local ChatGPT plan connection — optional Windows Local edition
+
+The separately started **StudyApp Local** edition can connect an eligible
+ChatGPT account after a browser approval. It does not request an API key or use
+StudyApp credits. The encrypted connection is scoped to the current Windows
+user. StudyApp Local sends only a question the user explicitly submits; it does
+not automatically inspect, read, include or upload Library/IndexedDB material.
+Responses use `store: false` and remain only in the open Local page session.
+Disconnect removes the protected local connection record.
+
 ### ChatGPT App / MCP — coming soon
 
 The planned ChatGPT App will connect ChatGPT with approved StudyApp tools through
@@ -119,7 +131,7 @@ See [`docs/AI_ASSISTANT_AND_CLOUD_BOUNDARIES.md`](docs/AI_ASSISTANT_AND_CLOUD_BO
    - **Library** — books, articles, papers, notes, summaries and supported local files.
    - **Structured Study** — contents, chapters, sections, concepts, references and diagrams.
 2. **Practice** — practice-content management, flashcards, due review, quizzes and progress.
-3. **AI Studio** — StudyApp AI Assistant now; ChatGPT App/MCP and paid StudyApp AI later.
+3. **AI Studio** — StudyApp AI Assistant now; optional Local ChatGPT plan connection in StudyApp Local; ChatGPT App/MCP and paid StudyApp AI later.
 4. **Split PDF Tool** — secondary local PDF splitting and download utility.
 5. **Important Info** — secondary product, usage, privacy and supporting information.
 

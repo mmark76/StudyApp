@@ -16,20 +16,26 @@ Home → Sources → Practice → AI Studio
 `Split PDF Tool` and `Important Info` are secondary navigation. `Sources` is a
 hub over the existing Library and Structured Study areas. `Practice` groups
 practice-content management, flashcards, review, quiz and progress. `AI Studio`
-is the current entry point for the available StudyApp AI Assistant and the two
-planned AI modes.
+is the current entry point for the available StudyApp AI Assistant, an optional
+StudyApp Local ChatGPT-plan connection, and the two planned AI modes.
 
 The completed stable UI baseline is preserved at branch
 `stable/ui-final-2026-08-19`, commit
 `e705086af2f393e70a345f2159689446f2e41871`.
 
-The AI Assistant exposes three separate modes:
+The browser/PWA AI Assistant exposes three separate modes:
 
 - StudyApp AI Assistant — active external link to the dedicated Custom GPT;
 - ChatGPT App / MCP — visible but inactive;
 - StudyApp AI — visible but inactive paid/API mode.
 
-No production AI request, real credit operation or payment is currently enabled.
+The separately started StudyApp Local edition provides a fourth, explicit
+ChatGPT-plan connection. It is not part of the browser/PWA transport: a
+loopback-only Windows companion keeps DPAPI-protected credentials outside the
+browser and sends only a user-submitted question with `store: false`. It never
+reads or includes Library/IndexedDB material automatically.
+
+No PWA production AI request, real credit operation or payment is enabled.
 
 ## Workspace BETA boundary
 

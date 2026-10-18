@@ -7,13 +7,18 @@ _Last updated: 2026-08-16_
 StudyApp is a bilingual, local-first browser application. Core study content,
 files, links, progress, sessions and settings remain in the current browser.
 
-The AI Assistant has three modes:
+The browser/PWA AI Assistant has three modes:
 
 - StudyApp AI Assistant — active external link to the dedicated Custom GPT;
 - ChatGPT App / MCP — inactive and marked Coming soon;
 - StudyApp AI — inactive and marked Coming soon.
 
-No real AI request, credit purchase or charge is currently enabled.
+The separately started StudyApp Local edition has an optional fourth connection:
+ChatGPT plan use. It is deliberately outside the browser/PWA boundary. Its
+loopback-only companion stores the connection under the current Windows user
+with DPAPI and sends only an explicitly submitted question. It neither receives
+nor automatically reads Library/IndexedDB material. No PWA real AI request,
+credit purchase or charge is enabled.
 
 The bilingual AI options comparison page is static local presentation. It
 compares the current and planned modes but does not activate a remote mode,

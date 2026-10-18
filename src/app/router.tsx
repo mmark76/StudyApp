@@ -3,6 +3,7 @@ import { AnalyticsChoicesPage } from "../features/analytics/AnalyticsChoicesPage
 import { AppearanceSettingsPage } from "../features/appearance/AppearanceSettingsPage";
 import { AssistantComparisonPage } from "../features/assistant/AssistantComparisonPage";
 import { AssistantGuidePage } from "../features/assistant/AssistantGuidePage";
+import { LocalChatGptPlanPage } from "../features/assistant/LocalChatGptPlanPage";
 import { ContentImportPage } from "../features/content-import/ContentImportPage";
 import { FlashcardsPage } from "../features/flashcards/FlashcardsPage";
 import { HomePage } from "../features/home/HomePage";
@@ -51,6 +52,7 @@ export const router = createHashRouter([
       },
       { path: "ai-assistant-guide", element: <AssistantGuidePage /> },
       { path: "ai-assistant-comparison", element: <AssistantComparisonPage /> },
+      { path: "local-chatgpt-plan", element: <LocalChatGptPlanPage /> },
       {
         path: "important-info",
         lazy: async () => {
