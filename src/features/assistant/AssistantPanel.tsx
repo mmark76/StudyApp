@@ -458,7 +458,7 @@ export function AssistantPanel({ open, onClose }: AssistantPanelProps) {
                 </a>
 
                 <Link className="assistant-mode-card assistant-mode-card--local-plan" to="/local-chatgpt-plan">
-                  <span className="assistant-mode-status available">{text("StudyApp Local", "StudyApp Local")}</span>
+                  <span className="assistant-mode-status local">{text("StudyApp Local", "StudyApp Local")}</span>
                   <strong>{text("ChatGPT plan connection", "Σύνδεση με πλάνο ChatGPT")}</strong>
                   <small>{text(
                     "Connect your ChatGPT account in the local Windows edition. Your plan, your limits — no API key.",

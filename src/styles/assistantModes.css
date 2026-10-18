@@ -212,6 +212,11 @@
   color: #166534;
 }
 
+.assistant-mode-status.local {
+  background: #ccfbf1;
+  color: #115e59;
+}
+
 .assistant-mode-status.soon {
   background: #fef3c7;
   color: #92400e;
