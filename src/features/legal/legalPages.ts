@@ -65,27 +65,27 @@ export const legalPages = {
     ],
   },
   analytics: {
-    title: copy("Analytics choices", "Αναλυτικά στοιχεία"),
+    title: copy("Analytics information", "Πληροφορίες analytics"),
     summary: copy(
-      "Google Analytics is optional and remains off unless you allow it.",
-      "Το Google Analytics είναι προαιρετικό και παραμένει απενεργοποιημένο αν δεν το επιτρέψεις.",
+      "No analytics cookies are used. Only aggregate visit counts help the administrator understand overall traffic.",
+      "Δεν χρησιμοποιούνται cookies analytics. Μόνο συγκεντρωτικές μετρήσεις επισκέψεων βοηθούν τον διαχειριστή να κατανοεί τη συνολική επισκεψιμότητα.",
     ),
-    lastUpdated: copy("25 September 2026", "25 Σεπτεμβρίου 2026"),
+    lastUpdated: copy("19 October 2026", "19 Οκτωβρίου 2026"),
     sections: [
       {
         heading: copy("Current behaviour", "Τρέχουσα λειτουργία"),
         paragraphs: [
           copy(
-            "StudyApp loads Google Analytics only after an explicit analytics choice in this browser. If analytics is not allowed, the Google Analytics script is not loaded.",
-            "Το StudyApp φορτώνει το Google Analytics μόνο μετά από ρητή επιλογή analytics σε αυτόν τον browser. Αν δεν επιτρέπονται τα analytics, το script του Google Analytics δεν φορτώνεται.",
+            "On the production StudyApp domain, the site uses a cookie-less analytics collector. It does not use an analytics consent choice or store an analytics preference in your browser.",
+            "Στο production domain του StudyApp, η σελίδα χρησιμοποιεί έναν cookie-less συλλέκτη analytics. Δεν χρησιμοποιεί επιλογή συγκατάθεσης analytics ούτε αποθηκεύει προτίμηση analytics στον browser σου.",
           ),
           copy(
-            "When allowed, StudyApp sends page and navigation analytics to the dedicated StudyApp GA4 stream. Study content, uploaded files, flashcards and local library data are not sent as analytics content.",
-            "Όταν επιτρέπονται, το StudyApp αποστέλλει analytics σελίδων και πλοήγησης στο αποκλειστικό GA4 stream του StudyApp. Το υλικό μελέτης, τα αρχεία, οι κάρτες και τα τοπικά δεδομένα βιβλιοθήκης δεν αποστέλλονται ως περιεχόμενο analytics.",
+            "The collector records only aggregate visit counts by UTC hour, domain and country. It does not store visitor identifiers, page paths, referrers, device details or events.",
+            "Ο συλλέκτης καταγράφει μόνο συγκεντρωτικές μετρήσεις επισκέψεων ανά ώρα UTC, domain και χώρα. Δεν αποθηκεύει αναγνωριστικά επισκεπτών, διαδρομές σελίδων, referrers, στοιχεία συσκευής ή events.",
           ),
           copy(
-            "The choice is stored locally and can be changed here at any time.",
-            "Η επιλογή αποθηκεύεται τοπικά και μπορεί να αλλάξει εδώ οποτεδήποτε.",
+            "Study content, uploaded files, flashcards, local library data, AI prompts and generated study material are never read or transmitted for analytics. The aggregate counts are used only for the administrator's traffic understanding.",
+            "Το υλικό μελέτης, τα αρχεία, οι κάρτες, τα τοπικά δεδομένα βιβλιοθήκης, τα AI prompts και το παραγόμενο υλικό μελέτης δεν διαβάζονται ούτε μεταδίδονται για analytics. Οι συγκεντρωτικές μετρήσεις χρησιμοποιούνται μόνο για την κατανόηση της επισκεψιμότητας από τον διαχειριστή.",
           ),
         ],
       },

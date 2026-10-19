@@ -19,9 +19,12 @@ technical architecture to the user.
 
 The released study workflow runs in the browser. Study material, files, links,
 progress, sessions and settings remain local by default. There is no user
-account, cloud storage, cloud sync or advertising. Optional Google Analytics is
-disabled by default and is loaded only after explicit user consent; it must not
-send study content or local library data.
+account, cloud storage, cloud sync or advertising. The production site uses
+cookie-less analytics only: aggregate visit counts by UTC hour, domain and
+country, solely to help the administrator understand overall traffic. It does
+not use analytics cookies, visitor identifiers, page paths, referrers, device
+details or events, and it must not read or transmit study content or local
+library data.
 
 The interface supports English and Greek. Language should be easy to change and
 user-facing explanations should remain short and clear.
