@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
 import { App } from "./app/App";
+import { initializeAnalytics } from "./features/analytics/analyticsConsent";
 import { enforceSecureTransport } from "./app/secureTransport";
 import {
   announcePwaUpdate,
@@ -11,7 +12,6 @@ import "./features/workspace-beta/workspaceFramePointerFocus";
 import "./features/workspace-beta/workspaceInfoMenuAutoClose";
 import "./features/workspace-beta/workspaceInfoModalDocument";
 import "./styles/global.css";
-import "./styles/analyticsConsent.css";
 import "./styles/headerNavigation.css";
 import "./styles/workspaceBeta.css";
 import "./styles/workspaceBetaFunctional.css";
@@ -50,6 +50,8 @@ import "./styles/workspaceBetaNarrowPanel.css";
 import "./styles/workspaceBetaMobileShell.css";
 
 if (!enforceSecureTransport()) {
+  initializeAnalytics();
+
   const updateServiceWorker = registerSW({
     immediate: true,
     onNeedRefresh() {

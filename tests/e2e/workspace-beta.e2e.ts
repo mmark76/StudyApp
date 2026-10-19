@@ -115,7 +115,7 @@ test("Workspace BETA keeps legal, feedback and version information in the Info m
   );
   await expect(page.getByRole("link", { name: "License" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Privacy" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Analytics choices" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Analytics information" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Copyright protected" })).toBeVisible();
   await expect(page.getByText("© 2026 Markellos Markides. All rights reserved.")).toBeVisible();
   await expect(page.locator(".workspace-beta-info-version")).toContainText(/^v/u);

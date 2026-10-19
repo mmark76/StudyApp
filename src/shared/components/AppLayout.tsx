@@ -54,7 +54,7 @@ const secondaryNavigation = [
 const footerNavigation = [
   ["/legal/license", "License", "Άδεια"],
   ["/legal/privacy", "Privacy", "Απόρρητο"],
-  ["/legal/analytics", "Analytics choices", "Αναλυτικά στοιχεία"],
+  ["/legal/analytics", "Analytics information", "Πληροφορίες analytics"],
   ["/legal/copyright", "Copyright protected", "Πνευματικά δικαιώματα"],
 ] as const;
 

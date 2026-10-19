@@ -561,7 +561,7 @@ export function WorkspaceBetaPage() {
                   {text("Privacy", "Απόρρητο")}
                 </Link>
                 <Link rel="noopener noreferrer" target="_blank" to="/legal/analytics">
-                  {text("Analytics choices", "Αναλυτικά στοιχεία")}
+                  {text("Analytics information", "Πληροφορίες analytics")}
                 </Link>
                 <Link rel="noopener noreferrer" target="_blank" to="/legal/copyright">
                   {text("Copyright protected", "Πνευματικά δικαιώματα")}
