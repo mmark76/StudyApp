@@ -9,6 +9,7 @@ import {
 import { studyConfig } from "../../app/studyConfig";
 import { useAppearanceSettings } from "../../features/appearance/useAppearanceSettings";
 import { AssistantPanel } from "../../features/assistant/AssistantPanel";
+import { AnalyticsNoticeDialog } from "../../features/analytics/AnalyticsNoticeDialog";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { useInternetConnectivity } from "../hooks/useInternetConnectivity";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -265,6 +266,7 @@ export function AppLayout() {
         </small>
       </footer>
       <AssistantPanel open={isAssistantOpen} onClose={() => setIsAssistantOpen(false)} />
+      <AnalyticsNoticeDialog />
     </div>
   );
 }

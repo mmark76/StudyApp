@@ -31,7 +31,9 @@ The production StudyApp domain uses the central cookie-less analytics collector.
 It records only aggregate visit counts by UTC hour, domain and country, solely
 to help the administrator understand overall traffic. It must not use analytics
 cookies, visitor identifiers, page paths, referrers, device details or events,
-or store an analytics consent choice in the browser.
+or store an analytics consent choice in the browser. A first-visit informational
+notice may persist only its dismissal state; it is not consent and never alters
+collection.
 
 Analytics must not read or transmit study content, uploaded files, flashcards,
 library records, IndexedDB content, AI prompts or generated study material.
