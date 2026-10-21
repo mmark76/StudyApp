@@ -76,8 +76,8 @@ export const legalPages = {
         heading: copy("Current behaviour", "Τρέχουσα λειτουργία"),
         paragraphs: [
           copy(
-            "On the production StudyApp domain, the site uses a cookie-less analytics collector. It does not use an analytics consent choice or store an analytics preference in your browser.",
-            "Στο production domain του StudyApp, η σελίδα χρησιμοποιεί έναν cookie-less συλλέκτη analytics. Δεν χρησιμοποιεί επιλογή συγκατάθεσης analytics ούτε αποθηκεύει προτίμηση analytics στον browser σου.",
+            "On the production StudyApp domain, the site uses a cookie-less analytics collector. The first-visit informational notice may remember only that it was closed; this is not consent and never changes collection.",
+            "Στο production domain του StudyApp, η σελίδα χρησιμοποιεί έναν cookie-less συλλέκτη analytics. Η ενημέρωση της πρώτης επίσκεψης μπορεί να θυμάται μόνο ότι έκλεισε· αυτό δεν είναι συγκατάθεση και δεν αλλάζει ποτέ τη συλλογή.",
           ),
           copy(
             "The collector records only aggregate visit counts by UTC hour, domain and country. It does not store visitor identifiers, page paths, referrers, device details or events.",

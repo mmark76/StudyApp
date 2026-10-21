@@ -21,7 +21,8 @@ The released study workflow runs in the browser. Study material, files, links,
 progress, sessions and settings remain local by default. There is no user
 account, cloud storage, cloud sync or advertising. The production site uses
 cookie-less analytics only: aggregate visit counts by UTC hour, domain and
-country, solely to help the administrator understand overall traffic. It does
+country, solely to help the administrator understand overall traffic. A first-visit informational
+notice may remember only that it was closed; it is not consent and never changes collection. It does
 not use analytics cookies, visitor identifiers, page paths, referrers, device
 details or events, and it must not read or transmit study content or local
 library data.

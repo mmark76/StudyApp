@@ -1,20 +1,24 @@
 import { expect, test } from "@playwright/test";
 
-test("local development has no analytics banner, consent state, or analytics script", async ({
+test("local development shows the informational notice without loading analytics", async ({
   page,
 }) => {
   await page.goto("/");
 
-  await expect(
-    page.getByRole("complementary", { name: /analytics choice/i }),
-  ).toHaveCount(0);
+  const notice = page.getByRole("complementary", { name: "Cookie-less analytics" });
+  await expect(notice).toBeVisible();
   await expect(page.locator("#studyapp-cookieless-analytics")).toHaveCount(0);
   await expect(
     page.locator('script[src*="googletagmanager.com"]'),
   ).toHaveCount(0);
   await expect(
-    page.evaluate(() => window.localStorage.getItem("studyapp.analyticsConsent.v1")),
+    page.evaluate(() => window.localStorage.getItem("studyapp.analyticsNoticeDismissed.v1")),
   ).resolves.toBeNull();
+  await notice.getByRole("button", { name: "Close" }).click();
+  await expect(notice).toBeHidden();
+  await expect(
+    page.evaluate(() => window.localStorage.getItem("studyapp.analyticsNoticeDismissed.v1")),
+  ).resolves.toBe("true");
 });
 
 test("analytics information explains the cookie-less aggregate boundary", async ({ page }) => {
@@ -32,7 +36,7 @@ test("analytics information explains the cookie-less aggregate boundary", async 
   ).toBeVisible();
 });
 
-test("Workspace BETA has no analytics consent banner or analytics script in its panel frames", async ({
+test("Workspace BETA does not duplicate the notice or analytics script in its panel frames", async ({
   page,
 }) => {
   await page.goto("/#/workspace-beta");
