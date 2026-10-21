@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import {
   dismissAnalyticsNotice,
@@ -7,31 +7,20 @@ import {
 
 export function AnalyticsNoticeDialog() {
   const { text } = useLanguage();
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const [isOpen, setIsOpen] = useState(() => !isAnalyticsNoticeDismissed());
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (isOpen && dialog && !dialog.open) dialog.showModal();
-  }, [isOpen]);
 
   function closeNotice() {
     dismissAnalyticsNotice();
-    dialogRef.current?.close();
     setIsOpen(false);
   }
 
+  if (!isOpen) return null;
+
   return (
-    <dialog
+    <aside
       aria-describedby="analytics-notice-description"
       aria-labelledby="analytics-notice-title"
-      className="analytics-notice-dialog"
-      onCancel={(event) => {
-        event.preventDefault();
-        closeNotice();
-      }}
-      onClose={() => setIsOpen(false)}
-      ref={dialogRef}
+      className="analytics-notice-banner"
     >
       <p className="eyebrow">{text("Analytics information", "Πληροφορίες analytics")}</p>
       <h2 id="analytics-notice-title">{text("Cookie-less analytics", "Analytics χωρίς cookies")}</h2>
@@ -52,6 +41,6 @@ export function AnalyticsNoticeDialog() {
           {text("Close", "Κλείσιμο")}
         </button>
       </div>
-    </dialog>
+    </aside>
   );
 }

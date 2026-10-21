@@ -5,7 +5,7 @@ test("local development shows the informational notice without loading analytics
 }) => {
   await page.goto("/");
 
-  const notice = page.getByRole("dialog", { name: "Cookie-less analytics" });
+  const notice = page.getByRole("complementary", { name: "Cookie-less analytics" });
   await expect(notice).toBeVisible();
   await expect(page.locator("#studyapp-cookieless-analytics")).toHaveCount(0);
   await expect(

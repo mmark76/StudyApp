@@ -246,6 +246,7 @@ export function AppLayout() {
           </Link>
         </div>
       </header>
+      <AnalyticsNoticeDialog />
       <PwaUpdateToast />
       <main className="app-main" id="main-content" ref={mainRef} tabIndex={-1}>
         <Outlet />
@@ -266,7 +267,6 @@ export function AppLayout() {
         </small>
       </footer>
       <AssistantPanel open={isAssistantOpen} onClose={() => setIsAssistantOpen(false)} />
-      <AnalyticsNoticeDialog />
     </div>
   );
 }
