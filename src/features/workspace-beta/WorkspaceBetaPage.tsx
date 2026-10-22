@@ -34,6 +34,8 @@ const panelRoutes: Record<WorkspacePanelId, string> = {
   ai: "/#/ai-assistant-guide",
 };
 
+export const studyAppSourceArchiveUrl = "https://github.com/mmark76/StudyApp/archive/refs/heads/main.zip";
+
 const workspaceInfoRoutes = new Set<WorkspaceInfoRoute>([
   "/appearance",
   "/ai-assistant-comparison",
@@ -526,6 +528,13 @@ export function WorkspaceBetaPage() {
             target="_blank"
           >
             {text("Back to markellosecosystem", "Πίσω στο markellosecosystem")}
+          </a>
+          <a
+            href={studyAppSourceArchiveUrl}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            {text("Download StudyApp ZIP", "Λήψη ZIP του StudyApp")}
           </a>
           <WorkspaceThemeToggle />
           <Link
