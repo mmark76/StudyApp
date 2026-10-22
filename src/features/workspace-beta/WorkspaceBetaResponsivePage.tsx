@@ -81,7 +81,7 @@ export function WorkspaceBetaResponsivePage() {
                 </button>
                 <button
                   onClick={() => activateWorkspaceControl(
-                    ".workspace-beta-functional-shell .workspace-beta-header-actions > a:not(.workspace-beta-ecosystem-link)",
+                    ".workspace-beta-functional-shell .workspace-beta-header-actions > a[href='#/appearance']",
                   )}
                   type="button"
                 >
