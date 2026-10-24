@@ -35,7 +35,7 @@ jobs:
           echo "RELEASE_VERSION=$version" >> "$GITHUB_ENV"
           gh api --method GET "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs" \
             -f branch=main -f head_sha="$sha" -f status=completed -f per_page=100 > "$RUNNER_TEMP/ci-runs.json"
-          node -e 'const r=require(process.argv[1]);if(!r.workflow_runs?.some(x=>x.head_sha===process.env.SOURCE_SHA&&x.conclusion==="success"&&x.event==="push"))process.exit(1)' "$RUNNER_TEMP/ci-runs.json"
+          SOURCE_SHA="$sha" node -e 'const r=require(process.argv[1]);if(!r.workflow_runs?.some(x=>x.head_sha===process.env.SOURCE_SHA&&x.conclusion==="success"&&x.event==="push"))process.exit(1)' "$RUNNER_TEMP/ci-runs.json"
       - name: Setup Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
