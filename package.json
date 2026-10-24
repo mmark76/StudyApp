@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b --pretty false",
+    "check:version": "node scripts/check-version.mjs",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "benchmark:capacity:calibration": "playwright test --config=playwright.capacity.config.ts --grep @capacity-calibration",

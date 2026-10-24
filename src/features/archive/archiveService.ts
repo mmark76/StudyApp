@@ -1,3 +1,5 @@
+import Dexie from "dexie";
+import { validateArchiveCollections } from "./archiveValidation";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import type { AppSetting, CardProgress, LocalStudyFile, StudyOperation, StudySession } from "../../shared/types/models";
 
@@ -46,9 +48,10 @@ export function parseArchive(value: unknown): Archive {
   if (a.progress) { asArray(a.progress.cards); asArray(a.progress.sessions); asArray(a.progress.operations); }
   if (a.settings) asArray<AppSetting>(a.settings);
   for (const f of a.files) {
-    if (!f || !f.metadata || typeof f.metadata.id !== "string" || typeof f.metadata.fileName !== "string" || typeof f.base64 !== "string" || f.base64.length > MAX_TOTAL_BYTES * 1.4) throw new Error("Invalid archived file");
+    if (!f || !f.metadata || typeof f.metadata !== "object" || typeof f.metadata.id !== "string" || !f.metadata.id.trim() || typeof f.metadata.title !== "string" || typeof f.metadata.fileName !== "string" || !f.metadata.fileName.trim() || !Number.isSafeInteger(f.metadata.size) || f.metadata.size < 0 || f.metadata.size > MAX_TOTAL_BYTES || !Number.isFinite(Date.parse(f.metadata.createdAt)) || !/^[0-9a-f]{64}$/.test(f.metadata.contentHash || "") || typeof f.base64 !== "string" || f.base64.length > MAX_TOTAL_BYTES * 1.4) throw new Error("Invalid archived file");
   }
   if (new Set(a.files.map(f=>f.metadata.id)).size !== a.files.length) throw new Error("Repeated file IDs");
+  validateArchiveCollections(a);
   return a;
 }
 export async function createArchive(choice: ArchiveChoice): Promise<Archive> {
@@ -73,14 +76,14 @@ export async function verifyArchive(a:Archive):Promise<void>{
     const blob=base64ToBlob(entry.base64,entry.metadata.mimeType||"application/octet-stream");
     total+=blob.size;
     if(total>MAX_TOTAL_BYTES || blob.size!==entry.metadata.size) throw new Error("File size mismatch");
-    if(entry.metadata.contentHash && await digest(blob)!==entry.metadata.contentHash)throw new Error("File checksum mismatch");
+    if(await digest(blob)!==entry.metadata.contentHash)throw new Error("File checksum mismatch");
   }
 }
 function fingerprint(a:Archive):string { return JSON.stringify(a); }
 export async function archiveToDisk(choice:ArchiveChoice, deleteAfterSave:boolean, confirmDeletion:()=>boolean):Promise<"saved"|"deleted">{
   const picker=(window as Window & {showSaveFilePicker?:Picker}).showSaveFilePicker;
   if(!picker)throw new Error("Verified save requires a browser with File System Access support; nothing was removed");
-  if(deleteAfterSave && choice.settings && !choice.progress && await studyDatabase.cardProgress.count())throw new Error("Include progress before removing settings; nothing was deleted");
+  if(deleteAfterSave && choice.settings && !choice.progress && (await studyDatabase.cardProgress.count() || await studyDatabase.studyOperations.count() || await studyDatabase.studySessions.count()))throw new Error("Include progress before removing settings; nothing was deleted");
   const archive=await createArchive(choice);
   await verifyArchive(archive);
   const serialized=JSON.stringify(archive);
@@ -96,7 +99,31 @@ export async function archiveToDisk(choice:ArchiveChoice, deleteAfterSave:boolea
   const latest=await createArchive(choice);
   if(fingerprint({...latest,createdAt:archive.createdAt})!==fingerprint(archive)) throw new Error("Browser data changed after export. File saved, nothing deleted");
   await studyDatabase.transaction("rw",studyDatabase.studyFiles,studyDatabase.cardProgress,studyDatabase.studySessions,studyDatabase.studyOperations,studyDatabase.settings,async()=>{
-    for(const id of choice.files)if(!(await studyDatabase.studyFiles.get(id)))throw new Error("Selected data was changed before deletion");
+    // Validate the selected records inside the same read/write transaction that deletes them.
+    const currentFiles = await studyDatabase.studyFiles.bulkGet(choice.files);
+    if(currentFiles.some(f=>!f))throw new Error("Selected data was changed before deletion");
+    for(let i=0;i<currentFiles.length;i++){
+      const file=currentFiles[i]!;
+      const archived=archive.files[i];
+      const {data: _blob, ...metadata}=file;
+      if(JSON.stringify({...metadata,contentHash:archived.metadata.contentHash})!==JSON.stringify(archived.metadata)){
+        throw new Error("Selected file metadata changed before deletion");
+      }
+      if(await Dexie.waitFor(digest(file.data))!==archived.metadata.contentHash){
+        throw new Error("Selected file contents changed before deletion");
+      }
+    }
+    if(choice.progress){
+      const cards=await studyDatabase.cardProgress.toArray();
+      const sessions=await studyDatabase.studySessions.toArray();
+      const operations=await studyDatabase.studyOperations.toArray();
+      if(JSON.stringify({cards,sessions,operations})!==JSON.stringify(archive.progress)){
+        throw new Error("Study progress changed before deletion");
+      }
+    }
+    if(choice.settings && JSON.stringify(await studyDatabase.settings.toArray())!==JSON.stringify(archive.settings)){
+      throw new Error("Settings changed before deletion");
+    }
     if(choice.files.length)await studyDatabase.studyFiles.bulkDelete(choice.files);
     if(choice.progress){await studyDatabase.cardProgress.clear();await studyDatabase.studyOperations.clear();await studyDatabase.studySessions.clear();}
     if(choice.settings)await studyDatabase.settings.clear();

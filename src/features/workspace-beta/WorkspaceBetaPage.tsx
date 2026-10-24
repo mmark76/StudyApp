@@ -13,6 +13,7 @@ import { LanguageSwitcher } from "../../shared/components/LanguageSwitcher";
 import { getStudyAppAssistantUrl } from "../assistant/assistantDestination";
 import { useAppearanceSettings } from "../appearance/useAppearanceSettings";
 import { WorkspaceThemeToggle } from "./WorkspaceThemeToggle";
+import { StudyAppVersionedZipLink } from "./StudyAppVersionedZipLink";
 import "../../styles/workspaceBetaInfo.css";
 
 type WorkspacePanelId = "sources" | "knowledge" | "practice" | "ai";
@@ -34,7 +35,6 @@ const panelRoutes: Record<WorkspacePanelId, string> = {
   ai: "/#/ai-assistant-guide",
 };
 
-export const studyAppSourceArchiveUrl = "https://github.com/mmark76/StudyApp/archive/refs/heads/main.zip";
 
 const workspaceInfoRoutes = new Set<WorkspaceInfoRoute>([
   "/appearance",
@@ -529,13 +529,7 @@ export function WorkspaceBetaPage() {
           >
             {text("Back to markellosecosystem", "Πίσω στο markellosecosystem")}
           </a>
-          <a
-            href={studyAppSourceArchiveUrl}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            {text("Download StudyApp ZIP", "Λήψη ZIP του StudyApp")}
-          </a>
+          <StudyAppVersionedZipLink />
           <WorkspaceThemeToggle />
           <Link
             onClick={(event) => {
