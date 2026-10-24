@@ -107,7 +107,7 @@ test("Workspace BETA desktop keeps the existing four-panel header and layout", a
   await expect(page.locator(".workspace-beta-mobile-header")).toBeHidden();
   await expect(page.locator(".workspace-beta-mobile-panel-tabs")).toBeHidden();
   await expect(page.locator(".workspace-beta-functional-shell > .workspace-beta-header")).toBeVisible();
-  const sourceArchive = page.getByText(/Versioned ZIP not available yet/u);
+  const sourceArchive = page.locator(".workspace-beta-functional-shell > .workspace-beta-header").getByText(/Versioned ZIP not available yet/u);
   await expect(sourceArchive).toBeVisible();
 
   const panels = page.locator(".workspace-beta-functional-panel");
