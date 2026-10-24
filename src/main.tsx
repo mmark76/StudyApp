@@ -48,6 +48,7 @@ import "./styles/workspaceBetaCompactUi.css";
 import "./styles/workspaceBetaLightPolish.css";
 import "./styles/workspaceBetaNarrowPanel.css";
 import "./styles/workspaceBetaMobileShell.css";
+import "./styles/workspaceBetaGlobalFooter.css";
 
 if (!enforceSecureTransport()) {
   initializeAnalytics();

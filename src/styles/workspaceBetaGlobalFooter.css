@@ -1,0 +1,16 @@
+/* BETA-only footer spanning all four workspace columns. */
+.workspace-beta-functional-shell {display:flex;flex-direction:column;height:100dvh;min-height:0;}
+.workspace-beta-functional-shell .workspace-beta-header {flex:0 0 auto;}
+.workspace-beta-functional-shell .workspace-beta-main {flex:1 1 auto;height:auto;min-height:0;}
+.workspace-beta-global-footer {flex:0 0 auto;display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:.25rem .85rem;padding:.38rem .75rem;border-top:1px solid #dfdfda;background:#fdfdfb;color:#74746e;font-size:10px;line-height:1.4;text-align:center;}
+.workspace-beta-footer-version {font-weight:700;color:#65655e;}
+/* Remove the old third-column pseudo-footer and restore iframe space. */
+.workspace-beta-functional-panel.workspace-beta-panel-practice::after {content:none;}
+.workspace-beta-functional-panel.workspace-beta-panel-practice .workspace-beta-frame-wrap {padding-bottom:0;}
+:root[data-workspace-theme="dark"] .workspace-beta-global-footer {border-top-color:#3b3b37;background:#1d1d1c;color:#aaa9a2;}
+:root[data-workspace-theme="dark"] .workspace-beta-footer-version {color:#c4c4be;}
+@media(max-width:760px) {
+  .workspace-beta-mobile-shell > .workspace-beta-functional-shell {height:auto;min-height:0;}
+  .workspace-beta-mobile-shell > .workspace-beta-functional-shell .workspace-beta-main {height:auto;}
+  .workspace-beta-global-footer {font-size:10px;gap:.1rem .55rem;padding:.35rem .5rem;}
+}

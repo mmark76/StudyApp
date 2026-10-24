@@ -732,6 +732,11 @@ export function WorkspaceBetaPage() {
           </section>
         </div>
       </main>
+      <footer className="workspace-beta-global-footer" aria-label={text("Workspace footer", "Υποσέλιδο χώρου εργασίας")}>
+        <span>© 2026 Markellos Markides. {text("All rights reserved.", "Με επιφύλαξη παντός δικαιώματος.")}</span>
+        <span>{text("Your data stays under your control.", "Τα δεδομένα σου παραμένουν υπό τον έλεγχό σου.")}</span>
+        <span className="workspace-beta-footer-version">StudyApp BETA · {__APP_BUILD_ID__.split("_")[0]}</span>
+      </footer>
 
       {materialPanel ? <WorkspaceMaterialManager panel={materialPanel} onClose={() => setMaterialPanel(null)} /> : null}
       {infoModalRoute ? (
