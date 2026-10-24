@@ -1,4 +1,5 @@
 import { type ChangeEvent, useRef, useState } from "react";
+import { ArchivePanel } from "../archive/ArchivePanel";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getStudyModeLabel } from "../../i18n/domainLabels";
 import { useLanguage } from "../../i18n/LanguageContext";
@@ -222,6 +223,7 @@ export function ProgressPage() {
         <p className="inline-message" role="status" aria-live="polite">{message}</p>
       </section>
 
+      <ArchivePanel />
       <section className="content-panel">
         <h3>{text("Recent study sessions", "Πρόσφατες συνεδρίες")}</h3>
         {sessions.length === 0 ? <p>{text("No completed sessions yet.", "Δεν υπάρχουν ολοκληρωμένες συνεδρίες.")}</p> : (
