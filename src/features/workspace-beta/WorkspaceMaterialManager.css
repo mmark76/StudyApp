@@ -1,0 +1,20 @@
+.workspace-material-backdrop {position:fixed;inset:0;z-index:10000;background:rgb(0 0 0 / .52);display:flex;align-items:center;justify-content:center;padding:1rem;}
+.workspace-material-dialog {box-sizing:border-box;width:min(680px,100%);max-height:90dvh;overflow:auto;padding:1rem;border:1px solid var(--slate-300);border-radius:.55rem;background:var(--surface);color:var(--navy-900);font-size:13px;line-height:1.4;box-shadow:0 14px 40px rgb(0 0 0 / .22);}
+.workspace-material-dialog p {line-height:1.4;}
+.workspace-material-heading {display:flex;align-items:start;justify-content:space-between;gap:1rem;border-bottom:1px solid var(--slate-300);margin-bottom:.7rem;padding-bottom:.6rem;}
+.workspace-material-heading p {margin:0;font-size:11px;color:var(--slate-600);}
+.workspace-material-heading h2 {margin:.15rem 0 0;font-size:16px;}
+.workspace-material-dialog button {cursor:pointer;padding:.35rem .6rem;border:1px solid var(--slate-300);border-radius:.35rem;background:var(--input-background);color:var(--navy-900);font-size:12px;font-weight:650;}
+.workspace-material-dialog button:disabled {opacity:.5;cursor:not-allowed;}
+.workspace-material-dialog button:focus-visible,.workspace-material-dialog input:focus-visible {outline:2px solid var(--focus-ring);outline-offset:2px;}
+.workspace-material-actions {display:flex;flex-wrap:wrap;gap:.4rem;padding:.55rem 0;}
+.workspace-material-dialog .workspace-material-danger {border-color:#b66c6c;color:#a52a2a;background:var(--input-background);}
+.workspace-material-items {max-height:min(45dvh,410px);overflow:auto;border:1px solid var(--slate-300);border-radius:.35rem;}
+.workspace-material-items label {display:flex;align-items:start;gap:.6rem;padding:.5rem .7rem;border-bottom:1px solid var(--slate-300);cursor:pointer;overflow-wrap:anywhere;}
+.workspace-material-items label:last-child {border-bottom:0;}
+.workspace-material-items label span {display:flex;flex-direction:column;gap:.1rem;min-width:0;}
+.workspace-material-items strong {font-size:12px;font-weight:650;}
+.workspace-material-items small {font-size:11px;color:var(--slate-600);}
+.workspace-material-items>p {padding:.4rem .7rem;}
+.workspace-material-status {margin:.65rem 0 0;}
+:root[data-workspace-theme="dark"] .workspace-material-dialog .workspace-material-danger {color:#ffb8b8;border-color:#905f5f;background:#292323;}

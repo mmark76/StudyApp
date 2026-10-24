@@ -6,10 +6,10 @@
  */
 .workspace-beta-shell,
 .workspace-panel-embed-shell {
-  --workspace-type-micro: 0.6rem;
-  --workspace-type-small: 0.72rem;
-  --workspace-type-body: 0.8rem;
-  --workspace-type-heading: 0.96rem;
+  --workspace-type-micro: 10px;
+  --workspace-type-small: 12px;
+  --workspace-type-body: 13px;
+  --workspace-type-heading: 15px;
 }
 
 /* Parent workspace shell and header. */

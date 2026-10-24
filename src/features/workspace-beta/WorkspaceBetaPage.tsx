@@ -14,6 +14,7 @@ import { getStudyAppAssistantUrl } from "../assistant/assistantDestination";
 import { useAppearanceSettings } from "../appearance/useAppearanceSettings";
 import { WorkspaceThemeToggle } from "./WorkspaceThemeToggle";
 import { StudyAppVersionedZipLink } from "./StudyAppVersionedZipLink";
+import { WorkspaceMaterialManager } from "./WorkspaceMaterialManager";
 import "../../styles/workspaceBetaInfo.css";
 
 type WorkspacePanelId = "sources" | "knowledge" | "practice" | "ai";
@@ -115,6 +116,7 @@ export function WorkspaceBetaPage() {
   const [panelWeights, setPanelWeights] = useState<PanelWidths | null>(null);
   const [activeDivider, setActiveDivider] = useState<WorkspaceDivider | null>(null);
   const [infoModalRoute, setInfoModalRoute] = useState<WorkspaceInfoRoute | null>(null);
+  const [materialPanel, setMaterialPanel] = useState<WorkspacePanelId | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const resizeDragRef = useRef<ResizeDragState | null>(null);
   const modalReturnFocusRef = useRef<HTMLElement | null>(null);
@@ -598,6 +600,7 @@ export function WorkspaceBetaPage() {
                 <h2 id="workspace-sources-title">{text("Sources & Materials", "Πηγές & Υλικό")}</h2>
               </div>
               <div className="workspace-beta-panel-tools">
+                <button type="button" onClick={() => setMaterialPanel("sources")}>{text("Manage / Delete","Διαχείριση / Διαγραφή")}</button>
                 <button onClick={() => resetPanel("sources")} type="button">
                   {text("Go to Sources & Materials home", "Μετάβαση στην αρχική Πηγών & Υλικού")}
                 </button>
@@ -631,6 +634,7 @@ export function WorkspaceBetaPage() {
                 <h2 id="workspace-knowledge-title">{text("Core Knowledge", "Βασική Γνώση")}</h2>
               </div>
               <div className="workspace-beta-panel-tools">
+                <button type="button" onClick={() => setMaterialPanel("knowledge")}>{text("Manage / Delete","Διαχείριση / Διαγραφή")}</button>
                 <button onClick={() => resetPanel("knowledge")} type="button">
                   {text("Go to Core Knowledge home", "Μετάβαση στην αρχική Βασικής Γνώσης")}
                 </button>
@@ -664,6 +668,7 @@ export function WorkspaceBetaPage() {
                 <h2 id="workspace-practice-title">{text("Practice & Mastery", "Εξάσκηση & Εμπέδωση")}</h2>
               </div>
               <div className="workspace-beta-panel-tools">
+                <button type="button" onClick={() => setMaterialPanel("practice")}>{text("Manage / Delete","Διαχείριση / Διαγραφή")}</button>
                 <button onClick={() => resetPanel("practice")} type="button">
                   {text("Go to Practice & Mastery home", "Μετάβαση στην αρχική Εξάσκησης & Εμπέδωσης")}
                 </button>
@@ -697,6 +702,7 @@ export function WorkspaceBetaPage() {
                 <h2 id="workspace-studio-title">AI Studio</h2>
               </div>
               <div className="workspace-beta-panel-tools">
+                <button type="button" onClick={() => setMaterialPanel("ai")}>{text("Manage / Delete","Διαχείριση / Διαγραφή")}</button>
                 <button onClick={() => resetPanel("ai")} type="button">
                   {text("Go to AI options", "Μετάβαση στις επιλογές AI")}
                 </button>
@@ -727,6 +733,7 @@ export function WorkspaceBetaPage() {
         </div>
       </main>
 
+      {materialPanel ? <WorkspaceMaterialManager panel={materialPanel} onClose={() => setMaterialPanel(null)} /> : null}
       {infoModalRoute ? (
         <div
           className="workspace-beta-info-modal-backdrop"
