@@ -4,7 +4,8 @@ import { studyConfig } from "../../app/studyConfig";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { LanguageSwitcher } from "../../shared/components/LanguageSwitcher";
 import { PwaUpdateToast } from "../../shared/components/PwaUpdateToast";
-import { studyAppSourceArchiveUrl, WorkspaceBetaPage } from "./WorkspaceBetaPage";
+import { WorkspaceBetaPage } from "./WorkspaceBetaPage";
+import { StudyAppVersionedZipLink } from "./StudyAppVersionedZipLink";
 
 type MobilePanel = "sources" | "knowledge" | "practice" | "ai";
 
@@ -63,14 +64,7 @@ export function WorkspaceBetaResponsivePage() {
                 >
                   {text("Back to markellosecosystem", "Πίσω στο markellosecosystem")}
                 </a>
-                <a
-                  href={studyAppSourceArchiveUrl}
-                  onClick={closeMenu}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  {text("Download StudyApp ZIP", "Λήψη ZIP του StudyApp")}
-                </a>
+                <StudyAppVersionedZipLink onClick={closeMenu} />
                 <button
                   onClick={() => activateWorkspaceControl(
                     ".workspace-beta-functional-shell .workspace-beta-header .workspace-beta-theme-toggle",
