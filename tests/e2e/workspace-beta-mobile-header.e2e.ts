@@ -10,7 +10,8 @@ async function expectNoRouterError(page: Page) {
 test("Workspace BETA mobile shell is compact and shows one panel at a time", async ({ page }) => {
   for (const width of mobileWidths) {
     await page.setViewportSize({ width, height: 800 });
-    await page.goto("/#/workspace-beta");
+    await page.route("https://api.github.com/repos/mmark76/StudyApp/releases/latest", route => route.fulfill({ status: 404, body: "{}" }));
+  await page.goto("/#/workspace-beta");
 
     const mobileHeader = page.locator(".workspace-beta-mobile-header");
     const desktopHeader = page.locator(".workspace-beta-functional-shell > .workspace-beta-header");
@@ -62,6 +63,7 @@ test("Workspace BETA mobile shell is compact and shows one panel at a time", asy
 
 test("Workspace BETA mobile menu keeps navigation and modal actions valid", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.route("https://api.github.com/repos/mmark76/StudyApp/releases/latest", route => route.fulfill({ status: 404, body: "{}" }));
   await page.goto("/#/workspace-beta");
 
   const menu = page.locator(".workspace-beta-mobile-menu");
@@ -72,13 +74,11 @@ test("Workspace BETA mobile menu keeps navigation and modal actions valid", asyn
 
   const standardVersion = menu.getByRole("link", { name: /Back to Standard Version|Επιστροφή στην κανονική έκδοση/u });
   const ecosystem = menu.getByRole("link", { name: /Back to markellosecosystem|Πίσω στο markellosecosystem/u });
-  const sourceArchive = menu.getByRole("link", { name: /Download StudyApp ZIP|Λήψη ZIP του StudyApp/u });
+  const sourceArchive = menu.getByText(/Versioned ZIP not available yet/u);
   await expect(standardVersion).toHaveAttribute("href", "#/");
   await expect(ecosystem).toHaveAttribute("href", "https://markellosecosystem.com/");
   await expect(ecosystem).toHaveAttribute("target", "_blank");
-  await expect(sourceArchive).toHaveAttribute("href", "https://github.com/mmark76/StudyApp/archive/refs/heads/main.zip");
-  await expect(sourceArchive).toHaveAttribute("rel", "noopener noreferrer");
-  await expect(sourceArchive).toHaveAttribute("target", "_blank");
+  await expect(sourceArchive).toBeVisible();
 
   const beforeTheme = await page.locator("html").getAttribute("data-workspace-theme");
   await menu.getByRole("button", { name: /Theme|Θέμα/u }).click();
@@ -101,15 +101,14 @@ test("Workspace BETA mobile menu keeps navigation and modal actions valid", asyn
 
 test("Workspace BETA desktop keeps the existing four-panel header and layout", async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
+  await page.route("https://api.github.com/repos/mmark76/StudyApp/releases/latest", route => route.fulfill({ status: 404, body: "{}" }));
   await page.goto("/#/workspace-beta");
 
   await expect(page.locator(".workspace-beta-mobile-header")).toBeHidden();
   await expect(page.locator(".workspace-beta-mobile-panel-tabs")).toBeHidden();
   await expect(page.locator(".workspace-beta-functional-shell > .workspace-beta-header")).toBeVisible();
-  const sourceArchive = page.getByRole("link", { name: /Download StudyApp ZIP|Λήψη ZIP του StudyApp/u });
-  await expect(sourceArchive).toHaveAttribute("href", "https://github.com/mmark76/StudyApp/archive/refs/heads/main.zip");
-  await expect(sourceArchive).toHaveAttribute("rel", "noopener noreferrer");
-  await expect(sourceArchive).toHaveAttribute("target", "_blank");
+  const sourceArchive = page.locator(".workspace-beta-functional-shell > .workspace-beta-header").getByText(/Versioned ZIP not available yet/u);
+  await expect(sourceArchive).toBeVisible();
 
   const panels = page.locator(".workspace-beta-functional-panel");
   await expect(panels).toHaveCount(4);
