@@ -99,9 +99,9 @@
   .workspace-beta-panel-knowledge,
   .workspace-beta-panel-practice
 ) .workspace-beta-functional-panel-header {
-  height: 120px;
-  min-height: 120px;
-  max-height: 120px;
+  height: 96px;
+  min-height: 96px;
+  max-height: 96px;
   box-sizing: border-box;
   flex-direction: column;
   align-items: stretch;
