@@ -1,12 +1,5 @@
-[CmdletBinding()]
-param(
-    [Parameter(Mandatory)]
-    [ValidateNotNullOrEmpty()]
-    [string]$InstallRoot
-)
-
 $ErrorActionPreference = "Stop"
-$resolvedRoot = (Resolve-Path -LiteralPath $InstallRoot).Path.TrimEnd("\\")
+$resolvedRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
 $handler = Join-Path $resolvedRoot "local-companion\studyapp-local-protocol.ps1"
 
 if (-not (Test-Path -LiteralPath $handler -PathType Leaf)) {
