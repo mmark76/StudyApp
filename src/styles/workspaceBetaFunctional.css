@@ -185,6 +185,16 @@
   touch-action: none;
 }
 
+.workspace-beta-resizer.is-locked {
+  cursor: default;
+  pointer-events: none;
+  touch-action: auto;
+}
+
+.workspace-beta-resizer.is-locked::after {
+  display: none;
+}
+
 .workspace-beta-resizer::before {
   content: "";
   position: absolute;
