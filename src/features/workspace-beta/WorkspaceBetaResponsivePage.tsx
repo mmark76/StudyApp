@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import { studyConfig } from "../../app/studyConfig";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { LanguageSwitcher } from "../../shared/components/LanguageSwitcher";
@@ -53,9 +52,6 @@ export function WorkspaceBetaResponsivePage() {
             </summary>
             <div className="workspace-beta-mobile-menu-popover">
               <nav aria-label={text("Workspace menu", "Μενού χώρου εργασίας")}>
-                <Link onClick={closeMenu} to="/">
-                  {text("Back to Standard Version", "Επιστροφή στην κανονική έκδοση")}
-                </Link>
                 <a
                   href="https://markellosecosystem.com/"
                   onClick={closeMenu}

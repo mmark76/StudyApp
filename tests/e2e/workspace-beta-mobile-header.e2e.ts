@@ -72,10 +72,9 @@ test("Workspace BETA mobile menu keeps navigation and modal actions valid", asyn
   await summary.click();
   await expect(page.locator(".workspace-beta-mobile-menu-popover")).toBeVisible();
 
-  const standardVersion = menu.getByRole("link", { name: /Back to Standard Version|Επιστροφή στην κανονική έκδοση/u });
   const ecosystem = menu.getByRole("link", { name: /Back to markellosecosystem|Πίσω στο markellosecosystem/u });
   const sourceArchive = menu.getByText(/Versioned ZIP not available yet/u);
-  await expect(standardVersion).toHaveAttribute("href", "#/");
+  await expect(menu.getByRole("link", { name: /Back to Standard Version|Επιστροφή στην κανονική έκδοση/u })).toHaveCount(0);
   await expect(ecosystem).toHaveAttribute("href", "https://markellosecosystem.com/");
   await expect(ecosystem).toHaveAttribute("target", "_blank");
   await expect(sourceArchive).toBeVisible();

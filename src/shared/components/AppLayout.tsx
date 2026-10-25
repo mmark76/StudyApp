@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   Link,
+  Navigate,
   NavLink,
   Outlet,
   useLocation,
@@ -77,6 +78,8 @@ export function AppLayout() {
   const mainRef = useRef<HTMLElement>(null);
   const hasHandledInitialRouteRef = useRef(false);
   const embeddedInWorkspace = isWorkspacePanelFrame();
+  const isLegalPage = location.pathname.startsWith("/legal/");
+  const isHistoricalE2EMode = import.meta.env.MODE === "e2e";
 
   function focusMainContent() {
     mainRef.current?.focus();
@@ -119,7 +122,11 @@ export function AppLayout() {
       ? "assistant-service-dot-unavailable"
       : "assistant-service-dot-checking";
 
-  if (embeddedInWorkspace) {
+  if (!embeddedInWorkspace && !isLegalPage && !isHistoricalE2EMode) {
+    return <Navigate replace to="/workspace-beta" />;
+  }
+
+  if (embeddedInWorkspace || isLegalPage) {
     return (
       <div className="workspace-panel-embed-shell">
         <main

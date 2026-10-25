@@ -66,8 +66,9 @@ The current and future boundary is defined in
 
 ## Next roadmap phase
 
-Future work should proceed through separate, focused branches and PRs. The stable
-UI baseline should remain recoverable while experiments are evaluated.
+Future work should proceed through separate, focused branches and PRs. The
+former Standard UI remains recoverable in Git as historical reference. Workspace
+BETA is the sole user-facing application.
 
 ### Track A — Local-first reliability
 
@@ -122,10 +123,12 @@ Real billing is a separate high-risk workstream. It requires:
 - receipts, taxes, refunds, disputes, account recovery, and device transfer;
 - security and privacy review plus browser-to-service integration tests.
 
-### Track E — Workspace BETA UX experiment
+### Track E — Workspace BETA active experience
 
-Workspace BETA is the next distinct UI/UX experiment. It should not be built by
-rewriting the stable shell in place.
+The owner selected Workspace BETA as the sole user-facing experience on
+2026-10-25. The former Standard shell remains in Git as historical reference;
+normal builds open BETA and redirect legacy Standard routes. BETA continues
+using the existing IndexedDB database without migration or data loss.
 
 #### Phase E1 — UI/UX prototype only
 
@@ -171,11 +174,10 @@ Historical release documents such as `RELEASE_NOTES_v1.md`,
 `RELEASE_CHECKLIST.md`, and `AUDIT.md` may preserve the facts and scope of the v1
 release gate. Living documents must describe current `main` and distinguish:
 
-1. the released local-first workflow;
-2. the stable Sources / Practice / AI Studio information architecture;
+1. the released local-first workflow in the active Workspace BETA experience;
+2. the Sources / Practice / AI Studio information architecture;
 3. the current external StudyApp AI Assistant handoff;
-4. Workspace BETA as a separate experiment;
-5. planned production cloud-assisted capabilities.
+4. planned production cloud-assisted capabilities.
 
 ## Work selection rule
 

@@ -67,11 +67,11 @@ The initial concept is broadly:
 Sources | Workspace / Practice | AI Studio
 ```
 
-The first beta should validate the interaction model before connecting the
-panels. It should start as a UI/UX prototype with no automatic source transfer,
-new persistence, data-model migration, MCP or remote AI activation. The stable
-StudyApp remains the reference experience until the owner explicitly approves a
-replacement.
+The initial beta validated the interaction model before connecting the panels.
+On 2026-10-25, the owner approved Workspace BETA as the sole user-facing
+experience. The former Standard shell remains in the repository as historical
+reference. BETA continues using the existing local-first data model; this
+transition does not introduce database migration, copying or deletion.
 
 If the multi-panel model is retained, its purpose is to reduce navigation and
 keep source context, learning actions and generated outputs close together — not
@@ -135,4 +135,4 @@ hidden cloud storage or make payment decisions without confirmation.
 - no silent or duplicate charge;
 - provider secrets remain server-side;
 - technical complexity stays out of the main user flow;
-- experimental UI must prove its value before replacing the stable experience.
+- changes to the active Workspace BETA experience require focused review and owner approval for material product decisions.
