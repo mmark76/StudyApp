@@ -189,6 +189,18 @@
   box-shadow: none;
 }
 
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .local-chatgpt-plan-card {
+  border-color: #277c73;
+  background: #1d2927;
+  color: #deded9;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .local-chatgpt-plan-answer {
+  border-color: #277c73;
+  background: #20201f;
+  color: #deded9;
+}
+
 :root[data-workspace-theme="dark"] .workspace-panel-embed-main .dashboard-action-card {
   border-color: #41413d;
   background: #20201f;
