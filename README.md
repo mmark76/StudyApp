@@ -104,12 +104,15 @@ The available StudyApp AI Assistant link:
 ### StudyApp Local ChatGPT plan connection — optional Windows Local edition
 
 The separately started **StudyApp Local** edition can connect an eligible
-ChatGPT account after a browser approval. It does not request an API key or use
-StudyApp credits. The encrypted connection is scoped to the current Windows
+ChatGPT account after a browser approval. Eligible questions use the user's
+ChatGPT subscription or available ChatGPT credits; they do not use an API key
+or StudyApp credits. The encrypted connection is scoped to the current Windows
 user. StudyApp Local sends only a question the user explicitly submits; it does
 not automatically inspect, read, include or upload Library/IndexedDB material.
 Responses use `store: false` and remain only in the open Local page session.
-Disconnect removes the protected local connection record.
+When connected, its Workspace AI Studio panel becomes a transient conversation
+surface with a bottom composer; the browser/PWA package does not include that
+in-app conversation. Disconnect removes the protected local connection record.
 
 Each compatible release provides two separate downloads:
 

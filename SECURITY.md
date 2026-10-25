@@ -20,6 +20,13 @@ with DPAPI and sends only an explicitly submitted question. It neither receives
 nor automatically reads Library/IndexedDB material. No PWA real AI request,
 credit purchase or charge is enabled.
 
+When that local connection is ready, the Workspace AI Studio panel may show a
+transient conversation surface in place of its informational local iframe. This
+surface exists only at the StudyApp Local loopback origin, keeps messages in the
+active React page state, renders answers as plain text, and uses the same
+explicit-question, `store: false` companion request. It is not available in the
+browser/PWA edition and cannot access study data automatically.
+
 The bilingual AI options comparison page is static local presentation. It
 compares the current and planned modes but does not activate a remote mode,
 inspect local study data, call an AI provider or change account or charging

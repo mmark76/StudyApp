@@ -134,8 +134,8 @@ export function LocalChatGptPlanPage() {
           <p className="eyebrow">StudyApp Local</p>
           <h2>{text("Use your ChatGPT plan", "Χρήση του πλάνου ChatGPT")}</h2>
           <p>{text(
-            "An optional local connection for StudyApp Local. It uses your own eligible ChatGPT plan, not an API key or StudyApp credits.",
-            "Προαιρετική τοπική σύνδεση για το StudyApp Local. Χρησιμοποιεί το δικό σου επιλέξιμο πλάνο ChatGPT, όχι API key ή credits του StudyApp.",
+            "An optional local connection for StudyApp Local. It uses your eligible ChatGPT subscription or available ChatGPT credits, not an API key or StudyApp credits.",
+            "Προαιρετική τοπική σύνδεση για το StudyApp Local. Χρησιμοποιεί το επιλέξιμο ChatGPT subscription ή τα διαθέσιμα ChatGPT credits σου, όχι API key ή credits του StudyApp.",
           )}</p>
           <div className="button-row">
             <Link className="button secondary" to="/ai-assistant-guide">{text("Back to AI Assistant", "Πίσω στον Βοηθό AI")}</Link>
@@ -179,8 +179,8 @@ export function LocalChatGptPlanPage() {
                 "Το ChatGPT είναι συνδεδεμένο, αλλά δεν εγκρίθηκε η χρήση του πλάνου. Αποσυνδέσου και συνδέσου ξανά για να εγκρίνεις τη χρήση του πλάνου.",
               )
               : text(
-                "Connect opens ChatGPT in your browser for approval. StudyApp stores the protected connection only for your current Windows user. It never reads or sends library material automatically.",
-                "Η Σύνδεση ανοίγει το ChatGPT στον browser για έγκριση. Το StudyApp αποθηκεύει την προστατευμένη σύνδεση μόνο για τον τρέχοντα χρήστη Windows. Δεν διαβάζει ή στέλνει αυτόματα υλικό βιβλιοθήκης.",
+                "Connect opens ChatGPT in your browser for approval. AI questions require an eligible ChatGPT subscription or available ChatGPT credits. StudyApp stores the protected connection only for your current Windows user and never reads or sends library material automatically.",
+                "Η Σύνδεση ανοίγει το ChatGPT στον browser για έγκριση. Οι ερωτήσεις AI απαιτούν επιλέξιμο ChatGPT subscription ή διαθέσιμα ChatGPT credits. Το StudyApp αποθηκεύει την προστατευμένη σύνδεση μόνο για τον τρέχοντα χρήστη Windows και δεν διαβάζει ή στέλνει αυτόματα υλικό βιβλιοθήκης.",
               )}</p>
           <div className="button-row">
             {connected ? (

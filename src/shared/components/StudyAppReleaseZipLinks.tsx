@@ -39,11 +39,13 @@ function VersionedReleaseZipLink({
   onClick,
   label,
   unavailableLabel,
+  className,
 }: {
   findAsset: (value: unknown) => ReleaseZip | null;
   onClick?: () => void;
   label: (tag: string) => string;
   unavailableLabel: string;
+  className?: string;
 }) {
   const { text } = useLanguage();
   const [release, setRelease] = useState<ReleaseZip | null>(null);
@@ -73,7 +75,7 @@ function VersionedReleaseZipLink({
 
   if (release && state === "available") {
     return (
-      <a href={release.url} onClick={onClick} rel="noopener noreferrer" target="_blank"
+      <a className={className} href={release.url} onClick={onClick} rel="noopener noreferrer" target="_blank"
         title={text(`Download verified StudyApp ZIP ${release.tag}`, `Λήψη επίσημου ZIP StudyApp ${release.tag}`)}>
         {label(release.tag)}
       </a>
@@ -81,7 +83,7 @@ function VersionedReleaseZipLink({
   }
 
   return (
-    <span aria-live="polite" title={text(
+    <span aria-live="polite" className={className} title={text(
       state === "checking" ? "Checking GitHub Releases" : "No official versioned ZIP has been published or the release is temporarily unreachable",
       state === "checking" ? "Έλεγχος εκδόσεων GitHub" : "Δεν υπάρχει ακόμη επίσημο ZIP ή δεν είναι προσωρινά προσβάσιμο",
     )}>
@@ -104,14 +106,27 @@ export function StudyAppVersionedZipLink({ onClick }: { onClick?: () => void }) 
   );
 }
 
-export function StudyAppLocalWindowsZipLink({ onClick }: { onClick?: () => void }) {
+export function StudyAppLocalWindowsZipLink({
+  onClick,
+  className,
+  compact = false,
+}: {
+  onClick?: () => void;
+  className?: string;
+  compact?: boolean;
+}) {
   const { text } = useLanguage();
   return (
     <VersionedReleaseZipLink
       findAsset={findStudyAppLocalWindowsZip}
       onClick={onClick}
-      label={(tag) => text(`Download StudyApp Local (${tag})`, `Λήψη StudyApp Local (${tag})`)}
-      unavailableLabel={text("StudyApp Local download not available yet", "Το StudyApp Local δεν είναι ακόμη διαθέσιμο για λήψη")}
+      className={className}
+      label={(tag) => compact
+        ? text(`Download Local Portable ZIP (${tag})`, `Λήψη τοπικού φορητού ZIP (${tag})`)
+        : text(`Download StudyApp Local (${tag})`, `Λήψη StudyApp Local (${tag})`)}
+      unavailableLabel={compact
+        ? text("Local Portable ZIP not available yet", "Το τοπικό φορητό ZIP δεν είναι ακόμη διαθέσιμο")
+        : text("StudyApp Local download not available yet", "Το StudyApp Local δεν είναι ακόμη διαθέσιμο για λήψη")}
     />
   );
 }
