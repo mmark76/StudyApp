@@ -1,21 +1,29 @@
 /*
- * Keep Workspace action controls compact while preserving their font size.
- * Applied in the shell and its embedded panels.
+ * Keep Workspace action controls visually consistent across the shell and
+ * embedded panels while preserving the page's content typography hierarchy.
  */
 .workspace-beta-functional-shell :is(
   button:not(.workspace-beta-resizer),
   .workspace-beta-ai-launch-row a,
   .workspace-beta-standard-version,
-  .workspace-beta-info-menu > summary
+  .workspace-beta-info-menu > summary,
+  .workspace-beta-header-actions > a
 ),
 .workspace-panel-embed-main :is(
-  button,
+  button:not(.core-knowledge-chapter-button),
   a.button,
   [role="button"],
   summary
 ) {
   box-sizing: border-box;
-  min-height: 2rem !important;
-  padding-block: 0.2rem !important;
+  min-height: 1.6rem !important;
+  padding-block: 0.1rem !important;
+  border-radius: 0.36rem !important;
+  font-size: 0.8rem !important;
   line-height: 1.2;
+}
+
+.workspace-beta-functional-shell .workspace-beta-header-left > *,
+.workspace-beta-functional-shell .workspace-beta-header-actions > * {
+  align-self: center;
 }
