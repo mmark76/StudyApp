@@ -243,6 +243,22 @@
   color: #b8b8b1;
 }
 
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .local-chatgpt-plan-open-local-link {
+  border-color: #5a886b;
+  background: #42644f;
+  color: #fff;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .local-chatgpt-plan-open-local-link:hover {
+  border-color: #76a98b;
+  background: #4e775d;
+  color: #fff;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .local-chatgpt-plan-open-local > span {
+  color: #b8b8b1;
+}
+
 :root[data-workspace-theme="dark"] .workspace-panel-embed-main .local-file-row {
   border-bottom-color: #41413d;
 }

@@ -23,6 +23,8 @@ export class LocalCompanionError extends Error {
 const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost"]);
 const STUDYAPP_LOCAL_PORT = "8766";
 
+export const STUDYAPP_LOCAL_PROTOCOL_URL = "studyapp-local://open";
+
 export function isStudyAppLocalEdition(
   locationValue?: Pick<Location, "hostname" | "port" | "protocol">,
 ): boolean {

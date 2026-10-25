@@ -61,5 +61,8 @@ jobs:
           test -f "$RUNNER_TEMP/StudyApp-Local-Windows/dist/index.html"
           test -f "$RUNNER_TEMP/StudyApp-Local-Windows/local-companion/server.py"
           test -f "$RUNNER_TEMP/StudyApp-Local-Windows/Start StudyApp Local.bat"
+          test -f "$RUNNER_TEMP/StudyApp-Local-Windows/Install StudyApp Local Launcher.bat"
+          test -f "$RUNNER_TEMP/StudyApp-Local-Windows/Uninstall StudyApp Local Launcher.bat"
+          test -f "$RUNNER_TEMP/StudyApp-Local-Windows/local-companion/studyapp-local-protocol.ps1"
           test ! -e "$RUNNER_TEMP/StudyApp-Local-Windows/local-companion/.chatgpt-plan-venv"
           test ! -e "$RUNNER_TEMP/StudyApp-Local-Windows/local-companion/Start-StudyApp-Local.bat"

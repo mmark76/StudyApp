@@ -381,6 +381,42 @@
   line-height: 1.35;
 }
 
+.workspace-panel-embed-main .local-chatgpt-plan-open-local {
+  display: grid;
+  justify-items: start;
+  gap: 0.16rem;
+  margin-top: 0.55rem;
+}
+
+.workspace-panel-embed-main .local-chatgpt-plan-open-local-link {
+  display: inline-flex;
+  min-height: 1.78rem;
+  box-sizing: border-box;
+  align-items: center;
+  padding: 0.22rem 0.52rem;
+  border: 1px solid #456655;
+  border-radius: 0.34rem;
+  background: #42644f;
+  color: #fff;
+  font-size: var(--workspace-type-small);
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.workspace-panel-embed-main .local-chatgpt-plan-open-local-link:hover {
+  border-color: #2d513e;
+  background: #355f47;
+  color: #fff;
+  text-decoration: none;
+}
+
+.workspace-panel-embed-main .local-chatgpt-plan-open-local > span {
+  color: #6d6d67;
+  font-size: var(--workspace-type-micro);
+  line-height: 1.35;
+}
+
 @media (max-width: 640px) {
   .workspace-panel-embed-main .learning-stage-grid.learn-tools-grid > .learning-stage-card {
     grid-template-columns: 1.1rem minmax(0, 1fr) auto;

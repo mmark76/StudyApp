@@ -10,8 +10,12 @@ describe("StudyApp Local release package", () => {
     expect(packageScript).toContain(".chatgpt-plan-venv");
     expect(packageScript).toContain("Start StudyApp Local.bat");
     expect(packageScript).toContain("Stop StudyApp Local.bat");
+    expect(packageScript).toContain("Install StudyApp Local Launcher.bat");
+    expect(packageScript).toContain("Uninstall StudyApp Local Launcher.bat");
+    expect(packageScript).toContain("studyapp-local-protocol.ps1");
     expect(packageScript).toContain('name !== "Start-StudyApp-Local.bat"');
     expect(ciWorkflow).toContain("Verify StudyApp Local package");
+    expect(ciWorkflow).toContain("Install StudyApp Local Launcher.bat");
     expect(releaseWorkflow).toContain("StudyApp-Local-Windows-v$RELEASE_VERSION.zip");
   });
 });

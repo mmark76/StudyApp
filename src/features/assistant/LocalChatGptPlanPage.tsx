@@ -10,6 +10,7 @@ import {
   prepareChatGptPlanConnection,
   removeChatGptPlanConnection,
   startChatGptPlanConnection,
+  STUDYAPP_LOCAL_PROTOCOL_URL,
   type ChatGptPlanConnectionStatus,
 } from "../../infrastructure/local-companion/localCompanionClient";
 
@@ -156,6 +157,13 @@ export function LocalChatGptPlanPage() {
             <span>{text(
               "Windows Local + optional ChatGPT connection",
               "Windows Local + προαιρετική σύνδεση ChatGPT",
+            )}</span>
+          </div>
+          <div className="local-chatgpt-plan-open-local">
+            <a className="local-chatgpt-plan-open-local-link" href={STUDYAPP_LOCAL_PROTOCOL_URL}>{text("Open StudyApp Local", "Άνοιγμα StudyApp Local")}</a>
+            <span>{text(
+              "After one-time launcher setup, this safely restarts and opens your Local app. Your connection stays on this Windows device.",
+              "Με μία εγκατάσταση του launcher, επανεκκινεί με ασφάλεια και ανοίγει το Local app. Η σύνδεσή σου παραμένει σε αυτή τη συσκευή Windows.",
             )}</span>
           </div>
         </section>

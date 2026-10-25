@@ -4,7 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LocalChatGptPlanPage } from "../src/features/assistant/LocalChatGptPlanPage";
 import { WorkspaceLocalChat } from "../src/features/workspace-beta/WorkspaceLocalChat";
-import { isStudyAppLocalEdition } from "../src/infrastructure/local-companion/localCompanionClient";
+import { isStudyAppLocalEdition, STUDYAPP_LOCAL_PROTOCOL_URL } from "../src/infrastructure/local-companion/localCompanionClient";
 
 describe("StudyApp Local companion boundary", () => {
   it("allows its connection controls only on the StudyApp Local loopback origin", () => {
@@ -24,6 +24,8 @@ describe("StudyApp Local page", () => {
 
     expect(markup).toContain("Available in StudyApp Local");
     expect(markup).toContain("external-link flow");
+    expect(markup).toContain(`href="${STUDYAPP_LOCAL_PROTOCOL_URL}"`);
+    expect(markup).toContain("Open StudyApp Local");
     expect(markup).not.toContain("local-chatgpt-plan-question");
     expect(markup).not.toContain("Connect with ChatGPT");
   });
