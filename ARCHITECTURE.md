@@ -50,8 +50,9 @@ Sources | Core Knowledge | Practice | AI Studio
 ```
 
 The default desktop proportions are 25/28/25/22 and adjacent panels can be
-resized. Sources, Core Knowledge and Practice keep a fixed-height, three-row
-header while their panel widths change. On narrow/mobile viewports below 760px the responsive shell changes to
+resized. The Sources, Core Knowledge and Practice headers fit their three
+rows without changing height as panel widths change. On narrow/mobile
+viewports below 760px the responsive shell changes to
 single-panel navigation: Sources, Knowledge, Practice and AI are activated one
 at a time instead of keeping a horizontally scrolling four-panel canvas.
 
@@ -420,7 +421,7 @@ Assistant coverage includes:
 Workspace BETA browser coverage includes:
 
 - independent functional desktop panels and default 25/28/25/22 proportions;
-- three-row fixed headers for Sources, Core Knowledge and Practice while resizing;
+- three-row Sources, Core Knowledge and Practice headers retain the same height while resizing;
 - divider resizing and reset;
 - wheel scrolling and pointer/focus behavior;
 - compact Core Knowledge, Sources and AI presentation;

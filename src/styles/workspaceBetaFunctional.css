@@ -99,15 +99,14 @@
   .workspace-beta-panel-knowledge,
   .workspace-beta-panel-practice
 ) .workspace-beta-functional-panel-header {
-  height: 96px;
-  min-height: 96px;
-  max-height: 96px;
+  height: auto;
+  min-height: 0;
+  max-height: none;
   box-sizing: border-box;
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
   gap: 0.4rem;
-  overflow: hidden;
 }
 
 .workspace-beta-functional-shell :is(
