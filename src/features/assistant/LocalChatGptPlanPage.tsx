@@ -151,8 +151,12 @@ export function LocalChatGptPlanPage() {
             "This web/PWA edition keeps the current private external-link flow. The separate Windows Local package is required before you can connect a ChatGPT account on this device.",
             "Η web/PWA έκδοση διατηρεί την υπάρχουσα ιδιωτική ροή εξωτερικού συνδέσμου. Απαιτείται το ξεχωριστό Windows Local package πριν συνδέσεις λογαριασμό ChatGPT σε αυτή τη συσκευή.",
           )}</p>
-          <div className="button-row">
-            <StudyAppLocalWindowsZipLink />
+          <div className="local-chatgpt-plan-download">
+            <StudyAppLocalWindowsZipLink className="local-chatgpt-plan-download-link" compact />
+            <span>{text(
+              "Windows Local + optional ChatGPT connection",
+              "Windows Local + προαιρετική σύνδεση ChatGPT",
+            )}</span>
           </div>
         </section>
       ) : (

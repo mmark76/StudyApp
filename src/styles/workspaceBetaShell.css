@@ -47,20 +47,27 @@
 }
 
 .workspace-beta-functional-shell .workspace-beta-local-download {
-  flex: none;
-  padding: 0.3rem 0.05rem;
-  color: #4b4b46;
-  font-size: 0.74rem;
-  font-weight: 650;
-  line-height: 1.2;
+  display: inline-flex;
+  min-height: 1.72rem;
+  box-sizing: border-box;
+  align-items: center;
+  padding: 0.22rem 0.5rem;
+  border: 1px solid #dca02b;
+  border-radius: 0.34rem;
+  background: #edb84b;
+  color: #201809;
+  font-size: var(--workspace-type-small, 0.8rem);
+  font-weight: 800;
+  line-height: 1;
   text-decoration: none;
   white-space: nowrap;
 }
 
 .workspace-beta-functional-shell .workspace-beta-local-download:hover {
-  color: #171715;
-  text-decoration: underline;
-  text-underline-offset: 0.25em;
+  border-color: #c78b1d;
+  background: #f4c65f;
+  color: #201809;
+  text-decoration: none;
 }
 
 .workspace-beta-badge {
@@ -1338,11 +1345,15 @@
 }
 
 :root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-local-download {
-  color: #d9d9d4;
+  border-color: #dca02b;
+  background: #edb84b;
+  color: #201809;
 }
 
 :root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-local-download:hover {
-  color: #f4f4f1;
+  border-color: #c78b1d;
+  background: #f4c65f;
+  color: #201809;
 }
 
 @media (max-width: 760px) {

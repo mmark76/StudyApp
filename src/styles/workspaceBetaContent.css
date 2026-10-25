@@ -325,6 +325,62 @@
   background: #fafaf8;
 }
 
+.workspace-panel-embed-main .local-chatgpt-plan-page .assistant-guide-note h3 {
+  margin-bottom: 0.22rem;
+  font-size: var(--workspace-type-body);
+}
+
+.workspace-panel-embed-main .local-chatgpt-plan-page .assistant-guide-hero h2 {
+  font-size: var(--workspace-type-heading);
+}
+
+.workspace-panel-embed-main .local-chatgpt-plan-page .assistant-guide-hero > div > p:not(.eyebrow) {
+  font-size: var(--workspace-type-support);
+  line-height: 1.4;
+}
+
+.workspace-panel-embed-main .local-chatgpt-plan-page .assistant-guide-note > p {
+  margin: 0;
+  font-size: var(--workspace-type-support);
+  line-height: 1.4;
+}
+
+.workspace-panel-embed-main .local-chatgpt-plan-download {
+  display: grid;
+  justify-items: start;
+  gap: 0.16rem;
+  margin-top: 0.55rem;
+}
+
+.workspace-panel-embed-main .local-chatgpt-plan-download-link {
+  display: inline-flex;
+  min-height: 1.78rem;
+  box-sizing: border-box;
+  align-items: center;
+  padding: 0.22rem 0.52rem;
+  border: 1px solid #dca02b;
+  border-radius: 0.34rem;
+  background: #edb84b;
+  color: #201809;
+  font-size: var(--workspace-type-small);
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.workspace-panel-embed-main .local-chatgpt-plan-download-link:hover {
+  border-color: #c78b1d;
+  background: #f4c65f;
+  color: #201809;
+  text-decoration: none;
+}
+
+.workspace-panel-embed-main .local-chatgpt-plan-download > span {
+  color: #6d6d67;
+  font-size: var(--workspace-type-micro);
+  line-height: 1.35;
+}
+
 @media (max-width: 640px) {
   .workspace-panel-embed-main .learning-stage-grid.learn-tools-grid > .learning-stage-card {
     grid-template-columns: 1.1rem minmax(0, 1fr) auto;

@@ -122,10 +122,10 @@ export function StudyAppLocalWindowsZipLink({
       onClick={onClick}
       className={className}
       label={(tag) => compact
-        ? text(`Download Local Portable ZIP (${tag})`, `Λήψη τοπικού φορητού ZIP (${tag})`)
+        ? text(`Download ${tag} ↓`, `Λήψη ${tag} ↓`)
         : text(`Download StudyApp Local (${tag})`, `Λήψη StudyApp Local (${tag})`)}
       unavailableLabel={compact
-        ? text("Local Portable ZIP not available yet", "Το τοπικό φορητό ZIP δεν είναι ακόμη διαθέσιμο")
+        ? text("Download not available yet", "Η λήψη δεν είναι ακόμη διαθέσιμη")
         : text("StudyApp Local download not available yet", "Το StudyApp Local δεν είναι ακόμη διαθέσιμο για λήψη")}
     />
   );

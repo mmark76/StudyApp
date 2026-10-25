@@ -227,6 +227,22 @@
   color: #d4d4cf;
 }
 
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .local-chatgpt-plan-download-link {
+  border-color: #dca02b;
+  background: #edb84b;
+  color: #201809;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .local-chatgpt-plan-download-link:hover {
+  border-color: #c78b1d;
+  background: #f4c65f;
+  color: #201809;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .local-chatgpt-plan-download > span {
+  color: #b8b8b1;
+}
+
 :root[data-workspace-theme="dark"] .workspace-panel-embed-main .local-file-row {
   border-bottom-color: #41413d;
 }
