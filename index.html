@@ -8,7 +8,9 @@
     <title>Study App</title>
     <script>
       (() => {
-        if (!/^#\/(workspace-beta|sources|core-knowledge|learn|ai-assistant-guide|appearance|ai-assistant-comparison|instructions|important-info)(?:[/?]|$)/.test(window.location.hash)) return;
+        const isWorkspacePage = /^#\/workspace-beta(?:[/?]|$)/.test(window.location.hash);
+        const isWorkspaceFrame = window.name.startsWith("studyapp-workspace-");
+        if (!isWorkspacePage && !isWorkspaceFrame) return;
         try {
           if (window.localStorage.getItem("studyapp-workspace-theme") === "dark") {
             document.documentElement.dataset.workspaceTheme = "dark";
