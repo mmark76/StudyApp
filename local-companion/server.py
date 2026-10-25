@@ -182,7 +182,8 @@ def main() -> int:
     try:
         with StudyAppLocalServer((HOST, PORT), Handler) as server:
             print(f"StudyApp Local is running at http://{HOST}:{PORT}")
-            webbrowser.open(f"http://{HOST}:{PORT}")
+            if os.environ.get("STUDYAPP_LOCAL_SUPPRESS_BROWSER") != "1":
+                webbrowser.open(f"http://{HOST}:{PORT}")
             server.serve_forever()
     except OSError as error:
         if error.errno not in {errno.EADDRINUSE, 10048}:

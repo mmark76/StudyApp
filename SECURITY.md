@@ -20,6 +20,15 @@ with DPAPI and sends only an explicitly submitted question. It neither receives
 nor automatically reads Library/IndexedDB material. No PWA real AI request,
 credit purchase or charge is enabled.
 
+The optional `studyapp-local://open` Windows launcher is registered per user
+only after an explicit installer action. Its native handler accepts only the
+exact `studyapp-local://open` request, rejects parameters and alternate paths,
+and reuses the guarded stop script that refuses to stop a non-StudyApp process.
+It then starts the package-local loopback server and opens its Workspace URL.
+The browser/PWA cannot use this protocol to inspect Local connection status,
+credentials, study data, or arbitrary local files. The loopback Host/Origin
+checks remain unchanged.
+
 When that local connection is ready, the Workspace AI Studio panel may show a
 transient conversation surface in place of its informational local iframe. This
 surface exists only at the StudyApp Local loopback origin, keeps messages in the

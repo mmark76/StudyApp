@@ -16,6 +16,21 @@ If a previous StudyApp Local window still owns port 8766, run the adjacent
 `Stop StudyApp Local.bat` first. It stops only a process whose command line is
 the bundled StudyApp Local server; it refuses to stop an unrelated process.
 
+## Optional browser launcher
+
+After extracting the complete Windows package, run `Install StudyApp Local
+Launcher.bat` once. It registers `studyapp-local://open` for the current
+Windows user only and does not require administrator rights. The **Open
+StudyApp Local** action in the browser/PWA can then invoke the native handler.
+The handler accepts only that exact protocol request, uses the safe stop script
+for port 8766, starts this package's Local server, waits for its loopback
+listener, and opens Workspace BETA.
+
+Before moving or deleting the extracted package, run `Uninstall StudyApp Local
+Launcher.bat`. If you move the package, run the installer again from the new
+folder. The uninstaller refuses to remove a launcher registered by a different
+extracted package.
+
 ## Data boundary
 
 - no OpenAI API key is requested or stored;

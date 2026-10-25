@@ -77,6 +77,14 @@ It is a Local-only presentation of this same explicit-question flow; the
 browser/PWA keeps its external-link and informational presentation. Disconnect
 deletes the protected local connection record.
 
+The separately installed, per-user Windows launcher can register
+`studyapp-local://open`. The browser/PWA can offer this as an opening action,
+but it cannot use the protocol to query Local status or data. The handler
+accepts only the exact protocol request, safely stops only a verified StudyApp
+Local server, starts the packaged loopback application, waits for it, and opens
+Workspace. It does not alter the explicit-question requirement, the credential
+store, or the Local Host/Origin boundary.
+
 ### 3. ChatGPT App / MCP — coming soon
 
 The planned ChatGPT App will expose approved StudyApp tools through a remote MCP

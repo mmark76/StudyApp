@@ -125,6 +125,15 @@ Each compatible release provides two separate downloads:
   StudyApp Local server still owns that address, run `Stop StudyApp Local.bat`;
   it refuses to stop an unrelated process.
 
+  The package also includes `Install StudyApp Local Launcher.bat`. Run it once
+  after extraction to register `studyapp-local://open` for the current Windows
+  user, without administrator rights. The browser/PWA can then offer **Open
+  StudyApp Local**: the native handler accepts only that exact protocol request,
+  stops only the verified StudyApp Local process, starts the bundled Local app
+  and opens its Workspace. Before moving or deleting the extracted folder, run
+  `Uninstall StudyApp Local Launcher.bat`; after moving it, run the installer
+  again from the new location.
+
 ### ChatGPT App / MCP — coming soon
 
 The planned ChatGPT App will connect ChatGPT with approved StudyApp tools through

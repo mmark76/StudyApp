@@ -35,6 +35,13 @@ loopback-only Windows companion keeps DPAPI-protected credentials outside the
 browser and sends only a user-submitted question with `store: false`. It never
 reads or includes Library/IndexedDB material automatically.
 
+Its optional per-user Windows launcher registers `studyapp-local://open`. The
+browser/PWA may invoke only that exact protocol URL; the native handler validates
+it, reuses the guarded local-server stop script, starts the packaged loopback
+server, and then opens its Workspace URL. The protocol is not a browser API,
+does not expose Local connection state, credentials, or data, and does not
+change the loopback Host/Origin checks.
+
 No PWA production AI request, real credit operation or payment is enabled.
 
 ## Workspace BETA boundary
