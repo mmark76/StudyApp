@@ -43,7 +43,7 @@ const workspaceInfoRoutes = new Set<WorkspaceInfoRoute>([
   "/instructions",
   "/important-info",
 ]);
-const defaultPanelWeights: PanelWidths = [0.9, 0.72, 1.15, 0.9];
+const defaultPanelWeights: PanelWidths = [25, 28, 25, 22];
 const minimumPanelWidths: PanelWidths = [260, 240, 340, 280];
 const keyboardResizeStep = 32;
 const focusableSelector = [
