@@ -1,15 +1,19 @@
 /*
  * Workspace BETA typography system.
  * Keep the workspace UI on four reusable text sizes instead of one-off values.
- * This file is loaded last so it normalizes presentation without changing
- * markup, routes, handlers, study data, IndexedDB, or AI behaviour.
+ * Shared tokens keep the workspace shell, embedded panels, controls and footer
+ * on the same visual scale without changing app behavior.
  */
 .workspace-beta-shell,
 .workspace-panel-embed-shell {
   --workspace-type-micro: 10px;
-  --workspace-type-small: 12px;
+  --workspace-type-small: 0.8rem;
   --workspace-type-body: 13px;
   --workspace-type-heading: 15px;
+  --workspace-weight-regular: 400;
+  --workspace-weight-control: 700;
+  --workspace-weight-heading: 750;
+  font-family: var(--app-font-family, ui-sans-serif, system-ui, sans-serif);
 }
 
 /* Parent workspace shell and header. */
@@ -17,6 +21,7 @@
 .workspace-beta-functional-shell .workspace-beta-functional-panel-header h2,
 .workspace-beta-info-modal-header h2 {
   font-size: var(--workspace-type-heading);
+  font-weight: var(--workspace-weight-heading);
 }
 
 .workspace-beta-functional-shell .workspace-beta-title,
@@ -73,6 +78,14 @@
 .workspace-beta-work-area h3,
 .workspace-beta-demo-card strong {
   font-size: var(--workspace-type-heading);
+}
+
+.workspace-panel-embed-main .page-heading h2,
+.workspace-panel-embed-main .assistant-guide-hero h2,
+.workspace-panel-embed-main .assistant-comparison-hero h2,
+.workspace-panel-embed-main .instructions-hero h2,
+.workspace-panel-embed-main .empty-state h2 {
+  font-weight: var(--workspace-weight-heading);
 }
 
 /* Shared embedded page heading. */
