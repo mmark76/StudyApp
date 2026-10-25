@@ -517,9 +517,6 @@ export function WorkspaceBetaPage() {
             <span className="workspace-beta-badge">BETA</span>
             <span className="workspace-beta-title">{text("Workspace", "Χώρος εργασίας")}</span>
           </div>
-          <Link className="workspace-beta-standard-version" to="/">
-            {text("Back to Standard Version", "Επιστροφή στην κανονική έκδοση")}
-          </Link>
         </div>
         <div className="workspace-beta-header-actions">
           <LanguageSwitcher />

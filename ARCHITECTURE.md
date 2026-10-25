@@ -39,9 +39,11 @@ No PWA production AI request, real credit operation or payment is enabled.
 
 ## Workspace BETA boundary
 
-Workspace BETA is an active, separate UX experiment rather than a replacement
-for the stable application shell. It is isolated at `/workspace-beta` while the
-stable routes remain intact.
+Workspace BETA is the only user-facing application. The root URL opens BETA,
+and normal builds redirect legacy Standard routes to it. The former Standard
+shell remains in the repository as historical reference and is available only
+in the dedicated E2E build mode. Legal pages remain directly reachable without
+showing the historical shell.
 
 The current desktop workspace presents four independent StudyApp areas:
 
@@ -65,8 +67,9 @@ behavior requires separate explicit design and review.
 The current beta has focused browser coverage for desktop proportions and
 resizing, independent panel scrolling, focus behavior, bilingual presentation,
 theme behavior, compact UI, secondary information/modals, PWA update placement,
-narrow panels and the mobile single-panel shell. The stable application remains
-the production reference while the Workspace interaction model is evaluated.
+narrow panels and the mobile single-panel shell. This workspace is the active
+production experience; the former Standard shell is retained as historical
+source and E2E-only coverage.
 
 ## Technology stack
 
@@ -101,10 +104,12 @@ storage. It does not change the IndexedDB schema or create an account preference
 New primary user interface must support both languages. Feature data supplied by
 the user is not translated automatically.
 
-### Stable application shell
+### Historical Standard application shell
 
-`src/shared/components/AppLayout.tsx` owns the stable header, primary and
+`src/shared/components/AppLayout.tsx` retains the former header, primary and
 secondary navigation, main content outlet, PWA update toast and fixed footer.
+Normal builds redirect these routes to Workspace BETA. Workspace iframe routes
+and legal pages use a minimal embedded shell.
 
 Primary navigation:
 

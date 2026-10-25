@@ -8,7 +8,10 @@
     <title>Study App</title>
     <script>
       (() => {
-        const isWorkspacePage = /^#\/workspace-beta(?:[/?]|$)/.test(window.location.hash);
+        const isWorkspacePage =
+          !window.location.hash ||
+          window.location.hash === "#/" ||
+          /^#\/workspace-beta(?:[/?]|$)/.test(window.location.hash);
         const isWorkspaceFrame = window.name.startsWith("studyapp-workspace-");
         if (!isWorkspacePage && !isWorkspaceFrame) return;
         try {

@@ -51,16 +51,17 @@ verified DATA-04 and Workspace blocker fixes. Documentation-only commits preserv
 by the archival release tag do not change the application code represented by the
 verified production release.
 
-## Workspace BETA — active experiment
+## Workspace BETA — active application
 
-Workspace BETA is an implemented multi-panel UX experiment that remains
-separate from the stable top-level product model. Its blocker-remediation paths
-for WB-01, WB-02 and WB-03 were verified in production on 2026-08-20, including
-interactive pointer/focus and layout behavior.
+Workspace BETA is the only user-facing StudyApp experience and the default
+entry point. Normal builds open BETA from the root URL and redirect legacy
+Standard routes to BETA. The Standard shell and its routes remain in the
+repository as historical reference; they are available only in the dedicated
+E2E build mode.
 
-The workspace is still treated as beta. It does not by itself redefine the
-stable navigation, data ownership model, local-first persistence boundary, MCP,
-remote AI behavior or automatic source transfer.
+BETA continues using the existing local IndexedDB database and data model.
+Making BETA the sole active experience does not rename, copy, migrate or clear
+the existing database.
 
 ## AI Assistant
 

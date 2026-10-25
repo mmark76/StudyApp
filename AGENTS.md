@@ -387,19 +387,19 @@ part of unrelated work. Changes to the stable experience should be limited to
 approved feature work, defects, accessibility fixes or explicitly requested UX
 changes.
 
-`Workspace BETA` is a separate experimental direction. Its initial purpose is
-to test a simultaneous multi-panel workspace visually and ergonomically before
-connecting the panels. Unless a later task explicitly expands scope:
+`Workspace BETA` is the sole user-facing StudyApp experience by owner decision
+on 2026-10-25. Normal builds open BETA at the root and redirect legacy Standard
+routes to BETA. The former Standard shell remains in the repository only as
+historical reference and E2E-mode coverage.
 
-- keep the existing stable routes and workflows intact;
-- build the beta behind a separate route and focused branch/PR;
-- start with UI/UX structure only;
-- do not add cross-panel data flow, IndexedDB changes, remote AI calls, MCP,
-  automatic source scanning or new persistence merely to make the prototype look
-  functional;
-- placeholders and clearly labelled beta/coming-soon actions are acceptable;
-- do not treat the beta as a replacement for the stable UI until the owner
-  explicitly approves that transition.
+- Do not expose a route or navigation link that returns users to the former
+  Standard shell.
+- Keep legacy routes available only where required by the dedicated E2E build.
+- Preserve the existing IndexedDB database and schema; do not rename, copy,
+  migrate or clear user data as part of this transition.
+- Keep BETA's internal iframe routes working; they provide its current
+  multi-panel content.
+- Continue making focused, reviewed changes to the active BETA experience.
 
 The intended first-pass desktop concept is three simultaneous panels, broadly
 `Sources | Workspace/Practice | AI Studio`. Exact labels, proportions,

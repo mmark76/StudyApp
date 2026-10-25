@@ -41,7 +41,7 @@ export const router = createHashRouter([
     path: "/",
     element: <AppLayout />,
     children: [
-      { index: true, element: <HomePage /> },
+      { index: true, element: import.meta.env.MODE === "e2e" ? <HomePage /> : <Navigate replace to="/workspace-beta" /> },
       {
         path: "appearance",
         element: (

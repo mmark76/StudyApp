@@ -69,7 +69,7 @@ test("Workspace BETA keeps four independent functional StudyApp panels", async (
   await expect(page.getByRole("heading", { name: "AI Studio", exact: true })).toBeVisible();
   await expect(
     page.locator(".workspace-beta-header-left").getByRole("link", { name: "Back to Standard Version" }),
-  ).toBeVisible();
+  ).toHaveCount(0);
 
   const sources = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
   const knowledge = page.frameLocator('iframe[name="studyapp-workspace-knowledge"]');
@@ -274,7 +274,7 @@ test("Workspace BETA language sync follows active mobile panels and layout stays
   await mobileMenu.locator("summary").click();
   await expect(
     mobileMenu.getByRole("link", { name: "Επιστροφή στην κανονική έκδοση" }),
-  ).toBeVisible();
+  ).toHaveCount(0);
 
   const overflow = await page.locator(".workspace-beta-main").evaluate((main) => ({
     clientWidth: main.clientWidth,
