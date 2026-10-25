@@ -14,3 +14,5 @@
   .workspace-beta-mobile-shell > .workspace-beta-functional-shell .workspace-beta-main {height:auto;}
   .workspace-beta-global-footer {font-size:10px;gap:.1rem .55rem;padding:.35rem .5rem;}
 }
+
+.workspace-beta-global-footer > span {font-weight:400;}
