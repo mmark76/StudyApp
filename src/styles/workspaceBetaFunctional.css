@@ -158,7 +158,7 @@
   .workspace-beta-panel-knowledge,
   .workspace-beta-panel-practice
 ) .workspace-beta-panel-tools button:first-child {
-  flex: 0 0 38%;
+  flex: 0 0 34%;
 }
 
 .workspace-beta-functional-shell :is(
