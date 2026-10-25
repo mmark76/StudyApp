@@ -586,6 +586,12 @@
   line-height: 1.2;
 }
 
+/* Keep the four Practice actions compact without shrinking their labels. */
+.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .learning-stage-card .button {
+  min-height: 1.75rem;
+  padding: 0.24rem 0.42rem;
+}
+
 .workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .learning-stage-card .button:hover,
 .workspace-panel-embed-main .dashboard-action-card .button:hover,
 .workspace-panel-embed-main .assistant-guide-page .button:hover,
