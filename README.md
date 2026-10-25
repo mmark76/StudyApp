@@ -118,7 +118,9 @@ Each compatible release provides two separate downloads:
 - `StudyApp-Local-Windows-v…zip` is the Windows Local package. Extract its
   complete contents and run `Start StudyApp Local.bat`. It opens the bundled
   app at `http://127.0.0.1:8766`; Python 3 is required. The first optional
-  connection setup is always initiated explicitly by the user.
+  connection setup is always initiated explicitly by the user. If an earlier
+  StudyApp Local server still owns that address, run `Stop StudyApp Local.bat`;
+  it refuses to stop an unrelated process.
 
 ### ChatGPT App / MCP — coming soon
 

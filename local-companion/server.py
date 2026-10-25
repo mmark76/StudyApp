@@ -1,6 +1,7 @@
 """Serve the built StudyApp Local UI and its explicit ChatGPT-plan companion API."""
 from __future__ import annotations
 
+import errno
 import json
 import mimetypes
 import os
@@ -97,12 +98,15 @@ class Handler(BaseHTTPRequestHandler):
             self._json(CONNECTION.status())
             return
         if parsed.path == CALLBACK_PATH:
+            print("ChatGPT approval callback received.")
             query = {key: value[-1] for key, value in parse_qs(parsed.query, keep_blank_values=True).items() if value}
             try:
                 CONNECTION.complete(query)
             except ChatGptConnectionError as error:
+                print("ChatGPT approval callback was not completed.")
                 self._html(f"<!doctype html><title>Connection not completed</title><main><h1>ChatGPT connection not completed</h1><p>{error}</p><p>You may close this tab and return to StudyApp Local.</p></main>", HTTPStatus.BAD_REQUEST)
                 return
+            print("ChatGPT connection completed.")
             self._html("<!doctype html><title>Connected</title><main><h1>ChatGPT is connected</h1><p>You may close this tab and return to StudyApp Local.</p></main>", HTTPStatus.OK)
             return
         self._static(parsed.path)
@@ -116,7 +120,9 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/chatgpt-plan/connection":
                 if body.get("confirmConnection") is not True:
                     raise ChatGptConnectionError("Confirm the ChatGPT connection request.")
-                self._json(CONNECTION.start(CALLBACK_URL))
+                status = CONNECTION.start(CALLBACK_URL)
+                print("ChatGPT approval opened in the browser; waiting for the loopback callback.")
+                self._json(status)
                 return
             if path == "/api/chatgpt-plan/setup":
                 if body.get("confirmSetup") is not True:
@@ -173,10 +179,17 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main() -> int:
-    with StudyAppLocalServer((HOST, PORT), Handler) as server:
-        print(f"StudyApp Local is running at http://{HOST}:{PORT}")
-        webbrowser.open(f"http://{HOST}:{PORT}")
-        server.serve_forever()
+    try:
+        with StudyAppLocalServer((HOST, PORT), Handler) as server:
+            print(f"StudyApp Local is running at http://{HOST}:{PORT}")
+            webbrowser.open(f"http://{HOST}:{PORT}")
+            server.serve_forever()
+    except OSError as error:
+        if error.errno not in {errno.EADDRINUSE, 10048}:
+            raise
+        print(f"StudyApp Local could not start because port {PORT} is already in use.")
+        print("Close the earlier StudyApp Local window or run Stop StudyApp Local.bat, then try again.")
+        return 1
     return 0
 
 
