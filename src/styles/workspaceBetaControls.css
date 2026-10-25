@@ -903,12 +903,15 @@
   line-height: 1.2;
 }
 
-/* Embedded action inset */
+/* Embedded body action sizing */
 .workspace-panel-embed-main :is(
   button:not(.core-knowledge-chapter-button),
   a.button,
   [role="button"]
 ) {
+  inline-size: fit-content;
+  width: auto !important;
+  max-inline-size: 100%;
   padding-inline: 0.58rem !important;
 }
 
