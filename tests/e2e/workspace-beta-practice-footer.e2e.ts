@@ -10,7 +10,7 @@ test("Workspace BETA has one full-width versioned footer below all four panels",
   await expect(footer).toBeVisible();
   await expect(footer).toContainText("© 2026 Markellos Markides. All rights reserved.");
   await expect(footer).toContainText("Your data stays under your control.");
-  await expect(footer.locator(".workspace-beta-footer-version")).toContainText(/^StudyApp BETA · v\d+\.\d+\.\d+$/u);
+  await expect(footer.locator(".workspace-beta-footer-version")).toContainText(/^StudyApp BETA · v\d+\.\d+\.\d+_\d{8}_\d{4}_(?:[0-9a-f]{7}|local)$/u);
   const [footerBox, mainBox, gridBox] = await Promise.all([
     footer.boundingBox(), main.boundingBox(), grid.boundingBox(),
   ]);
