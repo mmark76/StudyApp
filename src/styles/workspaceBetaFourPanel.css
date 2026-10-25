@@ -3,11 +3,11 @@
   grid-template-columns:
     minmax(0, var(--workspace-sources-track, 25fr))
     10px
-    minmax(0, var(--workspace-knowledge-track, 28fr))
+    minmax(0, var(--workspace-knowledge-track, 25fr))
     10px
     minmax(0, var(--workspace-practice-track, 25fr))
     10px
-    minmax(0, var(--workspace-ai-track, 22fr));
+    minmax(0, var(--workspace-ai-track, 25fr));
 }
 
 @media (max-width: 1180px) {
