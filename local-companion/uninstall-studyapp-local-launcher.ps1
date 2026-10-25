@@ -1,12 +1,5 @@
-[CmdletBinding()]
-param(
-    [Parameter(Mandatory)]
-    [ValidateNotNullOrEmpty()]
-    [string]$InstallRoot
-)
-
 $ErrorActionPreference = "Stop"
-$resolvedRoot = (Resolve-Path -LiteralPath $InstallRoot).Path.TrimEnd("\\")
+$resolvedRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
 $protocolKey = "HKCU:\Software\Classes\studyapp-local"
 
 if (-not (Test-Path -LiteralPath $protocolKey)) {
