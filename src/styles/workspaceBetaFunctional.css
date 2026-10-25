@@ -140,7 +140,7 @@
 ) .workspace-beta-panel-tools button {
   min-width: 0;
   padding: 0.18rem 0.2rem;
-  font-size: clamp(0.35rem, 2.8cqw, 1rem);
+  font-size: clamp(0.35rem, 2.8cqw, 0.8rem);
   line-height: 1.2;
   white-space: nowrap;
 }
@@ -151,7 +151,7 @@
   .workspace-beta-panel-practice
 ) .workspace-beta-panel-tools button:first-child {
   flex: 0 0 34%;
-  font-size: clamp(0.35rem, 3cqw, 1rem);
+  font-size: clamp(0.35rem, 3cqw, 0.8rem);
 }
 
 .workspace-beta-functional-shell :is(
@@ -160,7 +160,7 @@
   .workspace-beta-panel-practice
 ) .workspace-beta-panel-tools button:last-child {
   flex: 1 1 0;
-  font-size: clamp(0.35rem, 2.8cqw, 1rem);
+  font-size: clamp(0.35rem, 2.8cqw, 0.8rem);
 }
 .workspace-beta-functional-panel-header h2 {
   margin-top: 0.08rem;
