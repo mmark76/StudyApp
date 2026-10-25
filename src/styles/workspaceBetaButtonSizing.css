@@ -42,7 +42,7 @@
   )
   .workspace-beta-panel-tools
   button {
-  font-size: clamp(0.5rem, 2.8cqw, 0.8rem) !important;
+  font-size: clamp(0.5rem, 3.4cqw, 0.8rem) !important;
 }
 
 .workspace-beta-functional-shell
@@ -53,5 +53,5 @@
   )
   .workspace-beta-panel-tools
   button:first-child {
-  font-size: clamp(0.5rem, 3cqw, 0.8rem) !important;
+  font-size: clamp(0.5rem, 3.6cqw, 0.8rem) !important;
 }
