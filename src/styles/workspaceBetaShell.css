@@ -1248,6 +1248,27 @@
   font-weight: 700;
 }
 
+
+/* Header alignment contract */
+.workspace-beta-functional-shell .workspace-beta-header-left,
+.workspace-beta-functional-shell .workspace-beta-brand,
+.workspace-beta-functional-shell .workspace-beta-header-actions {
+  min-height: 1.6rem;
+  align-items: center;
+}
+
+.workspace-beta-functional-shell .workspace-beta-brand > *,
+.workspace-beta-functional-shell .workspace-beta-header-actions > a,
+.workspace-beta-functional-shell .workspace-beta-theme-toggle,
+.workspace-beta-functional-shell .workspace-beta-info-menu > summary,
+.workspace-beta-functional-shell .language-switcher button {
+  display: inline-flex;
+  box-sizing: border-box;
+  min-height: 1.6rem;
+  align-items: center;
+  line-height: 1.2;
+}
+
 .workspace-beta-functional-shell .language-switcher button + button {
   margin-left: 0.12rem;
   border-left: 1px solid #d8d8d3;
