@@ -29,6 +29,7 @@ import "./styles/workspaceBetaShell.css";
 import "./styles/workspaceBetaTypography.css";
 import "./styles/workspaceBetaTheme.css";
 import "./styles/workspaceBetaContent.css";
+import "./styles/workspaceBetaLocalChat.css";
 import "./styles/workspaceBetaInfo.css";
 import "./styles/workspaceBetaControls.css";
 

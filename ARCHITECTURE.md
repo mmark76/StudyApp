@@ -138,6 +138,14 @@ Workspace composition and the shared panel content used by the responsive
 presentation. Workspace-specific helpers manage pointer/focus behavior, Info
 menu auto-close behavior and modal document interactions.
 
+In StudyApp Local only, the Workspace checks the loopback connection status. If
+the current Windows user has approved ChatGPT-plan use, the fourth AI Studio
+panel replaces its informational iframe with `WorkspaceLocalChat`. That feature
+keeps the conversation only in React state for the active page, sends each
+explicitly submitted question through the local companion with `store: false`,
+and does not read or include Library/IndexedDB data. The browser/PWA edition
+does not mount this conversation surface.
+
 Workspace presentation styles remain separate from the stable shell at the CSS
 module/file level even though they are currently imported from the application
 entry point. Route-level code/style splitting remains a maintainability and

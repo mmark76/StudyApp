@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -13,8 +14,14 @@ import { LanguageSwitcher } from "../../shared/components/LanguageSwitcher";
 import { getStudyAppAssistantUrl } from "../assistant/assistantDestination";
 import { useAppearanceSettings } from "../appearance/useAppearanceSettings";
 import { WorkspaceThemeToggle } from "./WorkspaceThemeToggle";
-import { StudyAppVersionedZipLink } from "../../shared/components/StudyAppReleaseZipLinks";
+import { StudyAppLocalWindowsZipLink } from "../../shared/components/StudyAppReleaseZipLinks";
 import { WorkspaceMaterialManager } from "./WorkspaceMaterialManager";
+import { WorkspaceLocalChat } from "./WorkspaceLocalChat";
+import {
+  getChatGptPlanConnection,
+  isStudyAppLocalEdition,
+  type ChatGptPlanConnectionStatus,
+} from "../../infrastructure/local-companion/localCompanionClient";
 
 type WorkspacePanelId = "sources" | "knowledge" | "practice" | "ai";
 type WorkspaceDivider = 0 | 1 | 2;
@@ -45,6 +52,12 @@ const workspaceInfoRoutes = new Set<WorkspaceInfoRoute>([
 const defaultPanelWeights: PanelWidths = [25, 28, 25, 22];
 const minimumPanelWidths: PanelWidths = [260, 240, 340, 280];
 const keyboardResizeStep = 32;
+const disconnectedChatGptPlan: ChatGptPlanConnectionStatus = {
+  connected: false,
+  connectionState: "disconnected",
+  planUsageAuthorized: false,
+  scope: "current-windows-user",
+};
 const focusableSelector = [
   "a[href]",
   "button:not([disabled])",
@@ -106,6 +119,10 @@ function resizeAdjacentPanels(
 export function WorkspaceBetaPage() {
   useAppearanceSettings();
   const { text } = useLanguage();
+  const localEdition = isStudyAppLocalEdition();
+  const [chatGptPlanConnection, setChatGptPlanConnection] = useState<ChatGptPlanConnectionStatus>(
+    disconnectedChatGptPlan,
+  );
   const [frameVersions, setFrameVersions] = useState<Record<WorkspacePanelId, number>>({
     sources: 0,
     knowledge: 0,
@@ -127,6 +144,30 @@ export function WorkspaceBetaPage() {
   const headerRef = useRef<HTMLElement>(null);
   const mainRef = useRef<HTMLElement>(null);
   const assistantUrl = getStudyAppAssistantUrl();
+
+  const refreshChatGptPlanConnection = useCallback(async () => {
+    try {
+      setChatGptPlanConnection(await getChatGptPlanConnection());
+    } catch {
+      setChatGptPlanConnection(disconnectedChatGptPlan);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!localEdition) return;
+
+    void refreshChatGptPlanConnection();
+    window.addEventListener("focus", refreshChatGptPlanConnection);
+    const timer = window.setInterval(() => void refreshChatGptPlanConnection(), 2_000);
+    return () => {
+      window.removeEventListener("focus", refreshChatGptPlanConnection);
+      window.clearInterval(timer);
+    };
+  }, [localEdition, refreshChatGptPlanConnection]);
+
+  const localChatReady = localEdition
+    && chatGptPlanConnection.connected
+    && chatGptPlanConnection.planUsageAuthorized;
 
   useEffect(() => {
     if (infoModalRoute === null) return undefined;
@@ -520,6 +561,7 @@ export function WorkspaceBetaPage() {
             <strong>{studyConfig.appName}</strong>
             <span className="workspace-beta-badge">BETA</span>
             <span className="workspace-beta-title">{text("Workspace", "Χώρος εργασίας")}</span>
+            <StudyAppLocalWindowsZipLink className="workspace-beta-local-download" compact />
           </div>
         </div>
         <div className="workspace-beta-header-actions">
@@ -532,7 +574,6 @@ export function WorkspaceBetaPage() {
           >
             {text("Back to markellosecosystem", "Πίσω στο markellosecosystem")}
           </a>
-          <StudyAppVersionedZipLink />
           <WorkspaceThemeToggle />
           <Link
             onClick={(event) => {
@@ -709,27 +750,31 @@ export function WorkspaceBetaPage() {
                 </button>
               </div>
             </div>
-            <div className="workspace-beta-ai-launch-row">
-              <a href={assistantUrl} rel="noopener noreferrer" target="_blank">
-                {text("Start StudyApp AI Assistant", "Έναρξη Βοηθού AI του StudyApp")}
-              </a>
-              <span>
-                {text(
-                  "Opens ChatGPT in a new tab. No material is sent automatically.",
-                  "Ανοίγει το ChatGPT σε νέα καρτέλα. Δεν αποστέλλεται υλικό αυτόματα.",
-                )}
-              </span>
-            </div>
-            <div className="workspace-beta-frame-wrap">
-              <iframe
-                key={`ai-${frameVersions.ai}`}
-                className="workspace-beta-frame"
-                name="studyapp-workspace-ai"
-                onLoad={(event) => wirePanelInfoLinks(event.currentTarget)}
-                src={panelRoutes.ai}
-                title={text("Functional AI Studio panel", "Λειτουργικό πάνελ AI Studio")}
-              />
-            </div>
+            {localChatReady ? <WorkspaceLocalChat /> : (
+              <>
+                <div className="workspace-beta-ai-launch-row">
+                  <a href={assistantUrl} rel="noopener noreferrer" target="_blank">
+                    {text("Start StudyApp AI Assistant", "Έναρξη Βοηθού AI του StudyApp")}
+                  </a>
+                  <span>
+                    {text(
+                      "Opens ChatGPT in a new tab. No material is sent automatically.",
+                      "Ανοίγει το ChatGPT σε νέα καρτέλα. Δεν αποστέλλεται υλικό αυτόματα.",
+                    )}
+                  </span>
+                </div>
+                <div className="workspace-beta-frame-wrap">
+                  <iframe
+                    key={`ai-${frameVersions.ai}`}
+                    className="workspace-beta-frame"
+                    name="studyapp-workspace-ai"
+                    onLoad={(event) => wirePanelInfoLinks(event.currentTarget)}
+                    src={panelRoutes.ai}
+                    title={text("Functional AI Studio panel", "Λειτουργικό πάνελ AI Studio")}
+                  />
+                </div>
+              </>
+            )}
           </section>
         </div>
       </main>

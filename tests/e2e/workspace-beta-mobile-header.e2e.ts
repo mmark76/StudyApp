@@ -73,7 +73,7 @@ test("Workspace BETA mobile menu keeps navigation and modal actions valid", asyn
   await expect(page.locator(".workspace-beta-mobile-menu-popover")).toBeVisible();
 
   const ecosystem = menu.getByRole("link", { name: /Back to markellosecosystem|Πίσω στο markellosecosystem/u });
-  const sourceArchive = menu.getByText(/Versioned ZIP not available yet/u);
+  const sourceArchive = menu.getByText(/Local Portable ZIP not available yet/u);
   await expect(menu.getByRole("link", { name: /Back to Standard Version|Επιστροφή στην κανονική έκδοση/u })).toHaveCount(0);
   await expect(ecosystem).toHaveAttribute("href", "https://markellosecosystem.com/");
   await expect(ecosystem).toHaveAttribute("target", "_blank");
@@ -106,7 +106,7 @@ test("Workspace BETA desktop keeps the existing four-panel header and layout", a
   await expect(page.locator(".workspace-beta-mobile-header")).toBeHidden();
   await expect(page.locator(".workspace-beta-mobile-panel-tabs")).toBeHidden();
   await expect(page.locator(".workspace-beta-functional-shell > .workspace-beta-header")).toBeVisible();
-  const sourceArchive = page.locator(".workspace-beta-functional-shell > .workspace-beta-header").getByText(/Versioned ZIP not available yet/u);
+  const sourceArchive = page.locator(".workspace-beta-functional-shell > .workspace-beta-header").getByText(/Local Portable ZIP not available yet/u);
   await expect(sourceArchive).toBeVisible();
 
   const panels = page.locator(".workspace-beta-functional-panel");

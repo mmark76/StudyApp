@@ -63,14 +63,19 @@ CSV second.
 This is not a browser/PWA feature. The separately started StudyApp Local server
 listens only on `127.0.0.1`, requests browser approval from an eligible ChatGPT
 account, and stores the resulting connection encrypted with Windows DPAPI for
-the current Windows user. No OpenAI API key, StudyApp credit, or browser token
-storage is used.
+the current Windows user. Eligible questions use the user's ChatGPT subscription
+or available ChatGPT credits. No OpenAI API key, StudyApp credit, or browser
+token storage is used.
 
 The connection sends only a question the user types and explicitly submits.
 It does not scan, read, select, upload, or automatically include Library,
 IndexedDB, progress, or study history. Answers use `store: false`, are shown
-only in the active Local page session, and are not added to StudyApp data.
-Disconnect deletes the protected local connection record.
+only in the active Local page session, and are not added to StudyApp data. Once
+the connection is ready, StudyApp Local's Workspace may use the full AI Studio
+panel as a conversation surface with a bottom composer and transient history.
+It is a Local-only presentation of this same explicit-question flow; the
+browser/PWA keeps its external-link and informational presentation. Disconnect
+deletes the protected local connection record.
 
 ### 3. ChatGPT App / MCP — coming soon
 

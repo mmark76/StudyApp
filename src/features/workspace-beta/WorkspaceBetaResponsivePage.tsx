@@ -4,7 +4,7 @@ import { useLanguage } from "../../i18n/LanguageContext";
 import { LanguageSwitcher } from "../../shared/components/LanguageSwitcher";
 import { PwaUpdateToast } from "../../shared/components/PwaUpdateToast";
 import { WorkspaceBetaPage } from "./WorkspaceBetaPage";
-import { StudyAppVersionedZipLink } from "../../shared/components/StudyAppReleaseZipLinks";
+import { StudyAppLocalWindowsZipLink } from "../../shared/components/StudyAppReleaseZipLinks";
 
 type MobilePanel = "sources" | "knowledge" | "practice" | "ai";
 
@@ -60,7 +60,7 @@ export function WorkspaceBetaResponsivePage() {
                 >
                   {text("Back to markellosecosystem", "Πίσω στο markellosecosystem")}
                 </a>
-                <StudyAppVersionedZipLink onClick={closeMenu} />
+                <StudyAppLocalWindowsZipLink compact onClick={closeMenu} />
                 <button
                   onClick={() => activateWorkspaceControl(
                     ".workspace-beta-functional-shell .workspace-beta-header .workspace-beta-theme-toggle",

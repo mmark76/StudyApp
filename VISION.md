@@ -95,7 +95,10 @@ Available only in the separately started Windows Local edition. After browser
 approval, an eligible ChatGPT plan can answer a question that the user types and
 explicitly submits. The connection is protected for the current Windows user;
 StudyApp does not automatically read or send Library/IndexedDB material, and the
-answer is transient unless the user chooses to keep it elsewhere.
+answer is transient unless the user chooses to keep it elsewhere. When that
+connection is ready, the AI Studio panel becomes a focused in-app conversation
+surface for the current session; it remains a study-help workflow rather than a
+general-purpose chat product.
 
 ### ChatGPT App / MCP
 
