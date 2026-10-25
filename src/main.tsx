@@ -74,3 +74,4 @@ if (!enforceSecureTransport()) {
     </StrictMode>,
   );
 }
+import "./styles/workspaceBetaButtonSizing.css";
