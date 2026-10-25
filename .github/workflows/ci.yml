@@ -56,7 +56,7 @@ jobs:
 
       - name: Verify StudyApp Local package
         run: |
-          set -euo pipefail
+          set -eu
           node scripts/prepare-studyapp-local-package.mjs "$RUNNER_TEMP/StudyApp-Local-Windows"
           test -f "$RUNNER_TEMP/StudyApp-Local-Windows/dist/index.html"
           test -f "$RUNNER_TEMP/StudyApp-Local-Windows/local-companion/server.py"
