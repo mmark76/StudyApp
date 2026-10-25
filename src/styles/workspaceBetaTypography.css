@@ -379,3 +379,22 @@
   span {
   font-size: var(--workspace-type-body);
 }
+
+
+/* Practice progress typography.
+ * This applies only to the Progress route rendered inside a BETA frame.
+ */
+.workspace-panel-embed-shell
+  .workspace-panel-embed-main:has(.stats-grid)
+  .content-panel
+  h3 {
+  font-size: var(--workspace-type-body);
+}
+
+.workspace-panel-embed-shell
+  .workspace-panel-embed-main:has(.stats-grid)
+  .content-panel
+  :is(p, label, .storage-notice--compact summary, .inline-message, th, td) {
+  font-size: var(--workspace-type-support);
+  line-height: 1.4;
+}
