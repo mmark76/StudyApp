@@ -289,12 +289,13 @@
 }
 
 
-/* Progress summary cards use the same compact type scale as Workspace copy. */
-.workspace-panel-embed-main .stat-card strong {
-  font-size: var(--workspace-type-heading, 15px);
+/* Progress summary cards follow the Assistant action's type and inset spacing. */
+.workspace-panel-embed-main .stat-card {
+  padding: 0.5rem;
 }
 
+.workspace-panel-embed-main .stat-card strong,
 .workspace-panel-embed-main .stat-card span {
-  font-size: var(--workspace-type-body, 13px);
-  line-height: 1.4;
+  font-size: 0.8rem;
+  line-height: 1.2;
 }
