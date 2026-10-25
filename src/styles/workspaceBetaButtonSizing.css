@@ -10,7 +10,7 @@
   .workspace-beta-header-actions > a
 ),
 .workspace-panel-embed-main :is(
-  button,
+  button:not(.core-knowledge-chapter-button),
   a.button,
   [role="button"],
   summary
