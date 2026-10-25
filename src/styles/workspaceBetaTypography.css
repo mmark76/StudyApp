@@ -273,3 +273,17 @@
 .workspace-panel-embed-main .important-info-page .text-link {
   font-size: var(--workspace-type-small);
 }
+
+
+/* Workspace empty states use the same compact type scale as other panel copy. */
+.workspace-panel-embed-main .empty-state h2 {
+  margin: 0 0 0.35rem;
+  font-size: var(--workspace-type-heading, 15px);
+  line-height: 1.25;
+}
+
+.workspace-panel-embed-main .empty-state p {
+  margin: 0.35rem 0 0;
+  font-size: var(--workspace-type-body, 13px);
+  line-height: 1.4;
+}
