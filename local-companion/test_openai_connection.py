@@ -1,6 +1,7 @@
 """Focused offline checks for the StudyApp Local ChatGPT-plan boundary."""
 from __future__ import annotations
 
+import json
 import sys
 import tempfile
 import unittest
@@ -20,6 +21,25 @@ class MissingVault:
 
     def load(self) -> str:
         raise CredentialVaultError("missing")
+
+
+class MemoryVault:
+    def __init__(self, record: dict | None = None) -> None:
+        self.record = json.dumps(record) if record is not None else None
+
+    def exists(self) -> bool:
+        return self.record is not None
+
+    def load(self) -> str:
+        if self.record is None:
+            raise CredentialVaultError("missing")
+        return self.record
+
+    def store(self, value: str) -> None:
+        self.record = value
+
+    def remove(self) -> None:
+        self.record = None
 
 
 class LocalConnectionTests(unittest.TestCase):
@@ -43,6 +63,25 @@ class LocalConnectionTests(unittest.TestCase):
         connection = ChatGptPlanConnection(MissingVault(), Path(tempfile.mkdtemp()))
         with self.assertRaises(ChatGptConnectionError):
             connection.ask("x" * 12_001)
+
+    def test_reauthorization_keeps_issued_client_when_callback_omits_client_id(self) -> None:
+        issued_client_id = "oaiapp_studyapp"
+        vault = MemoryVault({
+            "subject": "person", "clientId": issued_client_id, "idToken": "previous-id-token",
+            "email": "person@example.com", "refreshToken": "refresh", "planUsageAuthorized": True,
+        })
+        opened: list[str] = []
+        with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as temporary, patch.object(ChatGptPlanConnection, "_require_crypto"), patch.object(ChatGptPlanConnection, "_exchange_tokens", return_value={"id_token": "new-id-token", "refresh_token": "new-refresh", "access_token": "access", "scope": "openid chatgpt.tokens.use.direct"}), patch.object(ChatGptPlanConnection, "_validate_identity", return_value={"sub": "person", "email": "person@example.com"}):
+            connection = ChatGptPlanConnection(vault, Path(temporary), browser_open=lambda url: opened.append(url) or True)
+            connection._save_client_id(issued_client_id)
+            connection.start("http://127.0.0.1:8766/auth/callback")
+            query = parse_qs(urlparse(opened[0]).query)
+            self.assertEqual(query["client_id"], [issued_client_id])
+            self.assertEqual(query["id_token_hint"], ["previous-id-token"])
+            self.assertEqual(query["login_hint"], ["person@example.com"])
+            status = connection.complete({"state": query["state"][0], "code": "authorization-code"})
+        self.assertTrue(status["connected"])
+        self.assertTrue(status["planUsageAuthorized"])
 
 
 if __name__ == "__main__":

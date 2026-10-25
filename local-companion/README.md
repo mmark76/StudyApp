@@ -12,6 +12,10 @@ an eligible ChatGPT account. Connection approval happens in the user's browser;
 the refresh token is encrypted with Windows DPAPI and can be read only by that
 Windows user.
 
+If a previous StudyApp Local window still owns port 8766, run the adjacent
+`Stop StudyApp Local.bat` first. It stops only a process whose command line is
+the bundled StudyApp Local server; it refuses to stop an unrelated process.
+
 ## Data boundary
 
 - no OpenAI API key is requested or stored;

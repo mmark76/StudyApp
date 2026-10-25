@@ -103,6 +103,12 @@ class ChatGptPlanConnection:
         }
         if client_id == DYNAMIC_CLIENT_ID:
             query["agent_name_hint"] = "StudyApp Local"
+        else:
+            hints = self._returning_hints(client_id)
+            if hints.get("idToken"):
+                query["id_token_hint"] = hints["idToken"]
+            if hints.get("email"):
+                query["login_hint"] = hints["email"]
         if not self._browser_open(AUTHORIZATION_ENDPOINT + "?" + urlencode(query)):
             with self._lock:
                 self._attempt = None
@@ -118,14 +124,19 @@ class ChatGptPlanConnection:
             raise ChatGptConnectionError("ChatGPT approval was not completed.")
         if not secrets.compare_digest(query.get("state", ""), attempt["state"]):
             raise ChatGptConnectionError("The ChatGPT approval state did not match this local request.")
-        code, issued_client_id = query.get("code"), query.get("client_id")
-        if not isinstance(code, str) or not code or not isinstance(issued_client_id, str) or not issued_client_id:
+        code, callback_client_id = query.get("code"), query.get("client_id")
+        if not isinstance(code, str) or not code:
             raise ChatGptConnectionError("The ChatGPT approval response was incomplete.")
         if attempt["clientId"] == DYNAMIC_CLIENT_ID:
+            issued_client_id = callback_client_id
+            if not isinstance(issued_client_id, str) or not issued_client_id:
+                raise ChatGptConnectionError("ChatGPT did not issue a local application identifier.")
             if not issued_client_id.startswith("oaiapp_"):
                 raise ChatGptConnectionError("ChatGPT did not issue a valid local application identifier.")
-        elif not secrets.compare_digest(issued_client_id, attempt["clientId"]):
-            raise ChatGptConnectionError("The ChatGPT approval response used an unexpected application identifier.")
+        else:
+            issued_client_id = attempt["clientId"]
+            if callback_client_id and not secrets.compare_digest(callback_client_id, issued_client_id):
+                raise ChatGptConnectionError("The ChatGPT approval response used an unexpected application identifier.")
         tokens = self._exchange_tokens({"grant_type": "authorization_code", "code": code, "client_id": issued_client_id, "redirect_uri": attempt["redirectUri"], "code_verifier": attempt["verifier"], "resource": RESOURCE})
         if not isinstance(tokens.get("id_token"), str) or not isinstance(tokens.get("refresh_token"), str):
             raise ChatGptConnectionError("ChatGPT did not return a complete connection response.")
@@ -134,6 +145,8 @@ class ChatGptPlanConnection:
         record = {
             "subject": identity["sub"], "clientId": issued_client_id, "refreshToken": tokens["refresh_token"],
             "accessToken": tokens.get("access_token", ""), "accessTokenExpiresAt": self._expiry(tokens),
+            "idToken": tokens["id_token"], "email": identity.get("email", ""),
+            "scopes": sorted(scopes),
             "planUsageAuthorized": "chatgpt.tokens.use.direct" in scopes,
         }
         try:
@@ -256,6 +269,21 @@ class ChatGptPlanConnection:
         temporary = self._registration_path.with_suffix(".tmp")
         temporary.write_text(json.dumps({"clientId": client_id}, separators=(",", ":")), encoding="utf-8")
         temporary.replace(self._registration_path)
+
+    def _returning_hints(self, client_id: str) -> dict[str, str]:
+        """Return only hints tied to the saved issued client, never raw credentials."""
+        try:
+            record = json.loads(self._vault.load())
+        except (CredentialVaultError, TypeError, ValueError, json.JSONDecodeError):
+            return {}
+        if not isinstance(record, dict) or record.get("clientId") != client_id:
+            return {}
+        hints: dict[str, str] = {}
+        for source, target in (("idToken", "idToken"), ("email", "email")):
+            value = record.get(source)
+            if isinstance(value, str) and value:
+                hints[target] = value
+        return hints
 
     def _host_id(self) -> str:
         try:

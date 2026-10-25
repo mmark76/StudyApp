@@ -8,6 +8,7 @@ const requiredCompanionFiles = [
   "requirements-chatgpt-plan.txt",
   "server.py",
   "setup-chatgpt-connection.ps1",
+  "stop-studyapp-local.ps1",
 ];
 
 const root = resolve(process.cwd());
@@ -40,6 +41,7 @@ async function requireFile(path) {
 
 await requireFile(join(root, "dist", "index.html"));
 await requireFile(join(root, "Start StudyApp Local.bat"));
+await requireFile(join(root, "Stop StudyApp Local.bat"));
 for (const file of requiredCompanionFiles) {
   await requireFile(join(root, "local-companion", file));
 }
@@ -57,6 +59,7 @@ await cp(join(root, "local-companion"), join(output, "local-companion"), {
   },
 });
 await cp(join(root, "Start StudyApp Local.bat"), join(output, "Start StudyApp Local.bat"));
+await cp(join(root, "Stop StudyApp Local.bat"), join(output, "Stop StudyApp Local.bat"));
 
 const version = (await readFile(join(root, "VERSION"), "utf8")).trim();
 await writeFile(
