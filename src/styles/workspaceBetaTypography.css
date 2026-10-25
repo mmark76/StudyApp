@@ -287,3 +287,14 @@
   font-size: var(--workspace-type-body, 13px);
   line-height: 1.4;
 }
+
+
+/* Progress summary cards use the same compact type scale as Workspace copy. */
+.workspace-panel-embed-main .stat-card strong {
+  font-size: var(--workspace-type-heading, 15px);
+}
+
+.workspace-panel-embed-main .stat-card span {
+  font-size: var(--workspace-type-body, 13px);
+  line-height: 1.4;
+}
