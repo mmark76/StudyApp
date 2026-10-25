@@ -5,6 +5,7 @@ import json
 import mimetypes
 import os
 import subprocess
+import webbrowser
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -174,6 +175,7 @@ class Handler(BaseHTTPRequestHandler):
 def main() -> int:
     with StudyAppLocalServer((HOST, PORT), Handler) as server:
         print(f"StudyApp Local is running at http://{HOST}:{PORT}")
+        webbrowser.open(f"http://{HOST}:{PORT}")
         server.serve_forever()
     return 0
 

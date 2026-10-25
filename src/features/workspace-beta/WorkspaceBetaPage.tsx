@@ -13,7 +13,7 @@ import { LanguageSwitcher } from "../../shared/components/LanguageSwitcher";
 import { getStudyAppAssistantUrl } from "../assistant/assistantDestination";
 import { useAppearanceSettings } from "../appearance/useAppearanceSettings";
 import { WorkspaceThemeToggle } from "./WorkspaceThemeToggle";
-import { StudyAppVersionedZipLink } from "./StudyAppVersionedZipLink";
+import { StudyAppVersionedZipLink } from "../../shared/components/StudyAppReleaseZipLinks";
 import { WorkspaceMaterialManager } from "./WorkspaceMaterialManager";
 
 type WorkspacePanelId = "sources" | "knowledge" | "practice" | "ai";

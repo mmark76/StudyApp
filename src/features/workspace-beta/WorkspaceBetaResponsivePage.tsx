@@ -4,7 +4,7 @@ import { useLanguage } from "../../i18n/LanguageContext";
 import { LanguageSwitcher } from "../../shared/components/LanguageSwitcher";
 import { PwaUpdateToast } from "../../shared/components/PwaUpdateToast";
 import { WorkspaceBetaPage } from "./WorkspaceBetaPage";
-import { StudyAppVersionedZipLink } from "./StudyAppVersionedZipLink";
+import { StudyAppVersionedZipLink } from "../../shared/components/StudyAppReleaseZipLinks";
 
 type MobilePanel = "sources" | "knowledge" | "practice" | "ai";
 

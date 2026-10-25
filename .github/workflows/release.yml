@@ -45,19 +45,25 @@ jobs:
       - run: npm run check:version
       - run: npm run typecheck
       - run: npm test
+      - name: Test StudyApp Local companion
+        run: python3 -m unittest local-companion/test_openai_connection.py
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - run: npm run build
-      - name: Package verified PWA build
+      - name: Package verified PWA and StudyApp Local builds
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/studyapp-artifact"
           cp -R dist "$RUNNER_TEMP/studyapp-artifact/studyapp"
           printf '%s\n' "version=$RELEASE_VERSION" "source_sha=$SOURCE_SHA" > "$RUNNER_TEMP/studyapp-artifact/studyapp/RELEASE.txt"
+          node scripts/prepare-studyapp-local-package.mjs "$RUNNER_TEMP/studyapp-artifact/StudyApp-Local-Windows"
+          printf '%s\n' "source_sha=$SOURCE_SHA" >> "$RUNNER_TEMP/studyapp-artifact/StudyApp-Local-Windows/RELEASE.txt"
           cd "$RUNNER_TEMP/studyapp-artifact"
           zip -qr "StudyApp-v$RELEASE_VERSION.zip" studyapp
           sha256sum "StudyApp-v$RELEASE_VERSION.zip" > "StudyApp-v$RELEASE_VERSION.zip.sha256"
+          zip -qr "StudyApp-Local-Windows-v$RELEASE_VERSION.zip" StudyApp-Local-Windows
+          sha256sum "StudyApp-Local-Windows-v$RELEASE_VERSION.zip" > "StudyApp-Local-Windows-v$RELEASE_VERSION.zip.sha256"
       - name: Revalidate main before publishing
         run: |
           test "$SOURCE_SHA" = "$(git ls-remote origin refs/heads/main | cut -f1)"
@@ -71,5 +77,7 @@ jobs:
           gh release create "v$RELEASE_VERSION" \
             "$RUNNER_TEMP/studyapp-artifact/StudyApp-v$RELEASE_VERSION.zip" \
             "$RUNNER_TEMP/studyapp-artifact/StudyApp-v$RELEASE_VERSION.zip.sha256" \
+            "$RUNNER_TEMP/studyapp-artifact/StudyApp-Local-Windows-v$RELEASE_VERSION.zip" \
+            "$RUNNER_TEMP/studyapp-artifact/StudyApp-Local-Windows-v$RELEASE_VERSION.zip.sha256" \
             --repo "$GITHUB_REPOSITORY" --target "$SOURCE_SHA" \
             --title "StudyApp v$RELEASE_VERSION" --generate-notes
