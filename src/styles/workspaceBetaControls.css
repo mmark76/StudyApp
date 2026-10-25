@@ -898,8 +898,8 @@
   min-height: 1.6rem !important;
   padding-block: 0.1rem !important;
   border-radius: 0.36rem !important;
-  font-size: var(--workspace-type-small, 0.8rem) !important;
-  font-weight: var(--workspace-weight-control, 700) !important;
+  font-size: var(--workspace-type-body, 13px) !important;
+  font-weight: var(--workspace-weight-heading, 750) !important;
   line-height: 1.2;
 }
 
@@ -921,8 +921,8 @@
 }
 
 .workspace-panel-embed-main .assistant-guide-page--workspace .assistant-guide-workspace-primary .button {
-  font-size: var(--workspace-type-small, 0.8rem) !important;
-  font-weight: var(--workspace-weight-control, 700) !important;
+  font-size: var(--workspace-type-body, 13px) !important;
+  font-weight: var(--workspace-weight-heading, 750) !important;
 }
 
 
@@ -934,6 +934,6 @@
   )
   .workspace-beta-panel-tools
   button {
-  font-size: clamp(0.5rem, 3.4cqw, var(--workspace-type-small, 0.8rem)) !important;
+  font-size: clamp(0.5rem, 3.4cqw, var(--workspace-type-body, 13px)) !important;
 }
 
