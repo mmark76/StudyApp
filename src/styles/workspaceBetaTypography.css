@@ -5,6 +5,7 @@
 .workspace-panel-embed-shell {
   --workspace-type-micro: 10px;
   --workspace-type-small: 0.8rem;
+  --workspace-type-support: 12px;
   --workspace-type-body: 13px;
   --workspace-type-heading: 15px;
   --workspace-weight-regular: 400;
@@ -112,7 +113,10 @@
   font-size: var(--workspace-type-body);
 }
 
-.workspace-panel-embed-main .dashboard-action-card > p:not(.eyebrow),
+.workspace-panel-embed-main .dashboard-action-card > p:not(.eyebrow) {
+  font-size: var(--workspace-type-support);
+}
+
 .workspace-panel-embed-main .dashboard-action-card .button {
   font-size: var(--workspace-type-small);
 }
@@ -126,7 +130,10 @@
   font-size: var(--workspace-type-body);
 }
 
-.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid p,
+.workspace-panel-embed-main .learning-stage-grid.learn-tools-grid p {
+  font-size: var(--workspace-type-support);
+}
+
 .workspace-panel-embed-main .learning-stage-grid.learn-tools-grid .button {
   font-size: var(--workspace-type-small);
 }
@@ -181,7 +188,10 @@
 }
 
 .workspace-panel-embed-main .assistant-guide-card > p:not(.eyebrow),
-.workspace-panel-embed-main .assistant-guide-note p:last-child,
+.workspace-panel-embed-main .assistant-guide-note p:last-child {
+  font-size: var(--workspace-type-support);
+}
+
 .workspace-panel-embed-main .assistant-guide-page .button {
   font-size: var(--workspace-type-small);
 }
@@ -308,4 +318,64 @@
 .workspace-panel-embed-main .stat-card span {
   font-size: 0.8rem;
   line-height: 1.2;
+}
+
+
+/* Embedded landing dashboard contract.
+ * This scoped hierarchy owns the visible BETA dashboard, so route-level
+ * feature styles cannot change its shared text scale.
+ */
+.workspace-panel-embed-shell
+  .workspace-panel-embed-main
+  .dashboard-action-card
+  .eyebrow,
+.workspace-panel-embed-shell
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .stage-number {
+  font-size: var(--workspace-type-micro);
+}
+
+.workspace-panel-embed-shell
+  .workspace-panel-embed-main
+  .dashboard-action-card
+  h3,
+.workspace-panel-embed-shell
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  h3 {
+  font-size: var(--workspace-type-body);
+}
+
+.workspace-panel-embed-shell
+  .workspace-panel-embed-main
+  .dashboard-action-card
+  > p:not(.eyebrow),
+.workspace-panel-embed-shell
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  p {
+  font-size: var(--workspace-type-support);
+}
+
+.workspace-panel-embed-shell
+  .workspace-panel-embed-main
+  .workspace-beta-practice-page
+  > .page-heading
+  > p:last-child {
+  font-size: var(--workspace-type-body);
+}
+
+.workspace-panel-embed-shell
+  .workspace-panel-embed-main
+  .stat-card
+  strong {
+  font-size: var(--workspace-type-heading);
+}
+
+.workspace-panel-embed-shell
+  .workspace-panel-embed-main
+  .stat-card
+  span {
+  font-size: var(--workspace-type-body);
 }
