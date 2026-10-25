@@ -6,6 +6,28 @@
     <meta name="theme-color" content="#172554" />
     <meta name="description" content="A local-first study application for any subject" />
     <title>Study App</title>
+    <script>
+      (() => {
+        const isWorkspacePage = /^#\/workspace-beta(?:[/?]|$)/.test(window.location.hash);
+        const isWorkspaceFrame = window.name.startsWith("studyapp-workspace-");
+        if (!isWorkspacePage && !isWorkspaceFrame) return;
+        try {
+          if (window.localStorage.getItem("studyapp-workspace-theme") === "dark") {
+            document.documentElement.dataset.workspaceTheme = "dark";
+          }
+        } catch {
+          // Keep the default light theme when storage is unavailable.
+        }
+      })();
+    </script>
+    <style>
+      :root[data-workspace-theme="dark"],
+      :root[data-workspace-theme="dark"] body {
+        color-scheme: dark;
+        background: #171716;
+        color: #ededE9;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
