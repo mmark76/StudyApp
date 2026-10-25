@@ -111,6 +111,15 @@ not automatically inspect, read, include or upload Library/IndexedDB material.
 Responses use `store: false` and remain only in the open Local page session.
 Disconnect removes the protected local connection record.
 
+Each compatible release provides two separate downloads:
+
+- `StudyApp-v…zip` is the browser/PWA package; it remains static and has no
+  local ChatGPT-plan connection.
+- `StudyApp-Local-Windows-v…zip` is the Windows Local package. Extract its
+  complete contents and run `Start StudyApp Local.bat`. It opens the bundled
+  app at `http://127.0.0.1:8766`; Python 3 is required. The first optional
+  connection setup is always initiated explicitly by the user.
+
 ### ChatGPT App / MCP — coming soon
 
 The planned ChatGPT App will connect ChatGPT with approved StudyApp tools through

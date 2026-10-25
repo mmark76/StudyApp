@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { StudyAppLocalWindowsZipLink } from "../../shared/components/StudyAppReleaseZipLinks";
 import {
   askChatGptPlan,
   getChatGptPlanConnection,
@@ -134,9 +135,12 @@ export function LocalChatGptPlanPage() {
         <section className="assistant-guide-note">
           <h3>{text("Available in StudyApp Local", "Διαθέσιμο στο StudyApp Local")}</h3>
           <p>{text(
-            "This web/PWA edition keeps the current private external-link flow. Download and start StudyApp Local to connect your ChatGPT account securely on this Windows device.",
-            "Η web/PWA έκδοση διατηρεί την υπάρχουσα ιδιωτική ροή εξωτερικού συνδέσμου. Κατέβασε και ξεκίνα το StudyApp Local για να συνδέσεις με ασφάλεια τον λογαριασμό ChatGPT σε αυτή τη συσκευή Windows.",
+            "This web/PWA edition keeps the current private external-link flow. The separate Windows Local package is required before you can connect a ChatGPT account on this device.",
+            "Η web/PWA έκδοση διατηρεί την υπάρχουσα ιδιωτική ροή εξωτερικού συνδέσμου. Απαιτείται το ξεχωριστό Windows Local package πριν συνδέσεις λογαριασμό ChatGPT σε αυτή τη συσκευή.",
           )}</p>
+          <div className="button-row">
+            <StudyAppLocalWindowsZipLink />
+          </div>
         </section>
       ) : (
         <section className="local-chatgpt-plan-card">

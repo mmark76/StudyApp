@@ -3,8 +3,11 @@
 This folder belongs to the optional Windows-only **StudyApp Local** edition. It
 does not alter the browser/PWA edition.
 
-`Start-StudyApp-Local.bat` serves the already-built `dist/` application only at
-`http://127.0.0.1:8766`. The application then offers an explicit connection with
+The Windows release contains `Start StudyApp Local.bat` at its top level. After
+extracting the complete ZIP, run that file to serve the bundled `dist/`
+application only at `http://127.0.0.1:8766`. Python 3 is the only prerequisite;
+the launcher creates the local virtual environment and opens the Local edition
+in the default browser. The application then offers an explicit connection with
 an eligible ChatGPT account. Connection approval happens in the user's browser;
 the refresh token is encrypted with Windows DPAPI and can be read only by that
 Windows user.

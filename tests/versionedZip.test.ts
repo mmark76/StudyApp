@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { findVersionedZip } from "../src/features/workspace-beta/StudyAppVersionedZipLink";
+import { findStudyAppLocalWindowsZip, findVersionedZip } from "../src/shared/components/StudyAppReleaseZipLinks";
 
 const zipUrl = "https://github.com/mmark76/StudyApp/releases/download/v1.1.0/StudyApp-v1.1.0.zip";
 const valid = {
@@ -17,5 +17,19 @@ describe("StudyApp versioned ZIP selection", () => {
     expect(findVersionedZip({ ...valid, draft: true })).toBeNull();
     expect(findVersionedZip({ ...valid, prerelease: true })).toBeNull();
     expect(findVersionedZip({ ...valid, tag_name: "main" })).toBeNull();
+  });
+
+  it("selects only the separate verified Windows Local package", () => {
+    const localUrl = "https://github.com/mmark76/StudyApp/releases/download/v1.1.0/StudyApp-Local-Windows-v1.1.0.zip";
+    const localRelease = {
+      ...valid,
+      assets: [
+        ...valid.assets,
+        { name: "StudyApp-Local-Windows-v1.1.0.zip", browser_download_url: localUrl },
+      ],
+    };
+
+    expect(findStudyAppLocalWindowsZip(localRelease)).toEqual({ tag: "v1.1.0", url: localUrl });
+    expect(findStudyAppLocalWindowsZip(valid)).toBeNull();
   });
 });

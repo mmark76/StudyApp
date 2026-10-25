@@ -45,8 +45,21 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Test StudyApp Local companion
+        run: python3 -m unittest local-companion/test_openai_connection.py
+
       - name: End-to-end test
         run: npm run test:e2e
 
       - name: Production build
         run: npm run build
+
+      - name: Verify StudyApp Local package
+        run: |
+          set -euo pipefail
+          node scripts/prepare-studyapp-local-package.mjs "$RUNNER_TEMP/StudyApp-Local-Windows"
+          test -f "$RUNNER_TEMP/StudyApp-Local-Windows/dist/index.html"
+          test -f "$RUNNER_TEMP/StudyApp-Local-Windows/local-companion/server.py"
+          test -f "$RUNNER_TEMP/StudyApp-Local-Windows/Start StudyApp Local.bat"
+          test ! -e "$RUNNER_TEMP/StudyApp-Local-Windows/local-companion/.chatgpt-plan-venv"
+          test ! -e "$RUNNER_TEMP/StudyApp-Local-Windows/local-companion/Start-StudyApp-Local.bat"
