@@ -196,6 +196,23 @@
   font-size: var(--workspace-type-small);
 }
 
+.workspace-panel-embed-main .local-chatgpt-plan-card {
+  font-size: var(--workspace-type-support);
+  line-height: 1.45;
+}
+
+.workspace-panel-embed-main .local-chatgpt-plan-card .eyebrow {
+  font-size: var(--workspace-type-micro);
+}
+
+.workspace-panel-embed-main .local-chatgpt-plan-card h3 {
+  font-size: var(--workspace-type-heading);
+}
+
+.workspace-panel-embed-main .local-chatgpt-plan-card textarea {
+  font-size: var(--workspace-type-body);
+}
+
 
 .workspace-panel-embed-main .assistant-comparison-hero .eyebrow,
 .workspace-panel-embed-main .assistant-comparison-status {
