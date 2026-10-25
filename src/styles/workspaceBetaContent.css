@@ -848,3 +848,83 @@
   display: none;
 }
 
+
+
+/* Practice progress surface.
+ * Scoped to the embedded Progress route so the BETA dashboard owns its
+ * cards, archive form and spacing without changing backup behaviour.
+ */
+.workspace-panel-embed-main:has(.stats-grid) {
+  --workspace-progress-border: #e5e4df;
+  --workspace-progress-surface: #fdfdfb;
+  --workspace-progress-copy: #475569;
+}
+
+.workspace-panel-embed-main:has(.stats-grid) > .stack-lg > * + * {
+  margin-top: 0.6rem;
+}
+
+.workspace-panel-embed-main:has(.stats-grid) .stats-grid {
+  gap: 0.36rem;
+}
+
+.workspace-panel-embed-main:has(.stats-grid) .stat-card,
+.workspace-panel-embed-main:has(.stats-grid) .content-panel,
+.workspace-panel-embed-main:has(.stats-grid) .template-card {
+  border-color: var(--workspace-progress-border);
+  border-radius: 0.38rem;
+  background: var(--workspace-progress-surface);
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main:has(.stats-grid) .stat-card {
+  min-height: 0;
+  gap: 0.08rem;
+  padding: 0.5rem 0.58rem;
+}
+
+.workspace-panel-embed-main:has(.stats-grid) .content-panel,
+.workspace-panel-embed-main:has(.stats-grid) .template-card {
+  padding: 0.58rem 0.66rem;
+}
+
+.workspace-panel-embed-main:has(.stats-grid) .content-panel > h3 {
+  margin: 0 0 0.32rem;
+}
+
+.workspace-panel-embed-main:has(.stats-grid) .content-panel > p {
+  margin: 0;
+  color: var(--workspace-progress-copy);
+}
+
+.workspace-panel-embed-main:has(.stats-grid) .content-panel .stack-sm {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.workspace-panel-embed-main:has(.stats-grid) .content-panel label {
+  display: block;
+  margin: 0;
+  color: var(--workspace-progress-copy);
+}
+
+.workspace-panel-embed-main:has(.stats-grid) .content-panel input[type="checkbox"] {
+  margin: 0 0.32rem 0 0;
+  vertical-align: middle;
+}
+
+.workspace-panel-embed-main:has(.stats-grid) .content-panel .button-row {
+  gap: 0.36rem;
+}
+
+.workspace-panel-embed-main:has(.stats-grid) .content-panel .inline-message {
+  margin: 0;
+  color: var(--workspace-progress-copy);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-panel-embed-main:has(.stats-grid) {
+  --workspace-progress-border: #43433f;
+  --workspace-progress-surface: #1d1d1c;
+  --workspace-progress-copy: #c8c8c1;
+}
