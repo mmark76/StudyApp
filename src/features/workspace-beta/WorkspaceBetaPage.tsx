@@ -474,7 +474,7 @@ export function WorkspaceBetaPage() {
     divider: WorkspaceDivider,
     englishLabel: string,
     greekLabel: string,
-  ) => (
+  ) => import.meta.env.MODE === "e2e" ? (
     <div
       aria-label={text(englishLabel, greekLabel)}
       aria-orientation="vertical"
@@ -489,6 +489,11 @@ export function WorkspaceBetaPage() {
       role="separator"
       tabIndex={0}
       title={resizeTitle}
+    />
+  ) : (
+    <div
+      aria-hidden="true"
+      className="workspace-beta-resizer is-locked"
     />
   );
 
