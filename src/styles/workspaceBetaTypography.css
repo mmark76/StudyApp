@@ -188,7 +188,7 @@
 }
 
 .workspace-panel-embed-main .assistant-guide-card > p:not(.eyebrow),
-.workspace-panel-embed-main .assistant-guide-note p:last-child {
+.workspace-panel-embed-main .assistant-guide-note > p:not(.eyebrow) {
   font-size: var(--workspace-type-support);
 }
 
