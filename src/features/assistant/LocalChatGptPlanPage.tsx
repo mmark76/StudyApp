@@ -30,6 +30,7 @@ export function LocalChatGptPlanPage() {
   const [message, setMessage] = useState("");
   const [question, setQuestion] = useState("");
   const [setupRequired, setSetupRequired] = useState(false);
+  const [awaitingApproval, setAwaitingApproval] = useState(false);
   const [state, setState] = useState<ViewState>(localEdition ? "checking" : "ready");
 
   const refresh = useCallback(async () => {
@@ -37,8 +38,10 @@ export function LocalChatGptPlanPage() {
       const status = await getChatGptPlanConnection();
       setConnection(status);
       setSetupRequired(false);
+      if (status.connected || status.connectionState === "unreadable") setAwaitingApproval(false);
       setState("ready");
     } catch (error: unknown) {
+      setAwaitingApproval(false);
       setState("error");
       setMessage(error instanceof Error ? error.message : "The local connection is unavailable.");
     }
@@ -51,11 +54,19 @@ export function LocalChatGptPlanPage() {
     return () => window.removeEventListener("focus", refresh);
   }, [localEdition, refresh]);
 
+  useEffect(() => {
+    if (!localEdition || !awaitingApproval) return;
+    const timer = window.setInterval(() => void refresh(), 1_500);
+    return () => window.clearInterval(timer);
+  }, [awaitingApproval, localEdition, refresh]);
+
   async function connect() {
     setState("working");
     setMessage(text("Finish approval in your browser, then return here.", "Ολοκλήρωσε την έγκριση στον browser και έπειτα επέστρεψε εδώ."));
     try {
-      await startChatGptPlanConnection();
+      const status = await startChatGptPlanConnection();
+      setConnection(status);
+      setAwaitingApproval(true);
       setState("ready");
     } catch (error) {
       setState("error");
@@ -82,6 +93,7 @@ export function LocalChatGptPlanPage() {
     try {
       const status = await removeChatGptPlanConnection();
       setConnection(status);
+      setAwaitingApproval(false);
       setAnswer("");
       setQuestion("");
       setMessage(text("The local ChatGPT connection was removed.", "Η τοπική σύνδεση ChatGPT αφαιρέθηκε."));
@@ -112,7 +124,8 @@ export function LocalChatGptPlanPage() {
     }
   }
 
-  const connected = connection.connected && connection.planUsageAuthorized;
+  const connected = connection.connected;
+  const planReady = connected && connection.planUsageAuthorized;
 
   return (
     <div className="local-chatgpt-plan-page stack-lg">
@@ -146,15 +159,29 @@ export function LocalChatGptPlanPage() {
         <section className="local-chatgpt-plan-card">
           <div className="local-chatgpt-plan-heading">
             <div>
-              <p className="eyebrow">{connected ? text("Connected", "Συνδεδεμένο") : text("Not connected", "Δεν έχει συνδεθεί")}</p>
+              <p className="eyebrow">{planReady
+                ? text("Connected", "Συνδεδεμένο")
+                : connected
+                  ? text("Plan approval needed", "Χρειάζεται έγκριση πλάνου")
+                  : text("Not connected", "Δεν έχει συνδεθεί")}</p>
               <h3>ChatGPT</h3>
             </div>
-            <span className={connected ? "local-chatgpt-plan-dot is-connected" : "local-chatgpt-plan-dot"} aria-hidden="true" />
+            <span className={planReady ? "local-chatgpt-plan-dot is-connected" : "local-chatgpt-plan-dot"} aria-hidden="true" />
           </div>
-          <p>{text(
-            "Connect opens ChatGPT in your browser for approval. StudyApp stores the protected connection only for your current Windows user. It never reads or sends library material automatically.",
-            "Η Σύνδεση ανοίγει το ChatGPT στον browser για έγκριση. Το StudyApp αποθηκεύει την προστατευμένη σύνδεση μόνο για τον τρέχοντα χρήστη Windows. Δεν διαβάζει ή στέλνει αυτόματα υλικό βιβλιοθήκης.",
-          )}</p>
+          <p>{planReady
+            ? text(
+              "Your ChatGPT plan is ready for questions. StudyApp sends only the question you submit.",
+              "Το πλάνο ChatGPT είναι έτοιμο για ερωτήσεις. Το StudyApp στέλνει μόνο την ερώτηση που υποβάλλεις.",
+            )
+            : connected
+              ? text(
+                "ChatGPT is connected, but plan use was not approved. Disconnect and connect again to approve plan use.",
+                "Το ChatGPT είναι συνδεδεμένο, αλλά δεν εγκρίθηκε η χρήση του πλάνου. Αποσυνδέσου και συνδέσου ξανά για να εγκρίνεις τη χρήση του πλάνου.",
+              )
+              : text(
+                "Connect opens ChatGPT in your browser for approval. StudyApp stores the protected connection only for your current Windows user. It never reads or sends library material automatically.",
+                "Η Σύνδεση ανοίγει το ChatGPT στον browser για έγκριση. Το StudyApp αποθηκεύει την προστατευμένη σύνδεση μόνο για τον τρέχοντα χρήστη Windows. Δεν διαβάζει ή στέλνει αυτόματα υλικό βιβλιοθήκης.",
+              )}</p>
           <div className="button-row">
             {connected ? (
               <button className="button secondary" disabled={state === "working"} onClick={() => void disconnect()} type="button">{text("Disconnect", "Αποσύνδεση")}</button>
@@ -166,7 +193,7 @@ export function LocalChatGptPlanPage() {
             )}
           </div>
 
-          {connected ? (
+          {planReady ? (
             <div className="local-chatgpt-plan-question">
               <label htmlFor="local-chatgpt-plan-question">{text("Your question", "Η ερώτησή σου")}</label>
               <textarea id="local-chatgpt-plan-question" maxLength={12000} onChange={(event) => setQuestion(event.target.value)} placeholder={text("Ask for study help…", "Ζήτησε βοήθεια για τη μελέτη…")} value={question} />

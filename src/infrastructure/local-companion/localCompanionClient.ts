@@ -21,9 +21,10 @@ export class LocalCompanionError extends Error {
 }
 
 const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost"]);
+const STUDYAPP_LOCAL_PORT = "8766";
 
 export function isStudyAppLocalEdition(
-  locationValue?: Pick<Location, "hostname" | "protocol">,
+  locationValue?: Pick<Location, "hostname" | "port" | "protocol">,
 ): boolean {
   const currentLocation = locationValue ?? (
     typeof window === "undefined" ? undefined : window.location
@@ -31,7 +32,8 @@ export function isStudyAppLocalEdition(
   return Boolean(
     currentLocation &&
     currentLocation.protocol === "http:" &&
-    LOCAL_HOSTS.has(currentLocation.hostname),
+    LOCAL_HOSTS.has(currentLocation.hostname) &&
+    currentLocation.port === STUDYAPP_LOCAL_PORT,
   );
 }
 
