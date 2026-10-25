@@ -903,6 +903,15 @@
   line-height: 1.2;
 }
 
+/* Embedded action inset */
+.workspace-panel-embed-main :is(
+  button:not(.core-knowledge-chapter-button),
+  a.button,
+  [role="button"]
+) {
+  padding-inline: 0.58rem !important;
+}
+
 .workspace-beta-functional-shell .workspace-beta-header-left > *,
 .workspace-beta-functional-shell .workspace-beta-header-actions > * {
   align-self: center;
