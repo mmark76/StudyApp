@@ -31,3 +31,27 @@
 .workspace-panel-embed-main .assistant-guide-page--workspace .assistant-guide-workspace-primary .button {
   font-size: 0.8rem !important;
 }
+
+/* Keep the header action buttons at the CTA scale by default, then let their
+   labels shrink with each resizable column when space gets tight. */
+.workspace-beta-functional-shell
+  :is(
+    .workspace-beta-panel-sources,
+    .workspace-beta-panel-knowledge,
+    .workspace-beta-panel-practice
+  )
+  .workspace-beta-panel-tools
+  button {
+  font-size: clamp(0.5rem, 2.8cqw, 0.8rem) !important;
+}
+
+.workspace-beta-functional-shell
+  :is(
+    .workspace-beta-panel-sources,
+    .workspace-beta-panel-knowledge,
+    .workspace-beta-panel-practice
+  )
+  .workspace-beta-panel-tools
+  button:first-child {
+  font-size: clamp(0.5rem, 3cqw, 0.8rem) !important;
+}
