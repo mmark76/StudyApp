@@ -925,14 +925,3 @@
   font-size: clamp(0.5rem, 3.4cqw, var(--workspace-type-small, 0.8rem)) !important;
 }
 
-.workspace-beta-functional-shell
-  :is(
-    .workspace-beta-panel-sources,
-    .workspace-beta-panel-knowledge,
-    .workspace-beta-panel-practice
-  )
-  .workspace-beta-panel-tools
-  button:first-child {
-  font-size: clamp(0.5rem, 3.6cqw, var(--workspace-type-small, 0.8rem)) !important;
-}
-
