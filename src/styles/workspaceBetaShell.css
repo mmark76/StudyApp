@@ -1866,25 +1866,6 @@ body:has(.workspace-panel-embed-shell),
   }
 }
 
-/* Global footer */
-.workspace-beta-functional-shell {display:flex;flex-direction:column;height:100dvh;min-height:0;}
-.workspace-beta-functional-shell .workspace-beta-header {flex:0 0 auto;}
-.workspace-beta-functional-shell .workspace-beta-main {flex:1 1 auto;height:auto;min-height:0;}
-.workspace-beta-global-footer {flex:0 0 auto;display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:.25rem .85rem;padding:.38rem .75rem;border-top:1px solid #dfdfda;background:#fdfdfb;color:#74746e;font-size:var(--workspace-type-micro, 10px);line-height:1.4;text-align:center;}
-.workspace-beta-footer-version {font-weight:var(--workspace-weight-regular, 400);color:inherit;}
-
-.workspace-beta-functional-panel.workspace-beta-panel-practice::after {content:none;}
-.workspace-beta-functional-panel.workspace-beta-panel-practice .workspace-beta-frame-wrap {padding-bottom:0;}
-:root[data-workspace-theme="dark"] .workspace-beta-global-footer {border-top-color:#3b3b37;background:#1d1d1c;color:#aaa9a2;}
-
-@media(max-width:760px) {
-  .workspace-beta-mobile-shell > .workspace-beta-functional-shell {height:auto;min-height:0;}
-  .workspace-beta-mobile-shell > .workspace-beta-functional-shell .workspace-beta-main {height:auto;}
-  .workspace-beta-global-footer {gap:.1rem .55rem;padding:.35rem .5rem;}
-}
-
-.workspace-beta-global-footer > span {font-weight:var(--workspace-weight-regular, 400);}
-
 /* Practice panel footer */
 .workspace-beta-functional-panel.workspace-beta-panel-practice {
   position: relative;
@@ -1923,6 +1904,25 @@ body:has(.workspace-panel-embed-shell),
   background: rgb(29 29 28 / 0.96);
   color: #aaa9a2;
 }
+
+/* Global footer */
+.workspace-beta-functional-shell {display:flex;flex-direction:column;height:100dvh;min-height:0;}
+.workspace-beta-functional-shell .workspace-beta-header {flex:0 0 auto;}
+.workspace-beta-functional-shell .workspace-beta-main {flex:1 1 auto;height:auto;min-height:0;}
+.workspace-beta-global-footer {flex:0 0 auto;display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:.25rem .85rem;padding:.38rem .75rem;border-top:1px solid #dfdfda;background:#fdfdfb;color:#74746e;font-size:var(--workspace-type-micro, 10px);line-height:1.4;text-align:center;}
+.workspace-beta-footer-version {font-weight:var(--workspace-weight-regular, 400);color:inherit;}
+
+.workspace-beta-functional-panel.workspace-beta-panel-practice::after {content:none;}
+.workspace-beta-functional-panel.workspace-beta-panel-practice .workspace-beta-frame-wrap {padding-bottom:0;}
+:root[data-workspace-theme="dark"] .workspace-beta-global-footer {border-top-color:#3b3b37;background:#1d1d1c;color:#aaa9a2;}
+
+@media(max-width:760px) {
+  .workspace-beta-mobile-shell > .workspace-beta-functional-shell {height:auto;min-height:0;}
+  .workspace-beta-mobile-shell > .workspace-beta-functional-shell .workspace-beta-main {height:auto;}
+  .workspace-beta-global-footer {gap:.1rem .55rem;padding:.35rem .5rem;}
+}
+
+.workspace-beta-global-footer > span {font-weight:var(--workspace-weight-regular, 400);}
 
 /* PWA update notice */
 .workspace-beta-functional-shell ~ .pwa-update-toast {
