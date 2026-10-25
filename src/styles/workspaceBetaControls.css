@@ -1,0 +1,938 @@
+/* Workspace BETA controls.
+ * Scope: BETA buttons, links and action controls only.
+ */
+
+/* Control tokens and semantic actions */
+.workspace-beta-shell,
+.workspace-panel-embed-shell {
+  --ws-btn-text: #f0f0ea;
+  --ws-btn-green-bg: #4a604f;
+  --ws-btn-green-border: #657a68;
+  --ws-btn-green-hover: #556d5a;
+  --ws-btn-gold-bg: #6a5833;
+  --ws-btn-gold-border: #857044;
+  --ws-btn-gold-hover: #78643a;
+  --ws-btn-wood-bg: #5c493c;
+  --ws-btn-wood-border: #735d4c;
+  --ws-btn-wood-hover: #685344;
+  --ws-btn-slate-bg: #44484b;
+  --ws-btn-slate-border: #5e6366;
+  --ws-btn-slate-hover: #505558;
+  --ws-btn-red-bg: #674141;
+  --ws-btn-red-border: #815656;
+  --ws-btn-red-hover: #744a4a;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-shell,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-shell {
+  --ws-btn-green-bg: #3f5546;
+  --ws-btn-green-border: #58715e;
+  --ws-btn-green-hover: #496250;
+  --ws-btn-gold-bg: #645330;
+  --ws-btn-gold-border: #816c3f;
+  --ws-btn-gold-hover: #725f36;
+  --ws-btn-wood-bg: #57453a;
+  --ws-btn-wood-border: #70594b;
+  --ws-btn-wood-hover: #624f42;
+  --ws-btn-slate-bg: #383c3f;
+  --ws-btn-slate-border: #51565a;
+  --ws-btn-slate-hover: #44494d;
+  --ws-btn-red-bg: #5f3b3b;
+  --ws-btn-red-border: #7c4f4f;
+  --ws-btn-red-hover: #6b4444;
+}
+
+
+.workspace-panel-embed-main .button.secondary,
+.workspace-panel-embed-main .button.utility {
+  border: 1px solid var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-bg);
+  color: var(--ws-btn-text);
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main .button.secondary:hover,
+.workspace-panel-embed-main .button.utility:hover {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-hover);
+  color: var(--ws-btn-text);
+}
+
+
+.workspace-panel-embed-main .button.primary,
+.workspace-panel-embed-main .button.study,
+.workspace-panel-embed-main .button.practice,
+.workspace-panel-embed-main .button.review,
+.workspace-panel-embed-main .button.quiz,
+.workspace-panel-embed-main .button.success {
+  border: 1px solid var(--ws-btn-green-border);
+  background: var(--ws-btn-green-bg);
+  color: var(--ws-btn-text);
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main .button.primary:hover,
+.workspace-panel-embed-main .button.study:hover,
+.workspace-panel-embed-main .button.practice:hover,
+.workspace-panel-embed-main .button.review:hover,
+.workspace-panel-embed-main .button.quiz:hover,
+.workspace-panel-embed-main .button.success:hover {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-hover);
+  color: var(--ws-btn-text);
+}
+
+
+.workspace-panel-embed-main .button.assistant,
+.workspace-panel-embed-main .assistant-guide-page .button.secondary {
+  border: 1px solid var(--ws-btn-gold-border);
+  background: var(--ws-btn-gold-bg);
+  color: var(--ws-btn-text);
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main .button.assistant:hover,
+.workspace-panel-embed-main .assistant-guide-page .button.secondary:hover {
+  border-color: var(--ws-btn-gold-border);
+  background: var(--ws-btn-gold-hover);
+  color: var(--ws-btn-text);
+}
+
+
+.workspace-panel-embed-main
+  .practice-content-option
+  > .button-row
+  > button.button.secondary {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-bg);
+  color: var(--ws-btn-text);
+}
+
+.workspace-panel-embed-main
+  .practice-content-option
+  > .button-row
+  > button.button.secondary:hover {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-hover);
+  color: var(--ws-btn-text);
+}
+
+.workspace-panel-embed-main
+  .practice-content-option
+  > .button-row
+  > button.button.primary {
+  border-color: var(--ws-btn-gold-border);
+  background: var(--ws-btn-gold-bg);
+  color: var(--ws-btn-text);
+}
+
+.workspace-panel-embed-main
+  .practice-content-option
+  > .button-row
+  > button.button.primary:hover {
+  border-color: var(--ws-btn-gold-border);
+  background: var(--ws-btn-gold-hover);
+  color: var(--ws-btn-text);
+}
+
+.workspace-panel-embed-main
+  .practice-content-option
+  > .button-row
+  > a.button.secondary {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-bg);
+  color: var(--ws-btn-text);
+}
+
+.workspace-panel-embed-main
+  .practice-content-option
+  > .button-row
+  > a.button.secondary:hover {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-hover);
+  color: var(--ws-btn-text);
+}
+
+
+.workspace-panel-embed-main .practice-content-item .button.secondary,
+.workspace-panel-embed-main .practice-content-pagination-actions .button.secondary,
+.workspace-panel-embed-main .practice-content-editor .button.secondary {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-bg);
+  color: var(--ws-btn-text);
+}
+
+.workspace-panel-embed-main .practice-content-item .button.secondary:hover,
+.workspace-panel-embed-main .practice-content-pagination-actions .button.secondary:hover,
+.workspace-panel-embed-main .practice-content-editor .button.secondary:hover {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-hover);
+  color: var(--ws-btn-text);
+}
+
+
+.workspace-panel-embed-main .button.danger,
+.workspace-panel-embed-main .practice-content-item .button.danger {
+  border: 1px solid var(--ws-btn-red-border);
+  background: var(--ws-btn-red-bg);
+  color: var(--ws-btn-text);
+  box-shadow: none;
+  filter: none;
+}
+
+.workspace-panel-embed-main .button.danger:hover,
+.workspace-panel-embed-main .practice-content-item .button.danger:hover {
+  border-color: var(--ws-btn-red-border);
+  background: var(--ws-btn-red-hover);
+  color: var(--ws-btn-text);
+  filter: none;
+}
+
+
+.workspace-panel-embed-main
+  .workspace-beta-sources-page
+  .dashboard-action-card
+  .button,
+.workspace-beta-functional-shell .workspace-beta-panel-tools button,
+.workspace-beta-functional-shell .workspace-beta-standard-version {
+  border: 1px solid var(--ws-btn-wood-border);
+  background: var(--ws-btn-wood-bg);
+  color: var(--ws-btn-text);
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main
+  .workspace-beta-sources-page
+  .dashboard-action-card
+  .button:hover,
+.workspace-beta-functional-shell .workspace-beta-panel-tools button:hover,
+.workspace-beta-functional-shell .workspace-beta-standard-version:hover {
+  border-color: var(--ws-btn-wood-border);
+  background: var(--ws-btn-wood-hover);
+  color: var(--ws-btn-text);
+}
+
+
+.workspace-beta-functional-shell .workspace-beta-ai-launch-row a {
+  border: 1px solid var(--ws-btn-green-border);
+  background: var(--ws-btn-green-bg);
+  color: var(--ws-btn-text);
+  box-shadow: none;
+}
+
+.workspace-beta-functional-shell .workspace-beta-ai-launch-row a:hover {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-hover);
+  color: var(--ws-btn-text);
+}
+
+
+.workspace-beta-functional-shell .workspace-beta-info-modal-header > button {
+  border: 1px solid var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-bg);
+  color: var(--ws-btn-text);
+}
+
+.workspace-beta-functional-shell .workspace-beta-info-modal-header > button:hover {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-hover);
+  color: var(--ws-btn-text);
+}
+
+
+.workspace-beta-functional-shell ~ .pwa-update-toast .button.primary {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-bg);
+  color: var(--ws-btn-text);
+}
+
+.workspace-beta-functional-shell ~ .pwa-update-toast .button.primary:hover {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-hover);
+  color: var(--ws-btn-text);
+}
+
+.workspace-beta-functional-shell ~ .pwa-update-toast .button.secondary {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-bg);
+  color: var(--ws-btn-text);
+}
+
+.workspace-beta-functional-shell ~ .pwa-update-toast .button.secondary:hover {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-hover);
+  color: var(--ws-btn-text);
+}
+
+.workspace-panel-embed-main .button:focus-visible,
+.workspace-beta-functional-shell .workspace-beta-panel-tools button:focus-visible,
+.workspace-beta-functional-shell .workspace-beta-standard-version:focus-visible,
+.workspace-beta-functional-shell .workspace-beta-ai-launch-row a:focus-visible,
+.workspace-beta-functional-shell .workspace-beta-info-modal-header > button:focus-visible,
+.workspace-beta-functional-shell ~ .pwa-update-toast .button:focus-visible {
+  outline: 2px solid #c8a761;
+  outline-offset: 2px;
+}
+
+.workspace-panel-embed-main .button:disabled,
+.workspace-beta-functional-shell .workspace-beta-panel-tools button:disabled,
+.workspace-beta-functional-shell ~ .pwa-update-toast .button:disabled {
+  opacity: 0.52;
+}
+
+/* Source and AI actions */
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.practice,
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.review,
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.quiz {
+  min-height: 1.9rem;
+  padding: 0.34rem 0.58rem;
+  border: 1px solid var(--ws-btn-green-border);
+  border-radius: 0.36rem;
+  background: var(--ws-btn-green-bg);
+  color: var(--ws-btn-text);
+  box-shadow: none;
+  text-decoration: none;
+}
+
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.practice:hover,
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.review:hover,
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.quiz:hover {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-hover);
+  color: var(--ws-btn-text);
+}
+
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.utility {
+  min-height: 1.9rem;
+  padding: 0.34rem 0.58rem;
+  border: 1px solid var(--ws-btn-slate-border);
+  border-radius: 0.36rem;
+  background: var(--ws-btn-slate-bg);
+  color: var(--ws-btn-text);
+  box-shadow: none;
+  text-decoration: none;
+}
+
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.utility:hover {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-hover);
+  color: var(--ws-btn-text);
+}
+
+
+.workspace-panel-embed-main
+  .workspace-beta-sources-page
+  .dashboard-action-card
+  .button {
+  display: inline-flex;
+  min-height: 1.9rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.34rem 0.58rem;
+  border: 1px solid var(--ws-btn-wood-border);
+  border-radius: 0.36rem;
+  background: var(--ws-btn-wood-bg);
+  color: var(--ws-btn-text);
+  box-shadow: none;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.workspace-panel-embed-main
+  .workspace-beta-sources-page
+  .dashboard-action-card
+  .button:hover {
+  border-color: var(--ws-btn-wood-border);
+  background: var(--ws-btn-wood-hover);
+  color: var(--ws-btn-text);
+}
+
+
+.workspace-panel-embed-main
+  .assistant-guide-page
+  .assistant-guide-hero
+  .button.secondary,
+.workspace-panel-embed-main
+  .assistant-guide-page
+  .assistant-guide-card
+  .button.secondary {
+  display: inline-flex;
+  min-height: 1.9rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.34rem 0.58rem;
+  border: 1px solid var(--ws-btn-gold-border);
+  border-radius: 0.36rem;
+  background: var(--ws-btn-gold-bg);
+  color: var(--ws-btn-text);
+  box-shadow: none;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.workspace-panel-embed-main
+  .assistant-guide-page
+  .assistant-guide-hero
+  .button.secondary:hover,
+.workspace-panel-embed-main
+  .assistant-guide-page
+  .assistant-guide-card
+  .button.secondary:hover {
+  border-color: var(--ws-btn-gold-border);
+  background: var(--ws-btn-gold-hover);
+  color: var(--ws-btn-text);
+}
+
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  .workspace-beta-panel-tools
+  button,
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  .workspace-beta-standard-version {
+  border-color: var(--ws-btn-wood-border);
+  background: var(--ws-btn-wood-bg);
+  color: var(--ws-btn-text);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  .workspace-beta-panel-tools
+  button:hover,
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  .workspace-beta-standard-version:hover {
+  border-color: var(--ws-btn-wood-border);
+  background: var(--ws-btn-wood-hover);
+  color: var(--ws-btn-text);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  .workspace-beta-ai-launch-row
+  a {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-bg);
+  color: var(--ws-btn-text);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  .workspace-beta-ai-launch-row
+  a:hover {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-hover);
+  color: var(--ws-btn-text);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  .workspace-beta-info-modal-header
+  > button {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-bg);
+  color: var(--ws-btn-text);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  .workspace-beta-info-modal-header
+  > button:hover {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-hover);
+  color: var(--ws-btn-text);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  ~ .pwa-update-toast
+  .button.primary {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-bg);
+  color: var(--ws-btn-text);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  ~ .pwa-update-toast
+  .button.primary:hover {
+  border-color: var(--ws-btn-green-border);
+  background: var(--ws-btn-green-hover);
+  color: var(--ws-btn-text);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  ~ .pwa-update-toast
+  .button.secondary {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-bg);
+  color: var(--ws-btn-text);
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-beta-functional-shell
+  ~ .pwa-update-toast
+  .button.secondary:hover {
+  border-color: var(--ws-btn-slate-border);
+  background: var(--ws-btn-slate-hover);
+  color: var(--ws-btn-text);
+}
+
+/* Practice actions */
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.practice {
+  border-color: #7c6995;
+  background: #66547e;
+  color: #fbf8ff;
+}
+
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.practice:hover {
+  border-color: #8b76a5;
+  background: #725e8d;
+  color: #fbf8ff;
+}
+
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.review {
+  border-color: #92794a;
+  background: #7a653c;
+  color: #fffaf0;
+}
+
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.review:hover {
+  border-color: #a18855;
+  background: #887043;
+  color: #fffaf0;
+}
+
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.quiz {
+  border-color: #628575;
+  background: #4f6f5f;
+  color: #f5fff8;
+}
+
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.quiz:hover {
+  border-color: #709584;
+  background: #587c69;
+  color: #f5fff8;
+}
+
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.utility {
+  border-color: #6d7d8c;
+  background: #556473;
+  color: #f6f9fc;
+}
+
+.workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.utility:hover {
+  border-color: #7b8b9a;
+  background: #606f7f;
+  color: #f6f9fc;
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.practice {
+  border-color: #77618f;
+  background: #59486f;
+  color: #fbf8ff;
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.practice:hover {
+  border-color: #886fa2;
+  background: #65517e;
+  color: #fbf8ff;
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.review {
+  border-color: #887344;
+  background: #695832;
+  color: #fffaf0;
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.review:hover {
+  border-color: #9a8350;
+  background: #77643a;
+  color: #fffaf0;
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.quiz {
+  border-color: #587766;
+  background: #405f50;
+  color: #f5fff8;
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.quiz:hover {
+  border-color: #678876;
+  background: #496b5a;
+  color: #f5fff8;
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.utility {
+  border-color: #5d6c78;
+  background: #43525f;
+  color: #f6f9fc;
+}
+
+:root[data-workspace-theme="dark"]
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.utility:hover {
+  border-color: #6c7c89;
+  background: #4d5e6c;
+  color: #f6f9fc;
+}
+
+
+.workspace-beta-functional-panel.workspace-beta-panel-studio
+  > .workspace-beta-functional-panel-header
+  .workspace-beta-panel-tools {
+  display: none;
+}
+
+/* Light-mode control surfaces */
+:root:not([data-workspace-theme="dark"])
+  .workspace-beta-functional-shell
+  .workspace-beta-panel-tools button {
+  border-color: #d4c8bd;
+  background: #eee8e2;
+  color: #5b4637;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-beta-functional-shell
+  .workspace-beta-panel-tools button:hover {
+  border-color: #bfae9f;
+  background: #e2d8cf;
+  color: #49372b;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-beta-functional-shell
+  .workspace-beta-ai-launch-row a {
+  border: 1px solid #b8cbbf;
+  background: #e6eee9;
+  color: #365947;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-beta-functional-shell
+  .workspace-beta-ai-launch-row a:hover {
+  border-color: #9eb7a8;
+  background: #d8e5dd;
+  color: #294b3a;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.practice {
+  border-color: #cfc3d9;
+  background: #eee9f2;
+  color: #59466d;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.practice:hover {
+  border-color: #b7a7c5;
+  background: #e2d9e8;
+  color: #49375c;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.review {
+  border-color: #d8caab;
+  background: #f3eee2;
+  color: #6b572f;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.review:hover {
+  border-color: #c1ae82;
+  background: #e9dfc9;
+  color: #59461f;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.quiz {
+  border-color: #bfd0c7;
+  background: #e7efeb;
+  color: #365c4a;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.quiz:hover {
+  border-color: #9fb9ab;
+  background: #d7e5de;
+  color: #284c3b;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.utility {
+  border-color: #c3cdd5;
+  background: #e8edf1;
+  color: #435766;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .learning-stage-grid.learn-tools-grid
+  .learning-stage-card
+  .button.utility:hover {
+  border-color: #a5b4bf;
+  background: #d9e1e7;
+  color: #334957;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .assistant-guide-page--workspace
+  .button.secondary {
+  border-color: #d4c7b7;
+  background: #eee8e0;
+  color: #5a4635;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .assistant-guide-page--workspace
+  .button.secondary:hover {
+  border-color: #bdac98;
+  background: #e1d6ca;
+  color: #493828;
+}
+
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .core-knowledge-chapter-button {
+  color: #667484;
+  font-size: 0.62rem;
+  font-weight: 600;
+}
+
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .core-knowledge-chapter-button:hover,
+:root:not([data-workspace-theme="dark"])
+  .workspace-panel-embed-main
+  .core-knowledge-chapter-button:focus-visible {
+  color: #33475a;
+}
+
+
+.workspace-panel-embed-main
+  .assistant-guide-page--workspace
+  .assistant-guide-workspace-primary > .eyebrow,
+.workspace-panel-embed-main
+  .assistant-guide-page--workspace
+  .assistant-guide-workspace-primary > h2 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.workspace-panel-embed-main
+  .assistant-guide-page--workspace
+  .assistant-guide-workspace-primary .button-row {
+  display: grid;
+  width: fit-content;
+  max-width: 100%;
+  grid-template-columns: minmax(0, max-content);
+  gap: 0.36rem;
+  margin-top: 0;
+}
+
+.workspace-panel-embed-main
+  .assistant-guide-page--workspace
+  .assistant-guide-workspace-primary .button-row .button {
+  width: fit-content;
+  max-width: 100%;
+  white-space: normal;
+  text-align: left;
+}
+
+
+.workspace-panel-embed-main
+  .workspace-beta-practice-page > .page-heading > .eyebrow,
+.workspace-panel-embed-main
+  .workspace-beta-practice-page > .page-heading > h2 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.workspace-panel-embed-main
+  .workspace-beta-practice-page > .page-heading {
+  margin: 0 0 0.58rem;
+}
+
+.workspace-panel-embed-main
+  .workspace-beta-practice-page > .page-heading > p:last-child {
+  margin: 0;
+  color: var(--slate-600, #475569);
+  font-size: var(--workspace-type-small, 0.72rem);
+  line-height: 1.45;
+}
+
+/* Control sizing */
+.workspace-beta-functional-shell :is(
+  button:not(.workspace-beta-resizer),
+  .workspace-beta-ai-launch-row a,
+  .workspace-beta-standard-version,
+  .workspace-beta-info-menu > summary,
+  .workspace-beta-header-actions > a
+),
+.workspace-panel-embed-main :is(
+  button:not(.core-knowledge-chapter-button),
+  a.button,
+  [role="button"],
+  summary
+) {
+  box-sizing: border-box;
+  min-height: 1.6rem !important;
+  padding-block: 0.1rem !important;
+  border-radius: 0.36rem !important;
+  font-size: var(--workspace-type-small, 0.8rem) !important;
+  font-weight: var(--workspace-weight-control, 700) !important;
+  line-height: 1.2;
+}
+
+.workspace-beta-functional-shell .workspace-beta-header-left > *,
+.workspace-beta-functional-shell .workspace-beta-header-actions > * {
+  align-self: center;
+}
+
+.workspace-panel-embed-main .assistant-guide-page--workspace .assistant-guide-workspace-primary .button {
+  font-size: var(--workspace-type-small, 0.8rem) !important;
+  font-weight: var(--workspace-weight-control, 700) !important;
+}
+
+
+.workspace-beta-functional-shell
+  :is(
+    .workspace-beta-panel-sources,
+    .workspace-beta-panel-knowledge,
+    .workspace-beta-panel-practice
+  )
+  .workspace-beta-panel-tools
+  button {
+  font-size: clamp(0.5rem, 3.4cqw, var(--workspace-type-small, 0.8rem)) !important;
+}
+
+.workspace-beta-functional-shell
+  :is(
+    .workspace-beta-panel-sources,
+    .workspace-beta-panel-knowledge,
+    .workspace-beta-panel-practice
+  )
+  .workspace-beta-panel-tools
+  button:first-child {
+  font-size: clamp(0.5rem, 3.6cqw, var(--workspace-type-small, 0.8rem)) !important;
+}
+
