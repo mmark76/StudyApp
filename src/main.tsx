@@ -13,8 +13,6 @@ import "./features/workspace-beta/workspaceInfoMenuAutoClose";
 import "./features/workspace-beta/workspaceInfoModalDocument";
 import "./styles/global.css";
 import "./styles/headerNavigation.css";
-import "./styles/workspaceBeta.css";
-import "./styles/workspaceBetaFunctional.css";
 import "./styles/semanticButtons.css";
 import "./styles/storageNotice.css";
 import "./styles/onboarding.css";
@@ -27,28 +25,12 @@ import "./styles/assistantGuide.css";
 import "./styles/assistantComparison.css";
 import "./styles/assistantModes.css";
 import "./styles/language.css";
-import "./styles/workspaceBetaSecondaryInfo.css";
-import "./styles/workspaceBetaAvatar.css";
-import "./styles/workspaceBetaAiPanelNavigation.css";
+import "./styles/workspaceBetaShell.css";
 import "./styles/workspaceBetaTypography.css";
-import "./styles/workspaceBetaHeaderControls.css";
 import "./styles/workspaceBetaTheme.css";
-import "./styles/workspaceBetaPwaUpdate.css";
-import "./styles/workspaceBetaButtons.css";
-import "./styles/workspaceBetaModalContrast.css";
-import "./styles/workspaceBetaComparison.css";
-import "./styles/workspaceBetaPracticeContentPlacement.css";
-import "./styles/workspaceBetaButtonPolish.css";
-import "./styles/workspaceBetaPracticeFooter.css";
-import "./styles/workspaceBetaRegressionFixes.css";
-import "./styles/workspaceBetaImportedActionContrast.css";
-import "./styles/workspaceBetaPracticeActionColors.css";
-import "./styles/workspaceBetaFourPanel.css";
-import "./styles/workspaceBetaCompactUi.css";
-import "./styles/workspaceBetaLightPolish.css";
-import "./styles/workspaceBetaNarrowPanel.css";
-import "./styles/workspaceBetaMobileShell.css";
-import "./styles/workspaceBetaGlobalFooter.css";
+import "./styles/workspaceBetaContent.css";
+import "./styles/workspaceBetaInfo.css";
+import "./styles/workspaceBetaControls.css";
 
 if (!enforceSecureTransport()) {
   initializeAnalytics();
@@ -74,4 +56,3 @@ if (!enforceSecureTransport()) {
     </StrictMode>,
   );
 }
-import "./styles/workspaceBetaButtonSizing.css";

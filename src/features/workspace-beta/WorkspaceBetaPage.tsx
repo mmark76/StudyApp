@@ -15,7 +15,6 @@ import { useAppearanceSettings } from "../appearance/useAppearanceSettings";
 import { WorkspaceThemeToggle } from "./WorkspaceThemeToggle";
 import { StudyAppVersionedZipLink } from "./StudyAppVersionedZipLink";
 import { WorkspaceMaterialManager } from "./WorkspaceMaterialManager";
-import "../../styles/workspaceBetaInfo.css";
 
 type WorkspacePanelId = "sources" | "knowledge" | "practice" | "ai";
 type WorkspaceDivider = 0 | 1 | 2;
