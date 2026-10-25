@@ -84,7 +84,90 @@
   padding: 0.62rem 0.75rem;
   background: #fdfdfb;
 }
+/* Keep the three main workspace headers in three fixed rows while panels resize:
+   section number, title, then the action buttons. */
+.workspace-beta-functional-shell :is(
+  .workspace-beta-panel-sources,
+  .workspace-beta-panel-knowledge,
+  .workspace-beta-panel-practice
+) {
+  container-type: inline-size;
+}
 
+.workspace-beta-functional-shell :is(
+  .workspace-beta-panel-sources,
+  .workspace-beta-panel-knowledge,
+  .workspace-beta-panel-practice
+) .workspace-beta-functional-panel-header {
+  height: 120px;
+  min-height: 120px;
+  max-height: 120px;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0.4rem;
+  overflow: hidden;
+}
+
+.workspace-beta-functional-shell :is(
+  .workspace-beta-panel-sources,
+  .workspace-beta-panel-knowledge,
+  .workspace-beta-panel-practice
+) .workspace-beta-functional-panel-header > div:first-child {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.workspace-beta-functional-shell :is(
+  .workspace-beta-panel-sources,
+  .workspace-beta-panel-knowledge,
+  .workspace-beta-panel-practice
+) .workspace-beta-functional-panel-header h2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-beta-functional-shell :is(
+  .workspace-beta-panel-sources,
+  .workspace-beta-panel-knowledge,
+  .workspace-beta-panel-practice
+) .workspace-beta-panel-tools {
+  width: 100%;
+  min-width: 0;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+}
+
+.workspace-beta-functional-shell :is(
+  .workspace-beta-panel-sources,
+  .workspace-beta-panel-knowledge,
+  .workspace-beta-panel-practice
+) .workspace-beta-panel-tools button {
+  min-width: 0;
+  padding: 0.18rem 0.2rem;
+  font-size: clamp(0.35rem, 2.5cqw, 0.6rem);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.workspace-beta-functional-shell :is(
+  .workspace-beta-panel-sources,
+  .workspace-beta-panel-knowledge,
+  .workspace-beta-panel-practice
+) .workspace-beta-panel-tools button:first-child {
+  flex: 0 0 38%;
+}
+
+.workspace-beta-functional-shell :is(
+  .workspace-beta-panel-sources,
+  .workspace-beta-panel-knowledge,
+  .workspace-beta-panel-practice
+) .workspace-beta-panel-tools button:last-child {
+  flex: 1 1 0;
+}
 .workspace-beta-functional-panel-header h2 {
   margin-top: 0.08rem;
   font-size: 0.96rem;

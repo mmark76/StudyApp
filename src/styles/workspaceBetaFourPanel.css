@@ -1,11 +1,11 @@
 /* Workspace BETA four-panel information architecture. */
 .workspace-beta-functional-grid {
   grid-template-columns:
-    minmax(0, var(--workspace-sources-track, 22fr))
+    minmax(0, var(--workspace-sources-track, 25fr))
     10px
-    minmax(0, var(--workspace-knowledge-track, 22fr))
+    minmax(0, var(--workspace-knowledge-track, 28fr))
     10px
-    minmax(0, var(--workspace-practice-track, 34fr))
+    minmax(0, var(--workspace-practice-track, 25fr))
     10px
     minmax(0, var(--workspace-ai-track, 22fr));
 }

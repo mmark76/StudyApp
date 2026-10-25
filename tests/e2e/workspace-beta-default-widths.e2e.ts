@@ -1,6 +1,6 @@
 import { expect, test, type Locator } from "@playwright/test";
 
-const expectedRatios = [0.22, 0.22, 0.34, 0.22] as const;
+const expectedRatios = [0.25, 0.28, 0.25, 0.22] as const;
 
 async function readPanelRatios(panels: Locator): Promise<number[]> {
   const widths = await panels.evaluateAll((items) =>
@@ -20,7 +20,7 @@ function maximumRatioError(ratios: number[]): number {
   return Math.max(...ratios.map((ratio, index) => Math.abs(ratio - expectedRatios[index])));
 }
 
-test("Workspace BETA defaults and resets to 22/22/34/22 panel proportions", async ({ page }) => {
+test("Workspace BETA defaults and resets to 25/28/25/22 panel proportions", async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/#/workspace-beta");
 
