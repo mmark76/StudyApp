@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 
 export const latestStudyAppReleaseApi = "https://api.github.com/repos/mmark76/StudyApp/releases/latest";
+const stableStudyAppReleaseApi = "https://api.github.com/repos/mmark76/StudyApp/releases/tags/v1.1.5";
 
 interface ReleaseZip {
   tag: string;
@@ -40,12 +41,14 @@ function VersionedReleaseZipLink({
   label,
   unavailableLabel,
   className,
+  releaseApi = latestStudyAppReleaseApi,
 }: {
   findAsset: (value: unknown) => ReleaseZip | null;
   onClick?: () => void;
   label: (tag: string) => string;
   unavailableLabel: string;
   className?: string;
+  releaseApi?: string;
 }) {
   const { text } = useLanguage();
   const [release, setRelease] = useState<ReleaseZip | null>(null);
@@ -55,7 +58,7 @@ function VersionedReleaseZipLink({
     const controller = new AbortController();
     async function checkRelease() {
       try {
-        const response = await fetch(latestStudyAppReleaseApi, {
+        const response = await fetch(releaseApi, {
           signal: controller.signal,
           headers: { Accept: "application/vnd.github+json" },
         });
@@ -71,7 +74,7 @@ function VersionedReleaseZipLink({
     }
     void checkRelease();
     return () => controller.abort();
-  }, [findAsset]);
+  }, [findAsset, releaseApi]);
 
   if (release && state === "available") {
     return (
@@ -106,6 +109,20 @@ export function StudyAppVersionedZipLink({ onClick }: { onClick?: () => void }) 
   );
 }
 
+/** The user-confirmed working Windows release remains available beside latest. */
+export function StudyAppStableLocalWindowsZipLink({ className }: { className?: string }) {
+  const { text } = useLanguage();
+  return (
+    <VersionedReleaseZipLink
+      findAsset={findStudyAppLocalWindowsZip}
+      releaseApi={stableStudyAppReleaseApi}
+      className={className}
+      label={() => text("Download working v1.1.5", "Λήψη λειτουργικής v1.1.5")}
+      unavailableLabel={text("v1.1.5 download unavailable", "Η λήψη v1.1.5 δεν είναι διαθέσιμη")}
+    />
+  );
+}
+
 export function StudyAppLocalWindowsZipLink({
   onClick,
   className,
@@ -117,6 +134,8 @@ export function StudyAppLocalWindowsZipLink({
 }) {
   const { text } = useLanguage();
   return (
+    <>
+    <StudyAppStableLocalWindowsZipLink className={className} />
     <VersionedReleaseZipLink
       findAsset={findStudyAppLocalWindowsZip}
       onClick={onClick}
@@ -128,5 +147,6 @@ export function StudyAppLocalWindowsZipLink({
         ? text("Download not available yet", "Η λήψη δεν είναι ακόμη διαθέσιμη")
         : text("StudyApp Local download not available yet", "Το StudyApp Local δεν είναι ακόμη διαθέσιμο για λήψη")}
     />
+    </>
   );
 }
