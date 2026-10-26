@@ -17,7 +17,7 @@ if errorlevel 1 (
 )
 
 if not exist "local-companion\.chatgpt-plan-venv\Scripts\python.exe" (
-  py -3 -m venv "local-companion\.chatgpt-plan-venv"
+  py -3 -m venv --without-pip "local-companion\.chatgpt-plan-venv"
   if errorlevel 1 (
     echo StudyApp Local could not prepare its local environment.
     pause
@@ -29,6 +29,6 @@ echo Starting StudyApp Local at http://127.0.0.1:8766
 "local-companion\.chatgpt-plan-venv\Scripts\python.exe" local-companion\server.py
 set "studyapp_exit_code=%errorlevel%"
 echo.
-echo StudyApp Local has stopped. This window will close in 7 seconds.
-timeout /t 7 /nobreak >nul
+echo StudyApp Local has stopped. Review any error above before closing this window.
+pause
 exit /b %studyapp_exit_code%

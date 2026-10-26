@@ -20,9 +20,15 @@ if (-not (Test-Path $requirementsPath -PathType Leaf)) {
 }
 
 if (-not (Test-Path (Join-Path $venvPath "Scripts\\python.exe") -PathType Leaf)) {
-    py -3 -m venv $venvPath
+    py -3 -m venv --without-pip $venvPath
+    if ($LASTEXITCODE -ne 0) {
+        throw "StudyApp Local could not prepare its isolated Python environment."
+    }
 }
 
-& (Join-Path $venvPath "Scripts\\python.exe") -m pip install --disable-pip-version-check --requirement $requirementsPath
+py -3 -m pip --python $venvPath install --disable-pip-version-check --requirement $requirementsPath
+if ($LASTEXITCODE -ne 0) {
+    throw "StudyApp Local could not install the optional ChatGPT security component. Check Python pip and try again."
+}
 Write-Host "The optional StudyApp Local ChatGPT connection is ready. You can close this window and return to StudyApp." -ForegroundColor Green
 Read-Host "Press Enter to close"

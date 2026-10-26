@@ -49,7 +49,9 @@ try {
     $previousSuppressBrowser = $env:STUDYAPP_LOCAL_SUPPRESS_BROWSER
     $env:STUDYAPP_LOCAL_SUPPRESS_BROWSER = "1"
     try {
-        Start-Process -FilePath $startScript -WorkingDirectory $root -WindowStyle Hidden
+        # The server runs in this window. Keep it visible so users can see startup
+        # errors and know that closing the window stops StudyApp Local.
+        Start-Process -FilePath $startScript -WorkingDirectory $root -WindowStyle Normal
     } finally {
         if ($null -eq $previousSuppressBrowser) {
             Remove-Item Env:STUDYAPP_LOCAL_SUPPRESS_BROWSER -ErrorAction SilentlyContinue

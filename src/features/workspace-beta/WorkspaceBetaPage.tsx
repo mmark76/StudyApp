@@ -20,6 +20,10 @@ import { WorkspaceLocalChat } from "./WorkspaceLocalChat";
 import {
   getChatGptPlanConnection,
   isStudyAppLocalEdition,
+  LocalCompanionError,
+  prepareChatGptPlanConnection,
+  removeChatGptPlanConnection,
+  startChatGptPlanConnection,
   type ChatGptPlanConnectionStatus,
 } from "../../infrastructure/local-companion/localCompanionClient";
 
@@ -123,6 +127,10 @@ export function WorkspaceBetaPage() {
   const [chatGptPlanConnection, setChatGptPlanConnection] = useState<ChatGptPlanConnectionStatus>(
     disconnectedChatGptPlan,
   );
+  const [localConnectionBusy, setLocalConnectionBusy] = useState(false);
+  const [localConnectionError, setLocalConnectionError] = useState("");
+  const [localAwaitingApproval, setLocalAwaitingApproval] = useState(false);
+  const [localSetupRequired, setLocalSetupRequired] = useState(false);
   const [frameVersions, setFrameVersions] = useState<Record<WorkspacePanelId, number>>({
     sources: 0,
     knowledge: 0,
@@ -147,9 +155,12 @@ export function WorkspaceBetaPage() {
 
   const refreshChatGptPlanConnection = useCallback(async () => {
     try {
-      setChatGptPlanConnection(await getChatGptPlanConnection());
+      const status = await getChatGptPlanConnection();
+      setChatGptPlanConnection(status);
+      if (status.connected || status.connectionState === "unreadable") setLocalAwaitingApproval(false);
     } catch {
       setChatGptPlanConnection(disconnectedChatGptPlan);
+      setLocalAwaitingApproval(false);
     }
   }, []);
 
@@ -168,6 +179,47 @@ export function WorkspaceBetaPage() {
   const localChatReady = localEdition
     && chatGptPlanConnection.connected
     && chatGptPlanConnection.planUsageAuthorized;
+
+  async function changeLocalConnection() {
+    if (localConnectionBusy) return;
+    setLocalConnectionBusy(true);
+    setLocalConnectionError("");
+    try {
+      if (chatGptPlanConnection.connected) {
+        setChatGptPlanConnection(await removeChatGptPlanConnection());
+        setLocalAwaitingApproval(false);
+      } else {
+        setChatGptPlanConnection(await startChatGptPlanConnection());
+        setLocalAwaitingApproval(true);
+      }
+      setLocalSetupRequired(false);
+    } catch (error) {
+      setLocalAwaitingApproval(false);
+      setLocalSetupRequired(error instanceof LocalCompanionError && error.setupRequired);
+      setLocalConnectionError(error instanceof Error ? error.message : text(
+        "The ChatGPT connection could not be changed.",
+        "Δεν ήταν δυνατή η αλλαγή της σύνδεσης ChatGPT.",
+      ));
+    } finally {
+      setLocalConnectionBusy(false);
+    }
+  }
+
+  async function prepareLocalConnection() {
+    setLocalConnectionBusy(true);
+    setLocalConnectionError("");
+    try {
+      await prepareChatGptPlanConnection();
+      setLocalSetupRequired(false);
+    } catch (error) {
+      setLocalConnectionError(error instanceof Error ? error.message : text(
+        "The local connection setup could not start.",
+        "Δεν ήταν δυνατή η έναρξη της ρύθμισης της τοπικής σύνδεσης.",
+      ));
+    } finally {
+      setLocalConnectionBusy(false);
+    }
+  }
 
   useEffect(() => {
     if (infoModalRoute === null) return undefined;
@@ -750,6 +802,28 @@ export function WorkspaceBetaPage() {
                 </button>
               </div>
             </div>
+            {localEdition ? (
+              <div className="workspace-local-connection-controls">
+                <span role="status">{localChatReady
+                  ? text("ChatGPT connected", "Το ChatGPT συνδέθηκε")
+                  : chatGptPlanConnection.connected
+                    ? text("Plan approval needed", "Χρειάζεται έγκριση πλάνου")
+                    : localAwaitingApproval
+                      ? text("Finish approval in your browser", "Ολοκλήρωσε την έγκριση στον browser")
+                    : text("ChatGPT disconnected", "Το ChatGPT αποσυνδέθηκε")}</span>
+                {localSetupRequired ? (
+                  <button disabled={localConnectionBusy} onClick={() => void prepareLocalConnection()} type="button">
+                    {text("Prepare connection", "Προετοιμασία σύνδεσης")}
+                  </button>
+                ) : null}
+                <button disabled={localConnectionBusy} onClick={() => void changeLocalConnection()} type="button">
+                  {chatGptPlanConnection.connected
+                    ? text("Disconnect", "Αποσύνδεση")
+                    : text("Connect", "Σύνδεση")}
+                </button>
+                {localConnectionError ? <p role="alert">{localConnectionError}</p> : null}
+              </div>
+            ) : null}
             {localChatReady ? <WorkspaceLocalChat /> : (
               <>
                 <div className="workspace-beta-ai-launch-row">
