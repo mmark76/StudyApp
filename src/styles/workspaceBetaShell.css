@@ -48,15 +48,15 @@
 
 .workspace-beta-functional-shell .workspace-beta-local-download {
   display: inline-flex;
-  min-height: 1.72rem;
+  min-height: 1.55rem;
   box-sizing: border-box;
   align-items: center;
-  padding: 0.22rem 0.5rem;
+  padding: 0.16rem 0.42rem;
   border: 1px solid #dca02b;
   border-radius: 0.34rem;
   background: #edb84b;
   color: #201809;
-  font-size: var(--workspace-type-small, 0.8rem);
+  font-size: 0.74rem;
   font-weight: 800;
   line-height: 1;
   text-decoration: none;
