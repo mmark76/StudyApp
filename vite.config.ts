@@ -43,6 +43,7 @@ export default defineConfig({
       ],
       workbox: {
         globPatterns: ["**/*.{js,mjs,css,html,ico,png}"],
+        navigateFallbackDenylist: [/^\/auth\/callback(?:\?|$)/],
       },
       manifest: {
         name: "Markellos Study App",
