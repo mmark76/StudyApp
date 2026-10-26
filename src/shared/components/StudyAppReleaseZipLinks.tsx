@@ -117,7 +117,7 @@ export function StudyAppStableLocalWindowsZipLink({ className }: { className?: s
       findAsset={findStudyAppLocalWindowsZip}
       releaseApi={stableStudyAppReleaseApi}
       className={className}
-      label={() => text("Download working v1.1.5", "Λήψη λειτουργικής v1.1.5")}
+      label={() => text("Download Stable (v1.1.5)", "Λήψη Stable (v1.1.5)")}
       unavailableLabel={text("v1.1.5 download unavailable", "Η λήψη v1.1.5 δεν είναι διαθέσιμη")}
     />
   );
@@ -141,8 +141,8 @@ export function StudyAppLocalWindowsZipLink({
       onClick={onClick}
       className={className}
       label={(tag) => compact
-        ? text(`Download ${tag} ↓`, `Λήψη ${tag} ↓`)
-        : text(`Download StudyApp Local (${tag})`, `Λήψη StudyApp Local (${tag})`)}
+        ? text(`Download Beta (${tag}) ↓`, `Λήψη Beta (${tag}) ↓`)
+        : text(`Download Beta (${tag})`, `Λήψη Beta (${tag})`)}
       unavailableLabel={compact
         ? text("Download not available yet", "Η λήψη δεν είναι ακόμη διαθέσιμη")
         : text("StudyApp Local download not available yet", "Το StudyApp Local δεν είναι ακόμη διαθέσιμο για λήψη")}
