@@ -27,4 +27,8 @@ if not exist "local-companion\.chatgpt-plan-venv\Scripts\python.exe" (
 
 echo Starting StudyApp Local at http://127.0.0.1:8766
 "local-companion\.chatgpt-plan-venv\Scripts\python.exe" local-companion\server.py
-pause
+set "studyapp_exit_code=%errorlevel%"
+echo.
+echo StudyApp Local has stopped. This window will close in 7 seconds.
+timeout /t 7 /nobreak >nul
+exit /b %studyapp_exit_code%
