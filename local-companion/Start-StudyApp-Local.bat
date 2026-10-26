@@ -7,6 +7,6 @@ if not exist "dist\index.html" (
   pause
   exit /b 1
 )
-if not exist "local-companion\.chatgpt-plan-venv\Scripts\python.exe" py -3 -m venv "local-companion\.chatgpt-plan-venv"
+if not exist "local-companion\.chatgpt-plan-venv\Scripts\python.exe" py -3 -m venv --without-pip "local-companion\.chatgpt-plan-venv"
 local-companion\.chatgpt-plan-venv\Scripts\python.exe local-companion\server.py
 pause
