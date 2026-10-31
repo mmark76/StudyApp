@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests/e2e",
-  testMatch: "local-pdf-rag.e2e.ts",
+  testMatch: ["local-pdf-rag.e2e.ts", "workspace-beta-local-connection.e2e.ts"],
   fullyParallel: false,
   workers: 1,
   reporter: "list",
