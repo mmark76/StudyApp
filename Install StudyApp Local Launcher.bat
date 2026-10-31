@@ -41,6 +41,6 @@ if errorlevel 1 (
   exit /b 1
 )
 
-echo StudyApp Local is open at http://127.0.0.1:8766
+echo StudyApp Local is open at http://127.0.0.1:8767
 echo If the online StudyApp tab is still open, close it to avoid confusion.
-powershell.exe -NoProfile -Command "Add-Type -AssemblyName PresentationFramework; [System.Windows.MessageBox]::Show('StudyApp Local is open at http://127.0.0.1:8766. If the online StudyApp tab is still open, please close it.', 'StudyApp Local', 'OK', 'Information') | Out-Null"
+powershell.exe -NoProfile -Command "Add-Type -AssemblyName PresentationFramework; [System.Windows.MessageBox]::Show('StudyApp Local is open at http://127.0.0.1:8767. If the online StudyApp tab is still open, please close it.', 'StudyApp Local', 'OK', 'Information') | Out-Null"

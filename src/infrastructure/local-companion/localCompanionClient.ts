@@ -30,7 +30,7 @@ export class LocalCompanionError extends Error {
 const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost"]);
 const STUDYAPP_LOCAL_PORTS = import.meta.env.MODE === "e2e"
   ? new Set(["4173", "8876"])
-  : new Set(["8766"]);
+  : new Set(["8767"]);
 
 export const STUDYAPP_LOCAL_PROTOCOL_URL = "studyapp-local://open";
 

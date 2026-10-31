@@ -15,7 +15,7 @@ function Show-LauncherError([string]$Message) {
 function Test-StudyAppLocalListener {
     $client = [System.Net.Sockets.TcpClient]::new()
     try {
-        $attempt = $client.BeginConnect("127.0.0.1", 8766, $null, $null)
+        $attempt = $client.BeginConnect("127.0.0.1", 8767, $null, $null)
         if (-not $attempt.AsyncWaitHandle.WaitOne(500)) {
             return $false
         }
@@ -41,9 +41,9 @@ try {
         throw "The StudyApp Local package is incomplete. Extract the complete package and install the launcher again."
     }
 
-    & $stopScript -Port 8766
+    & $stopScript -Port 8767
     if ($LASTEXITCODE -ne 0) {
-        throw "Port 8766 is owned by another application and was not changed. Close that application or choose a different port before opening StudyApp Local."
+        throw "Port 8767 is owned by another application and was not changed. Close that application before opening StudyApp Local."
     }
 
     $previousSuppressBrowser = $env:STUDYAPP_LOCAL_SUPPRESS_BROWSER
@@ -63,7 +63,7 @@ try {
     $deadline = (Get-Date).AddSeconds(45)
     while ((Get-Date) -lt $deadline) {
         if (Test-StudyAppLocalListener) {
-            Start-Process "http://127.0.0.1:8766/#/workspace-beta"
+            Start-Process "http://127.0.0.1:8767/#/workspace-beta"
             exit 0
         }
         Start-Sleep -Milliseconds 500

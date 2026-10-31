@@ -83,7 +83,7 @@ class ChatGptPlanConnection:
 
     def start(self, callback_url: str) -> dict[str, Any]:
         self._require_crypto()
-        if callback_url != "http://127.0.0.1:8766/auth/callback":
+        if callback_url != "http://127.0.0.1:8767/auth/callback":
             raise ChatGptConnectionError("The local callback address is invalid.")
         with self._lock:
             if self._attempt and self._attempt["expiresAt"] > time.time():

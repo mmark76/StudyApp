@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [ValidateRange(1, 65535)]
-    [int]$Port = 8766
+    [int]$Port = 8767
 )
 
 $ErrorActionPreference = "Stop"

@@ -16,7 +16,7 @@ from credential_vault import CredentialVault
 from openai_connection import ChatGptConnectionError, ChatGptConnectionSetupRequired, ChatGptPlanConnection
 
 HOST = "127.0.0.1"
-PORT = 8766
+PORT = 8767
 ROOT = Path(__file__).resolve().parent.parent
 DIST = ROOT / "dist"
 CALLBACK_PATH = "/auth/callback"
