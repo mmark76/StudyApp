@@ -11,7 +11,6 @@ import { Link } from "react-router-dom";
 import { studyConfig } from "../../app/studyConfig";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { LanguageSwitcher } from "../../shared/components/LanguageSwitcher";
-import { getStudyAppAssistantUrl } from "../assistant/assistantDestination";
 import { useAppearanceSettings } from "../appearance/useAppearanceSettings";
 import { WorkspaceThemeToggle } from "./WorkspaceThemeToggle";
 import { StudyAppLocalWindowsZipLink } from "../../shared/components/StudyAppReleaseZipLinks";
@@ -151,7 +150,6 @@ export function WorkspaceBetaPage() {
   const skipLinkRef = useRef<HTMLAnchorElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const mainRef = useRef<HTMLElement>(null);
-  const assistantUrl = getStudyAppAssistantUrl();
 
   const refreshChatGptPlanConnection = useCallback(async () => {
     try {
@@ -824,37 +822,24 @@ export function WorkspaceBetaPage() {
                 {localConnectionError ? <p role="alert">{localConnectionError}</p> : null}
               </div>
             ) : null}
-            {localChatReady ? <WorkspaceLocalChat /> : (
-              <>
-                <div className="workspace-beta-ai-launch-row">
-                  <a href={assistantUrl} rel="noopener noreferrer" target="_blank">
-                    {text("Start StudyApp AI Assistant", "Έναρξη Βοηθού AI του StudyApp")}
-                  </a>
-                  <span>
-                    {text(
-                      "Opens ChatGPT in a new tab. No material is sent automatically.",
-                      "Ανοίγει το ChatGPT σε νέα καρτέλα. Δεν αποστέλλεται υλικό αυτόματα.",
-                    )}
-                  </span>
-                </div>
-                <div className="workspace-beta-frame-wrap">
-                  <iframe
-                    key={`ai-${frameVersions.ai}`}
-                    className="workspace-beta-frame"
-                    name="studyapp-workspace-ai"
-                    onLoad={(event) => wirePanelInfoLinks(event.currentTarget)}
-                    src={panelRoutes.ai}
-                    title={text("Functional AI Studio panel", "Λειτουργικό πάνελ AI Studio")}
-                  />
-                </div>
-              </>
-            )}
+            {localChatReady ? <WorkspaceLocalChat /> : null}
+            <div className="workspace-beta-frame-wrap">
+              <iframe
+                key={`ai-${frameVersions.ai}`}
+                className="workspace-beta-frame"
+                name="studyapp-workspace-ai"
+                onLoad={(event) => wirePanelInfoLinks(event.currentTarget)}
+                src={panelRoutes.ai}
+                title={text("Functional AI Studio panel", "Λειτουργικό πάνελ AI Studio")}
+              />
+            </div>
           </section>
         </div>
       </main>
       <footer className="workspace-beta-global-footer" aria-label={text("Workspace footer", "Υποσέλιδο χώρου εργασίας")}>
         <span>© 2026 Markellos Markides. {text("All rights reserved.", "Με επιφύλαξη παντός δικαιώματος.")}</span>
         <span>{text("Your data stays under your control.", "Τα δεδομένα σου παραμένουν υπό τον έλεγχό σου.")}</span>
+        <button className="workspace-beta-footer-help" onClick={() => setInfoModalRoute("/instructions")} type="button">{text("StudyApp Help / Instructions", "Βοήθεια / Οδηγίες StudyApp")}</button>
         <span className="workspace-beta-footer-version">StudyApp BETA · {__APP_BUILD_ID__}</span>
       </footer>
 
