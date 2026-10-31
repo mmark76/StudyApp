@@ -102,41 +102,21 @@ test("Workspace Sources keeps material import available but collapsed by default
   await expect(sources.getByRole("heading", { name: "Cloud link", exact: true })).toBeVisible();
 });
 
-test("Workspace AI Studio keeps primary actions visible and secondary status on demand", async ({ page }) => {
+test("Workspace AI Studio shows all four options and keeps instructions in global help", async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/#/workspace-beta");
 
   const ai = page.frameLocator('iframe[name="studyapp-workspace-ai"]');
-  const compare = ai.getByRole("link", { name: "Compare AI options" });
-  const instructions = ai.getByRole("link", { name: "Step-by-step StudyApp instructions" });
   await expect(ai.getByRole("heading", { name: "AI Assistant", exact: true })).toBeAttached();
-  await expect(compare).toBeVisible();
-  await expect(instructions).toBeVisible();
-
-  const compareBox = await compare.boundingBox();
-  const instructionsBox = await instructions.boundingBox();
-  expect(compareBox).not.toBeNull();
-  expect(instructionsBox).not.toBeNull();
-  expect(Math.abs((compareBox?.x ?? 0) - (instructionsBox?.x ?? 0))).toBeLessThan(2);
-  expect(instructionsBox?.y ?? 0).toBeGreaterThan((compareBox?.y ?? 0) + (compareBox?.height ?? 0));
-
-  const hiddenHeadingStyle = await ai.getByRole("heading", { name: "AI Assistant", exact: true }).evaluate((element) => ({
-    position: getComputedStyle(element).position,
-    width: getComputedStyle(element).width,
-    height: getComputedStyle(element).height,
-    overflow: getComputedStyle(element).overflow,
-  }));
-  expect(hiddenHeadingStyle.position).toBe("absolute");
-  expect(hiddenHeadingStyle.width).toBe("1px");
-  expect(hiddenHeadingStyle.height).toBe("1px");
-  expect(hiddenHeadingStyle.overflow).toBe("hidden");
-
-  const more = ai.getByText("More AI options", { exact: true });
-  await expect(more).toBeVisible();
-  await expect(ai.getByRole("heading", { name: "ChatGPT App / MCP", exact: true })).toBeHidden();
-  await more.click();
-  await expect(ai.getByRole("heading", { name: "ChatGPT App / MCP", exact: true })).toBeVisible();
-  await expect(ai.getByRole("heading", { name: "StudyApp AI", exact: true })).toBeVisible();
+  for (const name of ["1. Custom GPT / Plugin", "2. ChatGPT App / MCP", "3. StudyApp AI / API", "4. Sign in with ChatGPT"]) {
+    await expect(ai.getByText(name, { exact: true })).toBeVisible();
+  }
+  await expect(ai.getByText("Coming Soon")).toHaveCount(2);
+  await expect(ai.getByText("PDF RAG · BETA")).toBeVisible();
+  await expect(ai.getByRole("link", { name: "Open PDF RAG (BETA)" })).toBeVisible();
+  await expect(ai.getByRole("link", { name: "Compare AI options" })).toBeVisible();
+  await expect(ai.getByRole("link", { name: "Step-by-step StudyApp instructions" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "StudyApp Help / Instructions" })).toBeVisible();
 });
 
 test("Workspace light mode softens action colours without changing Standard Version", async ({ page }) => {

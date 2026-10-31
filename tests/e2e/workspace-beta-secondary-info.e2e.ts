@@ -25,7 +25,7 @@ test("Workspace BETA opens secondary AI information in a modal without leaving t
   await expect(modal).toHaveCount(0);
   await expect(ai.getByRole("heading", { name: "AI Assistant", exact: true })).toBeVisible();
 
-  await ai.getByRole("link", { name: "Step-by-step StudyApp instructions" }).click();
+  await page.getByRole("button", { name: "StudyApp Help / Instructions" }).click();
   await expect(modal).toBeVisible();
   await expect(page.getByRole("heading", { name: "StudyApp instructions", exact: true })).toBeVisible();
   await expect(modalFrame.getByRole("heading", { name: /How to add AI-generated study material/u })).toBeVisible();
