@@ -44,7 +44,7 @@ test("selected PDF passages stay local until the user approves sending them", as
     await route.fulfill({ json: { answer: "Mitochondria release energy [S1, p. 1]." } });
   });
 
-  await page.goto("http://127.0.0.1:8876/#/local-chatgpt-plan");
+  await page.goto("/#/local-chatgpt-plan");
   await expect(page.getByText("Biology source").first()).toBeVisible();
   await page.getByRole("checkbox", { name: "Biology source" }).check();
   await page.getByRole("textbox", { name: "Question about these PDFs" }).fill("What releases energy?");

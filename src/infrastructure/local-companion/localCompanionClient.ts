@@ -28,7 +28,9 @@ export class LocalCompanionError extends Error {
 }
 
 const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost"]);
-const STUDYAPP_LOCAL_PORT = import.meta.env.MODE === "e2e" ? "8876" : "8766";
+const STUDYAPP_LOCAL_PORTS = import.meta.env.MODE === "e2e"
+  ? new Set(["4173", "8876"])
+  : new Set(["8766"]);
 
 export const STUDYAPP_LOCAL_PROTOCOL_URL = "studyapp-local://open";
 
@@ -42,7 +44,7 @@ export function isStudyAppLocalEdition(
     currentLocation &&
     currentLocation.protocol === "http:" &&
     LOCAL_HOSTS.has(currentLocation.hostname) &&
-    currentLocation.port === STUDYAPP_LOCAL_PORT,
+    STUDYAPP_LOCAL_PORTS.has(currentLocation.port),
   );
 }
 
