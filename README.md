@@ -69,7 +69,7 @@ The browser/PWA edition presents three clearly separated options. StudyApp Local
 adds a fourth, separate optional connection without changing those browser
 boundaries.
 
-The bilingual `/#/ai-assistant-comparison` page compares the current Custom GPT handoff with the planned ChatGPT App / MCP and StudyApp AI modes. It is informational only and does not activate a remote AI mode, read study data or change charging behaviour.
+The bilingual `/#/ai-assistant-comparison` page describes four AI options: the StudyApp AI Assistant (listed as a Plugin in ChatGPT), the two planned ChatGPT App / MCP and StudyApp AI / API modes, and Windows-only **Sign in with ChatGPT** in StudyApp Local. The existing StudyApp Assistant button still uses its approved Custom GPT link. The comparison is informational only and does not activate AI modes, read study data or change charging behaviour.
 
 ### StudyApp AI Assistant — available
 

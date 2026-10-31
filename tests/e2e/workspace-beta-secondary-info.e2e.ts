@@ -15,6 +15,9 @@ test("Workspace BETA opens secondary AI information in a modal without leaving t
   await expect(page.getByRole("heading", { name: "Compare AI options", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Close" })).toBeVisible();
   await expect(modalFrame.getByRole("heading", { name: "Compare AI options", exact: true })).toBeVisible();
+  await expect(modalFrame.getByRole("columnheader", { name: /1\. Custom GPT \/ Plugin/u })).toBeVisible();
+  await expect(modalFrame.getByRole("columnheader", { name: /3\. StudyApp AI \/ API/u })).toBeVisible();
+  await expect(modalFrame.getByRole("columnheader", { name: /4\. Sign in with ChatGPT/u })).toBeVisible();
   await expect(page).toHaveURL(/#\/workspace-beta$/u);
   await expect(page.locator(".workspace-beta-functional-panel > .workspace-beta-frame-wrap > iframe.workspace-beta-frame")).toHaveCount(4);
 

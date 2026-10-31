@@ -166,10 +166,12 @@ makes its application-shell siblings inert while open, closes with Escape and
 restores focus to the launcher.
 
 `src/features/assistant/AssistantComparisonPage.tsx` provides a bilingual,
-read-only comparison of the available StudyApp AI Assistant and the two planned
-AI modes. It links from the AI mode guide, does not activate a remote mode, does
-not inspect local study data and does not change account, plan or charging
-behaviour.
+read-only comparison of four AI options: the StudyApp AI Assistant (listed as a
+Plugin in ChatGPT; its current StudyApp link still targets the approved Custom
+GPT), Windows-only Sign in with ChatGPT through StudyApp Local, and the two
+planned AI modes. It links from the AI mode guide, does not activate a remote
+mode, does not inspect local study data and does not change account, plan or
+charging behaviour.
 
 `src/features/assistant/TypewriterWelcome.tsx` owns the intro-message
 presentation. It reserves the complete responsive text layout, exposes one
