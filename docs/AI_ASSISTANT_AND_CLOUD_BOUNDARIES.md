@@ -67,8 +67,8 @@ the current Windows user. Eligible questions use the user's ChatGPT subscription
 or available ChatGPT credits. No OpenAI API key, StudyApp credit, or browser
 token storage is used.
 
-The connection sends only a question the user types and explicitly submits.
-It does not scan, read, select, upload, or automatically include Library,
+The basic chat composer sends only a question the user types and explicitly submits.
+This composer does not scan, read, select, upload, or automatically include Library,
 IndexedDB, progress, or study history. Answers use `store: false`, are shown
 only in the active Local page session, and are not added to StudyApp data. Once
 the connection is ready, StudyApp Local's Workspace may use the full AI Studio
@@ -76,6 +76,16 @@ panel as a conversation surface with a bottom composer and transient history.
 It is a Local-only presentation of this same explicit-question flow; the
 browser/PWA keeps its external-link and informational presentation. Disconnect
 deletes the protected local connection record.
+
+The Local ChatGPT page separately supports questions about user-selected
+Library PDFs. PDF bytes are validated and text is extracted, chunked, and
+searched on-device. The exact selected excerpts, document titles, and page
+numbers are shown for review. Nothing from this workflow is sent until the user
+explicitly approves and submits. The confirmed request includes only the
+question and reviewed passages; it uses `store: false`, and the answer stays in
+the active page session. The answer is instructed to cite source IDs/pages and
+to state when the selected passages are insufficient. No API key, web search,
+external vector store, persistent PDF index, or automatic Library scan is used.
 
 The separately installed, per-user Windows launcher can register
 `studyapp-local://open`. The browser/PWA can offer this as an opening action,

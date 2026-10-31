@@ -7,28 +7,22 @@ test.use({
 
 test("Local AI Studio connects and disconnects without leaving the workspace", async ({ page }) => {
   let connected = false;
-  await page.route("http://127.0.0.1:8766/**", async (route) => {
+  await page.route("**/api/chatgpt-plan/connection", async (route) => {
     const request = route.request();
-    const url = new URL(request.url());
-    if (url.pathname === "/api/chatgpt-plan/connection") {
-      if (request.method() === "POST") connected = true;
-      if (request.method() === "DELETE") connected = false;
-      await route.fulfill({
-        contentType: "application/json",
-        body: JSON.stringify({
-          connected,
-          connectionState: connected ? "connected" : "disconnected",
-          planUsageAuthorized: connected,
-          scope: "current-windows-user",
-        }),
-      });
-      return;
-    }
-    const response = await route.fetch({ url: `http://127.0.0.1:4173${url.pathname}${url.search}` });
-    await route.fulfill({ response });
+    if (request.method() === "POST") connected = true;
+    if (request.method() === "DELETE") connected = false;
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({
+        connected,
+        connectionState: connected ? "connected" : "disconnected",
+        planUsageAuthorized: connected,
+        scope: "current-windows-user",
+      }),
+    });
   });
 
-  await page.goto("http://127.0.0.1:8766/#/workspace-beta");
+  await page.goto("/#/workspace-beta");
   const studio = page.locator(".workspace-beta-panel-studio");
   await expect(studio.getByRole("button", { name: "Connect", exact: true })).toBeVisible();
 

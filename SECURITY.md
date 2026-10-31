@@ -35,6 +35,12 @@ surface exists only at the StudyApp Local loopback origin, keeps messages in the
 active React page state, renders answers as plain text, and uses the same
 explicit-question, `store: false` companion request. It is not available in the
 browser/PWA edition and cannot access study data automatically.
+The separate PDF question flow is limited to PDFs the user selects from
+Library. It extracts and searches text on-device, then displays the exact
+passages, titles, and page numbers for review. The companion requires an
+explicit confirmation flag and sends only the question and those passages with
+`store: false`; it does not receive document IDs or other Library state. The
+answer remains in the active page state.
 
 The bilingual AI options comparison page is static local presentation. It
 compares the current and planned modes but does not activate a remote mode,

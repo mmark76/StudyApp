@@ -113,6 +113,11 @@ Responses use `store: false` and remain only in the open Local page session.
 When connected, its Workspace AI Studio panel becomes a transient conversation
 surface with a bottom composer; the browser/PWA package does not include that
 in-app conversation. Disconnect removes the protected local connection record.
+The Local ChatGPT page also lets you select Library PDFs and search their text
+on-device. It displays the exact matching passages with document/page
+references; sending requires a separate approval checkbox and submit. The
+confirmed request sends only the question and displayed passages with
+`store: false`; no other Library data is included.
 
 Each compatible release provides two separate downloads:
 
