@@ -58,7 +58,7 @@ controls. StudyApp does not receive files from ChatGPT automatically. For a new
 practice-content set, the documented order is Chapters CSV first and Flashcards
 CSV second.
 
-### 2. StudyApp Local ChatGPT plan connection — optional Windows Local edition
+### 2. StudyApp Local Sign in with ChatGPT — optional Windows Local edition
 
 This is not a browser/PWA feature. The separately started StudyApp Local server
 listens only on `127.0.0.1`, requests browser approval from an eligible ChatGPT
@@ -111,9 +111,11 @@ request, credit purchase, reservation or charge.
 
 ## AI options comparison page
 
-The bilingual `/ai-assistant-comparison` page explains the differences between
-the available Custom GPT handoff and the two planned modes. It is static local
-presentation only. It does not:
+The bilingual `/ai-assistant-comparison` page explains four options: the StudyApp
+AI Assistant (now listed as a Plugin in ChatGPT while its current StudyApp link
+still uses the approved Custom GPT URL), the two planned modes, and Windows-only
+Sign in with ChatGPT for eligible accounts. It is static local presentation only.
+It does not:
 
 - activate ChatGPT App / MCP or StudyApp AI;
 - inspect the library, IndexedDB, progress or study history;

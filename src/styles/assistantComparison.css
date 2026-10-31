@@ -30,7 +30,7 @@
 
 .assistant-comparison-table {
   border-collapse: collapse;
-  min-width: 980px;
+  min-width: 1280px;
   width: 100%;
 }
 
@@ -67,6 +67,14 @@
 .assistant-comparison-table thead strong {
   display: block;
   margin-top: 0.5rem;
+}
+
+.assistant-comparison-location {
+  color: var(--slate-600);
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.3rem;
 }
 
 .assistant-comparison-status {

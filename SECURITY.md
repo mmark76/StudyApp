@@ -111,8 +111,10 @@ import. Every add or import remains an explicit action in the existing Library
 or Learn & Practice interface.
 
 The bilingual `/ai-assistant-comparison` page is also static local
-documentation. It does not read the library, inspect IndexedDB, contact ChatGPT,
-call the OpenAI API or perform any StudyApp action.
+documentation. It names all four AI options, including the StudyApp AI Assistant
+Plugin listing in ChatGPT and Windows-only Sign in with ChatGPT, but does not
+read the library, inspect IndexedDB, contact ChatGPT, call the OpenAI API or
+perform any StudyApp action.
 
 ## ChatGPT App / MCP security gate
 

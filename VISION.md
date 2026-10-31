@@ -83,6 +83,11 @@ The browser/PWA AI Assistant has three modes with distinct purposes. StudyApp
 Local provides one additional optional, explicit connection with its own local
 security boundary.
 
+The informational comparison page lists all four options, including the
+StudyApp AI Assistant's Plugin listing in ChatGPT and the Windows-only
+Sign in with ChatGPT connection. It does not activate the Local connection in
+the browser/PWA.
+
 ### StudyApp AI Assistant
 
 Available now. It provides a normal external link to the dedicated StudyApp AI
