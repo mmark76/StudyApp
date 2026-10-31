@@ -10,6 +10,13 @@ export interface ChatGptPlanAnswer {
   answer: string;
 }
 
+export interface ApprovedStudyPassage {
+  sourceId: string;
+  documentTitle: string;
+  page: number;
+  text: string;
+}
+
 export class LocalCompanionError extends Error {
   setupRequired: boolean;
 
@@ -21,7 +28,7 @@ export class LocalCompanionError extends Error {
 }
 
 const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost"]);
-const STUDYAPP_LOCAL_PORT = "8766";
+const STUDYAPP_LOCAL_PORT = import.meta.env.MODE === "e2e" ? "8876" : "8766";
 
 export const STUDYAPP_LOCAL_PROTOCOL_URL = "studyapp-local://open";
 
@@ -91,5 +98,19 @@ export function askChatGptPlan(question: string): Promise<ChatGptPlanAnswer> {
   return request("/api/chatgpt-plan/ask", {
     method: "POST",
     body: JSON.stringify({ confirmExternalRequest: true, question }),
+  });
+}
+
+export function askChatGptPlanWithPdfPassages(
+  question: string,
+  passages: readonly ApprovedStudyPassage[],
+): Promise<ChatGptPlanAnswer> {
+  return request("/api/chatgpt-plan/ask-with-sources", {
+    method: "POST",
+    body: JSON.stringify({
+      confirmExternalRequest: true,
+      question,
+      passages: passages.map(({ sourceId, documentTitle, page, text }) => ({ sourceId, documentTitle, page, text })),
+    }),
   });
 }

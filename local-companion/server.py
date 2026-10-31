@@ -71,12 +71,12 @@ class Handler(BaseHTTPRequestHandler):
             return False
         return True
 
-    def _read_json(self) -> dict:
+    def _read_json(self, max_size: int = 20_000) -> dict:
         try:
             size = int(self.headers.get("Content-Length") or "")
         except ValueError as error:
             raise ChatGptConnectionError("The local request is invalid.") from error
-        if not 0 < size <= 20_000:
+        if not 0 < size <= max_size:
             raise ChatGptConnectionError("The local request is invalid.")
         try:
             body = json.loads(self.rfile.read(size).decode("utf-8"))
@@ -116,7 +116,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         path = urlparse(self.path).path
         try:
-            body = self._read_json()
+            body = self._read_json(80_000 if path == "/api/chatgpt-plan/ask-with-sources" else 20_000)
             if path == "/api/chatgpt-plan/connection":
                 if body.get("confirmConnection") is not True:
                     raise ChatGptConnectionError("Confirm the ChatGPT connection request.")
@@ -137,6 +137,11 @@ class Handler(BaseHTTPRequestHandler):
                 if body.get("confirmExternalRequest") is not True:
                     raise ChatGptConnectionError("Confirm the ChatGPT question.")
                 self._json(CONNECTION.ask(body.get("question")))
+                return
+            if path == "/api/chatgpt-plan/ask-with-sources":
+                if body.get("confirmExternalRequest") is not True:
+                    raise ChatGptConnectionError("Confirm sending the selected passages to ChatGPT.")
+                self._json(CONNECTION.ask_with_sources(body.get("question"), body.get("passages")))
                 return
             self._json({"error": "Not found."}, HTTPStatus.NOT_FOUND)
         except ChatGptConnectionError as error:

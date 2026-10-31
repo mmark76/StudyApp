@@ -42,6 +42,29 @@ class MemoryVault:
         self.record = None
 
 
+class FakeResponse:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_args):
+        return False
+
+    def __iter__(self):
+        return iter([
+            b'data: {"type":"response.output_text.delta","delta":"Answer [S1, p. 4]"}\n',
+            b'data: {"type":"response.completed"}\n',
+        ])
+
+
+class FakeOpener:
+    def __init__(self, request_body: dict) -> None:
+        self.request_body = request_body
+
+    def open(self, request, timeout: int):
+        self.request_body.update(json.loads(request.data.decode("utf-8")))
+        return FakeResponse()
+
+
 class LocalConnectionTests(unittest.TestCase):
     def test_missing_record_is_explicitly_disconnected(self) -> None:
         connection = ChatGptPlanConnection(MissingVault(), Path(tempfile.mkdtemp()))
@@ -63,6 +86,34 @@ class LocalConnectionTests(unittest.TestCase):
         connection = ChatGptPlanConnection(MissingVault(), Path(tempfile.mkdtemp()))
         with self.assertRaises(ChatGptConnectionError):
             connection.ask("x" * 12_001)
+
+    def test_pdf_sources_send_only_approved_passages_without_storage(self) -> None:
+        captured: dict = {}
+        connection = ChatGptPlanConnection(MemoryVault({"planUsageAuthorized": True}), Path(tempfile.mkdtemp()))
+        passage = {"sourceId": "S1", "documentId": "doc-1", "documentTitle": "Biology.pdf", "page": 4, "text": "Mitochondria release energy."}
+        with patch.object(connection, "_record", return_value={"planUsageAuthorized": True}), \
+             patch.object(connection, "_models", return_value=["available-model"]), \
+             patch.object(connection, "_access_token", return_value="test-token"), \
+             patch("openai_connection.build_opener", return_value=FakeOpener(captured)):
+            answer = connection.ask_with_sources("What releases energy?", [passage])
+
+        self.assertEqual(answer["answer"], "Answer [S1, p. 4]")
+        self.assertIs(captured["store"], False)
+        self.assertEqual([item["role"] for item in captured["input"]], ["developer", "user"])
+        user_payload = json.loads(captured["input"][1]["content"])
+        self.assertEqual(user_payload["question"], "What releases energy?")
+        self.assertEqual(user_payload["selectedPassages"][0]["text"], "Mitochondria release energy.")
+        self.assertNotIn("documentId", user_payload["selectedPassages"][0])
+        self.assertNotIn("unselected-secret", json.dumps(captured))
+
+    def test_pdf_source_validation_rejects_invalid_or_unapproved_passages(self) -> None:
+        connection = ChatGptPlanConnection(MissingVault(), Path(tempfile.mkdtemp()))
+        with self.assertRaises(ChatGptConnectionError):
+            connection.ask_with_sources("Question", [])
+        with self.assertRaises(ChatGptConnectionError):
+            connection.ask_with_sources("Question", [{"sourceId": "S2", "documentTitle": "Bad.pdf", "page": 1, "text": "Text"}])
+        with self.assertRaises(ChatGptConnectionError):
+            connection.ask_with_sources("Question", [{"sourceId": "S1", "documentTitle": "Bad.pdf", "page": True, "text": "Text"}])
 
     def test_reauthorization_keeps_issued_client_when_callback_omits_client_id(self) -> None:
         issued_client_id = "oaiapp_studyapp"

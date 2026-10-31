@@ -1,9 +1,14 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { StudyAppLocalWindowsZipLink } from "../../shared/components/StudyAppReleaseZipLinks";
+import { studyDatabase } from "../../infrastructure/database/studyDatabase";
+import type { LocalStudyFile } from "../../shared/types/models";
+import { isPdfStudyFile } from "../study-materials/localStudyFiles";
 import {
   askChatGptPlan,
+  askChatGptPlanWithPdfPassages,
   getChatGptPlanConnection,
   isStudyAppLocalEdition,
   LocalCompanionError,
@@ -13,6 +18,7 @@ import {
   STUDYAPP_LOCAL_PROTOCOL_URL,
   type ChatGptPlanConnectionStatus,
 } from "../../infrastructure/local-companion/localCompanionClient";
+import { extractPdfChunks, MAX_RAG_SELECTED_PDFS, rankPdfPassages, type PdfPassage } from "./localPdfRag";
 
 type ViewState = "checking" | "ready" | "working" | "error";
 
@@ -32,6 +38,20 @@ export function LocalChatGptPlanPage() {
   const [question, setQuestion] = useState("");
   const [setupRequired, setSetupRequired] = useState(false);
   const [awaitingApproval, setAwaitingApproval] = useState(false);
+  const [selectedPdfIds, setSelectedPdfIds] = useState<string[]>([]);
+  const [pdfQuestion, setPdfQuestion] = useState("");
+  const [pdfPassages, setPdfPassages] = useState<PdfPassage[]>([]);
+  const [pdfConsent, setPdfConsent] = useState(false);
+  const [pdfAnswer, setPdfAnswer] = useState("");
+  const pdfFiles = useLiveQuery(
+    () => localEdition ? studyDatabase.studyFiles.orderBy("createdAt").toArray() : Promise.resolve<LocalStudyFile[]>([]),
+    [localEdition],
+    [] as LocalStudyFile[],
+  ) ?? [];
+  const selectablePdfs = useMemo(
+    () => pdfFiles.filter((file) => isPdfStudyFile(file)),
+    [pdfFiles],
+  );
   const [state, setState] = useState<ViewState>(localEdition ? "checking" : "ready");
 
   const refresh = useCallback(async () => {
@@ -97,6 +117,10 @@ export function LocalChatGptPlanPage() {
       setAwaitingApproval(false);
       setAnswer("");
       setQuestion("");
+      setPdfQuestion("");
+      setPdfPassages([]);
+      setPdfConsent(false);
+      setPdfAnswer("");
       setMessage(text("The local ChatGPT connection was removed.", "Η τοπική σύνδεση ChatGPT αφαιρέθηκε."));
       setState("ready");
     } catch (error) {
@@ -122,6 +146,57 @@ export function LocalChatGptPlanPage() {
     } catch (error) {
       setState("error");
       setMessage(error instanceof Error ? error.message : "ChatGPT could not complete the question.");
+    }
+  }
+
+  function togglePdf(fileId: string) {
+    setSelectedPdfIds((current) => current.includes(fileId)
+      ? current.filter((id) => id !== fileId)
+      : [...current, fileId]);
+    setPdfPassages([]);
+    setPdfConsent(false);
+    setPdfAnswer("");
+  }
+
+  async function preparePdfPassages() {
+    const questionValue = pdfQuestion.trim();
+    if (!questionValue || !selectedPdfIds.length) {
+      setMessage(text("Choose at least one PDF and enter a question.", "Επίλεξε τουλάχιστον ένα PDF και γράψε μια ερώτηση."));
+      return;
+    }
+    setState("working");
+    setPdfPassages([]);
+    setPdfConsent(false);
+    setPdfAnswer("");
+    try {
+      const selectedFiles = selectablePdfs.filter((file) => selectedPdfIds.includes(file.id));
+      const chunks = await extractPdfChunks(selectedFiles);
+      const passages = rankPdfPassages(questionValue, chunks)
+        .map((passage, index) => ({ ...passage, sourceId: `S${index + 1}` }));
+      setPdfPassages(passages);
+      setMessage(passages.length
+        ? text("Review the passages below. Nothing has been sent.", "Έλεγξε τα αποσπάσματα παρακάτω. Δεν έχει σταλεί τίποτα.")
+        : text("No matching passages were found in the selected PDFs.", "Δεν βρέθηκαν σχετικά αποσπάσματα στα επιλεγμένα PDF."));
+      setState("ready");
+    } catch (error) {
+      setState("error");
+      setMessage(error instanceof Error ? error.message : text("The selected PDFs could not be read.", "Δεν ήταν δυνατή η ανάγνωση των επιλεγμένων PDF."));
+    }
+  }
+
+  async function askAboutPdfs() {
+    if (!pdfConsent || !pdfQuestion.trim() || !pdfPassages.length) return;
+    setState("working");
+    setPdfAnswer("");
+    setMessage(text("Sending the approved question and passages to ChatGPT…", "Αποστέλλονται στο ChatGPT η εγκεκριμένη ερώτηση και τα αποσπάσματα…"));
+    try {
+      const response = await askChatGptPlanWithPdfPassages(pdfQuestion.trim(), pdfPassages);
+      setPdfAnswer(response.answer);
+      setMessage(text("Answer ready. It is shown only in this page until you leave it.", "Η απάντηση εμφανίζεται μόνο σε αυτή τη σελίδα έως ότου φύγεις από αυτήν."));
+      setState("ready");
+    } catch (error) {
+      setState("error");
+      setMessage(error instanceof Error ? error.message : text("ChatGPT could not answer from the selected passages.", "Το ChatGPT δεν μπόρεσε να απαντήσει από τα επιλεγμένα αποσπάσματα."));
     }
   }
 
@@ -211,6 +286,43 @@ export function LocalChatGptPlanPage() {
               <textarea id="local-chatgpt-plan-question" maxLength={12000} onChange={(event) => setQuestion(event.target.value)} placeholder={text("Ask for study help…", "Ζήτησε βοήθεια για τη μελέτη…")} value={question} />
               <button className="button primary" disabled={state === "working"} onClick={() => void ask()} type="button">{text("Ask ChatGPT", "Ρώτησε το ChatGPT")}</button>
               {answer ? <article className="local-chatgpt-plan-answer"><h4>{text("ChatGPT answer", "Απάντηση ChatGPT")}</h4><p>{answer}</p></article> : null}
+              <section className="local-pdf-rag" aria-labelledby="local-pdf-rag-title">
+                <h4 id="local-pdf-rag-title">{text("Ask about selected PDFs", "Ρώτησε για επιλεγμένα PDF")}</h4>
+                <p>{text("Choose up to eight PDFs to use. They are read on this device. Nothing is sent until you review and approve the passages.", "Επίλεξε έως οκτώ PDF. Διαβάζονται σε αυτή τη συσκευή. Δεν αποστέλλεται τίποτα πριν ελέγξεις και εγκρίνεις τα αποσπάσματα.")}</p>
+                {selectablePdfs.length ? (
+                  <fieldset className="local-pdf-rag-files">
+                    <legend>{text("PDFs in your Library", "PDF στη Βιβλιοθήκη")}</legend>
+                    {selectablePdfs.map((file: LocalStudyFile) => (
+                      <label key={file.id}>
+                        <input checked={selectedPdfIds.includes(file.id)} disabled={state === "working" || (!selectedPdfIds.includes(file.id) && selectedPdfIds.length >= MAX_RAG_SELECTED_PDFS)} onChange={() => togglePdf(file.id)} type="checkbox" />
+                        <span>{file.title}</span>
+                      </label>
+                    ))}
+                  </fieldset>
+                ) : <p>{text("No PDFs are available in the Library.", "Δεν υπάρχουν PDF στη Βιβλιοθήκη.")}</p>}
+                <label htmlFor="local-pdf-rag-question">{text("Question about these PDFs", "Ερώτηση για αυτά τα PDF")}</label>
+                <textarea disabled={state === "working"} id="local-pdf-rag-question" maxLength={12_000} onChange={(event) => { setPdfQuestion(event.target.value); setPdfPassages([]); setPdfConsent(false); setPdfAnswer(""); }} value={pdfQuestion} />
+                <button className="button secondary" disabled={state === "working" || !selectedPdfIds.length} onClick={() => void preparePdfPassages()} type="button">{text("Find passages on this device", "Εύρεση αποσπασμάτων σε αυτή τη συσκευή")}</button>
+                {pdfPassages.length ? (
+                  <div className="local-pdf-rag-review">
+                    <h5>{text("These exact passages will be sent", "Αυτά ακριβώς τα αποσπάσματα θα σταλούν")}</h5>
+                    <ol>
+                      {pdfPassages.map((passage, index) => (
+                        <li key={`${passage.documentId}-${passage.page}-${index}`}>
+                          <strong>[{passage.sourceId}] {passage.documentTitle} · {text("page", "σελίδα")} {passage.page}</strong>
+                          <p>{passage.text}</p>
+                        </li>
+                      ))}
+                    </ol>
+                    <label className="local-pdf-rag-consent">
+                      <input checked={pdfConsent} disabled={state === "working"} onChange={(event) => setPdfConsent(event.target.checked)} type="checkbox" />
+                      <span>{text("I approve sending the question and the passages shown above to ChatGPT.", "Εγκρίνω την αποστολή της ερώτησης και των παραπάνω αποσπασμάτων στο ChatGPT.")}</span>
+                    </label>
+                    <button className="button primary" disabled={!pdfConsent || state === "working"} onClick={() => void askAboutPdfs()} type="button">{text("Send approved passages", "Αποστολή εγκεκριμένων αποσπασμάτων")}</button>
+                  </div>
+                ) : null}
+                {pdfAnswer ? <article className="local-chatgpt-plan-answer"><h5>{text("Answer from the selected PDFs", "Απάντηση από τα επιλεγμένα PDF")}</h5><p>{pdfAnswer}</p></article> : null}
+              </section>
             </div>
           ) : null}
         </section>
