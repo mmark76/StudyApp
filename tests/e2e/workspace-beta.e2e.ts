@@ -99,6 +99,23 @@ test("Workspace BETA keeps four independent functional StudyApp panels", async (
   await expect(assistantLink).toHaveAttribute("href", /^https:\/\/chatgpt\.com\//u);
 });
 
+test("Workspace BETA keeps both release download labels compact and understated", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/#/workspace-beta");
+
+  const downloads = page.locator(".workspace-beta-header .workspace-beta-local-download");
+  await expect(downloads).toHaveCount(2);
+
+  for (const download of await downloads.all()) {
+    const style = await download.evaluate((element) => ({
+      fontSize: parseFloat(getComputedStyle(element).fontSize),
+      fontWeight: getComputedStyle(element).fontWeight,
+    }));
+    expect(style.fontSize).toBeLessThanOrEqual(12);
+    expect(style.fontWeight).toBe("600");
+  }
+});
+
 test("Workspace BETA keeps legal, feedback and version information in the Info menu", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/#/workspace-beta");
