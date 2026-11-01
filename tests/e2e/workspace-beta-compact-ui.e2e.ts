@@ -112,7 +112,7 @@ test("Workspace AI Studio shows all four options and keeps instructions in globa
     await expect(ai.getByText(name, { exact: true })).toBeVisible();
   }
   await expect(ai.getByText("Coming Soon")).toHaveCount(2);
-  await expect(ai.getByRole("link", { name: "Get StudyApp Local" })).toBeVisible();
+  await expect(ai.getByRole("link", { name: "Sign in with ChatGPT" })).toBeVisible();
   await expect(ai.getByRole("link", { name: "Open PDF RAG (BETA)" })).toHaveCount(0);
   await expect(ai.getByRole("link", { name: "Compare AI options" })).toHaveCount(0);
   await expect(page.locator(".workspace-beta-panel-studio .workspace-beta-panel-tools").getByRole("button", { name: "Compare AI options" })).toBeVisible();
