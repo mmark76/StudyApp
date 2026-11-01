@@ -137,6 +137,7 @@ export function WorkspaceBetaPage() {
     ai: 0,
   });
   const [panelWeights, setPanelWeights] = useState<PanelWidths | null>(null);
+  const [collapsedPanels, setCollapsedPanels] = useState<WorkspacePanelId[]>([]);
   const [activeDivider, setActiveDivider] = useState<WorkspaceDivider | null>(null);
   const [infoModalRoute, setInfoModalRoute] = useState<WorkspaceInfoRoute | null>(null);
   const [materialPanel, setMaterialPanel] = useState<WorkspacePanelId | null>(null);
@@ -270,6 +271,17 @@ export function WorkspaceBetaPage() {
       });
     };
   }, [infoModalRoute]);
+
+  const ids: WorkspacePanelId[] = ["sources", "knowledge", "practice", "ai"];
+  const collapsedGridTemplate = collapsedPanels.length
+    ? ids.map((id, index) => {
+        const track = collapsedPanels.includes(id) ? "36px" : "minmax(0, " + (panelWeights ?? defaultPanelWeights)[index] + "fr)";
+        return index === 0 ? track : "10px " + track;
+      }).join(" ")
+    : undefined;
+  function togglePanelVisibility(id: WorkspacePanelId) {
+    setCollapsedPanels((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+  }
 
   const gridStyle = panelWeights
     ? ({
@@ -680,13 +692,21 @@ export function WorkspaceBetaPage() {
           className="workspace-beta-grid workspace-beta-functional-grid"
           aria-label={text("Workspace panels", "Πάνελ χώρου εργασίας")}
           ref={gridRef}
-          style={gridStyle}
+          style={{ ...gridStyle, ...(collapsedGridTemplate ? { gridTemplateColumns: collapsedGridTemplate } : {}) }}
         >
           <section
-            className="workspace-beta-panel workspace-beta-panel-sources workspace-beta-functional-panel"
+            className={"workspace-beta-panel workspace-beta-panel-sources workspace-beta-functional-panel" + (collapsedPanels.includes("sources") ? " is-collapsed" : "")}
             aria-labelledby="workspace-sources-title"
           >
             <div className="workspace-beta-panel-header workspace-beta-functional-panel-header">
+              <button
+                className="workspace-beta-column-toggle"
+                aria-label={text(collapsedPanels.includes("sources") ? "Show sources column" : "Hide sources column", collapsedPanels.includes("sources") ? "Εμφάνιση στήλης" : "Απόκρυψη στήλης")}
+                title={text(collapsedPanels.includes("sources") ? "Show column" : "Hide column", collapsedPanels.includes("sources") ? "Εμφάνιση στήλης" : "Απόκρυψη στήλης")}
+                aria-expanded={!collapsedPanels.includes("sources")}
+                onClick={() => togglePanelVisibility("sources")}
+                type="button"
+              ><span aria-hidden="true" className="workspace-beta-column-symbol" /></button>
               <div>
                 <p className="workspace-beta-panel-kicker">01</p>
                 <h2 id="workspace-sources-title">{text("Sources & Materials", "Πηγές & Υλικό")}</h2>
@@ -717,10 +737,18 @@ export function WorkspaceBetaPage() {
           )}
 
           <section
-            className="workspace-beta-panel workspace-beta-panel-knowledge workspace-beta-functional-panel"
+            className={"workspace-beta-panel workspace-beta-panel-knowledge workspace-beta-functional-panel" + (collapsedPanels.includes("knowledge") ? " is-collapsed" : "")}
             aria-labelledby="workspace-knowledge-title"
           >
             <div className="workspace-beta-panel-header workspace-beta-functional-panel-header">
+              <button
+                className="workspace-beta-column-toggle"
+                aria-label={text(collapsedPanels.includes("knowledge") ? "Show knowledge column" : "Hide knowledge column", collapsedPanels.includes("knowledge") ? "Εμφάνιση στήλης" : "Απόκρυψη στήλης")}
+                title={text(collapsedPanels.includes("knowledge") ? "Show column" : "Hide column", collapsedPanels.includes("knowledge") ? "Εμφάνιση στήλης" : "Απόκρυψη στήλης")}
+                aria-expanded={!collapsedPanels.includes("knowledge")}
+                onClick={() => togglePanelVisibility("knowledge")}
+                type="button"
+              ><span aria-hidden="true" className="workspace-beta-column-symbol" /></button>
               <div>
                 <p className="workspace-beta-panel-kicker">02</p>
                 <h2 id="workspace-knowledge-title">{text("Core Knowledge", "Βασική Γνώση")}</h2>
@@ -751,10 +779,18 @@ export function WorkspaceBetaPage() {
           )}
 
           <section
-            className="workspace-beta-panel workspace-beta-panel-practice workspace-beta-functional-panel"
+            className={"workspace-beta-panel workspace-beta-panel-practice workspace-beta-functional-panel" + (collapsedPanels.includes("practice") ? " is-collapsed" : "")}
             aria-labelledby="workspace-practice-title"
           >
             <div className="workspace-beta-panel-header workspace-beta-functional-panel-header">
+              <button
+                className="workspace-beta-column-toggle"
+                aria-label={text(collapsedPanels.includes("practice") ? "Show practice column" : "Hide practice column", collapsedPanels.includes("practice") ? "Εμφάνιση στήλης" : "Απόκρυψη στήλης")}
+                title={text(collapsedPanels.includes("practice") ? "Show column" : "Hide column", collapsedPanels.includes("practice") ? "Εμφάνιση στήλης" : "Απόκρυψη στήλης")}
+                aria-expanded={!collapsedPanels.includes("practice")}
+                onClick={() => togglePanelVisibility("practice")}
+                type="button"
+              ><span aria-hidden="true" className="workspace-beta-column-symbol" /></button>
               <div>
                 <p className="workspace-beta-panel-kicker">03</p>
                 <h2 id="workspace-practice-title">{text("Practice & Mastery", "Εξάσκηση & Εμπέδωση")}</h2>
@@ -785,10 +821,18 @@ export function WorkspaceBetaPage() {
           )}
 
           <section
-            className="workspace-beta-panel workspace-beta-panel-studio workspace-beta-functional-panel"
+            className={"workspace-beta-panel workspace-beta-panel-studio workspace-beta-functional-panel" + (collapsedPanels.includes("ai") ? " is-collapsed" : "")}
             aria-labelledby="workspace-studio-title"
           >
             <div className="workspace-beta-panel-header workspace-beta-functional-panel-header">
+              <button
+                className="workspace-beta-column-toggle"
+                aria-label={text(collapsedPanels.includes("ai") ? "Show AI Studio column" : "Hide AI Studio column", collapsedPanels.includes("ai") ? "Εμφάνιση στήλης" : "Απόκρυψη στήλης")}
+                title={text(collapsedPanels.includes("ai") ? "Show column" : "Hide column", collapsedPanels.includes("ai") ? "Εμφάνιση στήλης" : "Απόκρυψη στήλης")}
+                aria-expanded={!collapsedPanels.includes("ai")}
+                onClick={() => togglePanelVisibility("ai")}
+                type="button"
+              ><span aria-hidden="true" className="workspace-beta-column-symbol" /></button>
               <div>
                 <p className="workspace-beta-panel-kicker">04</p>
                 <h2 id="workspace-studio-title">AI Studio</h2>
