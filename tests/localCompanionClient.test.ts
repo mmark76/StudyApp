@@ -52,15 +52,15 @@ describe("StudyApp Local page", () => {
 });
 
 describe("StudyApp Local Workspace conversation", () => {
-  it("renders an explicit, transient question composer without exposing study material", () => {
+  it("offers a transient question composer and approved local file attachments", () => {
     const markup = renderToStaticMarkup(createElement(WorkspaceLocalChat));
 
     expect(markup).toContain("ChatGPT conversation");
-    expect(markup).toContain("StudyApp sends only what you type.");
-    expect(markup).toContain("Your local ChatGPT plan is ready.");
+    expect(markup).toContain("Only your question and expressly approved excerpts are sent.");
+    expect(markup).toContain("Ask ChatGPT or add study files with +.");
     expect(markup).toContain("Message ChatGPT");
-    expect(markup).toContain("Answers are not saved to your study data.");
+    expect(markup).toContain("Attach study files");
     expect(markup).not.toContain("Library/IndexedDB");
-    expect(markup).not.toContain('type="file"');
+    expect(markup).toContain('accept=".pdf,.txt,.md,.csv"');
   });
 });
