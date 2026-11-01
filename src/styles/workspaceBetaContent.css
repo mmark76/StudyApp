@@ -1121,3 +1121,95 @@
     align-items: flex-start;
   }
 }
+
+/* Workspace Practice & Mastery is the visual reference for each column. */
+.workspace-panel-embed-main .dashboard-action-grid,
+.workspace-panel-embed-main .ai-studio-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0.35rem 0 0;
+}
+.workspace-panel-embed-main .dashboard-action-grid > .dashboard-action-card,
+.workspace-panel-embed-main .ai-studio-options > .ai-studio-option {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  column-gap: 0.65rem;
+  row-gap: 0.15rem;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+  padding: 0.62rem 0.15rem;
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+  border-bottom: 1px solid var(--slate-300, #d1d1cc);
+  border-radius: 0;
+}
+.workspace-panel-embed-main .dashboard-action-grid > .dashboard-action-card:first-child,
+.workspace-panel-embed-main .ai-studio-options > .ai-studio-option:first-child {
+  border-top: 1px solid var(--slate-300, #d1d1cc);
+}
+.workspace-panel-embed-main .dashboard-action-card .eyebrow {
+  grid-column: 1;
+  margin: 0;
+}
+.workspace-panel-embed-main .dashboard-action-card h3,
+.workspace-panel-embed-main .dashboard-action-card p:not(.eyebrow) {
+  grid-column: 1;
+  margin: 0;
+}
+.workspace-panel-embed-main .dashboard-action-card .button,
+.workspace-panel-embed-main .dashboard-action-card a.button {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  margin: 0;
+  justify-self: end;
+  align-self: center;
+}
+.workspace-panel-embed-main .ai-studio-option-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 0.3rem 0.5rem;
+  grid-column: 1 / -1;
+}
+.workspace-panel-embed-main .ai-studio-option-heading strong { font-size: 0.86rem; }
+.workspace-panel-embed-main .ai-studio-option p {
+  grid-column: 1;
+  margin: 0;
+  font-size: 0.78rem;
+}
+.workspace-panel-embed-main .ai-studio-option > a.button {
+  grid-column: 2;
+  grid-row: 2;
+  margin: 0;
+  justify-self: end;
+  align-self: center;
+  font-size: 0.7rem;
+}
+.workspace-panel-embed-main .ai-studio-rag-option {
+  grid-column: 1 / -1;
+  margin-top: 0.2rem;
+  justify-content: flex-end;
+  gap: 0.3rem;
+}
+.workspace-panel-embed-main .ai-studio-rag-option .button { margin: 0; font-size: 0.7rem; }
+.workspace-panel-embed-main .assistant-comparison-status { font-size: 0.6rem; padding: 0.12rem 0.3rem; }
+.workspace-panel-embed-main .dashboard-action-card :is(h3,p),
+.workspace-panel-embed-main .ai-studio-option :is(strong,p) { min-width: 0; }
+.workspace-panel-embed-main .ai-studio-options > .ai-studio-option:has(.assistant-comparison-status.soon) {
+  min-height: 2.7rem;
+}
+@media (max-width: 420px) {
+  .workspace-panel-embed-main .dashboard-action-grid > .dashboard-action-card,
+  .workspace-panel-embed-main .ai-studio-options > .ai-studio-option { grid-template-columns: minmax(0, 1fr); }
+  .workspace-panel-embed-main .dashboard-action-card .button,
+  .workspace-panel-embed-main .dashboard-action-card a.button,
+  .workspace-panel-embed-main .ai-studio-option > a.button {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+  }
+}
