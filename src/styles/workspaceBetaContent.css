@@ -1057,3 +1057,22 @@
   cursor: pointer;
   text-decoration: underline;
 }
+
+.workspace-beta-ai-launch-row > .workspace-beta-ai-options-back {
+  grid-column: 1 / -1;
+  justify-self: start;
+  margin-top: 0.3rem;
+  border: 1px solid var(--ws-btn-green-border, #bed8c9);
+  border-radius: 0.36rem;
+  padding: 0.34rem 0.5rem;
+  background: var(--ws-btn-green-bg, #e6f2ea);
+  color: var(--ws-btn-green-text, #24513b);
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.workspace-beta-ai-launch-row > .workspace-beta-ai-options-back:hover {
+  filter: brightness(0.97);
+}

@@ -6,9 +6,10 @@ test("Workspace BETA keeps the AI Assistant avatar circular, background-blended,
 
   const launchRow = page.locator(".workspace-beta-ai-launch-row");
   await expect(launchRow).toBeVisible();
-  await expect(
-    launchRow.getByRole("link", { name: "Start StudyApp AI Assistant" }),
-  ).toBeVisible();
+  await expect(launchRow.getByRole("button", { name: "Back to AI Options" })).toBeVisible();
+  await expect(page.frameLocator('iframe[name="studyapp-workspace-ai"]')
+    .getByRole("link", { name: "Open StudyApp AI Assistant" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Start StudyApp AI Assistant" })).toHaveCount(0);
 
   const readIdentity = () => launchRow.evaluate((element) => {
     const row = window.getComputedStyle(element);
