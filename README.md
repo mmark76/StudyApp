@@ -127,7 +127,7 @@ Each compatible release provides two separate downloads:
   complete contents. Run `Install StudyApp Local Launcher.bat` to set up the
   launcher and choose to open the app immediately, or use `Start StudyApp
   Local.bat` to start it directly. It opens the bundled app at
-  `http://127.0.0.1:8766`; Python 3 is required. Keep the visible server
+  `http://127.0.0.1:8767`; Python 3 is required. Keep the visible server
   window open while using StudyApp Local. Closing it stops the Local app;
   startup errors remain visible in that window. The AI Studio column has
   Connect and Disconnect controls for the optional ChatGPT connection. The

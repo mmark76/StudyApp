@@ -25,7 +25,10 @@ describe("StudyApp Local Windows launcher", () => {
     expect(handler).toContain('$uri.Fragment');
     expect(handler).toContain('"stop-studyapp-local.ps1"');
     expect(handler).toContain("$LASTEXITCODE -ne 0");
-    expect(handler).toContain('"http://127.0.0.1:8766/#/workspace-beta"');
+    expect(handler).toContain('"http://127.0.0.1:8767/#/workspace-beta"');
+    expect(handler).toContain('BeginConnect("127.0.0.1", 8767');
+    expect(handler).toContain("$stopScript -Port 8767");
+    expect(server).toContain("PORT = 8767");
     expect(server).toContain('os.environ.get("STUDYAPP_LOCAL_SUPPRESS_BROWSER") != "1"');
   });
 });
