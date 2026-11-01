@@ -114,9 +114,22 @@ test("Workspace AI Studio shows all four options and keeps instructions in globa
   await expect(ai.getByText("Coming Soon")).toHaveCount(2);
   await expect(ai.getByText("PDF RAG · BETA")).toBeVisible();
   await expect(ai.getByRole("link", { name: "Open PDF RAG (BETA)" })).toBeVisible();
-  await expect(ai.getByRole("link", { name: "Compare AI options" })).toBeVisible();
+  await expect(ai.getByRole("link", { name: "Compare AI options" })).toHaveCount(0);
+  await expect(page.locator(".workspace-beta-studio-title-row").getByRole("link", { name: "Compare AI options" })).toBeVisible();
   await expect(ai.getByRole("link", { name: "Step-by-step StudyApp instructions" })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "StudyApp Help / Instructions" })).toBeVisible();
+  await expect(page.locator(".workspace-beta-header-actions").getByRole("link", { name: "Help / Instructions" })).toBeVisible();
+});
+
+test("AI Studio header divider aligns with other workspace columns", async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.goto("/#/workspace-beta");
+  const bottoms = await page.locator(".workspace-beta-functional-panel-header").evaluateAll((headers) =>
+    headers.map((header) => header.getBoundingClientRect().bottom),
+  );
+  expect(bottoms).toHaveLength(4);
+  for (const bottom of bottoms.slice(1)) {
+    expect(Math.abs(bottom - bottoms[0])).toBeLessThanOrEqual(2);
+  }
 });
 
 test("Workspace light mode softens action colours without changing Standard Version", async ({ page }) => {

@@ -7,7 +7,7 @@ test("Workspace BETA opens secondary AI information in a modal without leaving t
   const ai = page.frameLocator('iframe[name="studyapp-workspace-ai"]');
   await expect(ai.getByRole("heading", { name: "AI Assistant", exact: true })).toBeVisible();
 
-  await ai.getByRole("link", { name: "Compare AI options" }).click();
+  await page.locator(".workspace-beta-studio-title-row").getByRole("link", { name: "Compare AI options" }).click();
 
   const modal = page.locator(".workspace-beta-info-modal");
   const modalFrame = page.frameLocator('iframe[name="studyapp-workspace-info-modal"]');
@@ -25,7 +25,7 @@ test("Workspace BETA opens secondary AI information in a modal without leaving t
   await expect(modal).toHaveCount(0);
   await expect(ai.getByRole("heading", { name: "AI Assistant", exact: true })).toBeVisible();
 
-  await page.getByRole("button", { name: "StudyApp Help / Instructions" }).click();
+  await page.locator(".workspace-beta-header-actions").getByRole("link", { name: "Help / Instructions" }).click();
   await expect(modal).toBeVisible();
   await expect(page.getByRole("heading", { name: "StudyApp instructions", exact: true })).toBeVisible();
   await expect(modalFrame.getByRole("heading", { name: /How to add AI-generated study material/u })).toBeVisible();

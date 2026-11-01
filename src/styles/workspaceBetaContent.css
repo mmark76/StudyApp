@@ -1066,7 +1066,7 @@
   border-radius: 0.36rem;
   padding: 0.34rem 0.5rem;
   background: var(--ws-btn-green-bg, #e6f2ea);
-  color: var(--ws-btn-green-text, #24513b);
+  color: #ffffff;
   font: inherit;
   font-size: 0.68rem;
   font-weight: 750;
@@ -1101,3 +1101,23 @@
 .workspace-beta-column-symbol { display: block; width: 0.72rem; height: 0.68rem; box-sizing: border-box; border: 1.5px solid currentColor; border-radius: 0.15rem; position: relative; }
 .workspace-beta-column-symbol::before { content: ""; position: absolute; top: 0; bottom: 0; left: 38%; border-left: 1.5px solid currentColor; }
 .workspace-beta-functional-panel.is-collapsed .workspace-beta-column-symbol::before { left: 62%; }
+.workspace-beta-studio-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.65rem;
+}
+.workspace-beta-studio-title-row .workspace-beta-studio-compare {
+  font-size: 0.7rem;
+  font-weight: 650;
+  white-space: normal;
+}
+
+/* Align the AI Studio header divider with the other three desktop panels. */
+@media (min-width: 901px) {
+  .workspace-beta-functional-shell .workspace-beta-panel-studio .workspace-beta-functional-panel-header {
+    box-sizing: border-box;
+    min-height: 94px;
+    align-items: flex-start;
+  }
+}
