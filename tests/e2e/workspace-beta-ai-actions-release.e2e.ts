@@ -4,7 +4,7 @@ test("AI action buttons distinguish Open and PDF RAG badge follows the button", 
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/#/workspace-beta");
   const ai = page.frameLocator('iframe[name="studyapp-workspace-ai"]');
-  await expect(ai.getByRole("link", { name: "Get StudyApp Local" })).toBeVisible();
+  await expect(ai.getByRole("link", { name: "Sign in with ChatGPT" })).toBeVisible();
   await expect(ai.getByRole("link", { name: "Open PDF RAG (BETA)" })).toHaveCount(0);
   const first = ai.getByRole("link", { name: "Open StudyApp AI Assistant" });
   const style = await first.evaluate(el => ({ bg: getComputedStyle(el).backgroundColor, fg: getComputedStyle(el).color }));
