@@ -91,7 +91,7 @@ test("Workspace BETA keeps four independent functional StudyApp panels", async (
   await expect(knowledge.getByRole("heading", { name: "Core Knowledge" })).toBeVisible();
   await expect(practice.getByRole("heading", { name: "Practice & Mastery" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Go to Sources & Materials home" }).click();
+  await page.getByRole("button", { name: "Back to Sources & Materials home" }).click();
   await expect(sources.getByRole("heading", { name: "Sources & Materials" })).toBeVisible();
 
   const assistantLink = ai.getByRole("link", { name: "Open StudyApp AI Assistant" });

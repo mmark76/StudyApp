@@ -786,6 +786,20 @@
   color: #292929;
 }
 
+.workspace-beta-functional-panel-header .workspace-beta-panel-tools .workspace-beta-back-action {
+  border-color: #577967;
+  background: #3c614d;
+  color: #fff;
+}
+.workspace-beta-functional-panel-header .workspace-beta-panel-tools .workspace-beta-back-action:hover {
+  background: #31513f;
+  color: #fff;
+}
+.workspace-beta-functional-panel-header .workspace-beta-panel-tools .workspace-beta-back-action:focus-visible {
+  outline: 2px solid #b5ddc3;
+  outline-offset: 2px;
+}
+
 .workspace-beta-frame-wrap {
   flex: 1;
   min-height: 0;

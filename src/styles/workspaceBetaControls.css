@@ -658,12 +658,6 @@
 }
 
 
-.workspace-beta-functional-panel.workspace-beta-panel-studio
-  > .workspace-beta-functional-panel-header
-  .workspace-beta-panel-tools {
-  display: none;
-}
-
 /* Light-mode control surfaces */
 :root:not([data-workspace-theme="dark"])
   .workspace-beta-functional-shell
