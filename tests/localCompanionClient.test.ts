@@ -10,8 +10,9 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("StudyApp Local companion boundary", () => {
   it("allows its connection controls only on the StudyApp Local loopback origin", () => {
-    expect(isStudyAppLocalEdition({ protocol: "http:", hostname: "127.0.0.1", port: "8766" })).toBe(true);
-    expect(isStudyAppLocalEdition({ protocol: "http:", hostname: "localhost", port: "8766" })).toBe(true);
+    expect(isStudyAppLocalEdition({ protocol: "http:", hostname: "127.0.0.1", port: "8767" })).toBe(true);
+    expect(isStudyAppLocalEdition({ protocol: "http:", hostname: "localhost", port: "8767" })).toBe(true);
+    expect(isStudyAppLocalEdition({ protocol: "http:", hostname: "127.0.0.1", port: "8766" })).toBe(false);
     expect(isStudyAppLocalEdition({ protocol: "http:", hostname: "127.0.0.1", port: "5173" })).toBe(false);
     expect(isStudyAppLocalEdition({ protocol: "https:", hostname: "studyapp.markellosecosystem.com", port: "" })).toBe(false);
     expect(isStudyAppLocalEdition({ protocol: "http:", hostname: "192.168.1.5", port: "8766" })).toBe(false);

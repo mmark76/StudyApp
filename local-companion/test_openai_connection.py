@@ -75,12 +75,18 @@ class LocalConnectionTests(unittest.TestCase):
         opened: list[str] = []
         with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as temporary, patch.object(ChatGptPlanConnection, "_require_crypto"):
             connection = ChatGptPlanConnection(MissingVault(), Path(temporary), browser_open=lambda url: opened.append(url) or True)
-            connection.start("http://127.0.0.1:8766/auth/callback")
+            connection.start("http://127.0.0.1:8767/auth/callback")
         query = parse_qs(urlparse(opened[0]).query)
-        self.assertEqual(query["redirect_uri"], ["http://127.0.0.1:8766/auth/callback"])
+        self.assertEqual(query["redirect_uri"], ["http://127.0.0.1:8767/auth/callback"])
         self.assertEqual(query["code_challenge_method"], ["S256"])
         self.assertIn("chatgpt.tokens.use.direct", query["scope"][0])
         self.assertNotIn("code_verifier", query)
+
+    def test_connection_rejects_the_previous_callback_port(self) -> None:
+        connection = ChatGptPlanConnection(MissingVault(), Path(tempfile.mkdtemp()))
+        with patch.object(ChatGptPlanConnection, "_require_crypto"):
+            with self.assertRaises(ChatGptConnectionError):
+                connection.start("http://127.0.0.1:8766/auth/callback")
 
     def test_question_limit_rejects_before_any_provider_request(self) -> None:
         connection = ChatGptPlanConnection(MissingVault(), Path(tempfile.mkdtemp()))
@@ -125,7 +131,7 @@ class LocalConnectionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as temporary, patch.object(ChatGptPlanConnection, "_require_crypto"), patch.object(ChatGptPlanConnection, "_exchange_tokens", return_value={"id_token": "new-id-token", "refresh_token": "new-refresh", "access_token": "access", "scope": "openid chatgpt.tokens.use.direct"}), patch.object(ChatGptPlanConnection, "_validate_identity", return_value={"sub": "person", "email": "person@example.com"}):
             connection = ChatGptPlanConnection(vault, Path(temporary), browser_open=lambda url: opened.append(url) or True)
             connection._save_client_id(issued_client_id)
-            connection.start("http://127.0.0.1:8766/auth/callback")
+            connection.start("http://127.0.0.1:8767/auth/callback")
             query = parse_qs(urlparse(opened[0]).query)
             self.assertEqual(query["client_id"], [issued_client_id])
             self.assertEqual(query["id_token_hint"], ["previous-id-token"])
