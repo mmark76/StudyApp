@@ -94,9 +94,13 @@ test("Workspace BETA keeps four independent functional StudyApp panels", async (
   await page.getByRole("button", { name: "Go to Sources & Materials home" }).click();
   await expect(sources.getByRole("heading", { name: "Sources & Materials" })).toBeVisible();
 
-  const assistantLink = page.getByRole("link", { name: "Start StudyApp AI Assistant" });
+  const assistantLink = ai.getByRole("link", { name: "Open StudyApp AI Assistant" });
   await expect(assistantLink).toHaveAttribute("target", "_blank");
   await expect(assistantLink).toHaveAttribute("href", /^https:\/\/chatgpt\.com\//u);
+  await ai.getByRole("link", { name: "Chat with ChatGPT" }).click();
+  await expect(ai.getByRole("heading", { name: "Use your ChatGPT plan" })).toBeVisible();
+  await page.getByRole("button", { name: "Back to AI Options" }).click();
+  await expect(ai.getByText("1. Custom GPT / Plugin")).toBeVisible();
 });
 
 test("Workspace BETA keeps both release download labels compact and understated", async ({ page }) => {

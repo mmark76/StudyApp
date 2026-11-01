@@ -11,7 +11,6 @@ import { Link } from "react-router-dom";
 import { studyConfig } from "../../app/studyConfig";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { LanguageSwitcher } from "../../shared/components/LanguageSwitcher";
-import { getStudyAppAssistantUrl } from "../assistant/assistantDestination";
 import { useAppearanceSettings } from "../appearance/useAppearanceSettings";
 import { WorkspaceThemeToggle } from "./WorkspaceThemeToggle";
 import { StudyAppLocalWindowsZipLink } from "../../shared/components/StudyAppReleaseZipLinks";
@@ -148,7 +147,6 @@ export function WorkspaceBetaPage() {
   const modalFrameRef = useRef<HTMLIFrameElement>(null);
   const modalRef = useRef<HTMLElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
-  const assistantUrl = getStudyAppAssistantUrl();
   const skipLinkRef = useRef<HTMLAnchorElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const mainRef = useRef<HTMLElement>(null);
@@ -826,17 +824,11 @@ export function WorkspaceBetaPage() {
             ) : null}
             {localChatReady ? <WorkspaceLocalChat /> : null}
             {!localChatReady ? (
-                <div className="workspace-beta-ai-launch-row">
-                  <a href={assistantUrl} rel="noopener noreferrer" target="_blank">
-                    {text("Start StudyApp AI Assistant", "Έναρξη Βοηθού AI του StudyApp")}
-                  </a>
-                  <span>
-                    {text(
-                      "Opens ChatGPT in a new tab. No material is sent automatically.",
-                      "Ανοίγει το ChatGPT σε νέα καρτέλα. Δεν αποστέλλεται υλικό αυτόματα.",
-                    )}
-                  </span>
-                </div>
+              <div className="workspace-beta-ai-launch-row">
+                <button className="workspace-beta-ai-options-back" onClick={() => resetPanel("ai")} type="button">
+                  {text("Back to AI Options", "Πίσω στις επιλογές AI")}
+                </button>
+              </div>
             ) : null}
             <div className="workspace-beta-frame-wrap">
               <iframe
