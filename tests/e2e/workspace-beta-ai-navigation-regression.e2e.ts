@@ -11,7 +11,7 @@ test("Workspace BETA displays the two agreed AI header actions without redundant
 
   await expect(ai.getByRole("heading", { name: "AI Assistant", exact: true })).toBeVisible();
   await expect(ai.getByRole("link", { name: "Back to Home" })).toHaveCount(0);
-  await expect(page.locator(".workspace-beta-ai-launch-row")).toHaveCount(0);
+  await expect(page.locator(".workspace-beta-panel-studio > .workspace-beta-ai-launch-row")).toBeVisible();
   await expect(header.locator(".workspace-beta-panel-tools button")).toHaveCount(2);
   await expect(compare).toBeVisible();
   await expect(back).toBeVisible();
