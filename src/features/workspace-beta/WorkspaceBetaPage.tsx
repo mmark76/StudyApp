@@ -722,8 +722,8 @@ export function WorkspaceBetaPage() {
               </div>
               <div className="workspace-beta-panel-tools">
                 <button type="button" onClick={() => setMaterialPanel("sources")}>{text("Manage / Delete","Διαχείριση / Διαγραφή")}</button>
-                <button onClick={() => resetPanel("sources")} type="button">
-                  {text("Go to Sources & Materials home", "Μετάβαση στην αρχική Πηγών & Υλικού")}
+                <button className="workspace-beta-back-action" onClick={() => resetPanel("sources")} type="button">
+                  {text("Back to Sources & Materials home", "Πίσω στην αρχική Πηγών & Υλικού")}
                 </button>
               </div>
             </div>
@@ -764,8 +764,8 @@ export function WorkspaceBetaPage() {
               </div>
               <div className="workspace-beta-panel-tools">
                 <button type="button" onClick={() => setMaterialPanel("knowledge")}>{text("Manage / Delete","Διαχείριση / Διαγραφή")}</button>
-                <button onClick={() => resetPanel("knowledge")} type="button">
-                  {text("Go to Core Knowledge home", "Μετάβαση στην αρχική Βασικής Γνώσης")}
+                <button className="workspace-beta-back-action" onClick={() => resetPanel("knowledge")} type="button">
+                  {text("Back to Core Knowledge home", "Πίσω στην αρχική Βασικής Γνώσης")}
                 </button>
               </div>
             </div>
@@ -806,8 +806,8 @@ export function WorkspaceBetaPage() {
               </div>
               <div className="workspace-beta-panel-tools">
                 <button type="button" onClick={() => setMaterialPanel("practice")}>{text("Manage / Delete","Διαχείριση / Διαγραφή")}</button>
-                <button onClick={() => resetPanel("practice")} type="button">
-                  {text("Go to Practice & Mastery home", "Μετάβαση στην αρχική Εξάσκησης & Εμπέδωσης")}
+                <button className="workspace-beta-back-action" onClick={() => resetPanel("practice")} type="button">
+                  {text("Back to Practice & Mastery home", "Πίσω στην αρχική Εξάσκησης & Εμπέδωσης")}
                 </button>
               </div>
             </div>
@@ -844,24 +844,14 @@ export function WorkspaceBetaPage() {
               ><span aria-hidden="true" className="workspace-beta-column-symbol" /></button>
               <div>
                 <p className="workspace-beta-panel-kicker">04</p>
-                <div className="workspace-beta-studio-title-row">
-                  <h2 id="workspace-studio-title">AI Studio</h2>
-                  <Link
-                    className="workspace-beta-studio-compare"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      openInfoModal("/ai-assistant-comparison", event.currentTarget);
-                    }}
-                    to="/ai-assistant-comparison"
-                  >
-                    {text("Compare AI options", "Σύγκριση επιλογών AI")}
-                  </Link>
-                </div>
+                <h2 id="workspace-studio-title">AI Studio</h2>
               </div>
               <div className="workspace-beta-panel-tools">
-                <button type="button" onClick={() => setMaterialPanel("ai")}>{text("Manage / Delete","Διαχείριση / Διαγραφή")}</button>
-                <button onClick={() => resetPanel("ai")} type="button">
-                  {text("Go to AI options", "Μετάβαση στις επιλογές AI")}
+                <button type="button" onClick={(event) => openInfoModal("/ai-assistant-comparison", event.currentTarget)}>
+                  {text("Compare AI options", "Σύγκριση επιλογών AI")}
+                </button>
+                <button className="workspace-beta-back-action" onClick={() => resetPanel("ai")} type="button">
+                  {text("Back to AI Options", "Πίσω στις επιλογές AI")}
                 </button>
               </div>
             </div>
@@ -888,13 +878,6 @@ export function WorkspaceBetaPage() {
               </div>
             ) : null}
             {localChatReady ? <WorkspaceLocalChat /> : null}
-            {!localChatReady ? (
-              <div className="workspace-beta-ai-launch-row">
-                <button className="workspace-beta-ai-options-back" onClick={() => resetPanel("ai")} type="button">
-                  {text("Back to AI Options", "Πίσω στις επιλογές AI")}
-                </button>
-              </div>
-            ) : null}
             <div className="workspace-beta-frame-wrap">
               <iframe
                 key={`ai-${frameVersions.ai}`}

@@ -7,7 +7,7 @@ test("Workspace BETA opens secondary AI information in a modal without leaving t
   const ai = page.frameLocator('iframe[name="studyapp-workspace-ai"]');
   await expect(ai.getByRole("heading", { name: "AI Assistant", exact: true })).toBeVisible();
 
-  await page.locator(".workspace-beta-studio-title-row").getByRole("link", { name: "Compare AI options" }).click();
+  await page.locator(".workspace-beta-panel-studio .workspace-beta-panel-tools").getByRole("button", { name: "Compare AI options" }).click();
 
   const modal = page.locator(".workspace-beta-info-modal");
   const modalFrame = page.frameLocator('iframe[name="studyapp-workspace-info-modal"]');

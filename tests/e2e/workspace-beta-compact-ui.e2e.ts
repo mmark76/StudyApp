@@ -115,7 +115,7 @@ test("Workspace AI Studio shows all four options and keeps instructions in globa
   await expect(ai.getByText("PDF RAG · BETA")).toBeVisible();
   await expect(ai.getByRole("link", { name: "Open PDF RAG (BETA)" })).toBeVisible();
   await expect(ai.getByRole("link", { name: "Compare AI options" })).toHaveCount(0);
-  await expect(page.locator(".workspace-beta-studio-title-row").getByRole("link", { name: "Compare AI options" })).toBeVisible();
+  await expect(page.locator(".workspace-beta-panel-studio .workspace-beta-panel-tools").getByRole("button", { name: "Compare AI options" })).toBeVisible();
   await expect(ai.getByRole("link", { name: "Step-by-step StudyApp instructions" })).toHaveCount(0);
   await expect(page.locator(".workspace-beta-header-actions").getByRole("link", { name: "Help / Instructions" })).toBeVisible();
 });

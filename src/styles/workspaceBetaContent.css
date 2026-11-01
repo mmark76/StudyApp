@@ -231,7 +231,7 @@
 .workspace-panel-embed-main .practice-content-add-import-note {
   padding: 0.5rem 0.62rem;
   background: #f7f7f4;
-  font-size: 0.78rem;
+  font-size: 0.74rem;
 }
 
 
@@ -1175,7 +1175,7 @@
   gap: 0.3rem 0.5rem;
   grid-column: 1 / -1;
 }
-.workspace-panel-embed-main .ai-studio-option-heading strong { font-size: 0.86rem; }
+.workspace-panel-embed-main .ai-studio-option-heading strong { font-size: 0.8rem; }
 .workspace-panel-embed-main .ai-studio-option p {
   grid-column: 1;
   margin: 0;
