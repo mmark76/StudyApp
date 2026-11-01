@@ -58,8 +58,7 @@ test("Connected chat attaches a text study file and sends excerpts only after ap
   const studio = page.locator(".workspace-beta-panel-studio");
   const attach = studio.getByRole("button", { name: "Attach study files" });
   await expect(attach).toBeVisible();
-  await attach.click();
-  await studio.getByRole("button", { name: "Attach study files" }).locator("..").locator('input[type="file"]').setInputFiles({
+  await studio.locator('.workspace-local-chat-upload input[type="file"]').setInputFiles({
     name: "notes.txt",
     mimeType: "text/plain",
     buffer: Buffer.from("Selective attention helps learners focus on relevant information rather than distractions."),
