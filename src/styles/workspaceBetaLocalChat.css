@@ -298,3 +298,85 @@
     align-items: flex-end;
   }
 }
+
+/* Unified local chat attachment composer and explicit review before sending. */
+.workspace-local-chat-upload,
+.workspace-local-chat-attachments,
+.workspace-local-chat-review-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.workspace-local-chat-upload input[type="file"] { display: none; }
+.workspace-local-chat-upload > button {
+  width: 1.7rem;
+  min-width: 1.7rem;
+  min-height: 1.7rem;
+  padding: 0;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.workspace-local-chat-attachment {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  max-width: 100%;
+  border: 1px solid #c6d5ca;
+  border-radius: 0.4rem;
+  padding: 0.12rem 0.3rem;
+  background: #edf5ef;
+  color: #254d3a;
+  overflow-wrap: anywhere;
+  font-size: 0.7rem;
+}
+.workspace-local-chat-attachment button {
+  min-height: 1.1rem;
+  padding: 0 0.25rem;
+  background: #3f684f;
+}
+.workspace-local-chat-review {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.5rem;
+  border: 1px solid #b9cfc0;
+  border-radius: 0.45rem;
+  color: #29362e;
+  font-size: 0.72rem;
+}
+.workspace-local-chat-review p { margin: 0; }
+.workspace-local-chat-review-excerpts {
+  max-height: 12rem;
+  overflow-y: auto;
+}
+.workspace-local-chat-review-excerpts details {
+  padding: 0.3rem 0;
+  border-top: 1px solid #d6dfd8;
+}
+.workspace-local-chat-review-excerpts summary { cursor: pointer; }
+.workspace-local-chat-review-excerpts p {
+  padding: 0.45rem 0.15rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.workspace-local-chat-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  font-weight: 500 !important;
+  font-size: 0.7rem !important;
+}
+.workspace-local-chat-consent input { margin: 0.2rem 0 0; }
+.workspace-local-chat-sources { margin-top: 0.45rem; font-size: 0.7rem; }
+.workspace-local-chat-sources ul { padding-left: 1rem; }
+:root[data-workspace-theme="dark"] .workspace-local-chat-attachment {
+  border-color: #496655;
+  background: #24382c;
+  color: #e8f1e9;
+}
+:root[data-workspace-theme="dark"] .workspace-local-chat-review {
+  color: #ededeb;
+  border-color: #496655;
+  background: #252523;
+}
+:root[data-workspace-theme="dark"] .workspace-local-chat-review-excerpts details { border-top-color: #464641; }
