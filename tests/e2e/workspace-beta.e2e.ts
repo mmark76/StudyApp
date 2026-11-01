@@ -97,7 +97,7 @@ test("Workspace BETA keeps four independent functional StudyApp panels", async (
   const assistantLink = ai.getByRole("link", { name: "Open StudyApp AI Assistant" });
   await expect(assistantLink).toHaveAttribute("target", "_blank");
   await expect(assistantLink).toHaveAttribute("href", /^https:\/\/chatgpt\.com\//u);
-  await ai.getByRole("link", { name: "Chat with ChatGPT" }).click();
+  await ai.getByRole("link", { name: "Get StudyApp Local" }).click();
   await expect(ai.getByRole("heading", { name: "Use your ChatGPT plan" })).toBeVisible();
   await page.getByRole("button", { name: "Back to AI Options" }).click();
   await expect(ai.getByText("1. Custom GPT / Plugin")).toBeVisible();
