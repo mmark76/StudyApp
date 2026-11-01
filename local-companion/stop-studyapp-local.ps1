@@ -1,14 +1,17 @@
 [CmdletBinding()]
 param(
     [ValidateRange(1, 65535)]
-    [int]$Port = 8767
+    [int]$Port = 8767,
+    [switch]$QuietIfNotRunning
 )
 
 $ErrorActionPreference = "Stop"
 $listeners = @(Get-NetTCPConnection -State Listen -LocalAddress "127.0.0.1" -LocalPort $Port -ErrorAction SilentlyContinue)
 
 if ($listeners.Count -eq 0) {
-    Write-Host "StudyApp Local is not using port $Port. Nothing was stopped." -ForegroundColor Yellow
+    if (-not $QuietIfNotRunning) {
+        Write-Host "StudyApp Local is not using port $Port. Nothing was stopped." -ForegroundColor Yellow
+    }
     exit 0
 }
 
