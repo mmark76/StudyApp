@@ -55,9 +55,6 @@ export function AssistantGuidePage() {
               </div>
             </section>
           </div>
-          <Link className="button secondary" to="/ai-assistant-comparison">
-            {text("Compare AI options", "Σύγκριση επιλογών AI")}
-          </Link>
         </section>
       </div>
     );

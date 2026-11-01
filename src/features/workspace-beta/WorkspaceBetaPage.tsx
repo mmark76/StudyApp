@@ -624,6 +624,15 @@ export function WorkspaceBetaPage() {
           >
             {text("Back to markellosecosystem", "Πίσω στο markellosecosystem")}
           </a>
+          <Link
+            onClick={(event) => {
+              event.preventDefault();
+              openInfoModal("/instructions", event.currentTarget);
+            }}
+            to="/instructions"
+          >
+            {text("Help / Instructions", "Βοήθεια / Οδηγίες")}
+          </Link>
           <WorkspaceThemeToggle />
           <Link
             onClick={(event) => {
@@ -791,7 +800,19 @@ export function WorkspaceBetaPage() {
             <div className="workspace-beta-panel-header workspace-beta-functional-panel-header">
               <div>
                 <p className="workspace-beta-panel-kicker">04</p>
-                <h2 id="workspace-studio-title">AI Studio</h2>
+                <div className="workspace-beta-studio-title-row">
+                  <h2 id="workspace-studio-title">AI Studio</h2>
+                  <Link
+                    className="workspace-beta-studio-compare"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      openInfoModal("/ai-assistant-comparison", event.currentTarget);
+                    }}
+                    to="/ai-assistant-comparison"
+                  >
+                    {text("Compare AI options", "Σύγκριση επιλογών AI")}
+                  </Link>
+                </div>
               </div>
               <div className="workspace-beta-panel-tools">
                 <button type="button" onClick={() => setMaterialPanel("ai")}>{text("Manage / Delete","Διαχείριση / Διαγραφή")}</button>
@@ -846,7 +867,6 @@ export function WorkspaceBetaPage() {
       <footer className="workspace-beta-global-footer" aria-label={text("Workspace footer", "Υποσέλιδο χώρου εργασίας")}>
         <span>© 2026 Markellos Markides. {text("All rights reserved.", "Με επιφύλαξη παντός δικαιώματος.")}</span>
         <span>{text("Your data stays under your control.", "Τα δεδομένα σου παραμένουν υπό τον έλεγχό σου.")}</span>
-        <button className="workspace-beta-footer-help" onClick={() => setInfoModalRoute("/instructions")} type="button">{text("StudyApp Help / Instructions", "Βοήθεια / Οδηγίες StudyApp")}</button>
         <span className="workspace-beta-footer-version">StudyApp BETA · {__APP_BUILD_ID__}</span>
       </footer>
 
