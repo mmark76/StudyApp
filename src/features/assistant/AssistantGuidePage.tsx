@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { getStudyAppAssistantUrl } from "./assistantDestination";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { isStudyAppLocalEdition } from "../../infrastructure/local-companion/localCompanionClient";
 
 function isWorkspaceAiFrame(): boolean {
   return typeof window !== "undefined" && window.name === "studyapp-workspace-ai";
@@ -8,6 +9,7 @@ function isWorkspaceAiFrame(): boolean {
 
 export function AssistantGuidePage() {
   const { text } = useLanguage();
+  const localEdition = isStudyAppLocalEdition();
 
   if (isWorkspaceAiFrame()) {
     return (
@@ -45,14 +47,13 @@ export function AssistantGuidePage() {
               </div>
               <p>{text("StudyApp Local (Windows only).", "StudyApp Local (μόνο Windows).")}</p>
               <Link className="button secondary ai-studio-open-action" to="/local-chatgpt-plan">
-                {text("Chat with ChatGPT", "Συνομιλία με ChatGPT")}
+                {localEdition
+                  ? text("Sign in with ChatGPT", "Σύνδεση με ChatGPT")
+                  : text("Get StudyApp Local", "Απόκτηση StudyApp Local")}
               </Link>
-              <div className="ai-studio-rag-option">
-                <Link className="button secondary ai-studio-open-action" to="/local-chatgpt-plan#pdf-rag">
-                  {text("Open PDF RAG (BETA)", "Άνοιγμα PDF RAG (BETA)")}
-                </Link>
-                <span className="assistant-comparison-status available">PDF RAG · BETA</span>
-              </div>
+              {localEdition ? (
+                <p>{text("Chat and attach PDF or text files with + (BETA).", "Συνομιλία και προσθήκη PDF ή αρχείων κειμένου με + (BETA).")}</p>
+              ) : null}
             </section>
           </div>
         </section>
