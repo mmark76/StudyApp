@@ -168,3 +168,27 @@ test("Workspace light mode softens action colours without changing Standard Vers
   expect(standardBackground).toBe("rgb(124, 58, 237)");
   await expect(page.getByRole("heading", { name: "Manage practice content", exact: true })).toBeVisible();
 });
+
+test("Workspace Studio actions fit their labels and use compact column toggles", async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.goto("/#/workspace-beta");
+  const studio = page.locator(".workspace-beta-panel-studio");
+  const actions = studio.locator(".workspace-beta-panel-tools button");
+  await expect(actions).toHaveCount(2);
+  for (const action of await actions.all()) {
+    const sizes = await action.evaluate((el) => ({
+      visible: el.getBoundingClientRect().width,
+      text: el.scrollWidth,
+      flex: getComputedStyle(el).flexGrow,
+    }));
+    expect(sizes.visible).toBeGreaterThan(40);
+    expect(sizes.text).toBeLessThanOrEqual(sizes.visible + 2);
+    expect(sizes.flex).toBe("0");
+  }
+  const toggles = page.locator(".workspace-beta-column-toggle");
+  await expect(toggles).toHaveCount(4);
+  for (const button of await toggles.all()) {
+    const width = await button.evaluate((el) => el.getBoundingClientRect().width);
+    expect(width).toBeLessThanOrEqual(19);
+  }
+});
