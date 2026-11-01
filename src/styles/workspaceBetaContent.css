@@ -1113,14 +1113,7 @@
   white-space: normal;
 }
 
-/* Align the AI Studio header divider with the other three desktop panels. */
-@media (min-width: 901px) {
-  .workspace-beta-functional-shell .workspace-beta-panel-studio .workspace-beta-functional-panel-header {
-    box-sizing: border-box;
-    min-height: 94px;
-    align-items: flex-start;
-  }
-}
+
 
 /* Workspace Practice & Mastery is the visual reference for each column. */
 .workspace-panel-embed-main .dashboard-action-grid,

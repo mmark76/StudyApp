@@ -878,6 +878,9 @@ export function WorkspaceBetaPage() {
               </div>
             ) : null}
             {localChatReady ? <WorkspaceLocalChat /> : null}
+            {!localChatReady ? (
+              <div aria-label={text("StudyApp AI Assistant", "Βοηθός AI του StudyApp")} className="workspace-beta-ai-launch-row" role="img" />
+            ) : null}
             <div className="workspace-beta-frame-wrap">
               <iframe
                 key={`ai-${frameVersions.ai}`}
