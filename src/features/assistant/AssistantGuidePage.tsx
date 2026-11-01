@@ -22,7 +22,7 @@ export function AssistantGuidePage() {
                 <span className="assistant-comparison-status available">{text("Available", "Διαθέσιμο")}</span>
               </div>
               <p>{text("StudyApp AI Assistant in ChatGPT.", "Βοηθός AI του StudyApp στο ChatGPT.")}</p>
-              <a className="button secondary" href={getStudyAppAssistantUrl()} rel="noopener noreferrer" target="_blank">
+              <a className="button secondary ai-studio-open-action" href={getStudyAppAssistantUrl()} rel="noopener noreferrer" target="_blank">
                 {text("Open StudyApp AI Assistant", "Άνοιγμα Βοηθού AI")}
               </a>
             </section>
@@ -44,14 +44,14 @@ export function AssistantGuidePage() {
                 <span className="assistant-comparison-status available">{text("Available", "Διαθέσιμο")}</span>
               </div>
               <p>{text("StudyApp Local (Windows only).", "StudyApp Local (μόνο Windows).")}</p>
-              <Link className="button secondary" to="/local-chatgpt-plan">
+              <Link className="button secondary ai-studio-open-action" to="/local-chatgpt-plan">
                 {text("Chat with ChatGPT", "Συνομιλία με ChatGPT")}
               </Link>
               <div className="ai-studio-rag-option">
-                <span className="assistant-comparison-status available">PDF RAG · BETA</span>
-                <Link className="button secondary" to="/local-chatgpt-plan#pdf-rag">
+                <Link className="button secondary ai-studio-open-action" to="/local-chatgpt-plan#pdf-rag">
                   {text("Open PDF RAG (BETA)", "Άνοιγμα PDF RAG (BETA)")}
                 </Link>
+                <span className="assistant-comparison-status available">PDF RAG · BETA</span>
               </div>
             </section>
           </div>

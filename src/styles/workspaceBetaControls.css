@@ -771,6 +771,42 @@
   color: #334957;
 }
 
+/* Distinct AI action affordance in both Light and Dark modes. */
+.workspace-panel-embed-main .assistant-guide-page--workspace .ai-studio-open-action.button.secondary,
+:root:not([data-workspace-theme="dark"]) .workspace-panel-embed-main .assistant-guide-page--workspace .ai-studio-open-action.button.secondary,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .assistant-guide-page--workspace .ai-studio-open-action.button.secondary {
+  background: #285c82;
+  border-color: #3d749c;
+  color: #fff;
+}
+.workspace-panel-embed-main .assistant-guide-page--workspace .ai-studio-open-action.button.secondary:hover,
+:root:not([data-workspace-theme="dark"]) .workspace-panel-embed-main .assistant-guide-page--workspace .ai-studio-open-action.button.secondary:hover,
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .assistant-guide-page--workspace .ai-studio-open-action.button.secondary:hover {
+  background: #3477a5;
+  border-color: #5299c4;
+  color: #fff;
+}
+.workspace-panel-embed-main .assistant-guide-page--workspace .ai-studio-open-action:focus-visible {
+  outline: 2px solid #9bd3f5;
+  outline-offset: 2px;
+}
+
+/* Shared Back buttons: retain green despite the general wood button rule. */
+.workspace-beta-functional-shell .workspace-beta-functional-panel-header .workspace-beta-panel-tools .workspace-beta-back-action,
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-functional-panel-header .workspace-beta-panel-tools .workspace-beta-back-action,
+:root:not([data-workspace-theme="dark"]) .workspace-beta-functional-shell .workspace-beta-functional-panel-header .workspace-beta-panel-tools .workspace-beta-back-action {
+  background: #3c614d;
+  border-color: #577967;
+  color: #fff;
+}
+.workspace-beta-functional-shell .workspace-beta-functional-panel-header .workspace-beta-panel-tools .workspace-beta-back-action:hover,
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-functional-panel-header .workspace-beta-panel-tools .workspace-beta-back-action:hover,
+:root:not([data-workspace-theme="dark"]) .workspace-beta-functional-shell .workspace-beta-functional-panel-header .workspace-beta-panel-tools .workspace-beta-back-action:hover {
+  background: #31513f;
+  border-color: #628d73;
+  color: #fff;
+}
+
 :root:not([data-workspace-theme="dark"])
   .workspace-panel-embed-main
   .assistant-guide-page--workspace
