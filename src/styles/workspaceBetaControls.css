@@ -951,8 +951,11 @@
 }
 
 .workspace-panel-embed-main .assistant-guide-page--workspace .assistant-guide-workspace-primary .button {
-  font-size: var(--workspace-type-body, 13px) !important;
-  font-weight: var(--workspace-weight-heading, 750) !important;
+  min-height: 1.35rem !important;
+  padding: 0.12rem 0.4rem !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  line-height: 1.15;
 }
 
 
@@ -980,3 +983,4 @@
   padding-top: 0.19rem;
   padding-bottom: 0.19rem;
 }
+
