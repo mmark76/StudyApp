@@ -25,3 +25,26 @@ test("Workspace BETA displays the two agreed AI header actions without redundant
   await back.click();
   await expect(ai.getByText("1. Custom GPT / Plugin")).toBeVisible();
 });
+
+test("AI Studio download and Open Local actions share compact type and height", async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.goto("/#/workspace-beta");
+  const ai = page.frameLocator('iframe[name="studyapp-workspace-ai"]');
+  await ai.getByRole("link", { name: "Sign in with ChatGPT" }).click();
+  await expect(ai.getByRole("heading", { name: "Available in StudyApp Local" })).toBeVisible();
+  const controls = ai.locator(".local-chatgpt-plan-download-link, .local-chatgpt-plan-open-local-link");
+  await expect(controls).toHaveCount(3);
+  const dimensions = await controls.evaluateAll((elements) =>
+    elements.map((element) => ({
+      height: element.getBoundingClientRect().height,
+      fontSize: parseFloat(getComputedStyle(element).fontSize),
+    })),
+  );
+  for (const { height, fontSize } of dimensions) {
+    expect(fontSize).toBeLessThanOrEqual(12.5);
+    expect(height).toBeLessThanOrEqual(28);
+  }
+  for (const { height } of dimensions.slice(1)) {
+    expect(Math.abs(height - dimensions[0].height)).toBeLessThanOrEqual(1);
+  }
+});
