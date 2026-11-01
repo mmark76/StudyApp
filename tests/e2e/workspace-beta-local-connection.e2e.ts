@@ -29,8 +29,10 @@ test("Local AI Studio connects and disconnects without leaving the workspace", a
   await studio.getByRole("button", { name: "Connect", exact: true }).click();
   await expect(studio.getByRole("button", { name: "Disconnect", exact: true })).toBeVisible();
   await expect(studio.getByRole("textbox", { name: "Message ChatGPT" })).toBeVisible();
+  await expect(studio.locator("iframe[name=studyapp-workspace-ai]")).toHaveCount(0);
 
   await studio.getByRole("button", { name: "Disconnect", exact: true }).click();
   await expect(studio.getByRole("button", { name: "Connect", exact: true })).toBeVisible();
   await expect(studio.getByRole("textbox", { name: "Message ChatGPT" })).toHaveCount(0);
+  await expect(studio.locator("iframe[name=studyapp-workspace-ai]")).toBeVisible();
 });

@@ -967,3 +967,16 @@
   font-size: clamp(0.5rem, 3.4cqw, var(--workspace-type-body, 13px)) !important;
 }
 
+
+/* Compact shared button rhythm: applies to both the hosted Workspace and ZIP. */
+.workspace-beta-functional-shell .workspace-beta-panel-tools button {
+  min-height: 1.35rem;
+  padding-block: 0.11rem;
+}
+.workspace-panel-embed-main .button:not(.icon-button),
+.workspace-panel-embed-main button:not(.icon-button):not(.workspace-beta-column-toggle),
+.workspace-beta-functional-shell .workspace-local-connection-controls button,
+.workspace-beta-functional-shell .workspace-local-chat button {
+  padding-top: 0.19rem;
+  padding-bottom: 0.19rem;
+}

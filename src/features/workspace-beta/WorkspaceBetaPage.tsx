@@ -881,7 +881,7 @@ export function WorkspaceBetaPage() {
             {!localChatReady ? (
               <div aria-label={text("StudyApp AI Assistant", "Βοηθός AI του StudyApp")} className="workspace-beta-ai-launch-row" role="img" />
             ) : null}
-            <div className="workspace-beta-frame-wrap">
+            {!localChatReady ? <div className="workspace-beta-frame-wrap">
               <iframe
                 key={`ai-${frameVersions.ai}`}
                 className="workspace-beta-frame"
@@ -890,7 +890,7 @@ export function WorkspaceBetaPage() {
                 src={panelRoutes.ai}
                 title={text("Functional AI Studio panel", "Λειτουργικό πάνελ AI Studio")}
               />
-            </div>
+            </div> : null}
           </section>
         </div>
       </main>
