@@ -15,5 +15,6 @@ test("Sources and AI modes follow Practice row visual standard", async ({ page }
     expect(shape.display).toBe("grid");
   }
   await expect(ai.getByRole("link", {name:"Open StudyApp AI Assistant"})).toBeVisible();
-  await expect(ai.getByRole("link", {name:"Open PDF RAG (BETA)"})).toBeVisible();
+  await expect(ai.getByRole("link", {name:"Sign in with ChatGPT"})).toBeVisible();
+  await expect(ai.getByRole("link", {name:"Open PDF RAG (BETA)"})).toHaveCount(0);
 });

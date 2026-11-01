@@ -17,7 +17,7 @@ test("AI Studio aligns with Practice and displays the assistant identity below t
 
   const ai = page.frameLocator('iframe[name="studyapp-workspace-ai"]');
   await expect(ai.getByRole("link", { name: "Open StudyApp AI Assistant" })).toBeVisible();
-  await ai.getByRole("link", { name: "Chat with ChatGPT" }).click();
+  await ai.getByRole("link", { name: "Sign in with ChatGPT" }).click();
   await header.getByRole("button", { name: "Back to AI Options" }).click();
   await expect(ai.getByText("1. Custom GPT / Plugin")).toBeVisible();
 });

@@ -20,7 +20,7 @@ test("Workspace BETA displays the two agreed AI header actions without redundant
   await expect(page.locator(".workspace-beta-info-modal")).toBeVisible();
   await page.locator(".workspace-beta-info-modal").getByRole("button", { name: "Close" }).click();
 
-  await ai.getByRole("link", { name: "Chat with ChatGPT" }).click();
+  await ai.getByRole("link", { name: "Sign in with ChatGPT" }).click();
   await expect(ai.getByRole("heading", { name: "Use your ChatGPT plan" })).toBeVisible();
   await back.click();
   await expect(ai.getByText("1. Custom GPT / Plugin")).toBeVisible();
