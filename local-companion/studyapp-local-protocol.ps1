@@ -41,7 +41,7 @@ try {
         throw "The StudyApp Local package is incomplete. Extract the complete package and install the launcher again."
     }
 
-    & $stopScript -Port 8767
+    & $stopScript -Port 8767 -QuietIfNotRunning
     if ($LASTEXITCODE -ne 0) {
         throw "Port 8767 is owned by another application and was not changed. Close that application or choose a different port before opening StudyApp Local."
     }

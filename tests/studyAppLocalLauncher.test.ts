@@ -27,7 +27,11 @@ describe("StudyApp Local Windows launcher", () => {
     expect(handler).toContain("$LASTEXITCODE -ne 0");
     expect(handler).toContain('"http://127.0.0.1:8767/#/workspace-beta"');
     expect(handler).toContain('BeginConnect("127.0.0.1", 8767');
-    expect(handler).toContain("$stopScript -Port 8767");
+    expect(handler).toContain("$stopScript -Port 8767 -QuietIfNotRunning");
+    const stopper = readFileSync("local-companion/stop-studyapp-local.ps1", "utf8");
+    expect(stopper).toContain("[switch]$QuietIfNotRunning");
+    expect(stopper).toContain("if (-not $QuietIfNotRunning)");
+    expect(stopper).toContain("Port $Port is in use by a process that is not StudyApp Local");
     expect(server).toContain("PORT = 8767");
     expect(server).toContain('os.environ.get("STUDYAPP_LOCAL_SUPPRESS_BROWSER") != "1"');
   });
