@@ -664,6 +664,18 @@
   flex: 1 1 0;
   font-size: clamp(0.35rem, 2.8cqw, 0.8rem);
 }
+/* AI Studio buttons use their natural content width, with wrapping on narrow panels. */
+.workspace-beta-functional-shell .workspace-beta-panel-studio .workspace-beta-panel-tools {
+  flex-wrap: wrap;
+}
+.workspace-beta-functional-shell .workspace-beta-panel-studio .workspace-beta-functional-panel-header .workspace-beta-panel-tools button:first-child,
+.workspace-beta-functional-shell .workspace-beta-panel-studio .workspace-beta-functional-panel-header .workspace-beta-panel-tools button:last-child {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 .workspace-beta-functional-panel-header h2 {
   margin-top: 0.08rem;
   font-size: 0.96rem;
