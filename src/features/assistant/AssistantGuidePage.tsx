@@ -30,22 +30,10 @@ export function AssistantGuidePage() {
             </section>
             <section className="ai-studio-option">
               <div className="ai-studio-option-heading">
-                <strong>2. ChatGPT App / MCP</strong>
-                <span className="assistant-comparison-status soon">{text("Coming Soon", "Σύντομα")}</span>
-              </div>
-            </section>
-            <section className="ai-studio-option">
-              <div className="ai-studio-option-heading">
-                <strong>3. StudyApp AI / API</strong>
-                <span className="assistant-comparison-status soon">{text("Coming Soon", "Σύντομα")}</span>
-              </div>
-            </section>
-            <section className="ai-studio-option">
-              <div className="ai-studio-option-heading">
-                <strong>4. Sign in with ChatGPT</strong>
+                <strong>2. Sign in with ChatGPT</strong>
                 <span className="assistant-comparison-status available">{text("Available", "Διαθέσιμο")}</span>
               </div>
-              <p>{text("StudyApp Local (Windows only).", "StudyApp Local (μόνο Windows).")}</p>
+              <p>{text("Available only in StudyApp Local (Windows download required).", "Διαθέσιμο μόνο στο StudyApp Local (απαιτείται λήψη για Windows).")}</p>
               <Link className="button secondary ai-studio-open-action" to="/local-chatgpt-plan">
                 {localEdition
                   ? text("Sign in with ChatGPT", "Σύνδεση με ChatGPT")
@@ -54,6 +42,18 @@ export function AssistantGuidePage() {
               {localEdition ? (
                 <p>{text("Chat and attach PDF or text files with + (BETA).", "Συνομιλία και προσθήκη PDF ή αρχείων κειμένου με + (BETA).")}</p>
               ) : null}
+            </section>
+            <section className="ai-studio-option">
+              <div className="ai-studio-option-heading">
+                <strong>3. ChatGPT App / MCP</strong>
+                <span className="assistant-comparison-status soon">{text("Coming Soon", "Σύντομα")}</span>
+              </div>
+            </section>
+            <section className="ai-studio-option">
+              <div className="ai-studio-option-heading">
+                <strong>4. StudyApp AI / API</strong>
+                <span className="assistant-comparison-status soon">{text("Coming Soon", "Σύντομα")}</span>
+              </div>
             </section>
           </div>
         </section>
