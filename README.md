@@ -110,6 +110,11 @@ or StudyApp credits. The encrypted connection is scoped to the current Windows
 user. StudyApp Local sends only a question the user explicitly submits; it does
 not automatically inspect, read, include or upload Library/IndexedDB material.
 Responses use `store: false` and remain only in the open Local page session.
+In the connected Windows Local AI Studio conversation, `+` can attach up to eight
+PDF, DOCX, PPTX, TXT, Markdown, or CSV files for local text extraction. Office
+documents contribute extractable text (including PowerPoint speaker notes), not
+embedded images or charts. Only passages reviewed and explicitly approved by
+the user are sent to ChatGPT; files themselves stay on the device.
 When connected, its Workspace AI Studio panel becomes a transient conversation
 surface with a bottom composer; the browser/PWA package does not include that
 in-app conversation. Disconnect removes the protected local connection record.

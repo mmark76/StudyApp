@@ -4,6 +4,7 @@ export type SupportedLocalFileFormat =
   | "pdf"
   | "doc"
   | "docx"
+  | "pptx"
   | "txt"
   | "markdown"
   | "csv"
@@ -126,6 +127,20 @@ const LOCAL_FILE_TYPE_POLICIES: readonly LocalFileTypePolicy[] = [
       "application/x-zip-compressed",
     ],
     canonicalMimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    fileKind: "document",
+    openMode: "download",
+    signature: hasZipHeader,
+  },
+  {
+    format: "pptx",
+    label: "PowerPoint presentation",
+    extensions: [".pptx"],
+    mimeTypes: [
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "application/zip",
+      "application/x-zip-compressed",
+    ],
+    canonicalMimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
     fileKind: "document",
     openMode: "download",
     signature: hasZipHeader,
@@ -265,7 +280,7 @@ export async function validateLocalStudyFile(file: LocalFileCandidate): Promise<
   const policy = findPolicyByExtension(file.name);
   if (!policy) {
     throw new LocalFilePolicyError(
-      "Choose a supported study file: PDF, Word, TXT, Markdown, CSV, PNG, JPEG, WebP, or GIF.",
+      "Choose a supported study file: PDF, Word, PowerPoint, TXT, Markdown, CSV, PNG, JPEG, WebP, or GIF.",
     );
   }
 

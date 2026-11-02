@@ -152,13 +152,15 @@ keeps the conversation only in React state for the active page, sends each
 explicitly submitted question through the local companion with `store: false`,
 and does not read or include Library/IndexedDB data. The browser/PWA edition
 does not mount this conversation surface.
-The Local ChatGPT page also provides a separate PDF retrieval flow: it validates
-only user-selected Library PDFs, extracts page text with PDF.js, chunks and
-ranks passages in memory, and displays the exact excerpts before sending. The
-user approves those passages and submits the question; the companion enforces
-confirmation, sends only the question and excerpts with `store: false`, and the
-answer stays in page state. No persistent index or automatic Library scan is
-used.
+The Local ChatGPT page also provides a separate retrieval flow for user-selected
+Library PDFs. In Workspace BETA, the Local chat `+` accepts PDF, DOCX, PPTX, TXT,
+Markdown and CSV files directly. PDF and Office text extraction and passage
+ranking run on-device; PowerPoint slide text and speaker notes are included,
+while embedded images and charts are not analyzed. The interface displays the
+exact selected excerpts before sending. The user approves those passages and
+submits the question; the companion enforces confirmation and sends only the
+question and approved excerpts with `store: false`. Answers stay in page state.
+No persistent index or automatic Library scan is used.
 
 Workspace presentation styles remain separate from the stable shell at the CSS
 module/file level even though they are currently imported from the application

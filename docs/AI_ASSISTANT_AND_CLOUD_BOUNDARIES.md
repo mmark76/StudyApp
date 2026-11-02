@@ -78,14 +78,18 @@ browser/PWA keeps its external-link and informational presentation. Disconnect
 deletes the protected local connection record.
 
 The Local ChatGPT page separately supports questions about user-selected
-Library PDFs. PDF bytes are validated and text is extracted, chunked, and
-searched on-device. The exact selected excerpts, document titles, and page
-numbers are shown for review. Nothing from this workflow is sent until the user
+Library PDFs. In Workspace BETA, the Local chat `+` also accepts explicitly
+selected PDF, DOCX, PPTX, TXT, Markdown and CSV files. File validation, Office
+text extraction and passage search run on-device. DOCX text and PowerPoint
+slide text and speaker notes can be extracted; embedded images and charts are
+not analyzed. The exact selected excerpts, document titles and source locations
+are shown for review. Nothing from this workflow is sent until the user
 explicitly approves and submits. The confirmed request includes only the
 question and reviewed passages; it uses `store: false`, and the answer stays in
-the active page session. The answer is instructed to cite source IDs/pages and
-to state when the selected passages are insufficient. No API key, web search,
-external vector store, persistent PDF index, or automatic Library scan is used.
+the active page session. The answer is instructed to cite source IDs and
+locations and to state when the selected passages are insufficient. No API key,
+web search, external vector store, persistent index, or automatic Library scan
+is used.
 
 The separately installed, per-user Windows launcher can register
 `studyapp-local://open`. The browser/PWA can offer this as an opening action,

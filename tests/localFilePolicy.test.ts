@@ -37,6 +37,13 @@ const validFiles = [
     openMode: "download",
   },
   {
+    name: "lecture.pptx",
+    type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    bytes: new Uint8Array([0x50, 0x4b, 0x03, 0x04]),
+    format: "pptx",
+    openMode: "download",
+  },
+  {
     name: "notes.txt",
     type: "text/plain",
     bytes: "Plain study notes",
