@@ -34,5 +34,11 @@ describe("StudyApp Local Windows launcher", () => {
     expect(stopper).toContain("Port $Port is in use by a process that is not StudyApp Local");
     expect(server).toContain("PORT = 8767");
     expect(server).toContain('os.environ.get("STUDYAPP_LOCAL_SUPPRESS_BROWSER") != "1"');
+    expect(server).toContain('print("SERVER RUNNING", flush=True)');
+    expect(server).toContain('print("This Terminal runs the StudyApp Local server.", flush=True)');
+    expect(server).toContain('print("Keep this Terminal running. You can minimize it, but do not close it.", flush=True)');
+    expect(server.indexOf('with StudyAppLocalServer((HOST, PORT), Handler) as server')).toBeLessThan(
+      server.indexOf('print("SERVER RUNNING", flush=True)'),
+    );
   });
 });

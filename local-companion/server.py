@@ -186,7 +186,14 @@ class Handler(BaseHTTPRequestHandler):
 def main() -> int:
     try:
         with StudyAppLocalServer((HOST, PORT), Handler) as server:
-            print(f"StudyApp Local is running at http://{HOST}:{PORT}")
+            print("STUDYAPP LOCAL SERVER", flush=True)
+            print("SERVER RUNNING", flush=True)
+            print(f"Local address: http://{HOST}:{PORT}", flush=True)
+            print("", flush=True)
+            print("IMPORTANT", flush=True)
+            print("This Terminal runs the StudyApp Local server.", flush=True)
+            print("Closing it will stop the server and make the application unavailable.", flush=True)
+            print("Keep this Terminal running. You can minimize it, but do not close it.", flush=True)
             if os.environ.get("STUDYAPP_LOCAL_SUPPRESS_BROWSER") != "1":
                 webbrowser.open(f"http://{HOST}:{PORT}")
             server.serve_forever()

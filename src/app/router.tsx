@@ -8,6 +8,7 @@ import { ContentImportPage } from "../features/content-import/ContentImportPage"
 import { FlashcardsPage } from "../features/flashcards/FlashcardsPage";
 import { HomePage } from "../features/home/HomePage";
 import { StudyAppInstructionsPage } from "../features/instructions/StudyAppInstructionsPage";
+import { LocalInstallationGuidePage } from "../features/local-installation/LocalInstallationGuidePage";
 import { LearnPage } from "../features/learn/LearnPage";
 import { LegalPage } from "../features/legal/LegalPage";
 import { legalPages } from "../features/legal/legalPages";
@@ -61,6 +62,7 @@ export const router = createHashRouter([
         },
       },
       { path: "instructions", element: <StudyAppInstructionsPage /> },
+      { path: "local-installation-guide", element: <LocalInstallationGuidePage /> },
       { path: "sources", element: <SourcesPage /> },
       { path: "core-knowledge", element: <CoreKnowledgePage /> },
       { path: "study", element: <StudyLearnPage /> },

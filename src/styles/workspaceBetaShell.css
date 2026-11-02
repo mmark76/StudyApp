@@ -70,6 +70,22 @@
   text-decoration: none;
 }
 
+.workspace-beta-functional-shell .workspace-beta-installation-guide-link {
+  flex: none;
+  padding: 0.3rem 0.05rem;
+  color: #4b4b46;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  white-space: nowrap;
+}
+
+.workspace-beta-functional-shell .workspace-beta-installation-guide-link:hover {
+  color: #20201e;
+}
+
 .workspace-beta-badge {
   display: inline-flex;
   align-items: center;
@@ -1352,6 +1368,7 @@
 .workspace-beta-functional-shell .workspace-beta-standard-version:focus-visible,
 .workspace-beta-functional-shell .workspace-beta-ecosystem-link:focus-visible,
 .workspace-beta-functional-shell .workspace-beta-local-download:focus-visible,
+.workspace-beta-functional-shell .workspace-beta-installation-guide-link:focus-visible,
 .workspace-beta-functional-shell .language-switcher button:focus-visible {
   outline-width: 2px;
   outline-offset: 2px;
@@ -1387,6 +1404,14 @@
   border-color: #c78b1d;
   background: #f4c65f;
   color: #201809;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-installation-guide-link {
+  color: #d9d9d4;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-installation-guide-link:hover {
+  color: #ffffff;
 }
 
 @media (max-width: 760px) {

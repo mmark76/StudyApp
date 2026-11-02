@@ -29,7 +29,7 @@ import {
 type WorkspacePanelId = "sources" | "knowledge" | "practice" | "ai";
 type WorkspaceDivider = 0 | 1 | 2;
 type PanelWidths = [number, number, number, number];
-type WorkspaceInfoRoute = "/appearance" | "/ai-assistant-comparison" | "/instructions" | "/important-info";
+type WorkspaceInfoRoute = "/appearance" | "/ai-assistant-comparison" | "/instructions" | "/important-info" | "/local-installation-guide";
 
 interface ResizeDragState {
   divider: WorkspaceDivider;
@@ -51,6 +51,7 @@ const workspaceInfoRoutes = new Set<WorkspaceInfoRoute>([
   "/ai-assistant-comparison",
   "/instructions",
   "/important-info",
+  "/local-installation-guide",
 ]);
 const defaultPanelWeights: PanelWidths = [25, 28, 25, 22];
 const minimumPanelWidths: PanelWidths = [260, 240, 340, 280];
@@ -565,6 +566,8 @@ export function WorkspaceBetaPage() {
       ? text("Compare AI options", "Σύγκριση επιλογών AI")
       : infoModalRoute === "/instructions"
         ? text("StudyApp instructions", "Οδηγίες StudyApp")
+        : infoModalRoute === "/local-installation-guide"
+          ? text("Installation Guide", "Οδηγός εγκατάστασης")
         : infoModalRoute === "/important-info"
           ? text("Important Info", "Σημαντικές πληροφορίες")
           : "";
@@ -624,6 +627,16 @@ export function WorkspaceBetaPage() {
             <span className="workspace-beta-badge">BETA</span>
             <span className="workspace-beta-title">{text("Workspace", "Χώρος εργασίας")}</span>
             <StudyAppLocalWindowsZipLink className="workspace-beta-local-download" compact />
+            <Link
+              className="workspace-beta-installation-guide-link"
+              onClick={(event) => {
+                event.preventDefault();
+                openInfoModal("/local-installation-guide", event.currentTarget);
+              }}
+              to="/local-installation-guide"
+            >
+              {text("Installation Guide", "Οδηγός εγκατάστασης")}
+            </Link>
           </div>
         </div>
         <div className="workspace-beta-header-actions">
