@@ -150,6 +150,10 @@
 
 .workspace-local-chat-composer {
   display: grid;
+  min-height: 0;
+  max-height: min(62dvh, 36rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   gap: 0.38rem;
   padding: 0.62rem 0.7rem 0.7rem;
   border-top: 1px solid #dfdfda;
@@ -346,8 +350,7 @@
 }
 .workspace-local-chat-review p { margin: 0; }
 .workspace-local-chat-review-excerpts {
-  max-height: 12rem;
-  overflow-y: auto;
+  min-width: 0;
 }
 .workspace-local-chat-review-excerpts details {
   padding: 0.3rem 0;
