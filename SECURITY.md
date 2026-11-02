@@ -35,6 +35,10 @@ surface exists only at the StudyApp Local loopback origin, keeps messages in the
 active React page state, renders answers as plain text, and uses the same
 explicit-question, `store: false` companion request. It is not available in the
 browser/PWA edition and cannot access study data automatically.
+The model picker receives only the signed-in account's displayable model names
+and slugs from the companion. OAuth credentials remain in protected Windows
+storage. The companion rejects a selected model missing from the account's
+current catalog before sending the question or approved passages to OpenAI.
 The separate question flows use PDFs explicitly selected from Library and
 attachments explicitly chosen with `+` in the Local Workspace. PDF, DOCX, PPTX,
 TXT, Markdown and CSV text is extracted and searched on-device. Office parsing

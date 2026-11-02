@@ -66,6 +66,12 @@ account, and stores the resulting connection encrypted with Windows DPAPI for
 the current Windows user. Eligible questions use the user's ChatGPT subscription
 or available ChatGPT credits. No OpenAI API key, StudyApp credit, or browser
 token storage is used.
+The connected Workspace chat lists the current account's displayable models
+through the Local companion. A model name and slug may reach the Local browser
+UI, but the OAuth token stays in the Windows companion. The chosen model is
+revalidated against the account catalog before each request. Account changes
+reload the picker. Public-distribution questions are recorded in
+`docs/LOCAL_MODEL_SELECTOR.md`.
 
 The basic chat composer sends only a question the user types and explicitly submits.
 This composer does not scan, read, select, upload, or automatically include Library,

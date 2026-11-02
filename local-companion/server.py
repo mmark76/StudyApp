@@ -13,7 +13,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
 from credential_vault import CredentialVault
-from openai_connection import ChatGptConnectionError, ChatGptConnectionSetupRequired, ChatGptPlanConnection
+from openai_connection import ChatGptConnectionError, ChatGptConnectionSetupRequired, ChatGptModelUnavailable, ChatGptPlanConnection
 
 HOST = "127.0.0.1"
 PORT = 8767
@@ -87,7 +87,10 @@ class Handler(BaseHTTPRequestHandler):
         return body
 
     def _connection_error(self, error: Exception) -> None:
-        self._json({"error": str(error), "setupRequired": isinstance(error, ChatGptConnectionSetupRequired)}, HTTPStatus.BAD_REQUEST)
+        body = {"error": str(error), "setupRequired": isinstance(error, ChatGptConnectionSetupRequired)}
+        if isinstance(error, ChatGptModelUnavailable):
+            body["code"] = "model_unavailable"
+        self._json(body, HTTPStatus.BAD_REQUEST)
 
     def do_GET(self) -> None:  # noqa: N802
         if not self._host_valid():
@@ -96,6 +99,12 @@ class Handler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         if parsed.path == "/api/chatgpt-plan/connection":
             self._json(CONNECTION.status())
+            return
+        if parsed.path == "/api/chatgpt-plan/models":
+            try:
+                self._json(CONNECTION.list_models())
+            except ChatGptConnectionError as error:
+                self._connection_error(error)
             return
         if parsed.path == CALLBACK_PATH:
             print("ChatGPT approval callback received.")
@@ -136,12 +145,12 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/chatgpt-plan/ask":
                 if body.get("confirmExternalRequest") is not True:
                     raise ChatGptConnectionError("Confirm the ChatGPT question.")
-                self._json(CONNECTION.ask(body.get("question")))
+                self._json(CONNECTION.ask(body.get("question"), body.get("model")))
                 return
             if path == "/api/chatgpt-plan/ask-with-sources":
                 if body.get("confirmExternalRequest") is not True:
                     raise ChatGptConnectionError("Confirm sending the selected passages to ChatGPT.")
-                self._json(CONNECTION.ask_with_sources(body.get("question"), body.get("passages")))
+                self._json(CONNECTION.ask_with_sources(body.get("question"), body.get("passages"), body.get("model")))
                 return
             self._json({"error": "Not found."}, HTTPStatus.NOT_FOUND)
         except ChatGptConnectionError as error:

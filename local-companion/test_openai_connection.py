@@ -12,7 +12,7 @@ from urllib.parse import parse_qs, urlparse
 sys.path.insert(0, str(Path(__file__).parent))
 
 from credential_vault import CredentialVaultError  # noqa: E402
-from openai_connection import ChatGptConnectionError, ChatGptPlanConnection  # noqa: E402
+from openai_connection import ChatGptConnectionError, ChatGptModelUnavailable, ChatGptPlanConnection  # noqa: E402
 
 
 class MissingVault:
@@ -65,6 +65,22 @@ class FakeOpener:
         return FakeResponse()
 
 
+class FakeCatalogResponse:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_args):
+        return False
+
+    def read(self):
+        return json.dumps({"models": [
+            {"slug": "model-b", "display_name": "Model B", "visibility": "list"},
+            {"slug": "hidden", "display_name": "Hidden", "visibility": "hide"},
+            {"slug": "model-a", "display_name": "Model A", "visibility": "list"},
+            {"slug": "model-b", "display_name": "Duplicate", "visibility": "list"},
+        ]}).encode("utf-8")
+
+
 class LocalConnectionTests(unittest.TestCase):
     def test_missing_record_is_explicitly_disconnected(self) -> None:
         connection = ChatGptPlanConnection(MissingVault(), Path(tempfile.mkdtemp()))
@@ -93,18 +109,54 @@ class LocalConnectionTests(unittest.TestCase):
         with self.assertRaises(ChatGptConnectionError):
             connection.ask("x" * 12_001)
 
+    def test_model_catalog_uses_selected_accounts_token_and_display_names(self) -> None:
+        connection = ChatGptPlanConnection(MemoryVault({"planUsageAuthorized": True}), Path(tempfile.mkdtemp()))
+        requests = []
+
+        class CatalogOpener:
+            def open(self, request, timeout):
+                requests.append(request)
+                return FakeCatalogResponse()
+
+        with patch.object(connection, "_access_token", return_value="test-token"), \
+             patch("openai_connection.build_opener", return_value=CatalogOpener()):
+            result = connection.list_models()
+        self.assertEqual(result, {"models": [
+            {"slug": "model-b", "displayName": "Model B"},
+            {"slug": "model-a", "displayName": "Model A"},
+        ]})
+        self.assertEqual(requests[0].full_url, "https://api.openai.com/v1/models")
+        self.assertEqual(requests[0].get_header("Authorization"), "Bearer test-token")
+
+    def test_model_catalog_requires_plan_permission(self) -> None:
+        connection = ChatGptPlanConnection(MemoryVault({"planUsageAuthorized": False}), Path(tempfile.mkdtemp()))
+        with patch.object(connection, "_models") as models:
+            with self.assertRaises(ChatGptConnectionError):
+                connection.list_models()
+            models.assert_not_called()
+
+    def test_unavailable_model_never_reaches_inference(self) -> None:
+        connection = ChatGptPlanConnection(MemoryVault({"planUsageAuthorized": True}), Path(tempfile.mkdtemp()))
+        with patch.object(connection, "_models", return_value=[{"slug": "model-a", "displayName": "Model A"}]), \
+             patch("openai_connection.build_opener") as opener:
+            with self.assertRaises(ChatGptModelUnavailable):
+                connection.ask("Question", "model-b")
+            opener.assert_not_called()
+
     def test_study_sources_send_only_approved_passages_without_storage(self) -> None:
         captured: dict = {}
         connection = ChatGptPlanConnection(MemoryVault({"planUsageAuthorized": True}), Path(tempfile.mkdtemp()))
         passage = {"sourceId": "S1", "documentId": "doc-1", "documentTitle": "Biology.pdf", "page": 4, "text": "Mitochondria release energy."}
         with patch.object(connection, "_record", return_value={"planUsageAuthorized": True}), \
-             patch.object(connection, "_models", return_value=["available-model"]), \
+             patch.object(connection, "_models", return_value=[{"slug": "available-model", "displayName": "Available Model"}]), \
              patch.object(connection, "_access_token", return_value="test-token"), \
              patch("openai_connection.build_opener", return_value=FakeOpener(captured)):
-            answer = connection.ask_with_sources("What releases energy?", [passage])
+            answer = connection.ask_with_sources("What releases energy?", [passage], "available-model")
 
         self.assertEqual(answer["answer"], "Answer [S1, p. 4]")
         self.assertIs(captured["store"], False)
+        self.assertIs(captured["stream"], True)
+        self.assertEqual(captured["model"], "available-model")
         self.assertEqual([item["role"] for item in captured["input"]], ["developer", "user"])
         developer_instruction = captured["input"][0]["content"]
         self.assertIn("selected study-file passages", developer_instruction)
@@ -144,6 +196,7 @@ class LocalConnectionTests(unittest.TestCase):
             status = connection.complete({"state": query["state"][0], "code": "authorization-code"})
         self.assertTrue(status["connected"])
         self.assertTrue(status["planUsageAuthorized"])
+        self.assertIsInstance(status["connectionId"], str)
 
 
 if __name__ == "__main__":

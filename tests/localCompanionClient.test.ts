@@ -4,7 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LocalChatGptPlanPage } from "../src/features/assistant/LocalChatGptPlanPage";
 import { WorkspaceLocalChat } from "../src/features/workspace-beta/WorkspaceLocalChat";
-import { askChatGptPlanWithPdfPassages, isStudyAppLocalEdition, STUDYAPP_LOCAL_PROTOCOL_URL } from "../src/infrastructure/local-companion/localCompanionClient";
+import { askChatGptPlan, askChatGptPlanWithPdfPassages, getChatGptPlanModels, isStudyAppLocalEdition, STUDYAPP_LOCAL_PROTOCOL_URL } from "../src/infrastructure/local-companion/localCompanionClient";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -34,6 +34,26 @@ describe("StudyApp Local companion boundary", () => {
     });
     expect(String(init.body)).not.toContain("unselected");
   });
+
+  it("reads account-specific models and sends the selected model", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ models: [{ slug: "model-b", displayName: "Model B" }] }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ answer: "Answer" }) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(getChatGptPlanModels()).resolves.toEqual([{ slug: "model-b", displayName: "Model B" }]);
+    await askChatGptPlan("Question", "model-b");
+
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/chatgpt-plan/models");
+    expect(JSON.parse(String((fetchMock.mock.calls[1][1] as RequestInit).body))).toEqual({
+      confirmExternalRequest: true, question: "Question", model: "model-b",
+    });
+  });
+
+  it("rejects an invalid model catalog", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ models: [{ slug: "model-b" }] }) }));
+    await expect(getChatGptPlanModels()).rejects.toThrow("model list is invalid");
+  });
 });
 
 describe("StudyApp Local page", () => {
@@ -61,6 +81,8 @@ describe("StudyApp Local Workspace conversation", () => {
     expect(markup).toContain("Message ChatGPT");
     expect(markup).toContain("Attach study files");
     expect(markup).toContain("workspace-local-chat-input-bar");
+    expect(markup).toContain("Model");
+    expect(markup).toContain("Refresh models");
     expect(markup).toContain('placeholder="Ask ChatGPT"');
     expect(markup).toContain('class="workspace-local-chat-send"');
     expect(markup).not.toContain("Find excerpts");

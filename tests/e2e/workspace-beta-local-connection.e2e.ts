@@ -5,6 +5,12 @@ test.use({
   serviceWorkers: "block",
 });
 
+test.beforeEach(async ({ page }) => {
+  await page.route("**/api/chatgpt-plan/models", async (route) => {
+    await route.fulfill({ json: { models: [{ slug: "model-a", displayName: "Model A" }] } });
+  });
+});
+
 test("Local AI Studio connects and disconnects without leaving the workspace", async ({ page }) => {
   let connected = false;
   await page.route("**/api/chatgpt-plan/connection", async (route) => {
@@ -83,7 +89,7 @@ test("Connected chat sends a text-only question with the same Send button", asyn
   });
   await page.route("**/api/chatgpt-plan/ask", async (route) => {
     requestCount += 1;
-    expect(route.request().postDataJSON()).toEqual({ confirmExternalRequest: true, question: "Explain selective attention" });
+    expect(route.request().postDataJSON()).toEqual({ confirmExternalRequest: true, question: "Explain selective attention", model: "model-a" });
     await route.fulfill({ json: { answer: "Attention is selective." } });
   });
 
@@ -94,4 +100,64 @@ test("Connected chat sends a text-only question with the same Send button", asyn
   await expect(studio.getByText("Attention is selective.")).toBeVisible();
   expect(requestCount).toBe(1);
   await expect(studio.locator(".workspace-local-chat-review")).toHaveCount(0);
+});
+
+test("Connected chat selects a discovered model and refreshes after an account change", async ({ page }) => {
+  let connectionId = "account-one";
+  let catalog = [
+    { slug: "model-a", displayName: "Model A" },
+    { slug: "model-b", displayName: "Model B" },
+  ];
+  let sentModel = "";
+  await page.route("**/api/chatgpt-plan/connection", async (route) => {
+    await route.fulfill({ json: { connected: true, connectionState: "connected", planUsageAuthorized: true, scope: "current-windows-user", connectionId } });
+  });
+  await page.route("**/api/chatgpt-plan/models", async (route) => {
+    await route.fulfill({ json: { models: catalog } });
+  });
+  await page.route("**/api/chatgpt-plan/ask", async (route) => {
+    sentModel = route.request().postDataJSON().model;
+    await route.fulfill({ json: { answer: "Answer" } });
+  });
+
+  await page.goto("/#/workspace-beta");
+  const studio = page.locator(".workspace-beta-panel-studio");
+  const selector = studio.getByRole("combobox", { name: "Model" });
+  await expect(selector).toBeEnabled();
+  await expect(selector.locator("option")).toHaveText(["Model A", "Model B"]);
+  await selector.selectOption("model-b");
+  await studio.getByRole("textbox", { name: "Message ChatGPT" }).fill("Question");
+  await studio.getByRole("button", { name: "Send", exact: true }).click();
+  await expect(studio.getByText("Answer", { exact: true })).toBeVisible();
+  expect(sentModel).toBe("model-b");
+
+  catalog = [{ slug: "model-c", displayName: "Model C" }];
+  connectionId = "account-two";
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await expect(selector).toHaveValue("model-c");
+  await expect(selector.locator("option")).toHaveText(["Model C"]);
+});
+
+test("Unavailable model keeps the draft and reloads the account catalog", async ({ page }) => {
+  let catalog = [{ slug: "model-a", displayName: "Model A" }];
+  await page.route("**/api/chatgpt-plan/connection", async (route) => {
+    await route.fulfill({ json: { connected: true, connectionState: "connected", planUsageAuthorized: true, scope: "current-windows-user" } });
+  });
+  await page.route("**/api/chatgpt-plan/models", async (route) => {
+    await route.fulfill({ json: { models: catalog } });
+  });
+  await page.route("**/api/chatgpt-plan/ask", async (route) => {
+    catalog = [{ slug: "model-b", displayName: "Model B" }];
+    await route.fulfill({ status: 400, json: { error: "Model unavailable", code: "model_unavailable" } });
+  });
+
+  await page.goto("/#/workspace-beta");
+  const studio = page.locator(".workspace-beta-panel-studio");
+  const question = studio.getByRole("textbox", { name: "Message ChatGPT" });
+  await expect(studio.getByRole("combobox", { name: "Model" })).toHaveValue("model-a");
+  await question.fill("Keep this question");
+  await studio.getByRole("button", { name: "Send", exact: true }).click();
+  await expect(studio.getByText("Selected model is no longer available. Choose a model and try again.")).toBeVisible();
+  await expect(question).toHaveValue("Keep this question");
+  await expect(studio.getByRole("combobox", { name: "Model" })).toHaveValue("model-b");
 });

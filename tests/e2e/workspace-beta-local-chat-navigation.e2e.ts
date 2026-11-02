@@ -12,6 +12,9 @@ test("connected Local AI Studio can visit AI options and return to its preserved
       scope: "current-windows-user",
     } });
   });
+  await page.route("**/api/chatgpt-plan/models", async (route) => {
+    await route.fulfill({ json: { models: [{ slug: "model-a", displayName: "Model A" }] } });
+  });
   await page.route("**/api/chatgpt-plan/ask", async (route) => {
     chatRequests += 1;
     await route.fulfill({ json: { answer: "This answer stays in the conversation." } });

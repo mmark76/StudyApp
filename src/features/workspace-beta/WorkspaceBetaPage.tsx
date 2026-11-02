@@ -905,7 +905,7 @@ export function WorkspaceBetaPage() {
             ) : null}
             {localChatReady ? (
               <div className="workspace-beta-local-chat-container" hidden={localAiOptionsVisible}>
-                <WorkspaceLocalChat />
+                <WorkspaceLocalChat key={chatGptPlanConnection.connectionId ?? "existing-connection"} />
               </div>
             ) : null}
             {!localChatReady || localAiOptionsVisible ? (

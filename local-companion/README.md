@@ -47,6 +47,12 @@ extracted package.
 - responses use `store: false` and are held only in the current page session;
 - selecting **Disconnect** deletes the protected local connection record.
 
+The connected Workspace chat lists models for the selected ChatGPT account.
+The companion retains the token, returns only display names and slugs to the
+Local UI, and verifies the selected slug against a fresh catalog before each
+inference request. Public distribution of this personal Local integration still
+requires review of the applicable OpenAI terms.
+
 The first connect action may offer **Prepare secure connection**. This opens a
 visible Windows PowerShell setup window and installs the single optional
 identity-validation dependency in `local-companion/.chatgpt-plan-venv/`. No

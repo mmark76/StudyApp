@@ -3,7 +3,13 @@ export interface ChatGptPlanConnectionStatus {
   connectionState: "connected" | "disconnected" | "unreadable";
   planUsageAuthorized: boolean;
   scope: "current-windows-user";
+  connectionId?: string | null;
   message?: string;
+}
+
+export interface ChatGptPlanModel {
+  slug: string;
+  displayName: string;
 }
 
 export interface ChatGptPlanAnswer {
@@ -19,11 +25,13 @@ export interface ApprovedStudyPassage {
 
 export class LocalCompanionError extends Error {
   setupRequired: boolean;
+  code?: string;
 
-  constructor(message: string, setupRequired = false) {
+  constructor(message: string, setupRequired = false, code?: string) {
     super(message);
     this.name = "LocalCompanionError";
     this.setupRequired = setupRequired;
+    this.code = code;
   }
 }
 
@@ -63,9 +71,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       ? responseBody.error
       : "The local ChatGPT connection could not be completed.";
     const setupRequired = responseBody?.setupRequired === true;
+    const code = typeof responseBody?.code === "string" ? responseBody.code : undefined;
     throw new LocalCompanionError(
       typeof error === "string" ? error : "The local ChatGPT connection could not be completed.",
       setupRequired,
+      code,
     );
   }
   return payload as T;
@@ -73,6 +83,17 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export function getChatGptPlanConnection(): Promise<ChatGptPlanConnectionStatus> {
   return request("/api/chatgpt-plan/connection");
+}
+
+export async function getChatGptPlanModels(): Promise<ChatGptPlanModel[]> {
+  const payload = await request<unknown>("/api/chatgpt-plan/models");
+  if (!payload || typeof payload !== "object" || !("models" in payload) || !Array.isArray(payload.models)
+    || !payload.models.every((model: unknown) => model && typeof model === "object"
+      && "slug" in model && typeof model.slug === "string" && model.slug.length > 0
+      && "displayName" in model && typeof model.displayName === "string" && model.displayName.length > 0)) {
+    throw new LocalCompanionError("The local ChatGPT model list is invalid.");
+  }
+  return payload.models as ChatGptPlanModel[];
 }
 
 export function startChatGptPlanConnection(): Promise<ChatGptPlanConnectionStatus> {
@@ -96,22 +117,24 @@ export function removeChatGptPlanConnection(): Promise<ChatGptPlanConnectionStat
   });
 }
 
-export function askChatGptPlan(question: string): Promise<ChatGptPlanAnswer> {
+export function askChatGptPlan(question: string, model?: string): Promise<ChatGptPlanAnswer> {
   return request("/api/chatgpt-plan/ask", {
     method: "POST",
-    body: JSON.stringify({ confirmExternalRequest: true, question }),
+    body: JSON.stringify({ confirmExternalRequest: true, question, ...(model ? { model } : {}) }),
   });
 }
 
 export function askChatGptPlanWithPdfPassages(
   question: string,
   passages: readonly ApprovedStudyPassage[],
+  model?: string,
 ): Promise<ChatGptPlanAnswer> {
   return request("/api/chatgpt-plan/ask-with-sources", {
     method: "POST",
     body: JSON.stringify({
       confirmExternalRequest: true,
       question,
+      ...(model ? { model } : {}),
       passages: passages.map(({ sourceId, documentTitle, page, text }) => ({ sourceId, documentTitle, page, text })),
     }),
   });
