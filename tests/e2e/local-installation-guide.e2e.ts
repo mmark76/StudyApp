@@ -14,12 +14,16 @@ test("Workspace BETA opens the bilingual StudyApp Local installation guide", asy
   await expect(guide.getByText("Keep this Terminal running. You can minimize it, but do not close it.")).toBeVisible();
   await expect(guide.getByText("Only your question and the excerpts you approve are sent to ChatGPT; the original files stay on your device.")).toBeVisible();
 
+  await dialog.getByRole("button", { name: "Close" }).click();
   await page.getByRole("button", { name: "GR" }).click();
-  await expect(dialog).toHaveAttribute("aria-modal", "true");
-  await expect(guide.getByRole("heading", { name: "Πρώτη εγκατάσταση" })).toBeVisible();
-  await expect(guide.getByRole("heading", { name: "Ενημέρωση StudyApp Local" })).toBeVisible();
-  await expect(guide.getByText("Διατήρησε το παράθυρο ανοιχτό. Μπορείς να το ελαχιστοποιήσεις, αλλά όχι να το κλείσεις.")).toBeVisible();
-  await expect(guide.getByText("Στο ChatGPT αποστέλλονται μόνο η ερώτησή σου και τα αποσπάσματα που εγκρίνεις· τα αρχικά αρχεία παραμένουν στη συσκευή σου.")).toBeVisible();
+  await page.getByRole("link", { name: "Οδηγός εγκατάστασης", exact: true }).click();
+  const greekDialog = page.getByRole("dialog", { name: "Οδηγός εγκατάστασης" });
+  const greekGuide = page.frameLocator("iframe.workspace-beta-info-modal-frame");
+  await expect(greekDialog).toBeVisible();
+  await expect(greekGuide.getByRole("heading", { name: "Πρώτη εγκατάσταση" })).toBeVisible();
+  await expect(greekGuide.getByRole("heading", { name: "Ενημέρωση StudyApp Local" })).toBeVisible();
+  await expect(greekGuide.getByText("Διατήρησε το παράθυρο ανοιχτό. Μπορείς να το ελαχιστοποιήσεις, αλλά όχι να το κλείσεις.")).toBeVisible();
+  await expect(greekGuide.getByText("Στο ChatGPT αποστέλλονται μόνο η ερώτησή σου και τα αποσπάσματα που εγκρίνεις· τα αρχικά αρχεία παραμένουν στη συσκευή σου.")).toBeVisible();
 });
 
 test("mobile Workspace menu includes the Local installation guide", async ({ page }) => {
