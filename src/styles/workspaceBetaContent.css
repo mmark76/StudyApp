@@ -1080,8 +1080,8 @@
   position: absolute; z-index: 4; top: 0.28rem; right: 0.28rem;
   display: inline-grid; place-items: center; width: 1rem; height: 1rem;
   min-width: 1rem; min-height: 1rem; padding: 0;
-  border: 1px solid #999; border-radius: 0.2rem; color: #222;
-  background: #f8f8f5; font-size: 0.84rem; font-weight: 700; cursor: pointer;
+  border: 1px solid transparent; border-radius: 0.2rem; color: #222;
+  background: transparent; font-size: 0.84rem; font-weight: 700; cursor: pointer;
 }
 .workspace-beta-column-toggle:focus-visible { outline: 2px solid #2065a1; outline-offset: 2px; }
 .workspace-beta-functional-panel.is-collapsed > :not(.workspace-beta-functional-panel-header) { display: none; }
@@ -1093,7 +1093,7 @@
 .workspace-beta-functional-panel.is-collapsed .workspace-beta-column-toggle {
   position: sticky; top: 0.4rem; margin: 0.4rem auto 0;
 }
-:root[data-workspace-theme="dark"] .workspace-beta-column-toggle { color: #fafafa; background: #383838; border-color: #909090; }
+:root[data-workspace-theme="dark"] .workspace-beta-column-toggle { color: #fafafa; background: transparent; border-color: transparent; }
 :root[data-workspace-theme="dark"] .workspace-beta-functional-panel.is-collapsed > .workspace-beta-functional-panel-header { background: #272727; }
 
 .workspace-beta-column-symbol { display: block; width: 0.58rem; height: 0.54rem; box-sizing: border-box; border: 1px solid currentColor; border-radius: 0.12rem; position: relative; }
