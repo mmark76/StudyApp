@@ -47,6 +47,17 @@
   background: #fbfbf9;
 }
 
+.workspace-beta-local-chat-container {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.workspace-beta-local-chat-container[hidden] {
+  display: none;
+}
+
 .workspace-local-chat-status {
   display: flex;
   align-items: flex-start;
