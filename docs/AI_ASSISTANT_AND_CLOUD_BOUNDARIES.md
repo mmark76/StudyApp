@@ -90,6 +90,12 @@ the active page session. The answer is instructed to cite source IDs and
 locations and to state when the selected passages are insufficient. No API key,
 web search, external vector store, persistent index, or automatic Library scan
 is used.
+The Local Workspace composer places `+` and the question field in one rectangular
+bar with a single Send button; attachments appear below. With attachments,
+pressing Send first creates the on-device excerpt review. Only after checking
+the approval box can the user press that same Send button to submit the
+reviewed passages. For questions without files, Send submits the typed question
+directly.
 
 The separately installed, per-user Windows launcher can register
 `studyapp-local://open`. The browser/PWA can offer this as an opening action,

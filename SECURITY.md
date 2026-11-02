@@ -43,6 +43,10 @@ The exact passages and source locations are displayed for review. The companion
 requires an explicit confirmation flag and sends only the question and approved
 passages with `store: false`; it does not receive document IDs or other Library
 state. The answer remains in the active page state.
+The Local composer exposes one Send button for both ordinary questions and
+attached-file questions. When files are selected, its first activation only
+prepares the local review; a second activation is disabled until the user
+explicitly approves the displayed passages. The files never leave the device.
 
 The bilingual AI options comparison page is static local presentation. It
 compares the current and planned modes but does not activate a remote mode,

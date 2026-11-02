@@ -1,4 +1,4 @@
-import { useId, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { askChatGptPlan, askChatGptPlanWithPdfPassages } from "../../infrastructure/local-companion/localCompanionClient";
 import { validateLocalStudyFile } from "../study-materials/localFilePolicy";
@@ -38,6 +38,7 @@ export function WorkspaceLocalChat() {
   const inputId = useId();
   const attachmentId = useId();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const reviewRef = useRef<HTMLDivElement>(null);
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [attachments, setAttachments] = useState<ChatAttachment[]>([]);
@@ -45,6 +46,10 @@ export function WorkspaceLocalChat() {
   const [consent, setConsent] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (pendingContext) reviewRef.current?.focus();
+  }, [pendingContext]);
 
   function invalidatePreview() {
     setPendingContext(null);
@@ -126,6 +131,10 @@ export function WorkspaceLocalChat() {
     event.preventDefault();
     const submitted = question.trim();
     if (!submitted || isSending) return;
+    if (pendingContext) {
+      if (consent) await sendApprovedPassages();
+      return;
+    }
     setError("");
     invalidatePreview();
     if (attachments.length) {
@@ -210,8 +219,15 @@ export function WorkspaceLocalChat() {
         {isSending ? <p className="workspace-local-chat-thinking" role="status">{text("Processing…", "Επεξεργασία…")}</p> : null}
       </div>
       <form className="workspace-local-chat-composer" onSubmit={(event) => void submitQuestion(event)}>
-        <label htmlFor={inputId}>{text("Message ChatGPT", "Μήνυμα στο ChatGPT")}</label>
-        <textarea disabled={isSending} id={inputId} maxLength={12000} onChange={(event) => { setQuestion(event.target.value); invalidatePreview(); }} placeholder={text("Ask ChatGPT", "Ρώτησε το ChatGPT")} value={question} />
+        <div className="workspace-local-chat-input-bar">
+          <div className="workspace-local-chat-upload">
+            <input accept=".pdf,.docx,.pptx,.txt,.md,.csv" aria-label={text("Choose study files", "Επιλογή αρχείων μελέτης")} id={attachmentId} multiple onChange={(event) => void attachFiles(event)} ref={fileInputRef} type="file" />
+            <button aria-label={text("Attach study files", "Προσθήκη αρχείων μελέτης")} disabled={isSending || attachments.length >= MAX_RAG_SELECTED_PDFS} onClick={() => fileInputRef.current?.click()} title={text("Add PDF, Office or text files", "Προσθήκη PDF, Office ή αρχείων κειμένου")} type="button">+</button>
+          </div>
+          <label className="workspace-local-chat-input-label" htmlFor={inputId}>{text("Message ChatGPT", "Μήνυμα στο ChatGPT")}</label>
+          <textarea disabled={isSending} id={inputId} maxLength={12000} onChange={(event) => { setQuestion(event.target.value); invalidatePreview(); }} placeholder={text("Ask ChatGPT", "Ρώτησε το ChatGPT")} rows={1} value={question} />
+          <button className="workspace-local-chat-send" disabled={isSending || !question.trim() || Boolean(pendingContext && !consent)} type="submit">{text("Send", "Αποστολή")}</button>
+        </div>
         {attachments.length ? (
           <div aria-label={text("Attached study files", "Συνημμένα αρχεία μελέτης")} className="workspace-local-chat-attachments">
             {attachments.map((file) => (
@@ -223,9 +239,9 @@ export function WorkspaceLocalChat() {
           </div>
         ) : null}
         {pendingContext ? (
-          <div className="workspace-local-chat-review">
+          <div className="workspace-local-chat-review" ref={reviewRef} tabIndex={-1}>
             <strong>{text("Review excerpts before sending", "Έλεγχος αποσπασμάτων πριν από την αποστολή")}</strong>
-            <p>{text("These excerpts stay on your device until you approve them.", "Τα αποσπάσματα παραμένουν στη συσκευή σου μέχρι να τα εγκρίνεις.")}</p>
+            <p>{text("Review the locally selected excerpts. Approve them below, then press Send to share only those excerpts.", "Έλεγξε τα αποσπάσματα που επιλέχθηκαν τοπικά. Ενέκρινε την αποστολή τους παρακάτω και πάτησε Αποστολή για να σταλούν μόνο αυτά.")}</p>
             <div className="workspace-local-chat-review-excerpts">
               {pendingContext.passages.map((passage) => (
                 <details key={passage.sourceId}>
@@ -239,19 +255,10 @@ export function WorkspaceLocalChat() {
               {text("I approve sending my question and the displayed excerpts to ChatGPT.", "Εγκρίνω την αποστολή της ερώτησης και των εμφανιζόμενων αποσπασμάτων στο ChatGPT.")}
             </label>
             <div className="workspace-local-chat-review-actions">
-              <button disabled={isSending || !consent} onClick={() => void sendApprovedPassages()} type="button">{text("Send approved excerpts", "Αποστολή εγκεκριμένων αποσπασμάτων")}</button>
               <button disabled={isSending} onClick={invalidatePreview} type="button">{text("Cancel", "Ακύρωση")}</button>
             </div>
           </div>
         ) : null}
-        <div className="workspace-local-chat-composer-footer">
-          <div className="workspace-local-chat-upload">
-            <input accept=".pdf,.docx,.pptx,.txt,.md,.csv" aria-label={text("Choose study files", "Επιλογή αρχείων μελέτης")} id={attachmentId} multiple onChange={(event) => void attachFiles(event)} ref={fileInputRef} type="file" />
-            <button aria-label={text("Attach study files", "Προσθήκη αρχείων μελέτης")} disabled={isSending || attachments.length >= MAX_RAG_SELECTED_PDFS} onClick={() => fileInputRef.current?.click()} title={text("Add PDF, Office or text files", "Προσθήκη PDF, Office ή αρχείων κειμένου")} type="button">+</button>
-            <span>{text("PDF, DOCX, PPTX, TXT, MD, CSV · Local only", "PDF, DOCX, PPTX, TXT, MD, CSV · Μόνο τοπικά")}</span>
-          </div>
-          <button disabled={isSending || !question.trim() || Boolean(pendingContext)} type="submit">{isSending ? text("Processing…", "Επεξεργασία…") : attachments.length ? text("Find excerpts", "Εύρεση αποσπασμάτων") : text("Send", "Αποστολή")}</button>
-        </div>
         {error ? <p className="workspace-local-chat-error" role="alert">{error}</p> : null}
       </form>
     </section>

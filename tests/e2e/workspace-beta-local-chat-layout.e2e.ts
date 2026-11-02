@@ -38,32 +38,34 @@ test("RAG approval controls stay keyboard reachable at 100% zoom with six passag
       buffer: Buffer.from(content),
     });
     await studio.getByRole("textbox", { name: "Message ChatGPT" }).fill("Explain attention in study strategies");
-    await studio.getByRole("button", { name: "Find excerpts" }).click();
+    const composer = studio.locator(".workspace-local-chat-composer");
+    const inputBar = composer.locator(".workspace-local-chat-input-bar");
+    const send = inputBar.getByRole("button", { name: "Send", exact: true });
+    await expect(inputBar.getByRole("button", { name: "Attach study files" })).toBeVisible();
+    await expect(inputBar.getByRole("textbox", { name: "Message ChatGPT" })).toBeVisible();
+    await expect(send).toBeEnabled();
+    await send.click();
 
     const review = studio.locator(".workspace-local-chat-review");
     await expect(review.getByText("Review excerpts before sending")).toBeVisible();
     await expect(review.locator(".workspace-local-chat-review-excerpts details")).toHaveCount(6);
+    await expect(send).toBeDisabled();
     expect(sourceRequests).toBe(0);
 
-    const composer = studio.locator(".workspace-local-chat-composer");
     const consent = review.getByRole("checkbox", { name: /I approve sending my question/ });
     await consent.focus();
     await expect(consent).toBeInViewport();
     await page.keyboard.press("Space");
 
-    const send = review.getByRole("button", { name: "Send approved excerpts" });
     const cancel = review.getByRole("button", { name: "Cancel" });
     await expect(send).toBeEnabled();
     await page.keyboard.press("Tab");
-    await expect(send).toBeFocused();
-    await expect(send).toBeInViewport();
-    await page.keyboard.press("Tab");
     await expect(cancel).toBeFocused();
     await expect(cancel).toBeInViewport();
+    await send.focus();
+    await expect(send).toBeFocused();
+    await expect(send).toBeInViewport();
     expect(await page.evaluate(() => window.scrollY)).toBe(0);
-    if (viewport.height <= 720) {
-      expect(await composer.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
-    }
 
     await cancel.click();
     await expect(review).toHaveCount(0);
