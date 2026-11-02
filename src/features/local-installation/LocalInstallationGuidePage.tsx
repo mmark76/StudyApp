@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
 import "./LocalInstallationGuidePage.css";
 
@@ -162,9 +161,6 @@ export function LocalInstallationGuidePage() {
         <GuideSteps steps={updateSteps} />
       </section>
 
-      <nav aria-label={text("Guide actions", "Ενέργειες οδηγού")} className="content-panel instructions-actions">
-        <Link className="button primary" to="/workspace-beta">{text("Open Workspace", "Άνοιξε τον Χώρο εργασίας")}</Link>
-      </nav>
     </main>
   );
 }
