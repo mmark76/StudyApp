@@ -115,6 +115,10 @@ PDF, DOCX, PPTX, TXT, Markdown, or CSV files for local text extraction. Office
 documents contribute extractable text (including PowerPoint speaker notes), not
 embedded images or charts. Only passages reviewed and explicitly approved by
 the user are sent to ChatGPT; files themselves stay on the device.
+The conversation uses one rectangular input bar with `+` on the left, the
+question field and a single **Send** button. Attachments appear below the bar.
+With files selected, the first Send prepares a local passage preview; the user
+then approves the excerpts and presses the same Send button to submit them.
 When connected, its Workspace AI Studio panel becomes a transient conversation
 surface with a bottom composer; the browser/PWA package does not include that
 in-app conversation. Disconnect removes the protected local connection record.

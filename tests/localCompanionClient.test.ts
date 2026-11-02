@@ -60,6 +60,10 @@ describe("StudyApp Local Workspace conversation", () => {
     expect(markup).toContain("Ask ChatGPT or add study files with +.");
     expect(markup).toContain("Message ChatGPT");
     expect(markup).toContain("Attach study files");
+    expect(markup).toContain("workspace-local-chat-input-bar");
+    expect(markup).toContain('placeholder="Ask ChatGPT"');
+    expect(markup).toContain('class="workspace-local-chat-send"');
+    expect(markup).not.toContain("Find excerpts");
     expect(markup).not.toContain("Library/IndexedDB");
     expect(markup).toContain('accept=".pdf,.docx,.pptx,.txt,.md,.csv"');
   });

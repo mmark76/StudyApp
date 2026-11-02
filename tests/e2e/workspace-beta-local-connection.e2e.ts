@@ -65,12 +65,33 @@ test("Connected chat attaches a text study file and sends excerpts only after ap
   });
   await expect(studio.getByText("notes.txt")).toBeVisible();
   await studio.getByRole("textbox", { name: "Message ChatGPT" }).fill("Explain selective attention");
-  await studio.getByRole("button", { name: "Find excerpts" }).click();
+  const send = studio.getByRole("button", { name: "Send", exact: true });
+  await send.click();
   await expect(studio.getByText("Review excerpts before sending")).toBeVisible();
   expect(sentSources).toBe(0);
-  await expect(studio.getByRole("button", { name: "Send approved excerpts" })).toBeDisabled();
+  await expect(send).toBeDisabled();
   await studio.getByRole("checkbox", { name: /I approve sending my question/ }).check();
-  await studio.getByRole("button", { name: "Send approved excerpts" }).click();
+  await send.click();
   await expect(studio.getByText("Selective attention focuses on relevant information.")).toBeVisible();
   expect(sentSources).toBe(1);
+});
+
+test("Connected chat sends a text-only question with the same Send button", async ({ page }) => {
+  let requestCount = 0;
+  await page.route("**/api/chatgpt-plan/connection", async (route) => {
+    await route.fulfill({ json: { connected: true, connectionState: "connected", planUsageAuthorized: true, scope: "current-windows-user" } });
+  });
+  await page.route("**/api/chatgpt-plan/ask", async (route) => {
+    requestCount += 1;
+    expect(route.request().postDataJSON()).toEqual({ confirmExternalRequest: true, question: "Explain selective attention" });
+    await route.fulfill({ json: { answer: "Attention is selective." } });
+  });
+
+  await page.goto("/#/workspace-beta");
+  const studio = page.locator(".workspace-beta-panel-studio");
+  await studio.getByRole("textbox", { name: "Message ChatGPT" }).fill("Explain selective attention");
+  await studio.getByRole("button", { name: "Send", exact: true }).click();
+  await expect(studio.getByText("Attention is selective.")).toBeVisible();
+  expect(requestCount).toBe(1);
+  await expect(studio.locator(".workspace-local-chat-review")).toHaveCount(0);
 });

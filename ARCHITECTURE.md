@@ -161,6 +161,10 @@ exact selected excerpts before sending. The user approves those passages and
 submits the question; the companion enforces confirmation and sends only the
 question and approved excerpts with `store: false`. Answers stay in page state.
 No persistent index or automatic Library scan is used.
+The Local composer keeps `+`, the question field and a single Send action in one
+rectangular input bar, with attachment chips and the passage review beneath it.
+With attachments, the first Send prepares the on-device excerpt preview; the
+same button submits only after the separate approval checkbox is checked.
 
 Workspace presentation styles remain separate from the stable shell at the CSS
 module/file level even though they are currently imported from the application
