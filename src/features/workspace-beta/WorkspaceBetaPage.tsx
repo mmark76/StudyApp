@@ -131,6 +131,7 @@ export function WorkspaceBetaPage() {
   const [localConnectionError, setLocalConnectionError] = useState("");
   const [localAwaitingApproval, setLocalAwaitingApproval] = useState(false);
   const [localSetupRequired, setLocalSetupRequired] = useState(false);
+  const [localAiOptionsVisible, setLocalAiOptionsVisible] = useState(false);
   const [frameVersions, setFrameVersions] = useState<Record<WorkspacePanelId, number>>({
     sources: 0,
     knowledge: 0,
@@ -187,6 +188,7 @@ export function WorkspaceBetaPage() {
     try {
       if (chatGptPlanConnection.connected) {
         setChatGptPlanConnection(await removeChatGptPlanConnection());
+        setLocalAiOptionsVisible(false);
         setLocalAwaitingApproval(false);
       } else {
         setChatGptPlanConnection(await startChatGptPlanConnection());
@@ -863,8 +865,19 @@ export function WorkspaceBetaPage() {
                 <button type="button" onClick={(event) => openInfoModal("/ai-assistant-comparison", event.currentTarget)}>
                   {text("Compare AI options", "Σύγκριση επιλογών AI")}
                 </button>
-                <button className="workspace-beta-back-action" onClick={() => resetPanel("ai")} type="button">
-                  {text("Back to AI Options", "Πίσω στις επιλογές AI")}
+                <button className="workspace-beta-back-action" onClick={() => {
+                  if (!localChatReady) {
+                    resetPanel("ai");
+                  } else if (localAiOptionsVisible) {
+                    setLocalAiOptionsVisible(false);
+                  } else {
+                    resetPanel("ai");
+                    setLocalAiOptionsVisible(true);
+                  }
+                }} type="button">
+                  {localEdition && localChatReady && localAiOptionsVisible
+                    ? text("Return to ChatGPT conversation", "Επιστροφή στη συνομιλία ChatGPT")
+                    : text("Back to AI Options", "Πίσω στις επιλογές AI")}
                 </button>
               </div>
             </div>
@@ -890,11 +903,15 @@ export function WorkspaceBetaPage() {
                 {localConnectionError ? <p role="alert">{localConnectionError}</p> : null}
               </div>
             ) : null}
-            {localChatReady ? <WorkspaceLocalChat /> : null}
-            {!localChatReady ? (
+            {localChatReady ? (
+              <div className="workspace-beta-local-chat-container" hidden={localAiOptionsVisible}>
+                <WorkspaceLocalChat />
+              </div>
+            ) : null}
+            {!localChatReady || localAiOptionsVisible ? (
               <div aria-label={text("StudyApp AI Assistant", "Βοηθός AI του StudyApp")} className="workspace-beta-ai-launch-row" role="img" />
             ) : null}
-            {!localChatReady ? <div className="workspace-beta-frame-wrap">
+            {!localChatReady || localAiOptionsVisible ? <div className="workspace-beta-frame-wrap">
               <iframe
                 key={`ai-${frameVersions.ai}`}
                 className="workspace-beta-frame"
