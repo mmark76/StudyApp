@@ -36,9 +36,12 @@ describe("AI options comparison page", () => {
 
     expect(markup).toContain("Compare AI options");
     expect(markup).toContain("1. Custom GPT / Plugin");
-    expect(markup).toContain("2. ChatGPT App / MCP");
-    expect(markup).toContain("3. StudyApp AI / API");
-    expect(markup).toContain("4. Sign in with ChatGPT");
+    expect(markup).toContain("2. Sign in with ChatGPT");
+    expect(markup).toContain("3. ChatGPT App / MCP");
+    expect(markup).toContain("4. StudyApp AI / API");
+    expect(markup.indexOf("1. Custom GPT / Plugin")).toBeLessThan(markup.indexOf("2. Sign in with ChatGPT"));
+    expect(markup.indexOf("2. Sign in with ChatGPT")).toBeLessThan(markup.indexOf("3. ChatGPT App / MCP"));
+    expect(markup.indexOf("3. ChatGPT App / MCP")).toBeLessThan(markup.indexOf("4. StudyApp AI / API"));
     expect(markup).toContain("StudyApp Local only · Windows");
     expect(markup).toContain("Available");
     expect(markup).toContain("Coming soon");

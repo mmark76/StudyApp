@@ -37,9 +37,9 @@ test("connected Local AI Studio can visit AI options and return to its preserved
   const aiFrame = page.frameLocator('iframe[name="studyapp-workspace-ai"]');
   await expect(studio.locator('iframe[name="studyapp-workspace-ai"]')).toBeVisible();
   await expect(aiFrame.getByText("1. Custom GPT / Plugin", { exact: true })).toBeVisible();
-  await expect(aiFrame.getByText("2. ChatGPT App / MCP", { exact: true })).toBeVisible();
-  await expect(aiFrame.getByText("3. StudyApp AI / API", { exact: true })).toBeVisible();
-  await expect(aiFrame.getByText("4. Sign in with ChatGPT", { exact: true })).toBeVisible();
+  await expect(aiFrame.getByText("2. Sign in with ChatGPT", { exact: true })).toBeVisible();
+  await expect(aiFrame.getByText("3. ChatGPT App / MCP", { exact: true })).toBeVisible();
+  await expect(aiFrame.getByText("4. StudyApp AI / API", { exact: true })).toBeVisible();
   await expect(chat).toBeHidden();
   await expect(chat).toHaveCount(1);
   await expect(studio.getByRole("button", { name: "Disconnect", exact: true })).toBeVisible();

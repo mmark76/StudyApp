@@ -387,25 +387,25 @@ export function AssistantComparisonPage() {
                 <strong>1. Custom GPT / Plugin</strong>
               </th>
               <th scope="col">
-                <span className="assistant-comparison-status soon">
-                  {text("Coming soon", "Σύντομα")}
-                </span>
-                <strong>2. ChatGPT App / MCP</strong>
-              </th>
-              <th scope="col">
-                <span className="assistant-comparison-status soon">
-                  {text("Coming soon", "Σύντομα")}
-                </span>
-                <strong>3. StudyApp AI / API</strong>
-              </th>
-              <th scope="col">
                 <span className="assistant-comparison-status available">
                   {text("Available", "Διαθέσιμο")}
                 </span>
-                <strong>4. Sign in with ChatGPT</strong>
+                <strong>2. Sign in with ChatGPT</strong>
                 <span className="assistant-comparison-location">
                   {text("StudyApp Local only · Windows", "Μόνο StudyApp Local · Windows")}
                 </span>
+              </th>
+              <th scope="col">
+                <span className="assistant-comparison-status soon">
+                  {text("Coming soon", "Σύντομα")}
+                </span>
+                <strong>3. ChatGPT App / MCP</strong>
+              </th>
+              <th scope="col">
+                <span className="assistant-comparison-status soon">
+                  {text("Coming soon", "Σύντομα")}
+                </span>
+                <strong>4. StudyApp AI / API</strong>
               </th>
             </tr>
           </thead>
@@ -414,9 +414,9 @@ export function AssistantComparisonPage() {
               <tr key={row.label.en}>
                 <th scope="row">{text(row.label.en, row.label.el)}</th>
                 <td>{text(row.customGpt.en, row.customGpt.el)}</td>
+                <td>{text(row.signInWithChatGpt.en, row.signInWithChatGpt.el)}</td>
                 <td>{text(row.mcp.en, row.mcp.el)}</td>
                 <td>{text(row.studyAppAi.en, row.studyAppAi.el)}</td>
-                <td>{text(row.signInWithChatGpt.en, row.signInWithChatGpt.el)}</td>
               </tr>
             ))}
           </tbody>

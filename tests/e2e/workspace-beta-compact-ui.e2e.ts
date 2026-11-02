@@ -108,7 +108,7 @@ test("Workspace AI Studio shows all four options and keeps instructions in globa
 
   const ai = page.frameLocator('iframe[name="studyapp-workspace-ai"]');
   await expect(ai.getByRole("heading", { name: "AI Assistant", exact: true })).toBeAttached();
-  for (const name of ["1. Custom GPT / Plugin", "2. ChatGPT App / MCP", "3. StudyApp AI / API", "4. Sign in with ChatGPT"]) {
+  for (const name of ["1. Custom GPT / Plugin", "2. Sign in with ChatGPT", "3. ChatGPT App / MCP", "4. StudyApp AI / API"]) {
     await expect(ai.getByText(name, { exact: true })).toBeVisible();
   }
   await expect(ai.getByText("Coming Soon")).toHaveCount(2);
