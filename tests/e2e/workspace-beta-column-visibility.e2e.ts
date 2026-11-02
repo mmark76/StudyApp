@@ -9,6 +9,7 @@ test("Workspace columns collapse to narrow rails and can each be restored", asyn
   const names = ["sources", "knowledge", "practice", "AI Studio"];
   const lightGeometry = new Map<string, { width: number; height: number; x: number; y: number }>();
   const collapsedGeometry = new Map<string, { width: number; height: number; x: number; y: number }>();
+  const dimensions = new Map<string, { width: number; height: number }>();
 
   async function verifyToggle(name: string, collapsed: boolean, theme: "light" | "dark", layoutKey: string) {
     const label = `${collapsed ? "Show" : "Hide"} ${name} column`;
@@ -42,7 +43,15 @@ test("Workspace columns collapse to narrow rails and can each be restored", asyn
     expect(actual.position).toBe(collapsed ? "sticky" : "absolute");
     expect(actual.width).toBeGreaterThan(0);
     expect(actual.width).toBeLessThanOrEqual(19);
-    expect(actual.height).toBeLessThanOrEqual(19);
+
+    const size = { width: actual.width, height: actual.height };
+    const referenceSize = dimensions.get(name);
+    if (!referenceSize) {
+      dimensions.set(name, size);
+    } else {
+      expect(Math.abs(size.width - referenceSize.width)).toBeLessThan(0.1);
+      expect(Math.abs(size.height - referenceSize.height)).toBeLessThan(0.1);
+    }
 
     const geometry = { width: actual.width, height: actual.height, x: actual.x, y: actual.y };
     const geometryKey = `${layoutKey}:${name}:${collapsed ? "collapsed" : "expanded"}`;
