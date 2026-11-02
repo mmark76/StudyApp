@@ -1,0 +1,80 @@
+.local-installation-guide-server-notice {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 1rem;
+  padding: 0.8rem 0.95rem;
+  border-left: 5px solid #a84a32;
+  border-radius: var(--radius-sm);
+  background: #fff0e9;
+  color: #512719;
+}
+
+.local-installation-guide-server-notice p {
+  margin: 0;
+}
+
+.local-installation-guide-server-notice strong:last-child {
+  font-size: 1.02em;
+}
+
+.local-installation-guide-steps {
+  display: grid;
+  gap: 0.62rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.local-installation-guide-steps > li {
+  display: grid;
+  grid-template-columns: 1.8rem minmax(0, 1fr);
+  gap: 0.58rem;
+  align-items: start;
+  min-width: 0;
+  padding: 0.58rem;
+  border: 1px solid var(--slate-300);
+  border-radius: var(--radius-sm);
+  background: var(--page-background);
+}
+
+.local-installation-guide-steps > li > span {
+  display: grid;
+  width: 1.8rem;
+  height: 1.8rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--blue-100);
+  color: var(--navy-800);
+  font-weight: 800;
+}
+
+.local-installation-guide-steps h4 {
+  margin: 0;
+  font-size: 0.94rem;
+}
+
+.local-installation-guide-steps p {
+  margin: 0.22rem 0 0;
+  color: var(--slate-600);
+  overflow-wrap: anywhere;
+}
+
+:root[data-workspace-theme="dark"] .local-installation-guide-server-notice {
+  border-left-color: #e18a68;
+  background: #36251f;
+  color: #f4d9cc;
+}
+
+:root[data-workspace-theme="dark"] .local-installation-guide-server-notice strong {
+  color: #fff1e9;
+}
+
+:root[data-workspace-theme="dark"] .local-installation-guide-steps > li {
+  border-color: #44443f;
+  background: #20201e;
+}
+
+:root[data-workspace-theme="dark"] .local-installation-guide-steps > li > span {
+  background: #30302d;
+  color: #f0f0ec;
+}

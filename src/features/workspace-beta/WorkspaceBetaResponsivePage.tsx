@@ -63,6 +63,14 @@ export function WorkspaceBetaResponsivePage() {
                 <StudyAppLocalWindowsZipLink compact onClick={closeMenu} />
                 <button
                   onClick={() => activateWorkspaceControl(
+                    ".workspace-beta-functional-shell .workspace-beta-header-left a[href='#/local-installation-guide']",
+                  )}
+                  type="button"
+                >
+                  {text("Installation Guide", "Οδηγός εγκατάστασης")}
+                </button>
+                <button
+                  onClick={() => activateWorkspaceControl(
                     ".workspace-beta-functional-shell .workspace-beta-header .workspace-beta-theme-toggle",
                   )}
                   type="button"
