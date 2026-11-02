@@ -183,6 +183,16 @@ See [`docs/AI_ASSISTANT_AND_CLOUD_BOUNDARIES.md`](docs/AI_ASSISTANT_AND_CLOUD_BO
 
 ## Local-first storage and privacy
 
+Practice & Mastery now begins with **Summary and Main Points**. Select a saved
+local study file or practice chapter, write or edit a summary and key points, then
+save it as a local TXT item in Library → Summaries or download the TXT. The
+existing chapter `summary` points are offered as a starting draft. In StudyApp
+Local, an eligible Sign in with ChatGPT connection can generate a draft from
+reviewed excerpts of a selected source. Sending requires explicit confirmation;
+the result stays editable until the user saves it. Large sources may be
+represented by sampled excerpts only, and AI citations must be checked against
+the source. Generated TXT blobs are excluded from the JSON backup.
+
 Study content, progress, settings, links and uploaded file blobs are stored in
 the current browser and device. StudyApp currently has no account, cloud
 storage, cloud sync or advertising. The production site uses cookie-less

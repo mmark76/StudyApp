@@ -90,6 +90,13 @@ source and E2E-only coverage.
 
 ## Runtime layers
 
+The Practice Summary and Main Points route reads explicitly selected local
+`studyFiles` and imported chapter `summary` arrays. It saves reviewed results
+as TXT `studyFiles` with the existing `summary` material type, without a schema
+change. StudyApp Local alone may send displayed, user-approved excerpts through
+the existing loopback `ask-with-sources` request. No generated draft is saved
+until the user selects Save locally; downloads remain client-side.
+
 ### Browser application
 
 IndexedDB contains:

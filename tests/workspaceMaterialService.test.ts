@@ -44,4 +44,15 @@ describe("Workspace shared material management",()=>{
     await expect(deleteWorkspaceMaterial("sources",["file:source","file:missing"],true)).rejects.toThrow();
     expect(await studyDatabase.studyFiles.count()).toBe(1);
   });
+  it("manages generated summaries in Practice without including uploaded summaries",async()=>{
+    const now=new Date().toISOString();
+    await studyDatabase.studyFiles.bulkAdd([
+      {id:"generated",title:"Generated",fileName:"generated.txt",size:1,createdAt:now,data:new Blob(["x"]),fileSource:"source-material",materialType:"summary",generatedSummary:true},
+      {id:"uploaded",title:"Uploaded",fileName:"uploaded.txt",size:1,createdAt:now,data:new Blob(["y"]),fileSource:"source-material",materialType:"summary"},
+    ]);
+    expect((await listWorkspaceMaterial("practice")).map((item)=>item.key)).toEqual(["file:generated"]);
+    await deleteWorkspaceMaterial("practice",["file:generated"]);
+    expect(await studyDatabase.studyFiles.get("generated")).toBeUndefined();
+    expect(await studyDatabase.studyFiles.get("uploaded")).toBeDefined();
+  });
 });

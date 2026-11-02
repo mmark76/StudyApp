@@ -73,6 +73,7 @@ export interface LocalStudyFile {
   sourceFileId?: string;
   pageRangeLabel?: string;
   contentHash?: string;
+  generatedSummary?: true;
 }
 
 export interface AppSetting {

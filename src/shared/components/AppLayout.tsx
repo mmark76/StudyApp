@@ -28,7 +28,7 @@ const mainNavigation = [
     to: "/learn",
     en: "Practice",
     el: "Εξάσκηση",
-    matches: ["/learn", "/flashcards", "/review", "/quiz", "/progress", "/import"],
+    matches: ["/learn", "/summary", "/flashcards", "/review", "/quiz", "/progress", "/import"],
   },
   {
     to: "/ai-assistant-guide",

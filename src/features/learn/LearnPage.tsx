@@ -20,6 +20,13 @@ export function LearnPage({ failureInjector }: LearnPageProps = {}) {
   const workspacePracticeFrame = isWorkspacePracticeFrame();
   const learnTools = [
     {
+      title: text("Summary and Main Points", "Περίληψη και βασικά σημεία"),
+      description: text("Summarize local materials with source references.", "Σύνοψη τοπικού υλικού με παραπομπές στις πηγές."),
+      action: text("Create a summary", "Δημιουργία περίληψης"),
+      actionClass: "button primary",
+      to: "/summary",
+    },
+    {
       title: text("Flashcards", "Κάρτες"),
       description: text("Practise active recall.", "Εξασκήσου στην ενεργή ανάκληση."),
       action: text("Practice with flashcards", "Εξάσκηση με κάρτες"),
@@ -69,8 +76,8 @@ export function LearnPage({ failureInjector }: LearnPageProps = {}) {
           <p className="eyebrow">{text("PRACTICE & MASTERY", "ΕΞΑΣΚΗΣΗ & ΕΜΠΕΔΩΣΗ")}</p>
           <h2 id="practice-content-title">{text("Practice & Mastery", "Εξάσκηση & Εμπέδωση")}</h2>
           <p>{text(
-            "Use flashcards, review and quizzes to strengthen recall and track progress.",
-            "Χρησιμοποίησε κάρτες, επανάληψη και κουίζ για να ενισχύσεις την ανάκληση και να παρακολουθείς την πρόοδο.",
+            "Summarize your material, then use flashcards, review and quizzes to strengthen recall.",
+            "Σύνοψε το υλικό σου και μετά χρησιμοποίησε κάρτες, επανάληψη και κουίζ για εμπέδωση.",
           )}</p>
         </header>
       ) : <PracticeContentPageHeading />}
