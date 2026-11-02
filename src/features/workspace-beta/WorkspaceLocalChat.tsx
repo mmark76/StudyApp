@@ -9,8 +9,9 @@ import {
   type PdfChunk, type PdfPassage,
 } from "../assistant/localPdfRag";
 import type { LocalStudyFile } from "../../shared/types/models";
+import { extractOfficeTextParts } from "./officeTextExtraction";
 
-type AttachmentFormat = "pdf" | "txt" | "markdown" | "csv";
+type AttachmentFormat = "pdf" | "docx" | "pptx" | "txt" | "markdown" | "csv";
 type ChatAttachment = LocalStudyFile & { format: AttachmentFormat };
 type ChatMessage = {
   id: number;
@@ -20,7 +21,15 @@ type ChatMessage = {
 };
 type PendingContext = { question: string; passages: PdfPassage[] };
 
-const ALLOWED_FORMATS = new Set<AttachmentFormat>(["pdf", "txt", "markdown", "csv"]);
+function sourceLocation(title: string, page: number, english: boolean): string {
+  const extension = title.toLowerCase().split(".").pop();
+  if (extension === "pptx") return english ? `slide ${page}` : `διαφάνεια ${page}`;
+  if (extension === "docx") return english ? "document text" : "κείμενο εγγράφου";
+  if (extension === "pdf") return english ? `page ${page}` : `σελ. ${page}`;
+  return english ? "text" : "κείμενο";
+}
+
+const ALLOWED_FORMATS = new Set<AttachmentFormat>(["pdf", "docx", "pptx", "txt", "markdown", "csv"]);
 const MAX_TEXT_BYTES = 2 * 1024 * 1024;
 
 /** Files remain on the user's device. Only approved text passages leave this component. */
@@ -60,10 +69,10 @@ export function WorkspaceLocalChat() {
         }
         const validated = await validateLocalStudyFile(file);
         if (!ALLOWED_FORMATS.has(validated.format as AttachmentFormat)) {
-          throw new Error(text("Chat attachments support PDF, TXT, Markdown and CSV only for now.", "Η συνομιλία υποστηρίζει προς το παρόν μόνο PDF, TXT, Markdown και CSV."));
+          throw new Error(text("Supported attachments: PDF, DOCX, PPTX, TXT, Markdown and CSV.", "Υποστηρίζονται PDF, DOCX, PPTX, TXT, Markdown και CSV."));
         }
         const format = validated.format as AttachmentFormat;
-        if (format !== "pdf" && file.size > MAX_TEXT_BYTES) {
+        if (!(["pdf", "docx", "pptx"] as string[]).includes(format) && file.size > MAX_TEXT_BYTES) {
           throw new Error(text("Text files must be at most 2 MB.", "Τα αρχεία κειμένου πρέπει να είναι έως 2 MB."));
         }
         additions.push({
@@ -91,16 +100,20 @@ export function WorkspaceLocalChat() {
         const pdfChunks = await extractPdfChunks([file]);
         for (const chunk of pdfChunks) chunks.push({ ...chunk, sourceId: `S${chunks.length + 1}` });
       } else {
-        const content = await file.data.text();
-        for (const passage of splitPageIntoChunks(content)) {
-          chunks.push({
-            sourceId: `S${chunks.length + 1}`,
-            documentId: file.id,
-            documentTitle: file.title,
-            page: 1,
-            text: passage,
-            terms: tokenizeStudyText(passage),
-          });
+        const parts = file.format === "docx" || file.format === "pptx"
+          ? await extractOfficeTextParts(file.data, file.format)
+          : [{ part: 1, text: await file.data.text() }];
+        for (const part of parts) {
+          for (const passage of splitPageIntoChunks(part.text)) {
+            chunks.push({
+              sourceId: `S${chunks.length + 1}`,
+              documentId: file.id,
+              documentTitle: file.title,
+              page: part.part,
+              text: passage,
+              terms: tokenizeStudyText(passage),
+            });
+          }
         }
       }
     }
@@ -189,7 +202,7 @@ export function WorkspaceLocalChat() {
             {message.sources?.length ? (
               <details className="workspace-local-chat-sources">
                 <summary>{text("Source excerpts used", "Αποσπάσματα πηγών που χρησιμοποιήθηκαν")}</summary>
-                <ul>{message.sources.map((source, index) => <li key={index}>{source.title} — {text("page", "σελ.")} {source.page}</li>)}</ul>
+                <ul>{message.sources.map((source, index) => <li key={index}>{source.title} — {text(sourceLocation(source.title, source.page, true), sourceLocation(source.title, source.page, false))}</li>)}</ul>
               </details>
             ) : null}
           </article>
@@ -216,7 +229,7 @@ export function WorkspaceLocalChat() {
             <div className="workspace-local-chat-review-excerpts">
               {pendingContext.passages.map((passage) => (
                 <details key={passage.sourceId}>
-                  <summary>{passage.sourceId}: {passage.documentTitle}, {text("page", "σελ.")} {passage.page}</summary>
+                  <summary>{passage.sourceId}: {passage.documentTitle}, {text(sourceLocation(passage.documentTitle, passage.page, true), sourceLocation(passage.documentTitle, passage.page, false))}</summary>
                   <p>{passage.text}</p>
                 </details>
               ))}
@@ -233,9 +246,9 @@ export function WorkspaceLocalChat() {
         ) : null}
         <div className="workspace-local-chat-composer-footer">
           <div className="workspace-local-chat-upload">
-            <input accept=".pdf,.txt,.md,.csv" aria-label={text("Choose study files", "Επιλογή αρχείων μελέτης")} id={attachmentId} multiple onChange={(event) => void attachFiles(event)} ref={fileInputRef} type="file" />
-            <button aria-label={text("Attach study files", "Προσθήκη αρχείων μελέτης")} disabled={isSending || attachments.length >= MAX_RAG_SELECTED_PDFS} onClick={() => fileInputRef.current?.click()} title={text("Add PDF or text files", "Προσθήκη PDF ή αρχείων κειμένου")} type="button">+</button>
-            <span>{text("PDF, TXT, MD, CSV · Local only", "PDF, TXT, MD, CSV · Μόνο τοπικά")}</span>
+            <input accept=".pdf,.docx,.pptx,.txt,.md,.csv" aria-label={text("Choose study files", "Επιλογή αρχείων μελέτης")} id={attachmentId} multiple onChange={(event) => void attachFiles(event)} ref={fileInputRef} type="file" />
+            <button aria-label={text("Attach study files", "Προσθήκη αρχείων μελέτης")} disabled={isSending || attachments.length >= MAX_RAG_SELECTED_PDFS} onClick={() => fileInputRef.current?.click()} title={text("Add PDF, Office or text files", "Προσθήκη PDF, Office ή αρχείων κειμένου")} type="button">+</button>
+            <span>{text("PDF, DOCX, PPTX, TXT, MD, CSV · Local only", "PDF, DOCX, PPTX, TXT, MD, CSV · Μόνο τοπικά")}</span>
           </div>
           <button disabled={isSending || !question.trim() || Boolean(pendingContext)} type="submit">{isSending ? text("Processing…", "Επεξεργασία…") : attachments.length ? text("Find excerpts", "Εύρεση αποσπασμάτων") : text("Send", "Αποστολή")}</button>
         </div>
