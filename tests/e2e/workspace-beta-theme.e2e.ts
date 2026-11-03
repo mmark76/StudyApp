@@ -48,19 +48,33 @@ test("Workspace BETA shows the standard StudyApp update notification", async ({ 
 test("Phase 1 cards and Agent status retain readable contrast in dark mode", async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/#/workspace-beta");
+  const toolCards = page.locator(".workspace-beta-tools-grid > button");
+  const lightBackgrounds = await toolCards.evaluateAll((elements) =>
+    elements.map((element) => getComputedStyle(element).backgroundColor),
+  );
+  expect(new Set(lightBackgrounds).size).toBe(8);
   await page.getByRole("button", { name: "Switch to dark mode" }).click();
 
   const targets = [
     page.locator(".workspace-beta-ai-option").first(),
     page.locator(".workspace-beta-ai-option:disabled").first(),
     page.locator(".workspace-beta-agent-bar"),
-    page.locator(".workspace-beta-tools-grid > button").first(),
+    page.locator(".workspace-beta-tools-avatar span"),
   ];
   for (const target of targets) {
     const colors = await target.evaluate((element) => ({
       background: getComputedStyle(element).backgroundColor,
       foreground: getComputedStyle(element).color,
     }));
+    expect(contrastRatio(colors.foreground, colors.background)).toBeGreaterThanOrEqual(4.5);
+  }
+
+  const darkCardColors = await toolCards.evaluateAll((elements) => elements.map((element) => ({
+    background: getComputedStyle(element).backgroundColor,
+    foreground: getComputedStyle(element).color,
+  })));
+  expect(new Set(darkCardColors.map(({ background }) => background)).size).toBe(8);
+  for (const colors of darkCardColors) {
     expect(contrastRatio(colors.foreground, colors.background)).toBeGreaterThanOrEqual(4.5);
   }
 

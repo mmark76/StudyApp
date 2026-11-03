@@ -73,7 +73,7 @@ const workspaceTools: ReadonlyArray<{
   { id: "learning-goals", english: "Learning Goals", greek: "Στόχοι μάθησης", route: "/#/core-knowledge?view=goals" },
   { id: "key-points", english: "Key Points", greek: "Βασικά σημεία", route: "/#/core-knowledge?view=key-points" },
   { id: "important-terms", english: "Important Terms", greek: "Σημαντικοί όροι", route: "/#/core-knowledge?view=terms" },
-  { id: "summary", english: "Summary & Main Points", greek: "Περίληψη & βασικά σημεία", route: "/#/summary" },
+  { id: "summary", english: "Summary of Uploaded Material", greek: "Περίληψη ανεβασμένου υλικού", route: "/#/summary?workspace=beta" },
   { id: "flashcards", english: "Flashcards", greek: "Κάρτες", route: "/#/flashcards" },
   { id: "review", english: "Review", greek: "Επανάληψη", route: "/#/review" },
   { id: "quiz", english: "Quiz", greek: "Κουίζ", route: "/#/quiz" },
@@ -218,6 +218,7 @@ export function WorkspaceBetaPage() {
   });
   const [panelWeights, setPanelWeights] = useState<PanelWidths | null>(null);
   const [collapsedPanels, setCollapsedPanels] = useState<WorkspacePanelId[]>([]);
+  const [sourcesPanelExpanded, setSourcesPanelExpanded] = useState(true);
   const [agentPanelExpanded, setAgentPanelExpanded] = useState(true);
   const [phaseOnePanelWeights, setPhaseOnePanelWeights] = useState<PhaseOnePanelWidths | null>(null);
   const [agentPanelWeights, setAgentPanelWeights] = useState<[number, number] | null>(null);
@@ -794,20 +795,22 @@ export function WorkspaceBetaPage() {
     englishLabel: string,
     greekLabel: string,
   ) {
+    const enabled = divider !== 0 || sourcesPanelExpanded;
     return (
       <div
+        aria-disabled={!enabled}
         aria-label={text(englishLabel, greekLabel)}
         aria-orientation="vertical"
         aria-valuenow={phaseOneDividerValue(divider)}
-        className={`workspace-beta-resizer workspace-beta-phase-divider-${divider}${activePhaseOneDivider === divider ? " is-active" : ""}`}
-        onDoubleClick={resetPhaseOnePanelWidths}
-        onKeyDown={(event) => resizePhaseOneWithKeyboard(divider, event)}
+        className={`workspace-beta-resizer workspace-beta-phase-divider-${divider}${activePhaseOneDivider === divider ? " is-active" : ""}${enabled ? "" : " is-locked"}`}
+        onDoubleClick={() => { if (enabled) resetPhaseOnePanelWidths(); }}
+        onKeyDown={(event) => { if (enabled) resizePhaseOneWithKeyboard(divider, event); }}
         onPointerCancel={finishPhaseOneResize}
-        onPointerDown={(event) => beginPhaseOneResize(divider, event)}
+        onPointerDown={(event) => { if (enabled) beginPhaseOneResize(divider, event); }}
         onPointerMove={continuePhaseOneResize}
         onPointerUp={finishPhaseOneResize}
         role="separator"
-        tabIndex={0}
+        tabIndex={enabled ? 0 : -1}
         title={resizeTitle}
       />
     );
@@ -897,7 +900,7 @@ export function WorkspaceBetaPage() {
     const phaseOneWeights = phaseOnePanelWeights ?? defaultPhaseOnePanelWeights;
     const phaseOneGridStyle = {
       gridTemplateColumns: [
-        `minmax(0, ${phaseOneWeights[0]}fr)`,
+        sourcesPanelExpanded ? `minmax(0, ${phaseOneWeights[0]}fr)` : "3rem",
         "10px",
         `minmax(0, ${phaseOneWeights[1]}fr)`,
         "10px",
@@ -965,12 +968,25 @@ export function WorkspaceBetaPage() {
         </header>
         <main className="workspace-beta-main" id="workspace-beta-main" ref={mainRef} tabIndex={-1}>
           <div aria-label={text("Workspace panels", "Πάνελ χώρου εργασίας")} className="workspace-beta-phase-one-grid" ref={phaseOneGridRef} style={phaseOneGridStyle}>
-            <section className="workspace-beta-panel workspace-beta-phase-sources" aria-labelledby="workspace-sources-title">
+            <section className={`workspace-beta-panel workspace-beta-phase-sources${sourcesPanelExpanded ? "" : " is-collapsed"}`} aria-labelledby="workspace-sources-title">
               <div className="workspace-beta-panel-header workspace-beta-functional-panel-header">
                 <div><p className="workspace-beta-panel-kicker">01</p><h2 id="workspace-sources-title">{text("Sources & Materials", "Πηγές & Υλικό")}</h2></div>
-                <button className="workspace-beta-back-action" onClick={() => resetPanel("sources")} type="button">{text("Back to Sources & Materials home", "Πίσω στην αρχική Πηγών & Υλικού")}</button>
+                <div className="workspace-beta-side-header-actions">
+                  <button className="workspace-beta-back-action" onClick={() => resetPanel("sources")} type="button">{text("Back to Sources & Materials home", "Πίσω στην αρχική Πηγών & Υλικού")}</button>
+                  <button
+                    aria-controls="workspace-beta-sources-content"
+                    aria-expanded={sourcesPanelExpanded}
+                    aria-label={text(sourcesPanelExpanded ? "Hide sources panel" : "Show sources panel", sourcesPanelExpanded ? "Απόκρυψη πάνελ πηγών" : "Εμφάνιση πάνελ πηγών")}
+                    className="workspace-beta-column-toggle workspace-beta-side-toggle"
+                    onClick={() => setSourcesPanelExpanded((expanded) => !expanded)}
+                    title={text(sourcesPanelExpanded ? "Hide sources panel" : "Show sources panel", sourcesPanelExpanded ? "Απόκρυψη πάνελ πηγών" : "Εμφάνιση πάνελ πηγών")}
+                    type="button"
+                  >
+                    <span aria-hidden="true" className="workspace-beta-column-symbol" />
+                  </button>
+                </div>
               </div>
-              <div className="workspace-beta-frame-wrap"><iframe key={`sources-${frameVersions.sources}`} className="workspace-beta-frame" name="studyapp-workspace-sources" onLoad={(event) => wirePanelInfoLinks(event.currentTarget)} src={panelRoutes.sources} title={text("Functional Sources & Materials panel", "Λειτουργικό πάνελ Πηγών & Υλικού")} /></div>
+              <div className="workspace-beta-frame-wrap" id="workspace-beta-sources-content"><iframe key={`sources-${frameVersions.sources}`} className="workspace-beta-frame" name="studyapp-workspace-sources" onLoad={(event) => wirePanelInfoLinks(event.currentTarget)} src={panelRoutes.sources} title={text("Functional Sources & Materials panel", "Λειτουργικό πάνελ Πηγών & Υλικού")} /></div>
             </section>
             {renderPhaseOneDivider(0, "Resize Sources and Workspace", "Αλλαγή πλάτους Πηγών και Χώρου εργασίας")}
             <section className={`workspace-beta-panel workspace-beta-phase-workspace workspace-beta-view-${workspaceView}`} aria-labelledby="workspace-studio-title">
@@ -986,9 +1002,15 @@ export function WorkspaceBetaPage() {
                   {workspaceView === "ai-options" ? (
                 <div className="workspace-beta-ai-options" aria-label={text("AI connection options", "Επιλογές σύνδεσης AI")}>
                   <button className="workspace-beta-ai-option" onClick={() => setWorkspaceView("assistant")} type="button"><strong>StudyApp AI Assistant</strong><span>{text("Available", "Διαθέσιμο")}</span></button>
-                  <button className="workspace-beta-ai-option" disabled={!localEdition} onClick={() => setWorkspaceView("local")} type="button"><strong>{text("Sign in with ChatGPT", "Σύνδεση με ChatGPT")}</strong><span>{localEdition ? text("Available", "Διαθέσιμο") : text("Windows Local only", "Μόνο Windows Local")}</span></button>
+                  <button className="workspace-beta-ai-option" onClick={() => setWorkspaceView("local")} type="button"><strong>{text("Sign in with ChatGPT", "Σύνδεση με ChatGPT")}</strong><span>{localEdition ? text("Available", "Διαθέσιμο") : text("Available in Windows Local only", "Διαθέσιμο μόνο στο Windows Local")}</span></button>
                   <button className="workspace-beta-ai-option" disabled type="button"><strong>ChatGPT App / MCP</strong><span>{text("Coming soon", "Σύντομα")}</span></button>
                   <button className="workspace-beta-ai-option" disabled type="button"><strong>StudyApp AI / API</strong><span>{text("Coming soon", "Σύντομα")}</span></button>
+                </div>
+              ) : workspaceView === "local" && !localEdition ? (
+                <div className="workspace-beta-local-mode workspace-beta-local-only-notice">
+                  <h3>{text("Available only in StudyApp Local for Windows", "Διαθέσιμο μόνο στο StudyApp Local για Windows")}</h3>
+                  <p>{text("Install or open the Windows Local edition to connect your ChatGPT plan. The Web/PWA edition does not create an in-app chat.", "Εγκατάστησε ή άνοιξε την έκδοση Windows Local για να συνδέσεις το πλάνο ChatGPT. Η έκδοση Web/PWA δεν δημιουργεί συνομιλία μέσα στην εφαρμογή.")}</p>
+                  <button className="workspace-beta-back-action" onClick={(event) => openInfoModal("/local-installation-guide", event.currentTarget)} type="button">{text("Installation Guide", "Οδηγός εγκατάστασης")}</button>
                 </div>
               ) : workspaceView === "local" ? (
                 <div className="workspace-beta-local-mode">
@@ -1027,7 +1049,7 @@ export function WorkspaceBetaPage() {
                 />
                 <div className={`workspace-beta-persistent-agent${localChatReady ? " has-chat" : ""}`}>
                   <div className="workspace-beta-agent-bar">
-                    <strong>{text("AI Agent", "Agent AI")}</strong>
+                    <strong>{text("AI Agent bar — Available only in Local version", "Μπάρα AI Agent — Διαθέσιμη μόνο στην έκδοση Local")}</strong>
                     <span role="status">{agentStatus}</span>
                     <button
                       aria-expanded={agentPanelExpanded}
@@ -1050,7 +1072,7 @@ export function WorkspaceBetaPage() {
                 <div><p className="workspace-beta-panel-kicker">03</p><h2 id="workspace-tools-title">{text("AI-Assisted Tools", "Εργαλεία με υποστήριξη AI")}</h2></div>
               </div>
               <div className="workspace-beta-tools-body">
-                <div aria-hidden="true" className="workspace-beta-tools-avatar"><img alt="" src="/study-assistant-avatar.svg" /></div>
+                <div className="workspace-beta-tools-avatar"><img alt="" src="/study-assistant-avatar.svg" /><span>AI StudyApp Assistant</span></div>
                 <div className="workspace-beta-tools-grid">
                   {workspaceTools.map((tool) => <button className={workspaceView === tool.id ? "is-selected" : undefined} key={tool.id} onClick={() => setWorkspaceView(tool.id)} type="button"><span>{text(tool.english, tool.greek)}</span>{tool.id === "progress" ? <small>{text("Backup, Restore & Archive", "Αντίγραφο, επαναφορά & αρχείο")}</small> : null}</button>)}
                 </div>

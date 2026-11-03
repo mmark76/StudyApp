@@ -56,7 +56,8 @@ test("Workspace BETA Phase 1 keeps three columns, existing modes and routed tool
   await page.getByRole("button", { name: "Back to AI options" }).click();
   await expect(page.locator(".workspace-beta-ai-option")).toHaveCount(4);
   await expect(page.locator(".workspace-beta-tools-avatar img")).toBeVisible();
-  await expect(page.locator(".workspace-beta-agent-bar")).toContainText("Not available");
+  await expect(page.locator(".workspace-beta-tools-avatar span")).toHaveText("AI StudyApp Assistant");
+  await expect(page.locator(".workspace-beta-agent-bar")).toContainText("AI Agent bar — Available only in Local version");
   await page.getByRole("button", { name: "Hide AI Agent panel" }).click();
   await expect(page.getByRole("button", { name: "Show AI Agent panel" })).toBeVisible();
 });

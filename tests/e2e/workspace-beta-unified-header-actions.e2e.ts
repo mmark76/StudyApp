@@ -7,7 +7,9 @@ test("three column headers retain shared actions and structure", async ({ page }
   await expect(panels).toHaveCount(3);
   await expect(page.getByRole("button", { name: "Back to Sources & Materials home" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Compare AI options" })).toBeVisible();
-  await expect(page.locator(".workspace-beta-panel-header .workspace-beta-column-toggle")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Hide sources panel" })).toBeVisible();
+  await expect(page.locator(".workspace-beta-phase-workspace > .workspace-beta-panel-header .workspace-beta-column-toggle")).toHaveCount(0);
+  await expect(page.locator(".workspace-beta-phase-tools > .workspace-beta-panel-header .workspace-beta-column-toggle")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Hide AI Agent panel" })).toBeVisible();
 
   const headerBottoms = await page.locator(".workspace-beta-phase-one-grid > .workspace-beta-panel > .workspace-beta-panel-header")
