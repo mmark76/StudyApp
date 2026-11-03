@@ -13,12 +13,20 @@ import {
 import { useStudyContent } from "../content-import/useStudyContent";
 import "./CoreKnowledgePage.css";
 
+type KnowledgeView = "goals" | "key-points" | "terms" | null;
+
+function getKnowledgeView(): KnowledgeView {
+  const value = new URLSearchParams(window.location.search).get("view");
+  return value === "goals" || value === "key-points" || value === "terms" ? value : null;
+}
+
 function formatChapterNumber(number: number): string {
   return String(number).padStart(2, "0");
 }
 
 export function CoreKnowledgePage() {
   const { text } = useLanguage();
+  const knowledgeView = getKnowledgeView();
   const {
     importedUnits,
     importedFlashcards,
@@ -101,6 +109,13 @@ export function CoreKnowledgePage() {
     `Chapters (${importedUnits.length})`,
     `Κεφάλαια (${importedUnits.length})`,
   );
+  const selectedViewHeading = knowledgeView === "goals"
+    ? text("Learning Goals", "Στόχοι μάθησης")
+    : knowledgeView === "key-points"
+      ? text("Key Points", "Βασικά σημεία")
+      : knowledgeView === "terms"
+        ? text("Important Terms", "Σημαντικοί όροι")
+        : null;
   const chaptersAccessibleHeading = text(
     `Core Knowledge — ${chaptersHeading}`,
     `Βασική Γνώση — ${chaptersHeading}`,
@@ -110,7 +125,7 @@ export function CoreKnowledgePage() {
     <div className="core-knowledge-page">
       <div ref={contentRef}>
         <header className="core-knowledge-heading">
-          <h2 aria-label={chaptersAccessibleHeading}>{chaptersHeading}</h2>
+          <h2 aria-label={chaptersAccessibleHeading}>{selectedViewHeading ?? chaptersHeading}</h2>
         </header>
 
         {hasStoredContentError ? (
@@ -206,24 +221,24 @@ export function CoreKnowledgePage() {
             </header>
 
             <div className="core-knowledge-modal-body">
-              <section>
+              {knowledgeView !== "key-points" && knowledgeView !== "terms" ? <section>
                 <h3>{text("Learning goals", "Στόχοι μάθησης")}</h3>
                 {selectedUnit.objectives.length > 0 ? (
                   <ul>{selectedUnit.objectives.map((item) => <li key={item}>{item}</li>)}</ul>
                 ) : <p>{text("None", "Κανένας")}</p>}
-              </section>
-              <section>
+              </section> : null}
+              {knowledgeView !== "goals" && knowledgeView !== "terms" ? <section>
                 <h3>{text("Key points", "Βασικά σημεία")}</h3>
                 {selectedUnit.summary.length > 0 ? (
                   <ul>{selectedUnit.summary.map((item) => <li key={item}>{item}</li>)}</ul>
                 ) : <p>{text("None", "Κανένα")}</p>}
-              </section>
-              <section>
+              </section> : null}
+              {knowledgeView !== "goals" && knowledgeView !== "key-points" ? <section>
                 <h3>{text("Important terms", "Σημαντικοί όροι")}</h3>
                 {selectedUnit.keyTerms.length > 0 ? (
                   <ul>{selectedUnit.keyTerms.map((item) => <li key={item}>{item}</li>)}</ul>
                 ) : <p>{text("None", "Κανένας")}</p>}
-              </section>
+              </section> : null}
             </div>
 
             <p className="core-knowledge-linked-count">

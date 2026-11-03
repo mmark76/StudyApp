@@ -6,7 +6,7 @@ import { PwaUpdateToast } from "../../shared/components/PwaUpdateToast";
 import { WorkspaceBetaPage } from "./WorkspaceBetaPage";
 import { StudyAppLocalWindowsZipLink } from "../../shared/components/StudyAppReleaseZipLinks";
 
-type MobilePanel = "sources" | "knowledge" | "practice" | "ai";
+type MobilePanel = "sources" | "workspace" | "tools";
 
 export function WorkspaceBetaResponsivePage() {
   const { text } = useLanguage();
@@ -19,9 +19,8 @@ export function WorkspaceBetaResponsivePage() {
     greek: string;
   }> = [
     { id: "sources", english: "Sources", greek: "Πηγές" },
-    { id: "knowledge", english: "Knowledge", greek: "Γνώση" },
-    { id: "practice", english: "Practice", greek: "Εξάσκηση" },
-    { id: "ai", english: "AI", greek: "AI" },
+    { id: "workspace", english: "Workspace", greek: "Χώρος εργασίας" },
+    { id: "tools", english: "Tools", greek: "Εργαλεία" },
   ];
 
   function closeMenu() {
