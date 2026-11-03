@@ -94,7 +94,7 @@
   display: block;
   margin-top: 0.35rem;
   color: #989890;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: var(--app-technical-font-family);
   font-size: 0.62rem;
   overflow-wrap: anywhere;
 }

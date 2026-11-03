@@ -415,3 +415,32 @@
   font-size: var(--workspace-type-support);
   line-height: 1.4;
 }
+
+/* Summary and Main Points is rendered inside the Practice workspace frame.
+ * Keep its existing information hierarchy within the shared BETA scale.
+ */
+.workspace-panel-embed-main .summary-page .page-heading .eyebrow {
+  font-size: var(--workspace-type-micro);
+}
+
+.workspace-panel-embed-main .summary-page .page-heading h2 {
+  font-size: var(--workspace-type-heading);
+}
+
+.workspace-panel-embed-main .summary-page .page-heading > p:last-child,
+.workspace-panel-embed-main .summary-page .content-panel h3,
+.workspace-panel-embed-main .summary-page label,
+.workspace-panel-embed-main .summary-page :is(input, select, textarea) {
+  font-size: var(--workspace-type-body);
+}
+
+.workspace-panel-embed-main .summary-page .content-panel > p,
+.workspace-panel-embed-main .summary-page .summary-excerpts :is(p, summary, li),
+.workspace-panel-embed-main .summary-page .summary-consent,
+.workspace-panel-embed-main .summary-page .summary-saved span {
+  font-size: var(--workspace-type-support);
+}
+
+.workspace-panel-embed-main .summary-page .button {
+  font-size: var(--workspace-type-small);
+}

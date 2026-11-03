@@ -6,7 +6,7 @@
   max-width: calc(100vw - 1.1rem);
   overflow: hidden;
   color: var(--slate-500);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-family: var(--app-technical-font-family);
   font-size: 0.72rem;
   font-weight: 500;
   letter-spacing: 0.025em;
