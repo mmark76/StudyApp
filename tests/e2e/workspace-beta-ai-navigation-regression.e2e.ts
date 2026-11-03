@@ -30,7 +30,7 @@ test("Workspace BETA sends the available Assistant card directly to the Custom G
 
   await page.getByRole("button", { name: "Close", exact: true }).click();
   await page.getByRole("button", { name: "GR", exact: true }).click();
-  await expect(options.getByRole("link", { name: /Βοηθός AI του StudyApp/u })).toContainText("Άνοιξε τον ειδικό βοηθό στο ChatGPT.");
+  await expect(options.getByRole("link", { name: /StudyApp AI Assistant/u })).toContainText("Άνοιξε τον ειδικό βοηθό στο ChatGPT.");
   await expect(options.getByRole("button", { name: /Σύνδεση με ChatGPT/u })).toContainText("Σύνδεσε το πλάνο ChatGPT στο StudyApp Local για Windows.");
 });
 

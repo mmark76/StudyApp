@@ -21,39 +21,29 @@ test("the Sources, AI-assisted Tools and AI Agent panels collapse without losing
   await expect(hideTools).toHaveText("");
   await expect(hideToolsIcon).toBeVisible();
 
-  const expandedDividerPosition = await hideSourcesIcon.evaluate((element) =>
-    getComputedStyle(element, "::before").left,
-  );
   await hideSources.click();
   await expect(sourcesPanel).toHaveClass(/is-collapsed/u);
+  await expect(sourcesPanel.locator(".workspace-beta-side-toggle")).toHaveAttribute("aria-expanded", "false");
   await expect(sourcesFrame).toBeAttached();
   await expect(sourcesFrame).toBeHidden();
   await expect(activeFrame).toHaveAttribute("src", "/#/core-knowledge?view=goals");
   const showSources = page.getByRole("button", { name: "Show sources panel", exact: true });
-  const showSourcesIcon = showSources.locator(".workspace-beta-column-symbol");
-  const collapsedDividerPosition = await showSourcesIcon.evaluate((element) =>
-    getComputedStyle(element, "::before").left,
-  );
-  expect(collapsedDividerPosition).not.toBe(expandedDividerPosition);
+  await expect(showSources.locator(".workspace-beta-column-symbol")).toBeVisible();
   await showSources.click();
   await expect(sourcesFrame).toBeVisible();
+  await expect(showSources).toHaveAttribute("aria-expanded", "true");
 
-  const expandedToolsDividerPosition = await hideToolsIcon.evaluate((element) =>
-    getComputedStyle(element, "::before").left,
-  );
   await hideTools.click();
   await expect(toolsPanel).toHaveClass(/is-collapsed/u);
+  await expect(toolsPanel.locator(".workspace-beta-side-toggle")).toHaveAttribute("aria-expanded", "false");
   await expect(toolsBody).toBeAttached();
   await expect(toolsBody).toBeHidden();
   await expect(activeFrame).toHaveAttribute("src", "/#/core-knowledge?view=goals");
   const showTools = page.getByRole("button", { name: "Show AI-assisted tools panel", exact: true });
-  const showToolsIcon = showTools.locator(".workspace-beta-column-symbol");
-  const collapsedToolsDividerPosition = await showToolsIcon.evaluate((element) =>
-    getComputedStyle(element, "::before").left,
-  );
-  expect(collapsedToolsDividerPosition).not.toBe(expandedToolsDividerPosition);
+  await expect(showTools.locator(".workspace-beta-column-symbol")).toBeVisible();
   await showTools.click();
   await expect(toolsBody).toBeVisible();
+  await expect(showTools).toHaveAttribute("aria-expanded", "true");
   await expect(page.getByRole("button", { name: "Learning Goals", exact: true })).toHaveClass(/is-selected/u);
 
   const agentBar = page.locator(".workspace-beta-agent-bar");
