@@ -9,7 +9,7 @@ if (-not (Test-Path -LiteralPath $protocolKey)) {
 
 $registeredRoot = (Get-ItemProperty -Path $protocolKey -Name "StudyAppInstallRoot" -ErrorAction SilentlyContinue).StudyAppInstallRoot
 if ($registeredRoot -ne $resolvedRoot) {
-    throw "The registered StudyApp Local Launcher belongs to a different extracted package. Run its Uninstall StudyApp Local Launcher.bat instead."
+    throw "The registered StudyApp Local Launcher belongs to a different extracted package. Run its Disable Launch Button.bat instead."
 }
 
 Remove-Item -LiteralPath $protocolKey -Recurse -Force

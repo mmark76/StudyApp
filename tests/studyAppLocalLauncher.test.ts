@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 
 describe("StudyApp Local Windows launcher", () => {
   it("accepts only the fixed protocol request and reuses the guarded local-server lifecycle", () => {
-    const installLauncher = readFileSync("Install StudyApp Local Launcher.bat", "utf8");
-    const uninstallLauncher = readFileSync("Uninstall StudyApp Local Launcher.bat", "utf8");
+    const installLauncher = readFileSync("Enable Launch Button.bat", "utf8");
+    const uninstallLauncher = readFileSync("Disable Launch Button.bat", "utf8");
     const installer = readFileSync("local-companion/install-studyapp-local-launcher.ps1", "utf8");
     const uninstaller = readFileSync("local-companion/uninstall-studyapp-local-launcher.ps1", "utf8");
     const handler = readFileSync("local-companion/studyapp-local-protocol.ps1", "utf8");

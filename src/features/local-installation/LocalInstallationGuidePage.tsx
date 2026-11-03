@@ -49,8 +49,8 @@ export function LocalInstallationGuidePage() {
     {
       title: text("Install the browser launcher", "Εγκατάστησε τον launcher του browser"),
       description: text(
-        "Run Install StudyApp Local Launcher.bat from the extracted folder. It registers studyapp-local://open for your Windows user, needs no administrator rights and connects the website's Open StudyApp Local action to this folder. Choose to open StudyApp Local when setup asks.",
-        "Εκτέλεσε το Install StudyApp Local Launcher.bat από τον αποσυμπιεσμένο φάκελο. Καταχωρίζει το studyapp-local://open για τον δικό σου χρήστη Windows, δεν χρειάζεται δικαιώματα διαχειριστή και συνδέει την ενέργεια Άνοιγμα StudyApp Local του ιστοτόπου με αυτόν τον φάκελο. Επίλεξε να ανοίξει το StudyApp Local όταν σε ρωτήσει η εγκατάσταση.",
+        "Run Enable Launch Button.bat from the extracted folder. It registers studyapp-local://open for your Windows user, needs no administrator rights and connects the website's Open StudyApp Local action to this folder. Choose to open StudyApp Local when setup asks.",
+        "Εκτέλεσε το Enable Launch Button.bat από τον αποσυμπιεσμένο φάκελο. Καταχωρίζει το studyapp-local://open για τον δικό σου χρήστη Windows, δεν χρειάζεται δικαιώματα διαχειριστή και συνδέει την ενέργεια Άνοιγμα StudyApp Local του ιστοτόπου με αυτόν τον φάκελο. Επίλεξε να ανοίξει το StudyApp Local όταν σε ρωτήσει η εγκατάσταση.",
       ),
     },
     {
@@ -80,8 +80,8 @@ export function LocalInstallationGuidePage() {
     {
       title: text("Stop the previous server", "Σταμάτησε τον προηγούμενο server"),
       description: text(
-        "Run Stop StudyApp Local.bat from the previous extracted folder. It checks that the process belongs to StudyApp Local and will not stop an unrelated process.",
-        "Εκτέλεσε το Stop StudyApp Local.bat από τον προηγούμενο αποσυμπιεσμένο φάκελο. Ελέγχει ότι η διεργασία ανήκει στο StudyApp Local και δεν σταματά άσχετες διεργασίες.",
+        "Run Stop StudyApp Local Server.bat from the previous extracted folder. It checks that the process belongs to StudyApp Local and will not stop an unrelated process.",
+        "Εκτέλεσε το Stop StudyApp Local Server.bat από τον προηγούμενο αποσυμπιεσμένο φάκελο. Ελέγχει ότι η διεργασία ανήκει στο StudyApp Local και δεν σταματά άσχετες διεργασίες.",
       ),
     },
     {
@@ -101,8 +101,8 @@ export function LocalInstallationGuidePage() {
     {
       title: text("Update the registered launcher", "Ενημέρωσε τον καταχωρισμένο launcher"),
       description: text(
-        "Run Install StudyApp Local Launcher.bat from the new folder. This updates the registered path to the new package; no administrator rights are required.",
-        "Εκτέλεσε το Install StudyApp Local Launcher.bat από τον νέο φάκελο. Έτσι ενημερώνεται η καταχωρισμένη διαδρομή προς το νέο πακέτο· δεν απαιτούνται δικαιώματα διαχειριστή.",
+        "Run Enable Launch Button.bat from the new folder. This updates the registered path to the new package; no administrator rights are required.",
+        "Εκτέλεσε το Enable Launch Button.bat από τον νέο φάκελο. Έτσι ενημερώνεται η καταχωρισμένη διαδρομή προς το νέο πακέτο· δεν απαιτούνται δικαιώματα διαχειριστή.",
       ),
     },
     {

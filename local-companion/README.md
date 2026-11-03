@@ -4,8 +4,8 @@ This folder belongs to the optional Windows-only **StudyApp Local** edition. It
 does not alter the browser/PWA edition.
 
 The Windows release contains `Start StudyApp Local.bat` at its top level. After
-extracting the complete ZIP, run that file to start directly, or run `Install
-StudyApp Local Launcher.bat` and choose to open the app after setup. Both paths
+extracting the complete ZIP, run that file to start directly, or run `Enable Launch Button.bat`
+and choose to open the app after setup. Both paths
 serve the bundled `dist/` application only at `http://127.0.0.1:8767`. Python 3
 is the only prerequisite; the launcher creates the local virtual environment
 and opens the Local edition
@@ -15,7 +15,7 @@ the refresh token is encrypted with Windows DPAPI and can be read only by that
 Windows user.
 
 If starting directly and a previous StudyApp Local window still owns port 8767,
-run the adjacent `Stop StudyApp Local.bat` first. It stops only a process whose
+run the adjacent `Stop StudyApp Local Server.bat` first. It stops only a process whose
 command line is the bundled StudyApp Local server; it refuses to stop an
 unrelated process. The installed launcher handles this check automatically.
 If you started directly, keep that terminal open while using the app; it closes
@@ -23,8 +23,8 @@ shortly after the server stops.
 
 ## Optional browser launcher
 
-After extracting the complete Windows package, run `Install StudyApp Local
-Launcher.bat` once. It registers `studyapp-local://open` for the current
+After extracting the complete Windows package, run `Enable Launch Button.bat`
+once. It registers `studyapp-local://open` for the current
 Windows user only and does not require administrator rights. Setup displays
 its result for seven seconds, then offers to open StudyApp Local and reminds
 you to close any online StudyApp tab. The **Open
@@ -33,8 +33,8 @@ The handler accepts only that exact protocol request, uses the safe stop script
 for port 8767, starts this package's Local server, waits for its loopback
 listener, and opens Workspace BETA.
 
-Before moving or deleting the extracted package, run `Uninstall StudyApp Local
-Launcher.bat`. If you move the package, run the installer again from the new
+Before moving or deleting the extracted package, run `Disable Launch Button.bat`.
+If you move the package, run the installer again from the new
 folder. The uninstaller refuses to remove a launcher registered by a different
 extracted package.
 
