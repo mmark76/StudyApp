@@ -40,50 +40,42 @@ async function expectFrameControlsUseActiveFont(frame: FrameLocator, fontChoice:
   expect(mismatch).toBeUndefined();
 }
 
-async function workspaceFrame(page: Page, name: string): Promise<FrameLocator> {
-  const iframe = page.locator(`iframe[name="${name}"]`);
-  await expect(iframe).toBeAttached();
-  return page.frameLocator(`iframe[name="${name}"]`);
+async function expectShellControlsUseActiveFont(page: Page) {
+  const mismatch = await page.locator(".workspace-beta-phase-one").evaluate((shell) => {
+    const activeFont = getComputedStyle(document.documentElement).fontFamily;
+    return [...shell.querySelectorAll<HTMLElement>("button, input, select, textarea")]
+      .filter((element) => getComputedStyle(element).display !== "none")
+      .find((element) => getComputedStyle(element).fontFamily !== activeFont)
+      ?.outerHTML;
+  });
+  expect(mismatch).toBeUndefined();
 }
 
-async function expectWorkspaceControlsUseActiveFont(page: Page, fontChoice: FontChoice): Promise<void> {
-  const frames = await Promise.all([
-    "studyapp-workspace-sources",
-    "studyapp-workspace-knowledge",
-    "studyapp-workspace-practice",
-    "studyapp-workspace-ai",
-  ].map((name) => workspaceFrame(page, name)));
-
-  await Promise.all(frames.map((frame) => expectFrameControlsUseActiveFont(frame, fontChoice)));
-}
-
-test("Workspace BETA desktop preserves the selected font in every panel and Summary form", async ({ page }) => {
+test("Workspace BETA desktop preserves the selected font in sources, tools and Summary form", async ({ page }) => {
   await setFontChoice(page, "serif");
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/#/workspace-beta");
 
-  await expectWorkspaceControlsUseActiveFont(page, "serif");
-
-  const practice = page.frameLocator('iframe[name="studyapp-workspace-practice"]');
-  await practice.getByRole("link", { name: "Create a summary" }).click();
-  await expect(practice.getByRole("heading", { name: "Summary and Main Points" })).toBeVisible();
-  await expect(practice.locator(".summary-page textarea")).toHaveCount(2);
-  await expectFrameControlsUseActiveFont(await workspaceFrame(page, "studyapp-workspace-practice"), "serif");
+  await expectFrameControlsUseActiveFont(page.frameLocator('iframe[name="studyapp-workspace-sources"]'), "serif");
+  await expectShellControlsUseActiveFont(page);
+  await page.getByRole("button", { name: "Summary & Main Points", exact: true }).click();
+  const workspace = page.frameLocator('iframe[name="studyapp-workspace-workspace"]');
+  await expectFrameControlsUseActiveFont(workspace, "serif");
+  await expect(workspace.locator(".summary-page textarea")).toHaveCount(2);
+  await expectFrameControlsUseActiveFont(workspace, "serif");
 });
 
-test("Workspace BETA mobile Greek preserves the selected font in every panel", async ({ page }) => {
+test("Workspace BETA mobile Greek preserves the selected font across all three panels", async ({ page }) => {
   await setFontChoice(page, "rounded");
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/#/workspace-beta");
   await page.getByRole("button", { name: "GR", exact: true }).click();
 
-  await expect(page.getByRole("heading", { name: "Πηγές & Υλικό", exact: true })).toBeVisible();
-  await expectWorkspaceControlsUseActiveFont(page, "rounded");
-
-  await page.getByRole("button", { name: "Εξάσκηση", exact: true }).click();
-  await expect(page.locator(".workspace-beta-panel-practice")).toBeVisible();
-  const practice = page.frameLocator('iframe[name="studyapp-workspace-practice"]');
-  await practice.getByRole("link", { name: /Create a summary|Δημιουργία περίληψης/u }).click();
-  await expect(practice.getByRole("heading", { name: "Περίληψη και βασικά σημεία" })).toBeVisible();
-  await expectFrameControlsUseActiveFont(await workspaceFrame(page, "studyapp-workspace-practice"), "rounded");
+  await expectFrameControlsUseActiveFont(page.frameLocator('iframe[name="studyapp-workspace-sources"]'), "rounded");
+  await expectShellControlsUseActiveFont(page);
+  await page.getByRole("button", { name: "Χώρος εργασίας", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "AI Studio - Χώρος εργασίας", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Εργαλεία", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Εργαλεία με υποστήριξη AI", exact: true })).toBeVisible();
+  await expectShellControlsUseActiveFont(page);
 });

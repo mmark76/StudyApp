@@ -38,4 +38,25 @@ describe("typography consistency", () => {
     expect(source).not.toMatch(/@font-face\b/iu);
     expect(fontShorthands).toEqual(Array(fontShorthands.length).fill("inherit"));
   });
+
+  it("keeps Windows Local chat text on shared Workspace typography tokens", () => {
+    const localChat = readFileSync(
+      join(sourceDirectory, "styles/workspaceBetaLocalChat.css"),
+      "utf8",
+    );
+    const workspaceTypography = readFileSync(
+      join(sourceDirectory, "styles/workspaceBetaTypography.css"),
+      "utf8",
+    );
+    const literalFontSizes = [...localChat.matchAll(/font-size\s*:\s*([^;]+);/gu)]
+      .map((match) => match[1].trim())
+      .filter((value) => !value.startsWith("var(--workspace-type-"));
+
+    // The attachment plus is an icon-sized control rather than text content.
+    expect(literalFontSizes).toEqual(["1.5rem"]);
+    expect(localChat).not.toContain("font-family:");
+    expect(localChat).toContain("var(--workspace-weight-control)");
+    expect(workspaceTypography).toContain(".workspace-local-chat .ai-capabilities-limits summary");
+    expect(workspaceTypography).toContain(".local-chatgpt-plan-page .local-pdf-rag");
+  });
 });

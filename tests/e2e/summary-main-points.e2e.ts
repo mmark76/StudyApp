@@ -2,13 +2,6 @@ import { expect, test } from "@playwright/test";
 
 test("Practice Summary and Main Points uses local sources and a confirmed mocked AI draft", async ({ page }) => {
   await page.goto("/#/workspace-beta");
-  const practice = page.frameLocator('iframe[name="studyapp-workspace-practice"]');
-  const cards = practice.locator(".learn-tools-grid .learning-stage-card");
-  await expect(cards).toHaveCount(5);
-  await expect(cards.nth(0)).toContainText("Summary and Main Points");
-  await expect(cards.nth(0).locator(".stage-number")).toHaveText("1");
-  await expect(cards.nth(1)).toContainText("Flashcards");
-  await expect(cards.nth(4).locator(".stage-number")).toHaveText("5");
 
   await page.evaluate(async () => {
     const blob = new Blob(["Attention filters information. Working memory has limited capacity."], { type: "text/plain" });
@@ -50,7 +43,8 @@ test("Practice Summary and Main Points uses local sources and a confirmed mocked
     }) });
   });
 
-  await practice.getByRole("link", { name: "Create a summary" }).click();
+  await page.getByRole("button", { name: "Summary & Main Points", exact: true }).click();
+  const practice = page.frameLocator('iframe[name="studyapp-workspace-workspace"]');
   await expect(practice.getByRole("heading", { name: "Summary and Main Points" })).toBeVisible();
   await expect(practice.locator(".summary-page textarea")).toHaveCount(2);
   await practice.getByLabel("Source material").selectOption("file:summary-e2e-source");
@@ -75,7 +69,6 @@ test("Practice Summary and Main Points uses local sources and a confirmed mocked
 
 test("full-document consent sends every chunk from two long sources before a final draft", async ({ page }) => {
   await page.goto("/#/workspace-beta");
-  const practice = page.frameLocator('iframe[name="studyapp-workspace-practice"]');
   const first = `BEGIN ${"alpha ".repeat(3_500)} MIDDLE`;
   const second = `${"beta ".repeat(3_500)} END`;
   await page.evaluate(async (documents) => {
@@ -118,7 +111,8 @@ test("full-document consent sends every chunk from two long sources before a fin
     }) });
   });
 
-  await practice.getByRole("link", { name: "Create a summary" }).click();
+  await page.getByRole("button", { name: "Summary & Main Points", exact: true }).click();
+  const practice = page.frameLocator('iframe[name="studyapp-workspace-workspace"]');
   await practice.getByLabel("Source material").selectOption(["file:long-0", "file:long-1"]);
   await practice.getByRole("button", { name: "Check full-document coverage" }).click();
   await expect(practice.getByText(/2 sources, 2 pages or sections, \d+ extracted chunks/)).toBeVisible();

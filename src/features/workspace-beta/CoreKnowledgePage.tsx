@@ -4,6 +4,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useLocation } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
 import type { StudyUnit } from "../../shared/types/models";
 import {
@@ -15,8 +16,8 @@ import "./CoreKnowledgePage.css";
 
 type KnowledgeView = "goals" | "key-points" | "terms" | null;
 
-function getKnowledgeView(): KnowledgeView {
-  const value = new URLSearchParams(window.location.search).get("view");
+function getKnowledgeView(search: string): KnowledgeView {
+  const value = new URLSearchParams(search).get("view");
   return value === "goals" || value === "key-points" || value === "terms" ? value : null;
 }
 
@@ -26,7 +27,8 @@ function formatChapterNumber(number: number): string {
 
 export function CoreKnowledgePage() {
   const { text } = useLanguage();
-  const knowledgeView = getKnowledgeView();
+  const { search } = useLocation();
+  const knowledgeView = getKnowledgeView(search);
   const {
     importedUnits,
     importedFlashcards,
@@ -125,7 +127,9 @@ export function CoreKnowledgePage() {
     <div className="core-knowledge-page">
       <div ref={contentRef}>
         <header className="core-knowledge-heading">
-          <h2 aria-label={chaptersAccessibleHeading}>{selectedViewHeading ?? chaptersHeading}</h2>
+          <h2 aria-label={selectedViewHeading ? undefined : chaptersAccessibleHeading}>
+            {selectedViewHeading ?? chaptersHeading}
+          </h2>
         </header>
 
         {hasStoredContentError ? (
