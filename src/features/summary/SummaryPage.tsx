@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
+import { useSearchParams } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import { getChatGptPlanModels, isStudyAppLocalEdition, summarizeCompleteDocumentParts, type ChatGptPlanModel } from "../../infrastructure/local-companion/localCompanionClient";
@@ -22,6 +23,8 @@ function downloadText(content: string, fileName: string): void {
 
 export function SummaryPage() {
   const { language, text } = useLanguage();
+  const [searchParams] = useSearchParams();
+  const workspaceBeta = searchParams.get("workspace") === "beta";
   const { importedUnits, hasStoredContentError } = useStudyContent();
   const files = useLiveQuery(() => studyDatabase.studyFiles.orderBy("createdAt").toArray(), []);
   const sourceFiles = (files ?? []).filter((file) => file.generatedSummary !== true);
@@ -227,9 +230,9 @@ export function SummaryPage() {
   }
 
   return <main className="summary-page stack-lg">
-    <header className="page-heading"><p className="eyebrow">{text("PRACTICE & MASTERY", "ΕΞΑΣΚΗΣΗ & ΕΜΠΕΔΩΣΗ")}</p>
-      <h2>{text("Summary and Main Points", "Περίληψη και βασικά σημεία")}</h2>
-      <p>{text("Create a study summary from your local materials. Review AI drafts before saving.", "Δημιούργησε περίληψη από το τοπικό υλικό σου. Έλεγξε τα πρόχειρα AI πριν τα αποθηκεύσεις.")}</p>
+    <header className="page-heading"><p className="eyebrow">{workspaceBeta ? text("SOURCES & MATERIALS", "ΠΗΓΕΣ & ΥΛΙΚΟ") : text("PRACTICE & MASTERY", "ΕΞΑΣΚΗΣΗ & ΕΜΠΕΔΩΣΗ")}</p>
+      <h2>{workspaceBeta ? text("Summary of Uploaded Material", "Περίληψη ανεβασμένου υλικού") : text("Summary and Main Points", "Περίληψη και βασικά σημεία")}</h2>
+      <p>{workspaceBeta ? text("Select material uploaded from the left panel and create its summary.", "Επίλεξε υλικό που ανέβηκε από το αριστερό πάνελ και δημιούργησε την περίληψή του.") : text("Create a study summary from your local materials. Review AI drafts before saving.", "Δημιούργησε περίληψη από το τοπικό υλικό σου. Έλεγξε τα πρόχειρα AI πριν τα αποθηκεύσεις.")}</p>
     </header>
     <section className="content-panel stack-md" aria-label={text("Create summary", "Δημιουργία περίληψης")}>
       <label>{text("Find a source", "Εύρεση πηγής")}<input value={sourceSearch} onChange={(event) => setSourceSearch(event.target.value)} /></label>

@@ -86,8 +86,7 @@
   background: #292927;
 }
 
-:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-option,
-:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-grid > button {
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-option {
   border-color: #52524c;
   background: #252523;
   color: #f2f2ef;
@@ -98,8 +97,7 @@
   color: #c8c8c1;
 }
 
-:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-option:hover:not(:disabled),
-:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-grid > button:hover {
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-option:hover:not(:disabled) {
   border-color: #77776f;
   background: #30302d;
   color: #ffffff;
@@ -117,14 +115,30 @@
 }
 
 :root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-grid > button.is-selected {
-  border-color: #84ad91;
-  background: #26362c;
+  border-color: #8fc5a6;
   color: #f5fff7;
-  box-shadow: inset 0 0 0 1px #84ad91;
+  box-shadow: inset 0 0 0 2px #8fc5a6;
 }
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-grid > button { color: #f4f4f0; }
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-grid > button:nth-child(1) { border-color: #43604d; background: #223229; }
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-grid > button:nth-child(2) { border-color: #3f5870; background: #202e3b; }
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-grid > button:nth-child(3) { border-color: #67563e; background: #352d22; }
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-grid > button:nth-child(4) { border-color: #5c4b70; background: #30283a; }
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-grid > button:nth-child(5) { border-color: #68494a; background: #382728; }
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-grid > button:nth-child(6) { border-color: #416162; background: #213334; }
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-grid > button:nth-child(7) { border-color: #665f3e; background: #363323; }
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-grid > button:nth-child(8) { border-color: #505465; background: #2a2c35; }
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-grid > button:hover { border-color: #85857d; color: #ffffff; filter: brightness(1.06); }
 
 :root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-avatar img {
   border-color: #20201f;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-avatar span {
+  border-color: #78aa8b;
+  background: #22352a;
+  color: #e5f5e9;
 }
 
 :root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-panel-tools button,
