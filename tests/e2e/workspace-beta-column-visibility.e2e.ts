@@ -31,7 +31,7 @@ test("the Sources, AI-assisted Tools and AI Agent panels collapse without losing
   await expect(showSources.locator(".workspace-beta-column-symbol")).toBeVisible();
   await showSources.click();
   await expect(sourcesFrame).toBeVisible();
-  await expect(showSources).toHaveAttribute("aria-expanded", "true");
+  await expect(sourcesPanel.locator(".workspace-beta-side-toggle")).toHaveAttribute("aria-expanded", "true");
 
   await hideTools.click();
   await expect(toolsPanel).toHaveClass(/is-collapsed/u);
@@ -43,7 +43,7 @@ test("the Sources, AI-assisted Tools and AI Agent panels collapse without losing
   await expect(showTools.locator(".workspace-beta-column-symbol")).toBeVisible();
   await showTools.click();
   await expect(toolsBody).toBeVisible();
-  await expect(showTools).toHaveAttribute("aria-expanded", "true");
+  await expect(toolsPanel.locator(".workspace-beta-side-toggle")).toHaveAttribute("aria-expanded", "true");
   await expect(page.getByRole("button", { name: "Learning Goals", exact: true })).toHaveClass(/is-selected/u);
 
   const agentBar = page.locator(".workspace-beta-agent-bar");
