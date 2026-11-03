@@ -725,7 +725,16 @@ export function WorkspaceBetaPage() {
             <section className="workspace-beta-panel workspace-beta-phase-tools" aria-labelledby="workspace-tools-title">
               <div className="workspace-beta-panel-header workspace-beta-functional-panel-header">
                 <div><p className="workspace-beta-panel-kicker">03</p><h2 id="workspace-tools-title">{text("AI-Assisted Tools", "Εργαλεία με υποστήριξη AI")}</h2></div>
-                <button aria-expanded={!toolsHidden} className="workspace-beta-column-toggle" onClick={() => setToolsHidden((hidden) => !hidden)} type="button">{text(toolsHidden ? "Show tools" : "Hide tools", toolsHidden ? "Εμφάνιση εργαλείων" : "Απόκρυψη εργαλείων")}</button>
+                <button
+                  aria-expanded={!toolsHidden}
+                  aria-label={text(toolsHidden ? "Show tools" : "Hide tools", toolsHidden ? "Εμφάνιση εργαλείων" : "Απόκρυψη εργαλείων")}
+                  className="workspace-beta-column-toggle"
+                  onClick={() => setToolsHidden((hidden) => !hidden)}
+                  title={text(toolsHidden ? "Show tools" : "Hide tools", toolsHidden ? "Εμφάνιση εργαλείων" : "Απόκρυψη εργαλείων")}
+                  type="button"
+                >
+                  <span aria-hidden="true" className="workspace-beta-column-symbol" />
+                </button>
               </div>
               <div className="workspace-beta-tools-grid">
                 {workspaceTools.map((tool) => <button className={workspaceView === tool.id ? "is-selected" : undefined} key={tool.id} onClick={() => setWorkspaceView(tool.id)} type="button"><span>{text(tool.english, tool.greek)}</span>{tool.id === "progress" ? <small>{text("Backup, Restore & Archive", "Αντίγραφο, επαναφορά & αρχείο")}</small> : null}</button>)}
