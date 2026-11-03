@@ -18,7 +18,7 @@ continue to use the first model in the live catalog. Responses keep
 
 Official contract: [Models and inference](https://developers.openai.com/siwc/token-sharing-open-source/models-and-inference).
 
-## Public distribution: clarification pending
+## Public distribution: owner clarification
 
 StudyApp is a personal, non-commercial project, and StudyApp Local runs on the
 user's Windows device. The [OpenAI Cookbook](https://developers.openai.com/cookbook/articles/sign-in-with-chatgpt)
@@ -27,9 +27,12 @@ license does not by itself establish that this personal local category is
 excluded. The same Cookbook asks developers to review OpenAI's terms and
 policies before distributing an integration.
 
-The owner has not confirmed separate OpenAI approval for public distribution of
-the proprietary StudyApp Local package. Before publishing a package containing
-this increment, clarify with OpenAI or the applicable official terms:
+On 2026-11-03, the owner confirmed that public distribution of the proprietary,
+non-commercial StudyApp Local Windows package has been clarified with OpenAI or
+the applicable official terms and is permitted. This records the owner's
+attestation; no separate written OpenAI approval was supplied in this repository,
+and this document does not claim OpenAI endorsement. The questions originally
+identified for clarification were:
 
 1. Whether a publicly downloadable, source-visible but proprietary,
    non-commercial Windows package remains within the personal-local category;
@@ -38,5 +41,5 @@ this increment, clarify with OpenAI or the applicable official terms:
 3. whether distribution, branding, user-facing disclosures or support duties
    impose additional requirements on this package.
 
-Do not use an API-key billing path as an implicit substitute. This review does
-not change the current release or authorize publication.
+Do not use an API-key billing path as an implicit substitute. Release publication
+still requires its normal owner approval, reviewed source and CI gates.
