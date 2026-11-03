@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("the Sources and AI Agent panels collapse without losing active work", async ({ page }) => {
+test("the Sources, AI-assisted Tools and AI Agent panels collapse without losing active work", async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/#/workspace-beta");
   await page.getByRole("button", { name: "Learning Goals", exact: true }).click();
@@ -14,7 +14,12 @@ test("the Sources and AI Agent panels collapse without losing active work", asyn
   await expect(hideSources).toHaveText("");
   await expect(hideSourcesIcon).toBeVisible();
   await expect(page.locator(".workspace-beta-phase-workspace > .workspace-beta-panel-header .workspace-beta-column-toggle")).toHaveCount(0);
-  await expect(page.locator(".workspace-beta-phase-tools > .workspace-beta-panel-header .workspace-beta-column-toggle")).toHaveCount(0);
+  const toolsPanel = page.locator(".workspace-beta-phase-tools");
+  const toolsBody = page.locator("#workspace-beta-tools-content");
+  const hideTools = page.getByRole("button", { name: "Hide AI-assisted tools panel", exact: true });
+  const hideToolsIcon = hideTools.locator(".workspace-beta-column-symbol");
+  await expect(hideTools).toHaveText("");
+  await expect(hideToolsIcon).toBeVisible();
 
   const expandedDividerPosition = await hideSourcesIcon.evaluate((element) =>
     getComputedStyle(element, "::before").left,
@@ -32,6 +37,24 @@ test("the Sources and AI Agent panels collapse without losing active work", asyn
   expect(collapsedDividerPosition).not.toBe(expandedDividerPosition);
   await showSources.click();
   await expect(sourcesFrame).toBeVisible();
+
+  const expandedToolsDividerPosition = await hideToolsIcon.evaluate((element) =>
+    getComputedStyle(element, "::before").left,
+  );
+  await hideTools.click();
+  await expect(toolsPanel).toHaveClass(/is-collapsed/u);
+  await expect(toolsBody).toBeAttached();
+  await expect(toolsBody).toBeHidden();
+  await expect(activeFrame).toHaveAttribute("src", "/#/core-knowledge?view=goals");
+  const showTools = page.getByRole("button", { name: "Show AI-assisted tools panel", exact: true });
+  const showToolsIcon = showTools.locator(".workspace-beta-column-symbol");
+  const collapsedToolsDividerPosition = await showToolsIcon.evaluate((element) =>
+    getComputedStyle(element, "::before").left,
+  );
+  expect(collapsedToolsDividerPosition).not.toBe(expandedToolsDividerPosition);
+  await showTools.click();
+  await expect(toolsBody).toBeVisible();
+  await expect(page.getByRole("button", { name: "Learning Goals", exact: true })).toHaveClass(/is-selected/u);
 
   const agentBar = page.locator(".workspace-beta-agent-bar");
   const hideAgent = page.getByRole("button", { name: "Hide AI Agent panel", exact: true });
