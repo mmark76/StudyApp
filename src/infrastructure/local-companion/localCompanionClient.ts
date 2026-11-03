@@ -23,6 +23,11 @@ export interface ApprovedStudyPassage {
   text: string;
 }
 
+export interface CompleteSummaryPart extends ApprovedStudyPassage {
+  section: string;
+  citation: string;
+}
+
 export class LocalCompanionError extends Error {
   setupRequired: boolean;
   code?: string;
@@ -137,5 +142,18 @@ export function askChatGptPlanWithPdfPassages(
       ...(model ? { model } : {}),
       passages: passages.map(({ sourceId, documentTitle, page, text }) => ({ sourceId, documentTitle, page, text })),
     }),
+  });
+}
+
+export function summarizeCompleteDocumentParts(
+  phase: "extract" | "combine",
+  parts: readonly CompleteSummaryPart[],
+  model: string,
+  signal?: AbortSignal,
+): Promise<ChatGptPlanAnswer> {
+  return request("/api/chatgpt-plan/summarize-parts", {
+    method: "POST",
+    signal,
+    body: JSON.stringify({ confirmExternalRequest: true, phase, parts, model }),
   });
 }

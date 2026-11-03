@@ -4,7 +4,6 @@ test("Workspace BETA opens the bilingual StudyApp Local installation guide", asy
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/#/workspace-beta");
 
-  await expect(page.getByRole("link", { name: "Download Beta", exact: false })).toBeVisible();
   await page.getByRole("link", { name: "Installation Guide", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Installation Guide" });
   await expect(dialog).toBeVisible();

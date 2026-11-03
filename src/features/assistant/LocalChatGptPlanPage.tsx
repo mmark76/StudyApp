@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Link } from "react-router-dom";
+import { AiCapabilitiesLimits } from "./AiCapabilitiesLimits";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { StudyAppLocalWindowsZipLink } from "../../shared/components/StudyAppReleaseZipLinks";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
@@ -264,6 +265,7 @@ export function LocalChatGptPlanPage() {
         </div>
         <img alt="" src="/study-assistant-avatar.svg" />
       </header>
+      <AiCapabilitiesLimits mode="pdf-questions" />
 
       {!localEdition ? (
         <section className="assistant-guide-note">

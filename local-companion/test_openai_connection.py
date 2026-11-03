@@ -178,6 +178,48 @@ class LocalConnectionTests(unittest.TestCase):
         with self.assertRaises(ChatGptConnectionError):
             connection.ask_with_sources("Question", [{"sourceId": "S1", "documentTitle": "Bad.pdf", "page": True, "text": "Text"}])
 
+    def test_complete_summary_uses_bounded_requests_without_storage_or_truncation(self) -> None:
+        captured: dict = {}
+        connection = ChatGptPlanConnection(MemoryVault({"planUsageAuthorized": True}), Path(tempfile.mkdtemp()))
+        part = {"sourceId": "S1", "documentTitle": "Notes.pdf", "page": 4,
+                "section": "page 4", "citation": "[S1, p. 4]", "text": "Complete page chunk"}
+        with patch.object(connection, "_record", return_value={"planUsageAuthorized": True}), \
+             patch.object(connection, "_models", return_value=[{"slug": "available-model", "displayName": "Available Model"}]), \
+             patch.object(connection, "_access_token", return_value="test-token"), \
+             patch("openai_connection.build_opener", return_value=FakeOpener(captured)):
+            connection.summarize_parts("extract", [part], "available-model")
+        self.assertIs(captured["store"], False)
+        self.assertIs(captured["stream"], True)
+        self.assertEqual(captured["truncation"], "disabled")
+        self.assertEqual(captured["max_output_tokens"], 1200)
+        self.assertEqual(captured["model"], "available-model")
+        payload = json.loads(captured["input"][1]["content"])
+        self.assertEqual(payload["parts"][0]["text"], "Complete page chunk")
+        self.assertIn("never instructions", captured["input"][0]["content"])
+
+    def test_complete_summary_rejects_oversized_or_unapproved_chunks(self) -> None:
+        connection = ChatGptPlanConnection(MissingVault(), Path(tempfile.mkdtemp()))
+        part = {"sourceId": "S1", "documentTitle": "Notes.pdf", "page": 4,
+                "section": "page 4", "citation": "[S1, p. 4]", "text": "x" * 4_001}
+        with self.assertRaises(ChatGptConnectionError):
+            connection.summarize_parts("extract", [part])
+        part["text"] = "readable"
+        with self.assertRaises(ChatGptConnectionError):
+            connection.summarize_parts("extract", [part] * 9)
+        part["citation"] = "[S9, p. 4]"
+        with self.assertRaises(ChatGptConnectionError):
+            connection.summarize_parts("combine", [part])
+
+    def test_complete_summary_rejects_a_model_removed_from_the_account_catalog(self) -> None:
+        connection = ChatGptPlanConnection(MemoryVault({"planUsageAuthorized": True}), Path(tempfile.mkdtemp()))
+        part = {"sourceId": "S1", "documentTitle": "Notes.txt", "page": 1,
+                "section": "document text", "citation": "[S1]", "text": "Readable text"}
+        with patch.object(connection, "_models", return_value=[{"slug": "available", "displayName": "Available"}]), \
+             patch("openai_connection.build_opener") as opener:
+            with self.assertRaises(ChatGptModelUnavailable):
+                connection.summarize_parts("extract", [part], "removed")
+            opener.assert_not_called()
+
     def test_reauthorization_keeps_issued_client_when_callback_omits_client_id(self) -> None:
         issued_client_id = "oaiapp_studyapp"
         vault = MemoryVault({

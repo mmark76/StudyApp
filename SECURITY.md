@@ -72,13 +72,18 @@ library records, IndexedDB content, AI prompts or generated study material.
 
 ## General boundaries
 
-Summary and Main Points reads only the source selected by the user. AI generation
-is limited to StudyApp Local and requires review of the exact bounded excerpts
-and a separate confirmation before the existing `store: false` companion
-request. Model output is validated as bounded plain text with source markers,
-shown as an editable draft, and saved only by explicit action. A generated
-summary is a local TXT blob; it is not included in the JSON backup. Citations
-are aids for review and do not prove the model's claims are correct.
+Summary and Main Points reads only sources selected by the user. In StudyApp
+Local, it checks the 50 MB per-file and per-job defaults, shows complete page,
+section and chunk coverage, and blocks AI generation if extraction is incomplete.
+Explicit consent covers sending all selected readable text in multiple bounded
+requests. The companion revalidates each request, preserves Sign in with ChatGPT,
+`store: false`, `stream: true`, and disables provider-side input truncation.
+Document text and intermediate summaries are untrusted data. Model output is
+validated as bounded plain text with known source markers, shown as an editable
+draft, and saved only by explicit action. A generated summary is a local TXT
+blob, excluded from the JSON backup. Citations aid review; they do not prove
+the model's claims are correct. Targeted AI Studio questions still use separate
+excerpt retrieval.
 
 - Keep core study data local by default.
 - Do not upload study material without explicit selection and confirmation.
