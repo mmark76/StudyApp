@@ -2076,7 +2076,7 @@ body:has(.workspace-panel-embed-shell),
 }
 
 /* Phase 1: three persistent Workspace columns. */
-.workspace-beta-phase-one-grid { display: grid; grid-template-columns: minmax(220px, 0.82fr) minmax(420px, 1.55fr) minmax(230px, 0.82fr); height: 100%; background: var(--surface, #fff); }
+.workspace-beta-phase-one-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); height: 100%; background: var(--surface, #fff); }
 .workspace-beta-phase-one .workspace-beta-panel + .workspace-beta-panel { border-left: 1px solid #ddddda; }
 .workspace-beta-phase-one .workspace-beta-functional-panel-header { flex-direction: row; align-items: center; }
 .workspace-beta-phase-one .workspace-beta-frame-wrap { flex: 1; min-height: 0; }
@@ -2102,7 +2102,7 @@ body:has(.workspace-panel-embed-shell),
 .workspace-beta-tools-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; padding: 0.7rem; overflow-y: auto; }
 .workspace-beta-tools-grid > button { min-height: 4.5rem; padding: 0.55rem; cursor: pointer; }
 .workspace-beta-tools-grid > button.is-selected { border-color: #3c614d; box-shadow: inset 0 0 0 1px #3c614d; background: #f3f8f4; }
-.workspace-beta-phase-one.is-tools-hidden .workspace-beta-phase-one-grid { grid-template-columns: minmax(220px, 0.82fr) minmax(420px, 1.55fr) 3rem; }
+.workspace-beta-phase-one.is-tools-hidden .workspace-beta-phase-one-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) 3rem; }
 .workspace-beta-phase-one.is-tools-hidden .workspace-beta-tools-grid, .workspace-beta-phase-one.is-tools-hidden .workspace-beta-phase-tools .workspace-beta-panel-kicker, .workspace-beta-phase-one.is-tools-hidden .workspace-beta-phase-tools h2 { display: none; }
 .workspace-beta-phase-one.is-tools-hidden .workspace-beta-phase-tools .workspace-beta-functional-panel-header { align-items: center; justify-content: center; height: 100%; padding: 0.35rem; }
 .workspace-beta-phase-one.is-tools-hidden .workspace-beta-phase-tools .workspace-beta-column-toggle { writing-mode: vertical-rl; }
