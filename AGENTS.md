@@ -468,6 +468,28 @@ Important Info      = supporting product, privacy and usage information
 The AI Assistant is a supporting workflow, not a material store or replacement
 for the main study areas.
 
+## Typography consistency — mandatory
+
+All new and modified UI features must use the existing StudyApp typography,
+including the font chosen by the user in Appearance settings. The typography
+sources of truth are `src/styles/global.css` (`--app-font-family`,
+`--app-font-size`, and related shared tokens) and
+`src/styles/workspaceBetaTypography.css` (Workspace BETA type hierarchy).
+
+- Do not introduce independent feature-specific font families, fixed fallback
+  typefaces, or browser-default typography. Use inheritance or the existing
+  application tokens instead.
+- Make buttons, inputs, selects, textareas, dialogs, embedded workspace pages,
+  and newly added components inherit the same active app font family.
+- Follow existing typography size and weight tokens rather than inventing a
+  parallel text hierarchy. Preserve the user's font and text-size preferences.
+- Intentional monospace presentation for code or technical identifiers is the
+  only routine exception; document any other exception and obtain owner
+  approval before introducing it.
+- Before completing UI changes, inspect changed typography declarations and
+  verify consistency with adjacent Workspace BETA panels in English and Greek,
+  including narrow/mobile layouts. Treat unexplained font mismatches as bugs.
+
 ## Repository structure
 
 - `src/app/` — configuration and routing;
