@@ -86,6 +86,47 @@
   background: #292927;
 }
 
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-option,
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-grid > button {
+  border-color: #52524c;
+  background: #252523;
+  color: #f2f2ef;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-option span,
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-grid small {
+  color: #c8c8c1;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-option:hover:not(:disabled),
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-grid > button:hover {
+  border-color: #77776f;
+  background: #30302d;
+  color: #ffffff;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-option:disabled {
+  border-color: #484843;
+  background: #222220;
+  color: #d2d2cc;
+  opacity: 1;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-option:disabled span {
+  color: #aaa9a2;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-grid > button.is-selected {
+  border-color: #84ad91;
+  background: #26362c;
+  color: #f5fff7;
+  box-shadow: inset 0 0 0 1px #84ad91;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-tools-avatar img {
+  border-color: #20201f;
+}
+
 :root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-panel-tools button,
 :root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-exit {
   border-color: #4a4a45;
