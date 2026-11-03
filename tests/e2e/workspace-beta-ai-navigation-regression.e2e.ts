@@ -42,7 +42,7 @@ test("AI Studio web download and Open Local actions share compact type and heigh
     fixture.innerHTML = `
       <a class="local-chatgpt-plan-download-link" href="#stable">Download Stable</a>
       <a class="local-chatgpt-plan-download-link" href="#beta">Download Beta</a>
-      <a class="local-chatgpt-plan-open-local-link" href="#open">Open StudyApp Local</a>
+      <a class="local-chatgpt-plan-open-local-link" href="#open">Click to open only if already installed</a>
     `;
     panel.appendChild(fixture);
   });

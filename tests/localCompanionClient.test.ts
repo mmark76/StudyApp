@@ -45,7 +45,7 @@ describe("StudyApp Local page", () => {
     expect(markup).toContain("Available in StudyApp Local");
     expect(markup).toContain("external-link flow");
     expect(markup).toContain(`href="${STUDYAPP_LOCAL_PROTOCOL_URL}"`);
-    expect(markup).toContain("Open StudyApp Local");
+    expect(markup).toContain("Click to open only if already installed");
     expect(markup).not.toContain("local-chatgpt-plan-question");
     expect(markup).not.toContain("Connect with ChatGPT");
   });

@@ -280,7 +280,7 @@ export function LocalChatGptPlanPage() {
             )}</span>
           </div>
           <div className="local-chatgpt-plan-open-local">
-            <a className="local-chatgpt-plan-open-local-link" href={STUDYAPP_LOCAL_PROTOCOL_URL}>{text("Open StudyApp Local", "Άνοιγμα StudyApp Local")}</a>
+            <a className="local-chatgpt-plan-open-local-link" href={STUDYAPP_LOCAL_PROTOCOL_URL}>{text("Click to open only if already installed", "Πάτησε για άνοιγμα μόνο αν έχει ήδη εγκατασταθεί")}</a>
             <span>{text(
               "After one-time launcher setup, this safely restarts and opens your Local app. Your connection stays on this Windows device.",
               "Με μία εγκατάσταση του launcher, επανεκκινεί με ασφάλεια και ανοίγει το Local app. Η σύνδεσή σου παραμένει σε αυτή τη συσκευή Windows.",

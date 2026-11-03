@@ -37,7 +37,7 @@ export function AssistantGuidePage() {
               <Link className="button secondary ai-studio-open-action" to="/local-chatgpt-plan">
                 {localEdition
                   ? text("Sign in with ChatGPT", "Σύνδεση με ChatGPT")
-                  : text("Get StudyApp Local", "Απόκτηση StudyApp Local")}
+                  : text("Download the app to use", "Κατέβασε την εφαρμογή για χρήση")}
               </Link>
               {localEdition ? (
                 <p>{text("Chat and attach PDF or text files with + (BETA).", "Συνομιλία και προσθήκη PDF ή αρχείων κειμένου με + (BETA).")}</p>
