@@ -210,7 +210,7 @@ def main() -> int:
         if error.errno not in {errno.EADDRINUSE, 10048}:
             raise
         print(f"StudyApp Local could not start because port {PORT} is already in use.")
-        print("Close the earlier StudyApp Local window or run Stop StudyApp Local.bat, then try again.")
+        print("Close the earlier StudyApp Local window or run Stop StudyApp Local Server.bat, then try again.")
         return 1
     return 0
 

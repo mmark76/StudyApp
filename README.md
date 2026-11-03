@@ -137,7 +137,7 @@ Each compatible release provides two separate downloads:
 - `StudyApp-v…zip` is the browser/PWA package; it remains static and has no
   local ChatGPT-plan connection.
 - `StudyApp-Local-Windows-v…zip` is the Windows Local package. Extract its
-  complete contents. Run `Install StudyApp Local Launcher.bat` to set up the
+  complete contents. Run `Enable Launch Button.bat` to set up the
   launcher and choose to open the app immediately, or use `Start StudyApp
   Local.bat` to start it directly. It opens the bundled app at
   `http://127.0.0.1:8767`; Python 3 is required. Keep the visible server
@@ -147,7 +147,7 @@ Each compatible release provides two separate downloads:
   Python environment starts without installing packages; optional connection
   setup is always initiated explicitly by the user. When using the
   direct Start file and an earlier StudyApp Local server still owns that
-  address, run `Stop StudyApp Local.bat`; it refuses to stop an unrelated
+  address, run `Stop StudyApp Local Server.bat`; it refuses to stop an unrelated
   process. The launcher handles this check automatically.
 
   The launcher setup registers `studyapp-local://open` for the current Windows
@@ -157,7 +157,7 @@ Each compatible release provides two separate downloads:
   StudyApp Local**: the native handler accepts only that exact protocol request,
   stops only the verified StudyApp Local process, starts the bundled Local app
   and opens its Workspace. Before moving or deleting the extracted folder, run
-  `Uninstall StudyApp Local Launcher.bat`; after moving it, run the installer
+  `Disable Launch Button.bat`; after moving it, run the installer
   again from the new location.
 
 ### ChatGPT App / MCP — coming soon

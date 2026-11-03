@@ -44,9 +44,9 @@ async function requireFile(path) {
 
 await requireFile(join(root, "dist", "index.html"));
 await requireFile(join(root, "Start StudyApp Local.bat"));
-await requireFile(join(root, "Stop StudyApp Local.bat"));
-await requireFile(join(root, "Install StudyApp Local Launcher.bat"));
-await requireFile(join(root, "Uninstall StudyApp Local Launcher.bat"));
+await requireFile(join(root, "Stop StudyApp Local Server.bat"));
+await requireFile(join(root, "Enable Launch Button.bat"));
+await requireFile(join(root, "Disable Launch Button.bat"));
 for (const file of requiredCompanionFiles) {
   await requireFile(join(root, "local-companion", file));
 }
@@ -64,13 +64,13 @@ await cp(join(root, "local-companion"), join(output, "local-companion"), {
   },
 });
 await cp(join(root, "Start StudyApp Local.bat"), join(output, "Start StudyApp Local.bat"));
-await cp(join(root, "Stop StudyApp Local.bat"), join(output, "Stop StudyApp Local.bat"));
-await cp(join(root, "Install StudyApp Local Launcher.bat"), join(output, "Install StudyApp Local Launcher.bat"));
-await cp(join(root, "Uninstall StudyApp Local Launcher.bat"), join(output, "Uninstall StudyApp Local Launcher.bat"));
+await cp(join(root, "Stop StudyApp Local Server.bat"), join(output, "Stop StudyApp Local Server.bat"));
+await cp(join(root, "Enable Launch Button.bat"), join(output, "Enable Launch Button.bat"));
+await cp(join(root, "Disable Launch Button.bat"), join(output, "Disable Launch Button.bat"));
 
 const version = (await readFile(join(root, "VERSION"), "utf8")).trim();
 await writeFile(
   join(output, "RELEASE.txt"),
-  `product=StudyApp Local Windows\nversion=${version}\nlauncher=Start StudyApp Local.bat\nprotocol_launcher=Install StudyApp Local Launcher.bat\n`,
+  `product=StudyApp Local Windows\nversion=${version}\nlauncher=Start StudyApp Local.bat\nprotocol_launcher=Enable Launch Button.bat\n`,
   "utf8",
 );
