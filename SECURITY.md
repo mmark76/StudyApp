@@ -68,6 +68,14 @@ library records, IndexedDB content, AI prompts or generated study material.
 
 ## General boundaries
 
+Summary and Main Points reads only the source selected by the user. AI generation
+is limited to StudyApp Local and requires review of the exact bounded excerpts
+and a separate confirmation before the existing `store: false` companion
+request. Model output is validated as bounded plain text with source markers,
+shown as an editable draft, and saved only by explicit action. A generated
+summary is a local TXT blob; it is not included in the JSON backup. Citations
+are aids for review and do not prove the model's claims are correct.
+
 - Keep core study data local by default.
 - Do not upload study material without explicit selection and confirmation.
 - Do not add analytics, tracking, accounts, storage or sync without owner approval.

@@ -988,7 +988,7 @@ test("Assistant provides equivalent English and Greek screens", async ({
   assertNoApplicationErrors();
 });
 
-test("Learn manages bilingual practice content inline before four responsive study cards", async ({
+test("Learn manages bilingual practice content inline before five responsive study cards", async ({
   page,
 }) => {
   const assertNoApplicationErrors = watchForApplicationErrors(page);
@@ -1075,7 +1075,8 @@ test("Learn manages bilingual practice content inline before four responsive stu
     getComputedStyle(element).gridTemplateColumns.split(" ").length,
   )).toBe(2);
   await expectAlignedCards();
-  await expect(englishGrid.locator(".learning-stage-card")).toHaveCount(4);
+  await expect(englishGrid.locator(".learning-stage-card")).toHaveCount(5);
+  await expect(englishGrid.locator(".learning-stage-card").first()).toContainText("Summary and Main Points");
   await expect(englishGrid.getByRole("heading", { name: "Manage Content" })).toHaveCount(0);
   await expect.poll(() => manager.evaluate((element) => Boolean(
     element.compareDocumentPosition(document.querySelector(".learn-tools-grid"))

@@ -1,6 +1,6 @@
 # StudyApp versioning and releases
 
-Adopts the reviewed principles of Markellos Ecosystem AI Agents Lab; StudyApp remains a web/PWA product, not a Windows distributable.
+Adopts the reviewed principles of Markellos Ecosystem AI Agents Lab. StudyApp publishes a web/PWA ZIP and a separate StudyApp Local Windows ZIP from the same reviewed source commit.
 
 ## Version identity
 

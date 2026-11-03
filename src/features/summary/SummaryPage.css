@@ -1,0 +1,14 @@
+.summary-page { min-width: 0; }
+.summary-page .content-panel { min-width: 0; }
+.summary-page label { display: grid; gap: .4rem; font-weight: 600; min-width: 0; }
+.summary-page input:not([type="checkbox"]), .summary-page select, .summary-page textarea { width: 100%; min-width: 0; box-sizing: border-box; }
+.summary-page textarea { resize: vertical; }
+.summary-page .summary-consent { display: flex; align-items: flex-start; font-weight: 400; }
+.summary-page .summary-consent input { margin-top: .25rem; }
+.summary-page .summary-excerpts { display: grid; gap: .75rem; min-width: 0; }
+.summary-page .summary-excerpts details { overflow-wrap: anywhere; }
+.summary-page .summary-excerpts details p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.summary-page .summary-actions { display: flex; flex-wrap: wrap; gap: .6rem; }
+.summary-page .summary-saved { display: flex; align-items: center; justify-content: space-between; gap: .75rem; overflow-wrap: anywhere; }
+.summary-page .summary-saved span { min-width: 0; }
+@media (max-width: 760px) { .summary-page .summary-saved { align-items: flex-start; flex-direction: column; } }

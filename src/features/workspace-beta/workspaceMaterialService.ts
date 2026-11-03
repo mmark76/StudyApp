@@ -42,9 +42,11 @@ async function readSnapshot(database: StudyDatabase): Promise<MaterialSnapshot> 
 
 export function getManagedItems(panel: MaterialPanel, data: MaterialSnapshot): ManagedMaterialItem[] {
   if (panel === "ai") return []; // AI is external; no stored conversations in StudyApp.
-  if (panel === "practice") return data.cards.map(card => ({
-    key: "card:" + card.id, title: card.question, detail: "Flashcard",
-  }));
+  if (panel === "practice") return [
+    ...data.files.filter(file => file.generatedSummary === true)
+      .map(file => ({ key: "file:" + file.id, title: file.title, detail: "Summary" })),
+    ...data.cards.map(card => ({ key: "card:" + card.id, title: card.question, detail: "Flashcard" })),
+  ];
   const isKnowledge = panel === "knowledge";
   const files = data.files.filter(file => isStructuredStudyFile(file) === isKnowledge)
     .map(file => ({ key: "file:" + file.id, title: file.title, detail: file.fileName }));

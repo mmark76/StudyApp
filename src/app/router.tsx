@@ -17,6 +17,7 @@ import { ProgressPage } from "../features/progress/ProgressPage";
 import { QuizPage } from "../features/quiz/QuizPage";
 import { ReviewPage } from "../features/review/ReviewPage";
 import { SourcesPage } from "../features/sources/SourcesPage";
+import { SummaryPage } from "../features/summary/SummaryPage";
 import { StudyLearnPage } from "../features/study/StudyLearnPage";
 import { StudyTheoryPage } from "../features/study/StudyTheoryPage";
 import { UnitsPage } from "../features/units/UnitsPage";
@@ -64,6 +65,7 @@ export const router = createHashRouter([
       { path: "instructions", element: <StudyAppInstructionsPage /> },
       { path: "local-installation-guide", element: <LocalInstallationGuidePage /> },
       { path: "sources", element: <SourcesPage /> },
+      { path: "summary", element: <SummaryPage /> },
       { path: "core-knowledge", element: <CoreKnowledgePage /> },
       { path: "study", element: <StudyLearnPage /> },
       { path: "study/theory", element: <StudyTheoryPage /> },
