@@ -10,6 +10,7 @@ import {
 } from "../assistant/localPdfRag";
 import type { LocalStudyFile } from "../../shared/types/models";
 import { extractOfficeTextParts } from "./officeTextExtraction";
+import { AiCapabilitiesLimits } from "../assistant/AiCapabilitiesLimits";
 
 type AttachmentFormat = "pdf" | "docx" | "pptx" | "txt" | "markdown" | "csv";
 type ChatAttachment = LocalStudyFile & { format: AttachmentFormat };
@@ -233,6 +234,7 @@ export function WorkspaceLocalChat() {
           <span>{text("Only your question and expressly approved excerpts are sent.", "Αποστέλλονται μόνο η ερώτησή σου και τα αποσπάσματα που εγκρίνεις ρητά.")}</span>
         </div>
       </header>
+      <AiCapabilitiesLimits mode="questions" />
       <div className="workspace-local-chat-models">
         <label htmlFor={`${inputId}-model`}>{text("Model", "Μοντέλο")}</label>
         <select disabled={isSending || modelsLoading || !models.length} id={`${inputId}-model`} onChange={(event) => setSelectedModel(event.target.value)} value={selectedModel}>
