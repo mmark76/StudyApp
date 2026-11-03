@@ -187,11 +187,22 @@ Practice & Mastery now begins with **Summary and Main Points**. Select a saved
 local study file or practice chapter, write or edit a summary and key points, then
 save it as a local TXT item in Library → Summaries or download the TXT. The
 existing chapter `summary` points are offered as a starting draft. In StudyApp
-Local, an eligible Sign in with ChatGPT connection can generate a draft from
-reviewed excerpts of a selected source. Sending requires explicit confirmation;
-the result stays editable until the user saves it. Large sources may be
-represented by sampled excerpts only, and AI citations must be checked against
-the source. Generated TXT blobs are excluded from the JSON backup.
+Local, an eligible Sign in with ChatGPT connection can generate a draft from all
+readable text in the selected files and chapters. The initial limits are 50 MB
+per file and 50 MB of selected content per job. The tool reports every page or section and
+the number of extracted chunks. Missing readable text or extraction errors block
+generation and are reported. After the user explicitly approves sending the
+complete selected text over multiple requests, every chunk is processed and
+the results are combined hierarchically. The result stays editable until saved;
+AI citations still need checking against the source. Targeted questions in AI
+Studio continue to use separately approved, relevance-ranked excerpts. Generated
+TXT blobs are excluded from the JSON backup.
+
+The build-time public settings `VITE_SUMMARY_MAX_FILE_MB` and
+`VITE_SUMMARY_MAX_JOB_MB` can set whole-number limits from 1 to 500 MB; both
+default to 50 MB. The complete-document path never truncates an accepted file
+to fit a request. It uses more requests when the selected model needs smaller
+inputs and stops with a visible error if a chunk or reduction cannot complete.
 
 Study content, progress, settings, links and uploaded file blobs are stored in
 the current browser and device. StudyApp currently has no account, cloud

@@ -61,13 +61,17 @@ CSV second.
 ### 2. StudyApp Local Sign in with ChatGPT — optional Windows Local edition
 
 The Practice Summary and Main Points tool may use this same Local connection to
-generate a draft from a selected Library file or practice chapter. The user
-reviews the exact excerpts, explicitly approves the request, then reviews and
-edits the returned summary and main points. The browser/PWA has manual creation
-and local storage only. Results are never automatically added to Library or
-practice chapters; an explicit Save creates a local TXT summary with source
-references. Long sources can be represented by sampled excerpts rather than
-their full text. No new provider mode, hosted tool, or cloud storage is added.
+generate a draft from explicitly selected Library files or practice chapters.
+It extracts all readable text, tracks pages, sections and chunks, and shows
+coverage before transfer. Missing readable content or extraction errors block
+generation. The user explicitly approves sending the complete selected text
+through multiple bounded `store: false`, `stream: true` requests. Every chunk is
+processed, then intermediate summaries are combined hierarchically. The
+browser/PWA has manual creation and local storage only. Results are never
+automatically added to Library or practice chapters; an explicit Save creates a
+local TXT summary with source references. Targeted questions keep their separate
+excerpt-based retrieval. No new provider mode, hosted tool, or cloud storage is
+added.
 
 This is not a browser/PWA feature. The separately started StudyApp Local server
 listens only on `127.0.0.1`, requests browser approval from an eligible ChatGPT

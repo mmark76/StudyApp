@@ -2,20 +2,13 @@ import { useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
-import { askChatGptPlanWithPdfPassages, isStudyAppLocalEdition } from "../../infrastructure/local-companion/localCompanionClient";
+import { isStudyAppLocalEdition, summarizeCompleteDocumentParts } from "../../infrastructure/local-companion/localCompanionClient";
 import type { LocalStudyFile } from "../../shared/types/models";
 import { useStudyContent } from "../content-import/useStudyContent";
 import { validateStoredLocalStudyFile } from "../study-materials/localFilePolicy";
-import { formatSummary, parseGeneratedSummary, saveSummary, summaryPassagesFromFile, summaryPassagesFromUnit, validateSummaryDraft, type SummaryDraft } from "./summaryService";
-import type { PdfPassage } from "../assistant/localPdfRag";
+import { formatSummary, saveSummary, validateSummaryDraft, type SummaryDraft } from "./summaryService";
+import { DEFAULT_SUMMARY_LIMITS, generateCompleteSummary, prepareCompleteSummary, type PreparedSummaryJob, type SummaryInput, type SummaryProgress } from "./fullDocumentSummary";
 import "./SummaryPage.css";
-
-function locationFor(fileName: string, page: number, english: boolean): string {
-  const extension = fileName.toLowerCase().split(".").pop();
-  if (extension === "pdf") return english ? `page ${page}` : `σελ. ${page}`;
-  if (extension === "pptx") return english ? `slide ${page}` : `διαφάνεια ${page}`;
-  return english ? "document text" : "κείμενο εγγράφου";
-}
 
 function downloadText(content: string, fileName: string): void {
   const url = URL.createObjectURL(new Blob([content], { type: "text/plain;charset=utf-8" }));
@@ -32,117 +25,135 @@ export function SummaryPage() {
   const files = useLiveQuery(() => studyDatabase.studyFiles.orderBy("createdAt").toArray(), []);
   const sourceFiles = (files ?? []).filter((file) => file.generatedSummary !== true);
   const saved = (files ?? []).filter((file) => file.generatedSummary === true).reverse();
-  const [sourceKey, setSourceKey] = useState("");
+  const [sourceKeys, setSourceKeys] = useState<string[]>([]);
   const [sourceSearch, setSourceSearch] = useState("");
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [points, setPoints] = useState("");
-  const [passages, setPassages] = useState<PdfPassage[]>([]);
-  const [references, setReferences] = useState<SummaryDraft["sources"]>([]);
+  const [prepared, setPrepared] = useState<PreparedSummaryJob | null>(null);
+  const [progress, setProgress] = useState<SummaryProgress | null>(null);
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
   const [savedPage, setSavedPage] = useState(1);
   const busyRef = useRef(false);
+  const activeControllerRef = useRef<AbortController | null>(null);
   const lastSavedRef = useRef("");
   const localEdition = isStudyAppLocalEdition();
   const totalSavedPages = Math.max(1, Math.ceil(saved.length / 25));
   const currentSavedPage = Math.min(savedPage, totalSavedPages);
   const query = sourceSearch.trim().toLocaleLowerCase();
-  const visibleFiles = sourceFiles.filter((file) => !query || file.title.toLocaleLowerCase().includes(query)).slice(0, 100);
-  const visibleUnits = importedUnits.filter((unit) => !query || unit.title.toLocaleLowerCase().includes(query)).slice(0, 100);
+  const visibleFiles = [
+    ...sourceFiles.filter((file) => sourceKeys.includes(`file:${file.id}`)),
+    ...sourceFiles.filter((file) => !sourceKeys.includes(`file:${file.id}`) && (!query || file.title.toLocaleLowerCase().includes(query))).slice(0, 100),
+  ];
+  const visibleUnits = [
+    ...importedUnits.filter((unit) => sourceKeys.includes(`unit:${unit.id}`)),
+    ...importedUnits.filter((unit) => !sourceKeys.includes(`unit:${unit.id}`) && (!query || unit.title.toLocaleLowerCase().includes(query))).slice(0, 100),
+  ];
+  const coverageGaps = prepared?.coverage.filter((entry) => entry.status !== "readable") ?? [];
 
-  function sourceReferences(selected = passages): SummaryDraft["sources"] {
-    if (selected.length) return selected.map((passage) => ({
-      id: passage.sourceId,
-      title: passage.documentTitle,
-      location: sourceKey.startsWith("unit:")
-        ? text("chapter summary", "σύνοψη κεφαλαίου")
-        : locationFor(sourceFiles.find((file) => file.id === passage.documentId)?.fileName ?? "", passage.page, language === "en"),
-    }));
-    if (references.length) return references;
-    if (sourceKey.startsWith("unit:")) {
-      const unit = importedUnits.find((item) => item.id === sourceKey.slice(5));
-      return unit ? [{ id: "S1", title: unit.title, location: text("chapter summary", "σύνοψη κεφαλαίου") }] : [];
-    }
-    const file = sourceFiles.find((item) => item.id === sourceKey.slice(5));
-    return file ? [{ id: "S1", title: file.title, location: text("selected file", "επιλεγμένο αρχείο") }] : [];
+  function sourceReferences(): SummaryDraft["sources"] {
+    if (prepared) return prepared.sources;
+    return sourceKeys.flatMap((key, index) => {
+      const source = key.startsWith("unit:")
+        ? importedUnits.find((item) => item.id === key.slice(5))
+        : sourceFiles.find((item) => item.id === key.slice(5));
+      return source ? [{ id: `S${index + 1}`, title: source.title,
+        location: key.startsWith("unit:") ? text("chapter summary", "σύνοψη κεφαλαίου") : text("selected file", "επιλεγμένο αρχείο") }] : [];
+    });
   }
 
   function draft(): SummaryDraft {
     return { title, summary, mainPoints: points.split(/\r?\n/u), sources: sourceReferences() };
   }
 
-  function changeSource(value: string) {
-    if (value !== sourceKey && (summary.trim() || points.trim()) && !window.confirm(text(
-      "Changing the source will clear this draft. Continue?",
-      "Η αλλαγή πηγής θα αδειάσει αυτό το πρόχειρο. Συνέχεια;",
+  function changeSource(values: string[]) {
+    if ((summary.trim() || points.trim()) && !window.confirm(text(
+      "Changing the sources will clear this draft. Continue?",
+      "Η αλλαγή πηγών θα αδειάσει αυτό το πρόχειρο. Συνέχεια;",
     ))) return;
-    setSourceKey(value);
-    setPassages([]);
-    setReferences([]);
+    setSourceKeys(values);
+    setPrepared(null);
+    setProgress(null);
     setConsent(false);
     setError("");
     setStatus("");
     setTitle("");
     setSummary("");
     setPoints("");
-    if (value.startsWith("unit:")) {
-      const unit = importedUnits.find((item) => item.id === value.slice(5));
+    if (values.length === 1 && values[0].startsWith("unit:")) {
+      const unit = importedUnits.find((item) => item.id === values[0].slice(5));
       if (unit) {
         setTitle(unit.title);
         setPoints(unit.summary.join("\n"));
       }
-    } else if (value.startsWith("file:")) {
-      const file = sourceFiles.find((item) => item.id === value.slice(5));
+    } else if (values.length === 1 && values[0].startsWith("file:")) {
+      const file = sourceFiles.find((item) => item.id === values[0].slice(5));
       if (file) setTitle(file.title);
+    } else if (values.length > 1) {
+      setTitle(text("Combined study summary", "Συνδυασμένη περίληψη μελέτης"));
     }
   }
 
   async function prepareAi() {
-    if (!localEdition || !sourceKey || busyRef.current) return;
+    if (!localEdition || !sourceKeys.length || busyRef.current) return;
     busyRef.current = true;
+    const controller = new AbortController();
+    activeControllerRef.current = controller;
     setBusy(true);
     setError("");
     setStatus("");
     setConsent(false);
     try {
-      const next = sourceKey.startsWith("unit:")
-        ? summaryPassagesFromUnit(importedUnits.find((unit) => unit.id === sourceKey.slice(5))!)
-        : await summaryPassagesFromFile(sourceFiles.find((file) => file.id === sourceKey.slice(5))!);
-      setPassages(next);
-      setReferences(sourceReferences(next));
-      setStatus(text("Review these excerpts before sending them to ChatGPT.", "Έλεγξε αυτά τα αποσπάσματα πριν σταλούν στο ChatGPT."));
+      const inputs: SummaryInput[] = sourceKeys.map((key) => {
+        if (key.startsWith("unit:")) {
+          const unit = importedUnits.find((item) => item.id === key.slice(5));
+          if (!unit) throw new Error("A selected chapter is unavailable.");
+          return { kind: "unit", unit };
+        }
+        const file = sourceFiles.find((item) => item.id === key.slice(5));
+        if (!file) throw new Error("A selected file is unavailable.");
+        return { kind: "file", file };
+      });
+      const next = await prepareCompleteSummary(inputs, setProgress, DEFAULT_SUMMARY_LIMITS, controller.signal);
+      setPrepared(next);
+      setStatus(next.complete
+        ? text("All readable chunks are ready. Review coverage before approving all requests to ChatGPT.", "Όλα τα αναγνώσιμα τμήματα είναι έτοιμα. Έλεγξε την κάλυψη πριν εγκρίνεις όλα τα αιτήματα προς το ChatGPT.")
+        : text("Incomplete coverage: some pages or sections had no readable text or failed extraction. AI generation is blocked.", "Ελλιπής κάλυψη: ορισμένες σελίδες ή ενότητες δεν είχαν αναγνώσιμο κείμενο ή απέτυχαν. Η δημιουργία AI έχει αποκλειστεί."));
     } catch (cause) {
-      setPassages([]);
-      setError(language === "en" && cause instanceof Error ? cause.message : text("The source could not be read.", "Δεν ήταν δυνατή η ανάγνωση της πηγής."));
+      setPrepared(null);
+      if (controller.signal.aborted) setStatus(text("Processing cancelled.", "Η επεξεργασία ακυρώθηκε."));
+      else setError(language === "en" && cause instanceof Error ? cause.message : text("The source could not be read.", "Δεν ήταν δυνατή η ανάγνωση της πηγής."));
     } finally {
+      activeControllerRef.current = null;
       busyRef.current = false;
       setBusy(false);
     }
   }
 
   async function generateAi() {
-    if (!localEdition || !passages.length || !consent || busyRef.current) return;
+    if (!localEdition || !prepared?.complete || !consent || busyRef.current) return;
     busyRef.current = true;
+    const controller = new AbortController();
+    activeControllerRef.current = controller;
     setBusy(true);
     setError("");
     setStatus("");
     try {
-      const response = await askChatGptPlanWithPdfPassages(
-        `Using only the selected excerpts, write a concise study summary and 3–8 main points in ${language === "el" ? "Greek" : "English"}. Return only a JSON object with string field "summary" and string array field "mainPoints". Cite each summary paragraph and each main point with its supporting [S1] source marker (include page or slide where applicable). If evidence is insufficient, say so; do not invent facts.`,
-        passages,
-      );
-      const generated = parseGeneratedSummary(response.answer, sourceReferences());
+      const generated = await generateCompleteSummary(prepared, async (phase, parts) =>
+        (await summarizeCompleteDocumentParts(phase, parts, controller.signal)).answer,
+      setProgress, DEFAULT_SUMMARY_LIMITS, controller.signal);
       setSummary(generated.summary);
       setPoints(generated.mainPoints.join("\n"));
       setStatus(text("AI draft ready. Review and save it locally when satisfied.", "Το πρόχειρο AI είναι έτοιμο. Έλεγξέ το και αποθήκευσέ το τοπικά."));
-      setPassages([]);
       setConsent(false);
     } catch (cause) {
-      setError(language === "en" && cause instanceof Error ? cause.message : text("Summary generation failed. Check the connection and excerpts.", "Η δημιουργία περίληψης απέτυχε. Έλεγξε τη σύνδεση και τα αποσπάσματα."));
+      if (controller.signal.aborted) setStatus(text("Generation cancelled. Earlier sent chunks cannot be recalled; no partial draft was saved.", "Η δημιουργία ακυρώθηκε. Τα τμήματα που είχαν σταλεί δεν ανακαλούνται· δεν αποθηκεύτηκε ελλιπές πρόχειρο."));
+      else setError(language === "en" && cause instanceof Error ? cause.message : text("Summary generation stopped. The draft is incomplete and was not saved.", "Η δημιουργία περίληψης σταμάτησε. Το πρόχειρο είναι ελλιπές και δεν αποθηκεύτηκε."));
     } finally {
+      activeControllerRef.current = null;
       busyRef.current = false;
       setBusy(false);
     }
@@ -198,9 +209,8 @@ export function SummaryPage() {
     </header>
     <section className="content-panel stack-md" aria-label={text("Create summary", "Δημιουργία περίληψης")}>
       <label>{text("Find a source", "Εύρεση πηγής")}<input value={sourceSearch} onChange={(event) => setSourceSearch(event.target.value)} /></label>
-      <label>{text("Source material", "Πηγή υλικού")}
-        <select value={sourceKey} onChange={(event) => changeSource(event.target.value)} disabled={busy}>
-          <option value="">{text("Choose a local source", "Επίλεξε τοπική πηγή")}</option>
+      <label>{text("Source material (select one or more)", "Πηγές υλικού (επίλεξε μία ή περισσότερες)")}
+        <select multiple size={6} value={sourceKeys} onChange={(event) => changeSource(Array.from(event.target.selectedOptions, (option) => option.value))} disabled={busy}>
           <optgroup label={text("Local study files", "Τοπικά αρχεία μελέτης")}>
             {visibleFiles.map((file) => <option value={`file:${file.id}`} key={file.id}>{file.title}</option>)}
           </optgroup>
@@ -209,24 +219,35 @@ export function SummaryPage() {
           </optgroup>
         </select>
       </label>
+      <p>{text("Hold Ctrl to select several sources. Selected sources stay visible while you search.", "Κράτησε πατημένο το Ctrl για πολλές πηγές. Οι επιλεγμένες πηγές παραμένουν ορατές κατά την αναζήτηση.")}</p>
       {(sourceFiles.length > 100 || importedUnits.length > 100) ? <p>{text("Showing up to 100 matching files and 100 chapters. Search by title to find more.", "Εμφανίζονται έως 100 αρχεία και 100 κεφάλαια που ταιριάζουν. Αναζήτησε τίτλο για περισσότερα.")}</p> : null}
       {hasStoredContentError ? <p role="alert">{text("Some stored chapter data could not be read.", "Ορισμένα αποθηκευμένα κεφάλαια δεν διαβάστηκαν.")}</p> : null}
       {localEdition ? <div className="stack-md">
         <p>{text("AI draft generation requires Sign in with ChatGPT in AI Studio.", "Για πρόχειρο AI απαιτείται σύνδεση με ChatGPT στο AI Studio.")}</p>
-        <button className="button secondary" type="button" disabled={!sourceKey || busy} onClick={() => void prepareAi()}>{text("Review excerpts for AI", "Έλεγχος αποσπασμάτων για AI")}</button>
-        {passages.length ? <section className="summary-excerpts" aria-label={text("Excerpts for review", "Αποσπάσματα προς έλεγχο")}>
-          <p>{text("Only these excerpts will be sent. Long sources may not be fully represented.", "Θα σταλούν μόνο αυτά τα αποσπάσματα. Οι μεγάλες πηγές ίσως δεν καλύπτονται πλήρως.")}</p>
-          {passages.map((passage) => <details key={passage.sourceId}><summary>[{passage.sourceId}] {passage.documentTitle}, {sourceKey.startsWith("unit:") ? text("chapter summary", "σύνοψη κεφαλαίου") : locationFor(sourceFiles.find((file) => file.id === passage.documentId)?.fileName ?? "", passage.page, language === "en")}</summary><p>{passage.text}</p></details>)}
-          <label className="summary-consent"><input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} />{text("I approve sending these excerpts to ChatGPT to create a draft.", "Εγκρίνω να σταλούν αυτά τα αποσπάσματα στο ChatGPT για δημιουργία προχείρου.")}</label>
-          <button className="button primary" disabled={!consent || busy} onClick={() => void generateAi()} type="button">{busy ? text("Generating…", "Δημιουργία…") : text("Generate AI draft", "Δημιουργία προχείρου AI")}</button>
+        <p>{text(`Up to ${DEFAULT_SUMMARY_LIMITS.maxFileBytes / 1_000_000} MB per file and ${DEFAULT_SUMMARY_LIMITS.maxJobBytes / 1_000_000} MB per job. All readable content is processed.`, `Έως ${DEFAULT_SUMMARY_LIMITS.maxFileBytes / 1_000_000} MB ανά αρχείο και ${DEFAULT_SUMMARY_LIMITS.maxJobBytes / 1_000_000} MB ανά εργασία. Επεξεργάζεται όλο το αναγνώσιμο περιεχόμενο.`)}</p>
+        <button className="button secondary" type="button" disabled={!sourceKeys.length || busy} onClick={() => void prepareAi()}>{text("Check full-document coverage", "Έλεγχος κάλυψης ολόκληρων εγγράφων")}</button>
+        {busy && activeControllerRef.current ? <button className="button secondary" type="button" onClick={() => activeControllerRef.current?.abort()}>{text("Cancel processing", "Ακύρωση επεξεργασίας")}</button> : null}
+        {prepared ? <section className="summary-excerpts" aria-label={text("Document coverage", "Κάλυψη εγγράφων")}>
+          <p>{text(`${prepared.sources.length} sources, ${prepared.coverage.length} pages or sections, ${prepared.chunks.length} extracted chunks. ${prepared.complete ? "Complete readable coverage." : "Incomplete coverage; generation is blocked."}`,
+            `${prepared.sources.length} πηγές, ${prepared.coverage.length} σελίδες ή ενότητες, ${prepared.chunks.length} τμήματα κειμένου. ${prepared.complete ? "Πλήρης κάλυψη αναγνώσιμου κειμένου." : "Ελλιπής κάλυψη· η δημιουργία έχει αποκλειστεί."}`)}</p>
+          {coverageGaps.slice(0, 100).map((entry, index) => <p role="alert" key={`${entry.sourceId}-${entry.section}-${index}`}>[{entry.sourceId}] {entry.documentTitle}, {entry.section}: {entry.reason}</p>)}
+          {coverageGaps.length > 100 ? <p role="alert">{text(`${coverageGaps.length} coverage gaps. Showing the first 100; download the complete report below.`, `${coverageGaps.length} κενά κάλυψης. Εμφανίζονται τα πρώτα 100· κατέβασε την πλήρη αναφορά παρακάτω.`)}</p> : null}
+          <details><summary>{text("Pages, sections and chunks", "Σελίδες, ενότητες και τμήματα")}</summary>
+            <ol>{prepared.coverage.slice(0, 100).map((entry, index) => <li key={`${entry.sourceId}-${entry.section}-${index}`}>[{entry.sourceId}] {entry.documentTitle}, {entry.section}: {entry.chunks} {text("chunks", "τμήματα")} ({entry.status})</li>)}</ol>
+            {prepared.coverage.length > 100 ? <p>{text(`Showing 100 of ${prepared.coverage.length} entries. Download the complete report below.`, `Εμφανίζονται 100 από ${prepared.coverage.length} εγγραφές. Κατέβασε την πλήρη αναφορά παρακάτω.`)}</p> : null}
+          </details>
+          <button className="button secondary" type="button" onClick={() => downloadText(JSON.stringify(prepared.coverage, null, 2), "StudyApp_Summary_Coverage.json")}>{text("Download complete coverage report", "Λήψη πλήρους αναφοράς κάλυψης")}</button>
+          <label className="summary-consent"><input type="checkbox" checked={consent} disabled={!prepared.complete || busy} onChange={(event) => setConsent(event.target.checked)} />{text("I approve sending all selected document text to ChatGPT across multiple requests to create this draft.", "Εγκρίνω την αποστολή όλου του κειμένου των επιλεγμένων εγγράφων στο ChatGPT με πολλαπλά αιτήματα για αυτό το πρόχειρο.")}</label>
+          <button className="button primary" disabled={!consent || !prepared.complete || busy} onClick={() => void generateAi()} type="button">{busy ? text("Generating…", "Δημιουργία…") : text("Generate AI draft", "Δημιουργία προχείρου AI")}</button>
         </section> : null}
       </div> : <p>{text("AI generation is available in StudyApp Local after Sign in with ChatGPT. You can write and save a summary here.", "Η δημιουργία AI είναι διαθέσιμη στο StudyApp Local μετά τη σύνδεση με ChatGPT. Μπορείς να γράψεις και να αποθηκεύσεις περίληψη εδώ.")}</p>}
-      <label>{text("Title", "Τίτλος")}<input value={title} maxLength={200} onChange={(event) => setTitle(event.target.value)} /></label>
-      <label>{text("Summary", "Περίληψη")}<textarea value={summary} maxLength={20_000} rows={7} onChange={(event) => setSummary(event.target.value)} /></label>
-      <label>{text("Main points (one per line)", "Βασικά σημεία (ένα ανά γραμμή)")}<textarea value={points} rows={7} onChange={(event) => setPoints(event.target.value)} /></label>
+      <label>{text("Title", "Τίτλος")}<input value={title} maxLength={200} disabled={busy} onChange={(event) => setTitle(event.target.value)} /></label>
+      <label>{text("Summary", "Περίληψη")}<textarea value={summary} maxLength={20_000} rows={7} disabled={busy} onChange={(event) => setSummary(event.target.value)} /></label>
+      <label>{text("Main points (one per line)", "Βασικά σημεία (ένα ανά γραμμή)")}<textarea value={points} rows={7} disabled={busy} onChange={(event) => setPoints(event.target.value)} /></label>
       {sourceReferences().length ? <div><strong>{text("Source references", "Παραπομπές πηγής")}</strong><ul>{sourceReferences().map((source) => <li key={source.id}>[{source.id}] {source.title} — {source.location}</li>)}</ul></div> : null}
       <div className="summary-actions"><button className="button primary" type="button" disabled={busy} onClick={() => void save()}>{text("Save locally", "Τοπική αποθήκευση")}</button>
         <button className="button secondary" type="button" disabled={busy} onClick={downloadDraft}>{text("Download draft (.txt)", "Λήψη προχείρου (.txt)")}</button></div>
+      {progress ? <p role="status">{text("Processing", "Επεξεργασία")} {progress.phase}: {progress.completed} / {progress.total}</p> : null}
       {status ? <p role="status">{status}</p> : null}{error ? <p role="alert">{error}</p> : null}
     </section>
     <section className="content-panel stack-md" aria-label={text("Saved summaries", "Αποθηκευμένες περιλήψεις")}><h3>{text("Saved summaries", "Αποθηκευμένες περιλήψεις")}</h3>

@@ -116,7 +116,8 @@ class Handler(BaseHTTPRequestHandler):
             return
         path = urlparse(self.path).path
         try:
-            body = self._read_json(80_000 if path == "/api/chatgpt-plan/ask-with-sources" else 20_000)
+            body = self._read_json(80_000 if path == "/api/chatgpt-plan/ask-with-sources" else
+                                   40_000 if path == "/api/chatgpt-plan/summarize-parts" else 20_000)
             if path == "/api/chatgpt-plan/connection":
                 if body.get("confirmConnection") is not True:
                     raise ChatGptConnectionError("Confirm the ChatGPT connection request.")
@@ -142,6 +143,11 @@ class Handler(BaseHTTPRequestHandler):
                 if body.get("confirmExternalRequest") is not True:
                     raise ChatGptConnectionError("Confirm sending the selected passages to ChatGPT.")
                 self._json(CONNECTION.ask_with_sources(body.get("question"), body.get("passages")))
+                return
+            if path == "/api/chatgpt-plan/summarize-parts":
+                if body.get("confirmExternalRequest") is not True:
+                    raise ChatGptConnectionError("Confirm sending all selected document chunks to ChatGPT.")
+                self._json(CONNECTION.summarize_parts(body.get("phase"), body.get("parts")))
                 return
             self._json({"error": "Not found."}, HTTPStatus.NOT_FOUND)
         except ChatGptConnectionError as error:

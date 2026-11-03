@@ -44,4 +44,30 @@ describe("local Office document extraction", () => {
     await expect(extractOfficeTextParts(file, "docx")).rejects.toThrow("content is missing");
     await expect(extractOfficeTextParts(file, "pptx")).rejects.toThrow("No readable Office");
   });
+
+  it("tracks Word body, header and footer in complete-document mode", async () => {
+    const word = (text: string) => `<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p><w:r><w:t>${text}</w:t></w:r></w:p></w:document>`;
+    const file = await archiveFile({
+      "word/document.xml": word("Beginning"),
+      "word/header1.xml": word("Middle"),
+      "word/footer1.xml": word("End"),
+    });
+    const parts = await extractOfficeTextParts(file, "docx", { complete: true });
+    expect(parts.map((part) => part.text)).toEqual(["Beginning", "End", "Middle"]);
+    expect(parts.map((part) => part.section)).toEqual(["word/document.xml", "word/footer1.xml", "word/header1.xml"]);
+  });
+
+  it("maps speaker notes through slide relationships in complete-document mode", async () => {
+    const slide = (value: string) => `<p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:p><a:r><a:t>${value}</a:t></a:r></a:p></p:sld>`;
+    const file = await archiveFile({
+      "ppt/presentation.xml": `<p:presentation xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><p:sldIdLst><p:sldId r:id="rId5" /></p:sldIdLst></p:presentation>`,
+      "ppt/_rels/presentation.xml.rels": `<Relationships><Relationship Id="rId5" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide2.xml" /></Relationships>`,
+      "ppt/slides/slide2.xml": slide("Slide content"),
+      "ppt/slides/_rels/slide2.xml.rels": `<Relationships><Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesSlide" Target="../notesSlides/notesSlide7.xml" /></Relationships>`,
+      "ppt/notesSlides/notesSlide7.xml": slide("Speaker notes"),
+    });
+    await expect(extractOfficeTextParts(file, "pptx", { complete: true })).resolves.toEqual([
+      { part: 1, section: "slide 1", text: "Slide content\nSpeaker notes:\nSpeaker notes" },
+    ]);
+  });
 });
