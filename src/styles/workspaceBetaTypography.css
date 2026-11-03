@@ -3,11 +3,11 @@
  */
 .workspace-beta-shell,
 .workspace-panel-embed-shell {
-  --workspace-type-micro: 10px;
-  --workspace-type-small: 0.8rem;
-  --workspace-type-support: 12px;
-  --workspace-type-body: 13px;
-  --workspace-type-heading: 15px;
+  --workspace-type-micro: 0.56rem;
+  --workspace-type-small: 0.7rem;
+  --workspace-type-support: 0.67rem;
+  --workspace-type-body: 0.72rem;
+  --workspace-type-heading: 0.83rem;
   --workspace-weight-regular: 400;
   --workspace-weight-control: 700;
   --workspace-weight-heading: 750;
@@ -211,6 +211,61 @@
 
 .workspace-panel-embed-main .local-chatgpt-plan-card textarea {
   font-size: var(--workspace-type-body);
+}
+
+/* Windows Local surfaces share the same hierarchy as the Web/PWA workspace.
+ * The attachment plus is an icon-sized control; every textual element uses
+ * the shared Workspace tokens and inherits the active Appearance font. */
+.workspace-local-chat .ai-capabilities-limits summary,
+.workspace-local-chat .workspace-local-chat-models,
+.workspace-local-chat .workspace-local-chat-thinking,
+.workspace-local-chat .workspace-local-chat-error,
+.workspace-local-chat .workspace-local-chat-attachment,
+.workspace-local-chat .workspace-local-chat-review,
+.workspace-local-chat .workspace-local-chat-consent,
+.workspace-local-chat .workspace-local-chat-sources {
+  font-size: var(--workspace-type-small);
+}
+
+.workspace-local-chat .ai-capabilities-limits p,
+.workspace-local-chat .workspace-local-chat-status span {
+  font-size: var(--workspace-type-support);
+}
+
+.workspace-local-chat .workspace-local-chat-status p,
+.workspace-local-chat .workspace-local-chat-message-role {
+  font-size: var(--workspace-type-micro);
+}
+
+.workspace-local-chat .workspace-local-chat-empty,
+.workspace-local-chat .workspace-local-chat-message,
+.workspace-local-chat .workspace-local-chat-input-bar textarea {
+  font-size: var(--workspace-type-body);
+}
+
+.workspace-panel-embed-main .local-chatgpt-plan-page .ai-capabilities-limits summary,
+.workspace-panel-embed-main .local-chatgpt-plan-page .local-pdf-rag :is(button, .button),
+.workspace-panel-embed-main .local-chatgpt-plan-page .local-chatgpt-plan-message {
+  font-size: var(--workspace-type-small);
+}
+
+.workspace-panel-embed-main .local-chatgpt-plan-page .ai-capabilities-limits p,
+.workspace-panel-embed-main .local-chatgpt-plan-page .local-pdf-rag :is(p, li) {
+  font-size: var(--workspace-type-support);
+}
+
+.workspace-panel-embed-main .local-chatgpt-plan-page .local-pdf-rag :is(h4, h5, legend, label, textarea),
+.workspace-panel-embed-main .local-chatgpt-plan-page .local-chatgpt-plan-answer :is(h4, h5, p) {
+  font-size: var(--workspace-type-body);
+}
+
+.workspace-local-chat .ai-capabilities-limits summary,
+.workspace-local-chat .workspace-local-chat-models label,
+.workspace-local-chat .workspace-local-chat-composer button,
+.workspace-local-chat .workspace-local-chat-review > strong,
+.workspace-panel-embed-main .local-chatgpt-plan-page .ai-capabilities-limits summary,
+.workspace-panel-embed-main .local-chatgpt-plan-page .local-pdf-rag :is(h4, h5, legend, label) {
+  font-weight: var(--workspace-weight-control);
 }
 
 

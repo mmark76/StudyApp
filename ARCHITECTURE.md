@@ -52,18 +52,24 @@ shell remains in the repository as historical reference and is available only
 in the dedicated E2E build mode. Legal pages remain directly reachable without
 showing the historical shell.
 
-The current desktop workspace presents four independent StudyApp areas:
+Phase 1 of the approved Workspace BETA refactor presents three persistent desktop areas:
 
 ```text
-Sources | Core Knowledge | Practice | AI Studio
+Sources & Materials | AI Studio - Workspace | AI-Assisted Tools
 ```
 
-The default desktop proportions are 25/28/25/22 and adjacent panels can be
-resized. The Sources, Core Knowledge and Practice headers fit their three
-rows without changing height as panel widths change. On narrow/mobile
-viewports below 760px the responsive shell changes to
-single-panel navigation: Sources, Knowledge, Practice and AI are activated one
-at a time instead of keeping a horizontally scrolling four-panel canvas.
+Sources retains Library and Structured Study. Structured Study exposes Manual
+Import (including the existing local Split PDF Tool) and an explicitly inactive
+AI-Assisted Structuring path. The central Workspace starts with four connection
+cards and replaces those cards with the selected existing mode or study tool;
+it does not clear stored data or Local ChatGPT session state when views change.
+The right-side tools grid selects Learning Goals, Key Points, Important Terms,
+Summary & Main Points, Flashcards, Review, Quiz or Progress for the central
+upper Workspace. Progress retains access to backup, restore and archive.
+When the Windows Local connection is available, a selected study/practice tool
+uses a visually separate lower conversation region; browser/PWA builds do not
+mount an in-app conversation surface. On narrow/mobile viewports below 760px,
+the responsive shell activates Sources, Workspace or Tools one at a time.
 
 The beta reuses existing StudyApp capabilities and local state, but it does not
 introduce a new IndexedDB schema, automatic source transfer between panels,
@@ -472,8 +478,8 @@ Assistant coverage includes:
 
 Workspace BETA browser coverage includes:
 
-- independent functional desktop panels and default 25/28/25/22 proportions;
-- three-row Sources, Core Knowledge and Practice headers retain the same height while resizing;
+- three-column Sources, Workspace and Tools presentation with an explicit tools hide/show control;
+- four AI connection cards, inactive future modes, and selected-mode Back to AI options behavior;
 - divider resizing and reset;
 - wheel scrolling and pointer/focus behavior;
 - compact Core Knowledge, Sources and AI presentation;

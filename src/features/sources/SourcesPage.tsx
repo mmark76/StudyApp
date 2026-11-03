@@ -33,8 +33,12 @@ export function SourcesPage() {
             "Add and manage books, articles, papers, notes, summaries and source files.",
             "Πρόσθεσε και διαχειρίσου βιβλία, άρθρα, εργασίες, σημειώσεις, περιλήψεις και αρχεία πηγών.",
           )}</p>
+          <p className="field-help">{text(
+            "Books · Articles · Papers · External Notes · My Notes · Summaries",
+            "Βιβλία · Άρθρα · Εργασίες · Εξωτερικές σημειώσεις · Οι σημειώσεις μου · Περιλήψεις",
+          )}</p>
           <Link className="button primary" to="/library">
-            {text("Library", "Βιβλιοθήκη")}
+            {text("Open Library", "Άνοιγμα Βιβλιοθήκης")}
           </Link>
         </article>
 
@@ -42,12 +46,14 @@ export function SourcesPage() {
           <p className="eyebrow">{text("Study structure", "Δομή μελέτης")}</p>
           <h3>{text("Structured Study", "Δομημένη Μελέτη")}</h3>
           <p>{text(
-            "Study material through chapters, sections, concepts and diagrams.",
-            "Μελέτησε το υλικό μέσα από κεφάλαια, ενότητες, έννοιες και διαγράμματα.",
+            "Organize material through contents, chapters, sections, concepts, references and diagrams.",
+            "Οργάνωσε υλικό με περιεχόμενα, κεφάλαια, ενότητες, έννοιες, αναφορές και διαγράμματα.",
           )}</p>
-          <Link className="button study" to="/study/theory">
-            {text("Structured Study", "Δομημένη Μελέτη")}
-          </Link>
+          <div className="button-row">
+            <Link className="button study" to="/study/theory">{text("Manual Import", "Χειροκίνητη εισαγωγή")}</Link>
+            <Link className="button secondary" to="/tools">{text("Split PDF Tool", "Εργαλείο χωρισμού PDF")}</Link>
+          </div>
+          <p className="field-help">{text("AI-Assisted Structuring — planned and unavailable.", "Δόμηση με υποστήριξη AI — προγραμματισμένη και μη διαθέσιμη.")}</p>
         </article>
       </section>
     </div>

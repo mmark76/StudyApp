@@ -1,20 +1,23 @@
 import { expect, test } from "@playwright/test";
-test("Sources and AI modes follow Practice row visual standard", async ({ page }) => {
-  await page.setViewportSize({width:1600,height:900});
+
+test("Sources, AI options and tools use the approved compact card treatment", async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/#/workspace-beta");
   const sources = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
-  const ai = page.frameLocator('iframe[name="studyapp-workspace-ai"]');
   const sourceRows = sources.locator(".dashboard-action-card");
-  const aiRows = ai.locator(".ai-studio-option");
+  const aiRows = page.locator(".workspace-beta-ai-option");
+  const toolRows = page.locator(".workspace-beta-tools-grid > button");
   await expect(sourceRows).toHaveCount(2);
   await expect(aiRows).toHaveCount(4);
-  for (const row of [sourceRows.first(), sourceRows.last(), aiRows.first(), aiRows.last()]) {
-    const shape = await row.evaluate(e => ({ radius:getComputedStyle(e).borderTopLeftRadius, border:getComputedStyle(e).borderBottomStyle, display:getComputedStyle(e).display }));
-    expect(shape.radius).toBe("0px");
+  await expect(toolRows).toHaveCount(8);
+  for (const row of [aiRows.first(), aiRows.last(), toolRows.first(), toolRows.last()]) {
+    const shape = await row.evaluate((element) => ({
+      border: getComputedStyle(element).borderBottomStyle,
+      display: getComputedStyle(element).display,
+      radius: getComputedStyle(element).borderTopLeftRadius,
+    }));
     expect(shape.border).toBe("solid");
     expect(shape.display).toBe("grid");
+    expect(parseFloat(shape.radius)).toBeGreaterThan(0);
   }
-  await expect(ai.getByRole("link", {name:"Open StudyApp AI Assistant"})).toBeVisible();
-  await expect(ai.getByRole("link", {name:"Sign in with ChatGPT"})).toBeVisible();
-  await expect(ai.getByRole("link", {name:"Open PDF RAG (BETA)"})).toHaveCount(0);
 });

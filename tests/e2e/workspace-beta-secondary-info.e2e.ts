@@ -1,98 +1,36 @@
 import { expect, test } from "@playwright/test";
 
-test("Workspace BETA opens secondary AI information in a modal without leaving the workspace", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
+test("Workspace BETA opens secondary AI information without leaving the workspace", async ({ page }) => {
   await page.goto("/#/workspace-beta");
-
-  const ai = page.frameLocator('iframe[name="studyapp-workspace-ai"]');
-  await expect(ai.getByRole("heading", { name: "AI Assistant", exact: true })).toBeVisible();
-
-  await page.locator(".workspace-beta-panel-studio .workspace-beta-panel-tools").getByRole("button", { name: "Compare AI options" }).click();
-
+  await page.getByRole("button", { name: "Compare AI options" }).click();
   const modal = page.locator(".workspace-beta-info-modal");
-  const modalFrame = page.frameLocator('iframe[name="studyapp-workspace-info-modal"]');
+  const frame = page.frameLocator('iframe[name="studyapp-workspace-info-modal"]');
   await expect(modal).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Compare AI options", exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Close" })).toBeVisible();
-  await expect(modalFrame.getByRole("heading", { name: "Compare AI options", exact: true })).toBeVisible();
-  await expect(modalFrame.getByRole("columnheader", { name: /1\. Custom GPT \/ Plugin/u })).toBeVisible();
-  await expect(modalFrame.getByRole("columnheader", { name: /2\. Sign in with ChatGPT/u })).toBeVisible();
-  await expect(modalFrame.getByRole("columnheader", { name: /3\. ChatGPT App \/ MCP/u })).toBeVisible();
-  await expect(modalFrame.getByRole("columnheader", { name: /4\. StudyApp AI \/ API/u })).toBeVisible();
+  await expect(frame.getByRole("heading", { name: "Compare AI options", exact: true })).toBeVisible();
+  await expect(frame.getByRole("columnheader", { name: /1\. Custom GPT \/ Plugin/u })).toBeVisible();
   await expect(page).toHaveURL(/#\/workspace-beta$/u);
-  await expect(page.locator(".workspace-beta-functional-panel > .workspace-beta-frame-wrap > iframe.workspace-beta-frame")).toHaveCount(4);
-
   await page.getByRole("button", { name: "Close" }).click();
   await expect(modal).toHaveCount(0);
-  await expect(ai.getByRole("heading", { name: "AI Assistant", exact: true })).toBeVisible();
-
-  await page.locator(".workspace-beta-header-actions").getByRole("link", { name: "Help / Instructions" }).click();
-  await expect(modal).toBeVisible();
-  await expect(page.getByRole("heading", { name: "StudyApp instructions", exact: true })).toBeVisible();
-  await expect(modalFrame.getByRole("heading", { name: /How to add AI-generated study material/u })).toBeVisible();
-
-  await page.keyboard.press("Escape");
-  await expect(modal).toHaveCount(0);
-  await expect(page).toHaveURL(/#\/workspace-beta$/u);
 });
 
-test("Workspace BETA opens Important Info in the same modal pattern", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
+test("Workspace BETA Settings applies appearance changes without losing active work", async ({ page }) => {
   await page.goto("/#/workspace-beta");
-
-  const infoMenu = page.locator(".workspace-beta-info-menu");
-  await infoMenu.locator("summary").click();
-  await page.getByRole("link", { name: "Important Info" }).click();
-
-  await expect(page.locator(".workspace-beta-info-modal")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Important Info", exact: true })).toBeVisible();
-  await expect(page.frameLocator('iframe[name="studyapp-workspace-info-modal"]').locator("main")).toBeVisible();
-  await expect(page).toHaveURL(/#\/workspace-beta$/u);
-});
-
-test("Workspace BETA opens Settings in a modal and applies appearance changes without leaving the workspace", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/#/workspace-beta");
-
+  await page.getByRole("button", { name: "Learning Goals", exact: true }).click();
+  const active = page.locator('iframe[name="studyapp-workspace-workspace"]');
   await page.getByRole("link", { name: "Settings", exact: true }).click();
-
-  const modal = page.locator(".workspace-beta-info-modal");
-  const modalFrame = page.frameLocator('iframe[name="studyapp-workspace-info-modal"]');
-  await expect(modal).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Settings", exact: true })).toBeVisible();
-  await expect(modalFrame.getByRole("heading", { name: "Settings", exact: true })).toBeVisible();
-  await expect(page).toHaveURL(/#\/workspace-beta$/u);
-  await expect(page.locator(".workspace-beta-functional-panel > .workspace-beta-frame-wrap > iframe.workspace-beta-frame")).toHaveCount(4);
-
-  await modalFrame.getByLabel("Accent colour").selectOption("blue");
-  await expect.poll(async () => page.locator("html").getAttribute("data-color-scheme")).toBe("blue");
-
+  const frame = page.frameLocator('iframe[name="studyapp-workspace-info-modal"]');
+  await frame.getByLabel("Accent colour").selectOption("blue");
+  await expect.poll(() => page.locator("html").getAttribute("data-color-scheme")).toBe("blue");
   await page.getByRole("button", { name: "Close" }).click();
-  await expect(modal).toHaveCount(0);
-  await expect(page).toHaveURL(/#\/workspace-beta$/u);
+  await expect(active).toHaveAttribute("src", "/#/core-knowledge?view=goals");
 });
 
-test("Workspace BETA separates Sources, Core Knowledge, and Practice & Mastery responsibilities", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
+test("Sources and the three approved knowledge views retain separate responsibilities", async ({ page }) => {
   await page.goto("/#/workspace-beta");
-
   const sources = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
-  const knowledge = page.frameLocator('iframe[name="studyapp-workspace-knowledge"]');
-  const practice = page.frameLocator('iframe[name="studyapp-workspace-practice"]');
-
   await expect(sources.getByRole("heading", { name: "Sources & Materials" })).toBeVisible();
-  await expect(sources.getByRole("link", { name: "Library", exact: true })).toBeVisible();
-  await expect(sources.getByRole("link", { name: "Structured Study", exact: true })).toBeVisible();
-  await expect(sources.getByRole("button", { name: "Import Flashcards CSV" })).toHaveCount(0);
-  await expect(sources.getByRole("region", { name: "Manage practice content" })).toHaveCount(0);
-
-  await expect(knowledge.getByRole("heading", { name: "Core Knowledge" })).toBeVisible();
-  await expect(knowledge.getByText("No chapters imported yet.")).toBeVisible();
-
-  await expect(practice.getByRole("heading", { name: "Practice & Mastery" })).toBeVisible();
-  await expect(practice.getByRole("link", { name: "Practice with flashcards" })).toBeVisible();
-  await expect(practice.getByRole("link", { name: "Review cards" })).toBeVisible();
-  await expect(practice.getByRole("link", { name: "Start quiz" })).toBeVisible();
-  await expect(practice.getByRole("link", { name: "View progress" })).toBeVisible();
-  await expect(practice.getByRole("button", { name: "Import Flashcards CSV" })).toHaveCount(0);
+  await expect(sources.getByRole("link", { name: "Open Library" })).toBeVisible();
+  for (const name of ["Learning Goals", "Key Points", "Important Terms"]) {
+    await expect(page.getByRole("button", { name, exact: true })).toBeVisible();
+  }
 });

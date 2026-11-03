@@ -15,6 +15,7 @@ import { useAppearanceSettings } from "../appearance/useAppearanceSettings";
 import { WorkspaceThemeToggle } from "./WorkspaceThemeToggle";
 import { StudyAppLocalWindowsZipLink } from "../../shared/components/StudyAppReleaseZipLinks";
 import { WorkspaceMaterialManager } from "./WorkspaceMaterialManager";
+import type { MaterialPanel } from "./workspaceMaterialService";
 import { WorkspaceLocalChat } from "./WorkspaceLocalChat";
 import {
   getChatGptPlanConnection,
@@ -30,6 +31,7 @@ type WorkspacePanelId = "sources" | "knowledge" | "practice" | "ai";
 type WorkspaceDivider = 0 | 1 | 2;
 type PanelWidths = [number, number, number, number];
 type WorkspaceInfoRoute = "/appearance" | "/ai-assistant-comparison" | "/instructions" | "/important-info" | "/local-installation-guide";
+type WorkspaceView = "ai-options" | "assistant" | "local" | "learning-goals" | "key-points" | "important-terms" | "summary" | "flashcards" | "review" | "quiz" | "progress";
 
 interface ResizeDragState {
   divider: WorkspaceDivider;
@@ -44,6 +46,22 @@ const panelRoutes: Record<WorkspacePanelId, string> = {
   practice: "/#/learn",
   ai: "/#/ai-assistant-guide",
 };
+
+const workspaceTools: ReadonlyArray<{
+  id: Exclude<WorkspaceView, "ai-options" | "assistant" | "local">;
+  english: string;
+  greek: string;
+  route: string;
+}> = [
+  { id: "learning-goals", english: "Learning Goals", greek: "Στόχοι μάθησης", route: "/#/core-knowledge?view=goals" },
+  { id: "key-points", english: "Key Points", greek: "Βασικά σημεία", route: "/#/core-knowledge?view=key-points" },
+  { id: "important-terms", english: "Important Terms", greek: "Σημαντικοί όροι", route: "/#/core-knowledge?view=terms" },
+  { id: "summary", english: "Summary & Main Points", greek: "Περίληψη & βασικά σημεία", route: "/#/summary" },
+  { id: "flashcards", english: "Flashcards", greek: "Κάρτες", route: "/#/flashcards" },
+  { id: "review", english: "Review", greek: "Επανάληψη", route: "/#/review" },
+  { id: "quiz", english: "Quiz", greek: "Κουίζ", route: "/#/quiz" },
+  { id: "progress", english: "Progress", greek: "Πρόοδος", route: "/#/progress" },
+];
 
 
 const workspaceInfoRoutes = new Set<WorkspaceInfoRoute>([
@@ -132,6 +150,7 @@ export function WorkspaceBetaPage() {
   const [localAwaitingApproval, setLocalAwaitingApproval] = useState(false);
   const [localSetupRequired, setLocalSetupRequired] = useState(false);
   const [localAiOptionsVisible, setLocalAiOptionsVisible] = useState(false);
+  const [workspaceView, setWorkspaceView] = useState<WorkspaceView>("ai-options");
   const [frameVersions, setFrameVersions] = useState<Record<WorkspacePanelId, number>>({
     sources: 0,
     knowledge: 0,
@@ -140,9 +159,10 @@ export function WorkspaceBetaPage() {
   });
   const [panelWeights, setPanelWeights] = useState<PanelWidths | null>(null);
   const [collapsedPanels, setCollapsedPanels] = useState<WorkspacePanelId[]>([]);
+  const [toolsHidden, setToolsHidden] = useState(false);
   const [activeDivider, setActiveDivider] = useState<WorkspaceDivider | null>(null);
   const [infoModalRoute, setInfoModalRoute] = useState<WorkspaceInfoRoute | null>(null);
-  const [materialPanel, setMaterialPanel] = useState<WorkspacePanelId | null>(null);
+  const [materialPanel, setMaterialPanel] = useState<MaterialPanel | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const resizeDragRef = useRef<ResizeDragState | null>(null);
   const modalReturnFocusRef = useRef<HTMLElement | null>(null);
@@ -188,7 +208,7 @@ export function WorkspaceBetaPage() {
     try {
       if (chatGptPlanConnection.connected) {
         setChatGptPlanConnection(await removeChatGptPlanConnection());
-        setLocalAiOptionsVisible(false);
+        setWorkspaceView("ai-options");
         setLocalAwaitingApproval(false);
       } else {
         setChatGptPlanConnection(await startChatGptPlanConnection());
@@ -604,7 +624,122 @@ export function WorkspaceBetaPage() {
     />
   );
 
-  return (
+  function renderPhaseOne() {
+    const selectedTool = workspaceTools.find((tool) => tool.id === workspaceView) ?? null;
+    const isSelectedMode = workspaceView !== "ai-options";
+    const showToolConversation = localChatReady && selectedTool !== null;
+
+    return (
+      <div
+        className={`workspace-beta-shell workspace-beta-functional-shell workspace-beta-phase-one${toolsHidden ? " is-tools-hidden" : ""}`}
+        ref={shellRef}
+      >
+        <a
+          className="skip-link workspace-beta-skip"
+          href="#workspace-beta-main"
+          onClick={(event) => {
+            event.preventDefault();
+            mainRef.current?.focus();
+            mainRef.current?.scrollIntoView({ block: "start" });
+          }}
+          ref={skipLinkRef}
+        >
+          {text("Skip to workspace", "Μετάβαση στον χώρο εργασίας")}
+        </a>
+        <header className="workspace-beta-header" ref={headerRef}>
+          <div className="workspace-beta-header-left">
+            <div className="workspace-beta-brand">
+              <strong>{studyConfig.appName}</strong>
+              <span className="workspace-beta-badge">BETA</span>
+              <span className="workspace-beta-title">{text("Workspace", "Χώρος εργασίας")}</span>
+              <StudyAppLocalWindowsZipLink className="workspace-beta-local-download" compact />
+              <Link className="workspace-beta-installation-guide-link" onClick={(event) => {
+                event.preventDefault();
+                openInfoModal("/local-installation-guide", event.currentTarget);
+              }} to="/local-installation-guide">{text("Installation Guide", "Οδηγός εγκατάστασης")}</Link>
+            </div>
+          </div>
+          <div className="workspace-beta-header-actions">
+            <LanguageSwitcher />
+            <a className="workspace-beta-ecosystem-link" href="https://markellosecosystem.com/" rel="noopener noreferrer" target="_blank">{text("Back to markellosecosystem", "Πίσω στο markellosecosystem")}</a>
+            <Link onClick={(event) => { event.preventDefault(); openInfoModal("/instructions", event.currentTarget); }} to="/instructions">{text("Help / Instructions", "Βοήθεια / Οδηγίες")}</Link>
+            <WorkspaceThemeToggle />
+            <Link onClick={(event) => { event.preventDefault(); openInfoModal("/appearance", event.currentTarget); }} to="/appearance">{text("Settings", "Ρυθμίσεις")}</Link>
+            <details className="workspace-beta-info-menu">
+              <summary>{text("Info", "Πληροφορίες")}</summary>
+              <div className="workspace-beta-info-popover">
+                <nav aria-label={text("Workspace information", "Πληροφορίες χώρου εργασίας")}>
+                  <Link onClick={(event) => { event.preventDefault(); openInfoModal("/important-info", event.currentTarget); }} to="/important-info">{text("Important Info", "Σημαντικές πληροφορίες")}</Link>
+                  <a href="mailto:markellos.markides@gmail.com?subject=StudyApp%20Feedback">{text("Feedback", "Σχόλια")}</a>
+                  <span className="workspace-beta-info-separator" aria-hidden="true" />
+                  <Link rel="noopener noreferrer" target="_blank" to="/legal/license">{text("License", "Άδεια")}</Link>
+                  <Link rel="noopener noreferrer" target="_blank" to="/legal/privacy">{text("Privacy", "Απόρρητο")}</Link>
+                  <Link rel="noopener noreferrer" target="_blank" to="/legal/analytics">{text("Analytics information", "Πληροφορίες analytics")}</Link>
+                  <Link rel="noopener noreferrer" target="_blank" to="/legal/copyright">{text("Copyright protected", "Πνευματικά δικαιώματα")}</Link>
+                </nav>
+              </div>
+            </details>
+          </div>
+        </header>
+        <main className="workspace-beta-main" id="workspace-beta-main" ref={mainRef} tabIndex={-1}>
+          <div aria-label={text("Workspace panels", "Πάνελ χώρου εργασίας")} className="workspace-beta-phase-one-grid">
+            <section className="workspace-beta-panel workspace-beta-phase-sources" aria-labelledby="workspace-sources-title">
+              <div className="workspace-beta-panel-header workspace-beta-functional-panel-header">
+                <div><p className="workspace-beta-panel-kicker">01</p><h2 id="workspace-sources-title">{text("Sources & Materials", "Πηγές & Υλικό")}</h2></div>
+                <button className="workspace-beta-back-action" onClick={() => resetPanel("sources")} type="button">{text("Back to Sources & Materials home", "Πίσω στην αρχική Πηγών & Υλικού")}</button>
+              </div>
+              <div className="workspace-beta-frame-wrap"><iframe key={`sources-${frameVersions.sources}`} className="workspace-beta-frame" name="studyapp-workspace-sources" onLoad={(event) => wirePanelInfoLinks(event.currentTarget)} src={panelRoutes.sources} title={text("Functional Sources & Materials panel", "Λειτουργικό πάνελ Πηγών & Υλικού")} /></div>
+            </section>
+            <section className={`workspace-beta-panel workspace-beta-phase-workspace workspace-beta-view-${workspaceView}`} aria-labelledby="workspace-studio-title">
+              <div className="workspace-beta-panel-header workspace-beta-functional-panel-header">
+                <div><p className="workspace-beta-panel-kicker">02</p><h2 id="workspace-studio-title">{text("AI Studio - Workspace", "AI Studio - Χώρος εργασίας")}</h2></div>
+                <div className="workspace-beta-panel-tools">
+                  <button onClick={(event) => openInfoModal("/ai-assistant-comparison", event.currentTarget)} type="button">{text("Compare AI options", "Σύγκριση επιλογών AI")}</button>
+                  {isSelectedMode ? <button className="workspace-beta-back-action" onClick={() => setWorkspaceView("ai-options")} type="button">{text("Back to AI options", "Πίσω στις επιλογές AI")}</button> : null}
+                </div>
+              </div>
+              {workspaceView === "ai-options" ? (
+                <div className="workspace-beta-ai-options" aria-label={text("AI connection options", "Επιλογές σύνδεσης AI")}>
+                  <button className="workspace-beta-ai-option" onClick={() => setWorkspaceView("assistant")} type="button"><strong>StudyApp AI Assistant</strong><span>{text("Available", "Διαθέσιμο")}</span></button>
+                  <button className="workspace-beta-ai-option" disabled={!localEdition} onClick={() => setWorkspaceView("local")} type="button"><strong>{text("Sign in with ChatGPT", "Σύνδεση με ChatGPT")}</strong><span>{localEdition ? text("Available", "Διαθέσιμο") : text("Windows Local only", "Μόνο Windows Local")}</span></button>
+                  <button className="workspace-beta-ai-option" disabled type="button"><strong>ChatGPT App / MCP</strong><span>{text("Coming soon", "Σύντομα")}</span></button>
+                  <button className="workspace-beta-ai-option" disabled type="button"><strong>StudyApp AI / API</strong><span>{text("Coming soon", "Σύντομα")}</span></button>
+                </div>
+              ) : workspaceView === "local" ? (
+                <div className="workspace-beta-local-mode">
+                  <div className="workspace-local-connection-controls">
+                    <span role="status">{localChatReady ? text("ChatGPT connected", "Το ChatGPT συνδέθηκε") : chatGptPlanConnection.connected ? text("Plan approval needed", "Χρειάζεται έγκριση πλάνου") : localAwaitingApproval ? text("Finish approval in your browser", "Ολοκλήρωσε την έγκριση στον browser") : text("ChatGPT disconnected", "Το ChatGPT αποσυνδέθηκε")}</span>
+                    {localSetupRequired ? <button disabled={localConnectionBusy} onClick={() => void prepareLocalConnection()} type="button">{text("Prepare connection", "Προετοιμασία σύνδεσης")}</button> : null}
+                    <button disabled={localConnectionBusy} onClick={() => void changeLocalConnection()} type="button">{chatGptPlanConnection.connected ? text("Disconnect", "Αποσύνδεση") : text("Connect", "Σύνδεση")}</button>
+                    {localConnectionError ? <p role="alert">{localConnectionError}</p> : null}
+                  </div>
+                  {!localChatReady ? <p className="workspace-beta-agent-unavailable">{text("Connect in StudyApp Local to use this conversation area.", "Συνδέσου στο StudyApp Local για να χρησιμοποιήσεις αυτή την περιοχή συνομιλίας.")}</p> : null}
+                </div>
+              ) : (
+                <div className={`workspace-beta-workspace-layout${showToolConversation ? " has-agent" : ""}`}>
+                  <div className="workspace-beta-workspace-upper"><div className="workspace-beta-frame-wrap"><iframe key={`workspace-${workspaceView}-${frameVersions.ai}`} className="workspace-beta-frame" name="studyapp-workspace-workspace" onLoad={(event) => wirePanelInfoLinks(event.currentTarget)} src={workspaceView === "assistant" ? "/#/ai-assistant-guide" : selectedTool?.route ?? "/#/ai-assistant-guide"} title={selectedTool ? text(`${selectedTool.english} workspace`, `${selectedTool.greek} χώρος εργασίας`) : text("StudyApp AI Assistant", "Βοηθός AI του StudyApp")} /></div></div>
+                </div>
+              )}
+              {localChatReady ? <div className="workspace-beta-persistent-agent"><WorkspaceLocalChat key={chatGptPlanConnection.connectionId ?? "existing-connection"} /></div> : null}
+            </section>
+            <section className="workspace-beta-panel workspace-beta-phase-tools" aria-labelledby="workspace-tools-title">
+              <div className="workspace-beta-panel-header workspace-beta-functional-panel-header">
+                <div><p className="workspace-beta-panel-kicker">03</p><h2 id="workspace-tools-title">{text("AI-Assisted Tools", "Εργαλεία με υποστήριξη AI")}</h2></div>
+                <button aria-expanded={!toolsHidden} className="workspace-beta-column-toggle" onClick={() => setToolsHidden((hidden) => !hidden)} type="button">{text(toolsHidden ? "Show tools" : "Hide tools", toolsHidden ? "Εμφάνιση εργαλείων" : "Απόκρυψη εργαλείων")}</button>
+              </div>
+              <div className="workspace-beta-tools-grid">
+                {workspaceTools.map((tool) => <button className={workspaceView === tool.id ? "is-selected" : undefined} key={tool.id} onClick={() => setWorkspaceView(tool.id)} type="button"><span>{text(tool.english, tool.greek)}</span>{tool.id === "progress" ? <small>{text("Backup, Restore & Archive", "Αντίγραφο, επαναφορά & αρχείο")}</small> : null}</button>)}
+              </div>
+            </section>
+          </div>
+        </main>
+        <footer className="workspace-beta-global-footer" aria-label={text("Workspace footer", "Υποσέλιδο χώρου εργασίας")}><span>© 2026 Markellos Markides. {text("All rights reserved.", "Με επιφύλαξη παντός δικαιώματος.")}</span><span>{text("Your data stays under your control.", "Τα δεδομένα σου παραμένουν υπό τον έλεγχό σου.")}</span><span className="workspace-beta-footer-version">StudyApp BETA · {__APP_BUILD_ID__}</span></footer>
+        {infoModalRoute ? <div className="workspace-beta-info-modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeInfoModal(); }}><section aria-labelledby="workspace-beta-info-modal-title" aria-modal="true" className="workspace-beta-info-modal" onKeyDown={trapParentModalFocus} ref={modalRef} role="dialog"><header className="workspace-beta-info-modal-header"><div><p>{infoModalKicker}</p><h2 id="workspace-beta-info-modal-title">{infoModalTitle}</h2></div><button aria-label={text("Close", "Κλείσιμο")} onClick={() => closeInfoModal()} ref={modalCloseButtonRef} type="button">{text("Close", "Κλείσιμο")}</button></header><iframe className="workspace-beta-info-modal-frame" name="studyapp-workspace-info-modal" onLoad={(event) => wireModalFrame(event.currentTarget)} ref={modalFrameRef} src={`/#${infoModalRoute}`} title={infoModalTitle} /></section></div> : null}
+      </div>
+    );
+  }
+
+  return (<>{renderPhaseOne()}{false ? (
     <div
       className={`workspace-beta-shell workspace-beta-functional-shell${activeDivider !== null ? " is-resizing" : ""}`}
       ref={shellRef}
@@ -930,7 +1065,7 @@ export function WorkspaceBetaPage() {
         <span className="workspace-beta-footer-version">StudyApp BETA · {__APP_BUILD_ID__}</span>
       </footer>
 
-      {materialPanel ? <WorkspaceMaterialManager panel={materialPanel} onClose={() => setMaterialPanel(null)} /> : null}
+      {materialPanel !== null ? <WorkspaceMaterialManager panel={materialPanel as MaterialPanel} onClose={() => setMaterialPanel(null)} /> : null}
       {infoModalRoute ? (
         <div
           className="workspace-beta-info-modal-backdrop"
@@ -972,5 +1107,5 @@ export function WorkspaceBetaPage() {
         </div>
       ) : null}
     </div>
-  );
+  ) : null}</>);
 }

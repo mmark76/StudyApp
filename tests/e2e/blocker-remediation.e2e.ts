@@ -218,9 +218,8 @@ test("WB-02 leaves focus stable on load and hover while retaining explicit frame
 
   for (let attempt = 0; attempt < 3; attempt += 1) {
     await page.goto("/#/workspace-beta");
-    await expect(page.locator("iframe.workspace-beta-frame")).toHaveCount(4);
-    await expect(page.frameLocator('iframe[name="studyapp-workspace-ai"]')
-      .getByRole("heading", { name: "AI Assistant", exact: true })).toBeVisible();
+    await expect(page.locator("iframe.workspace-beta-frame")).toHaveCount(1);
+    await expect(page.locator(".workspace-beta-ai-options")).toBeVisible();
     await expect.poll(() => page.evaluate(() => (
       document.activeElement instanceof HTMLIFrameElement
     ))).toBe(false);
@@ -228,7 +227,7 @@ test("WB-02 leaves focus stable on load and hover while retaining explicit frame
 
   const settings = page.getByRole("link", { name: "Settings", exact: true });
   const frames = page.locator("iframe.workspace-beta-frame");
-  for (let index = 0; index < 4; index += 1) {
+  for (let index = 0; index < await frames.count(); index += 1) {
     await settings.focus();
     await expect(settings).toBeFocused();
     await frames.nth(index).hover();

@@ -30,7 +30,9 @@ test("RAG approval controls stay keyboard reachable at 100% zoom with six passag
     expect(await page.evaluate(() => window.visualViewport?.scale ?? 1)).toBe(1);
     expect(await page.evaluate(() => window.devicePixelRatio)).toBe(1);
 
-    const studio = page.locator(".workspace-beta-panel-studio");
+    const studio = page.locator(".workspace-beta-phase-workspace");
+    const localMode = page.getByRole("button", { name: /Sign in with ChatGPT/u });
+    if (await localMode.count() > 0) await localMode.click();
     await expect(studio.getByRole("textbox", { name: "Message ChatGPT" })).toBeVisible();
     const content = Array.from({ length: 12 }, (_, index) =>
       `Passage ${index + 1} describes attention and study strategies. ${"Attention helps learners focus on the relevant study material. ".repeat(48)}`,

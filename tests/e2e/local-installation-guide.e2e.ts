@@ -14,7 +14,7 @@ test("Workspace BETA opens the bilingual StudyApp Local installation guide", asy
   await expect(guide.getByText("Only your question and the excerpts you approve are sent to ChatGPT; the original files stay on your device.")).toBeVisible();
 
   await dialog.getByRole("button", { name: "Close" }).click();
-  await page.getByRole("button", { name: "GR" }).click();
+  await page.getByRole("button", { name: "GR", exact: true }).click();
   await page.getByRole("link", { name: "Οδηγός εγκατάστασης", exact: true }).click();
   const greekDialog = page.getByRole("dialog", { name: "Οδηγός εγκατάστασης" });
   const greekGuide = page.frameLocator("iframe.workspace-beta-info-modal-frame");

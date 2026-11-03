@@ -11,6 +11,11 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
+async function openLocalMode(page: import("@playwright/test").Page) {
+  await page.getByRole("button", { name: /Sign in with ChatGPT/u }).click();
+  return page.locator(".workspace-beta-phase-workspace");
+}
+
 test("Local AI Studio connects and disconnects without leaving the workspace", async ({ page }) => {
   let connected = false;
   await page.route("**/api/chatgpt-plan/connection", async (route) => {
@@ -29,18 +34,18 @@ test("Local AI Studio connects and disconnects without leaving the workspace", a
   });
 
   await page.goto("/#/workspace-beta");
-  const studio = page.locator(".workspace-beta-panel-studio");
+  const studio = await openLocalMode(page);
   await expect(studio.getByRole("button", { name: "Connect", exact: true })).toBeVisible();
 
   await studio.getByRole("button", { name: "Connect", exact: true }).click();
   await expect(studio.getByRole("button", { name: "Disconnect", exact: true })).toBeVisible();
   await expect(studio.getByRole("textbox", { name: "Message ChatGPT" })).toBeVisible();
-  await expect(studio.locator("iframe[name=studyapp-workspace-ai]")).toHaveCount(0);
+  await expect(studio.locator("iframe[name=studyapp-workspace-workspace]")).toHaveCount(0);
 
   await studio.getByRole("button", { name: "Disconnect", exact: true }).click();
-  await expect(studio.getByRole("button", { name: "Connect", exact: true })).toBeVisible();
+  await expect(studio.getByRole("button", { name: /Sign in with ChatGPT/u })).toBeVisible();
   await expect(studio.getByRole("textbox", { name: "Message ChatGPT" })).toHaveCount(0);
-  await expect(studio.locator("iframe[name=studyapp-workspace-ai]")).toBeVisible();
+  await expect(studio.locator(".workspace-beta-ai-options")).toBeVisible();
 });
 
 test("Connected chat attaches a text study file and sends excerpts only after approval", async ({ page }) => {
@@ -61,7 +66,7 @@ test("Connected chat attaches a text study file and sends excerpts only after ap
   });
 
   await page.goto("/#/workspace-beta");
-  const studio = page.locator(".workspace-beta-panel-studio");
+  const studio = await openLocalMode(page);
   const attach = studio.getByRole("button", { name: "Attach study files" });
   await expect(attach).toBeVisible();
   await studio.locator('.workspace-local-chat-upload input[type="file"]').setInputFiles({
@@ -94,7 +99,8 @@ test("Connected chat sends a text-only question with the same Send button", asyn
   });
 
   await page.goto("/#/workspace-beta");
-  const studio = page.locator(".workspace-beta-panel-studio");
+  const studio = page.locator(".workspace-beta-phase-workspace");
+  await page.getByRole("button", { name: /Sign in with ChatGPT/u }).click();
   await studio.getByRole("textbox", { name: "Message ChatGPT" }).fill("Explain selective attention");
   await studio.getByRole("button", { name: "Send", exact: true }).click();
   await expect(studio.getByText("Attention is selective.")).toBeVisible();
@@ -121,7 +127,8 @@ test("Connected chat selects a discovered model and refreshes after an account c
   });
 
   await page.goto("/#/workspace-beta");
-  const studio = page.locator(".workspace-beta-panel-studio");
+  const studio = page.locator(".workspace-beta-phase-workspace");
+  await page.getByRole("button", { name: /Sign in with ChatGPT/u }).click();
   const selector = studio.getByRole("combobox", { name: "Model" });
   await expect(selector).toBeEnabled();
   await expect(selector.locator("option")).toHaveText(["Model A", "Model B"]);
@@ -152,7 +159,8 @@ test("Unavailable model keeps the draft and reloads the account catalog", async 
   });
 
   await page.goto("/#/workspace-beta");
-  const studio = page.locator(".workspace-beta-panel-studio");
+  const studio = page.locator(".workspace-beta-phase-workspace");
+  await page.getByRole("button", { name: /Sign in with ChatGPT/u }).click();
   const question = studio.getByRole("textbox", { name: "Message ChatGPT" });
   await expect(studio.getByRole("combobox", { name: "Model" })).toHaveValue("model-a");
   await question.fill("Keep this question");

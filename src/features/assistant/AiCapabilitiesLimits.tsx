@@ -23,7 +23,7 @@ export function AiCapabilitiesLimits({ mode, job = null, progress = null }: {
   const { text } = useLanguage();
   const report = coverageReport(job, progress);
   const summary = mode === "summary";
-  return <section aria-label={text("AI capabilities and limits", "Δυνατότητες και όρια AI")}>
+  return <section aria-label={text("AI capabilities and limits", "Δυνατότητες και όρια AI")} className="ai-capabilities-limits">
     <details>
       <summary>{text("AI capabilities & limits", "Δυνατότητες & όρια AI")}</summary>
       <p>{summary

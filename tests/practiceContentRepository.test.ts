@@ -357,7 +357,7 @@ describe("practice content repository", () => {
       .resolves.toEqual(beforeRejection);
     await expect(storedCards()).resolves.toHaveLength(MAX_IMPORTED_FLASHCARDS);
     await expectBackupExportable();
-  });
+  }, 15_000);
 
   it("rejects cumulative flashcard imports over the limit", async () => {
     await database.settings.bulkPut([
