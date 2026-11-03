@@ -55,8 +55,10 @@ test("Workspace BETA Phase 1 keeps three columns, existing modes and routed tool
 
   await page.getByRole("button", { name: "Back to AI options" }).click();
   await expect(page.locator(".workspace-beta-ai-option")).toHaveCount(4);
-  await page.getByRole("button", { name: "Hide tools" }).click();
-  await expect(page.getByRole("button", { name: "Show tools" })).toBeVisible();
+  await expect(page.locator(".workspace-beta-tools-avatar img")).toBeVisible();
+  await expect(page.locator(".workspace-beta-agent-bar")).toContainText("Not available");
+  await page.getByRole("button", { name: "Hide AI Agent panel" }).click();
+  await expect(page.getByRole("button", { name: "Show AI Agent panel" })).toBeVisible();
 });
 
 test("Workspace BETA Phase 1 switches the three approved mobile panels", async ({ page }) => {

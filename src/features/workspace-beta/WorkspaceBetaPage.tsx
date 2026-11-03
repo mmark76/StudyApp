@@ -30,7 +30,11 @@ import {
 type WorkspacePanelId = "sources" | "knowledge" | "practice" | "ai";
 type WorkspaceDivider = 0 | 1 | 2;
 type PanelWidths = [number, number, number, number];
+type PhaseOneDivider = 0 | 1;
+type PhaseOnePanelWidths = [number, number, number];
 type WorkspaceInfoRoute = "/appearance" | "/ai-assistant-comparison" | "/instructions" | "/important-info" | "/local-installation-guide";
+type WorkspaceSourcePopupRoute = "/library" | "/study/theory" | "/tools";
+type WorkspaceModalRoute = WorkspaceInfoRoute | WorkspaceSourcePopupRoute;
 type WorkspaceView = "ai-options" | "assistant" | "local" | "learning-goals" | "key-points" | "important-terms" | "summary" | "flashcards" | "review" | "quiz" | "progress";
 
 interface ResizeDragState {
@@ -38,6 +42,19 @@ interface ResizeDragState {
   pointerId: number;
   startX: number;
   startWidths: PanelWidths;
+}
+
+interface PhaseOneResizeDragState {
+  divider: PhaseOneDivider;
+  pointerId: number;
+  startX: number;
+  startWidths: PhaseOnePanelWidths;
+}
+
+interface AgentResizeDragState {
+  pointerId: number;
+  startY: number;
+  startHeights: [number, number];
 }
 
 const panelRoutes: Record<WorkspacePanelId, string> = {
@@ -71,8 +88,17 @@ const workspaceInfoRoutes = new Set<WorkspaceInfoRoute>([
   "/important-info",
   "/local-installation-guide",
 ]);
+const workspaceSourcePopupRoutes = new Set<WorkspaceSourcePopupRoute>([
+  "/library",
+  "/study/theory",
+  "/tools",
+]);
 const defaultPanelWeights: PanelWidths = [25, 28, 25, 22];
 const minimumPanelWidths: PanelWidths = [260, 240, 340, 280];
+const phaseOneMinimumPanelWidths: PhaseOnePanelWidths = [180, 260, 180];
+const defaultPhaseOnePanelWeights: PhaseOnePanelWidths = [1, 2, 1];
+const agentMinimumPanelHeights: [number, number] = [160, 44];
+const defaultAgentPanelWeights: [number, number] = [75, 25];
 const keyboardResizeStep = 32;
 const disconnectedChatGptPlan: ChatGptPlanConnectionStatus = {
   connected: false,
@@ -138,6 +164,39 @@ function resizeAdjacentPanels(
   return next;
 }
 
+function resizePhaseOneAdjacentPanels(
+  divider: PhaseOneDivider,
+  widths: PhaseOnePanelWidths,
+  delta: number,
+): PhaseOnePanelWidths {
+  const next: PhaseOnePanelWidths = [...widths];
+  const firstIndex = divider;
+  const secondIndex = divider + 1;
+  const combinedWidth = widths[firstIndex] + widths[secondIndex];
+  const firstWidth = clamp(
+    widths[firstIndex] + delta,
+    phaseOneMinimumPanelWidths[firstIndex],
+    combinedWidth - phaseOneMinimumPanelWidths[secondIndex],
+  );
+
+  next[firstIndex] = firstWidth;
+  next[secondIndex] = combinedWidth - firstWidth;
+  return next;
+}
+
+function resizeAgentPanels(
+  heights: [number, number],
+  delta: number,
+): [number, number] {
+  const combinedHeight = heights[0] + heights[1];
+  const upperHeight = clamp(
+    heights[0] + delta,
+    agentMinimumPanelHeights[0],
+    combinedHeight - agentMinimumPanelHeights[1],
+  );
+  return [upperHeight, combinedHeight - upperHeight];
+}
+
 export function WorkspaceBetaPage() {
   useAppearanceSettings();
   const { text } = useLanguage();
@@ -159,12 +218,20 @@ export function WorkspaceBetaPage() {
   });
   const [panelWeights, setPanelWeights] = useState<PanelWidths | null>(null);
   const [collapsedPanels, setCollapsedPanels] = useState<WorkspacePanelId[]>([]);
-  const [toolsHidden, setToolsHidden] = useState(false);
+  const [agentPanelExpanded, setAgentPanelExpanded] = useState(true);
+  const [phaseOnePanelWeights, setPhaseOnePanelWeights] = useState<PhaseOnePanelWidths | null>(null);
+  const [agentPanelWeights, setAgentPanelWeights] = useState<[number, number] | null>(null);
+  const [activePhaseOneDivider, setActivePhaseOneDivider] = useState<PhaseOneDivider | null>(null);
+  const [agentDividerActive, setAgentDividerActive] = useState(false);
   const [activeDivider, setActiveDivider] = useState<WorkspaceDivider | null>(null);
-  const [infoModalRoute, setInfoModalRoute] = useState<WorkspaceInfoRoute | null>(null);
+  const [infoModalRoute, setInfoModalRoute] = useState<WorkspaceModalRoute | null>(null);
   const [materialPanel, setMaterialPanel] = useState<MaterialPanel | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const resizeDragRef = useRef<ResizeDragState | null>(null);
+  const phaseOneGridRef = useRef<HTMLDivElement>(null);
+  const phaseOneResizeDragRef = useRef<PhaseOneResizeDragState | null>(null);
+  const agentSplitRef = useRef<HTMLDivElement>(null);
+  const agentResizeDragRef = useRef<AgentResizeDragState | null>(null);
   const modalReturnFocusRef = useRef<HTMLElement | null>(null);
   const modalCloseButtonRef = useRef<HTMLButtonElement>(null);
   const modalFrameRef = useRef<HTMLIFrameElement>(null);
@@ -322,7 +389,7 @@ export function WorkspaceBetaPage() {
     }));
   }
 
-  function openInfoModal(route: WorkspaceInfoRoute, returnFocusTarget?: HTMLElement) {
+  function openInfoModal(route: WorkspaceModalRoute, returnFocusTarget?: HTMLElement) {
     modalReturnFocusRef.current = returnFocusTarget
       ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
     setInfoModalRoute(route);
@@ -404,7 +471,15 @@ export function WorkspaceBetaPage() {
         const target = event.target as Element | null;
         const anchor = target?.closest?.("a[href]") as HTMLAnchorElement | null;
         if (!anchor) return;
-        const route = getWorkspaceInfoRoute(anchor.href);
+        const infoRoute = getWorkspaceInfoRoute(anchor.href);
+        const sourceRoute = frame.name === "studyapp-workspace-sources"
+          ? getWorkspaceHashPath(anchor.href)
+          : null;
+        const route = infoRoute ?? (
+          sourceRoute && workspaceSourcePopupRoutes.has(sourceRoute as WorkspaceSourcePopupRoute)
+            ? sourceRoute as WorkspaceSourcePopupRoute
+            : null
+        );
         if (!route) return;
 
         event.preventDefault();
@@ -592,10 +667,18 @@ export function WorkspaceBetaPage() {
           ? text("Installation Guide", "Οδηγός εγκατάστασης")
         : infoModalRoute === "/important-info"
           ? text("Important Info", "Σημαντικές πληροφορίες")
+          : infoModalRoute === "/library"
+            ? text("Library", "Βιβλιοθήκη")
+            : infoModalRoute === "/study/theory"
+              ? text("Manual Import", "Χειροκίνητη εισαγωγή")
+              : infoModalRoute === "/tools"
+                ? text("Split PDF Tool", "Εργαλείο χωρισμού PDF")
           : "";
   const infoModalKicker = infoModalRoute === "/appearance"
     ? text("Workspace", "Χώρος εργασίας")
-    : text("Information", "Πληροφορίες");
+    : infoModalRoute && workspaceSourcePopupRoutes.has(infoModalRoute as WorkspaceSourcePopupRoute)
+      ? text("Sources & Materials", "Πηγές & Υλικό")
+      : text("Information", "Πληροφορίες");
 
   const renderDivider = (
     divider: WorkspaceDivider,
@@ -624,14 +707,213 @@ export function WorkspaceBetaPage() {
     />
   );
 
+  function resetPhaseOnePanelWidths() {
+    phaseOneResizeDragRef.current = null;
+    setActivePhaseOneDivider(null);
+    setPhaseOnePanelWeights(null);
+  }
+
+  function readPhaseOnePanelWidths(): PhaseOnePanelWidths | null {
+    const panels = phaseOneGridRef.current?.querySelectorAll<HTMLElement>(
+      ":scope > .workspace-beta-panel",
+    );
+    if (!panels || panels.length !== 3) return null;
+    return [
+      panels[0].getBoundingClientRect().width,
+      panels[1].getBoundingClientRect().width,
+      panels[2].getBoundingClientRect().width,
+    ];
+  }
+
+  function beginPhaseOneResize(
+    divider: PhaseOneDivider,
+    event: ReactPointerEvent<HTMLDivElement>,
+  ) {
+    if (event.button !== 0) return;
+    const widths = readPhaseOnePanelWidths();
+    if (!widths) return;
+    phaseOneResizeDragRef.current = {
+      divider,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startWidths: widths,
+    };
+    setActivePhaseOneDivider(divider);
+    event.currentTarget.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  }
+
+  function continuePhaseOneResize(event: ReactPointerEvent<HTMLDivElement>) {
+    const drag = phaseOneResizeDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    setPhaseOnePanelWeights(resizePhaseOneAdjacentPanels(
+      drag.divider,
+      drag.startWidths,
+      event.clientX - drag.startX,
+    ));
+  }
+
+  function finishPhaseOneResize(event: ReactPointerEvent<HTMLDivElement>) {
+    const drag = phaseOneResizeDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    phaseOneResizeDragRef.current = null;
+    setActivePhaseOneDivider(null);
+  }
+
+  function resizePhaseOneWithKeyboard(
+    divider: PhaseOneDivider,
+    event: ReactKeyboardEvent<HTMLDivElement>,
+  ) {
+    if (event.key === "Home") {
+      event.preventDefault();
+      resetPhaseOnePanelWidths();
+      return;
+    }
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    const widths = readPhaseOnePanelWidths();
+    if (!widths) return;
+    event.preventDefault();
+    setPhaseOnePanelWeights(resizePhaseOneAdjacentPanels(
+      divider,
+      widths,
+      keyboardResizeStep * (event.key === "ArrowRight" ? 1 : -1),
+    ));
+  }
+
+  function phaseOneDividerValue(divider: PhaseOneDivider): number {
+    const weights = phaseOnePanelWeights ?? defaultPhaseOnePanelWeights;
+    const combined = weights[divider] + weights[divider + 1];
+    return Math.round((weights[divider] / combined) * 100);
+  }
+
+  function renderPhaseOneDivider(
+    divider: PhaseOneDivider,
+    englishLabel: string,
+    greekLabel: string,
+  ) {
+    return (
+      <div
+        aria-label={text(englishLabel, greekLabel)}
+        aria-orientation="vertical"
+        aria-valuenow={phaseOneDividerValue(divider)}
+        className={`workspace-beta-resizer workspace-beta-phase-divider-${divider}${activePhaseOneDivider === divider ? " is-active" : ""}`}
+        onDoubleClick={resetPhaseOnePanelWidths}
+        onKeyDown={(event) => resizePhaseOneWithKeyboard(divider, event)}
+        onPointerCancel={finishPhaseOneResize}
+        onPointerDown={(event) => beginPhaseOneResize(divider, event)}
+        onPointerMove={continuePhaseOneResize}
+        onPointerUp={finishPhaseOneResize}
+        role="separator"
+        tabIndex={0}
+        title={resizeTitle}
+      />
+    );
+  }
+
+  function resetAgentPanelHeights() {
+    agentResizeDragRef.current = null;
+    setAgentDividerActive(false);
+    setAgentPanelWeights(null);
+  }
+
+  function readAgentPanelHeights(): [number, number] | null {
+    const upper = agentSplitRef.current?.querySelector<HTMLElement>(
+      ":scope > .workspace-beta-central-content",
+    );
+    const lower = agentSplitRef.current?.querySelector<HTMLElement>(
+      ":scope > .workspace-beta-persistent-agent",
+    );
+    if (!upper || !lower) return null;
+    return [
+      upper.getBoundingClientRect().height,
+      lower.getBoundingClientRect().height,
+    ];
+  }
+
+  function beginAgentResize(event: ReactPointerEvent<HTMLDivElement>) {
+    if (!agentPanelExpanded || event.button !== 0) return;
+    const heights = readAgentPanelHeights();
+    if (!heights) return;
+    agentResizeDragRef.current = {
+      pointerId: event.pointerId,
+      startY: event.clientY,
+      startHeights: heights,
+    };
+    setAgentDividerActive(true);
+    event.currentTarget.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  }
+
+  function continueAgentResize(event: ReactPointerEvent<HTMLDivElement>) {
+    const drag = agentResizeDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    setAgentPanelWeights(resizeAgentPanels(
+      drag.startHeights,
+      event.clientY - drag.startY,
+    ));
+  }
+
+  function finishAgentResize(event: ReactPointerEvent<HTMLDivElement>) {
+    const drag = agentResizeDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    agentResizeDragRef.current = null;
+    setAgentDividerActive(false);
+  }
+
+  function resizeAgentWithKeyboard(event: ReactKeyboardEvent<HTMLDivElement>) {
+    if (!agentPanelExpanded) return;
+    if (event.key === "Home") {
+      event.preventDefault();
+      resetAgentPanelHeights();
+      return;
+    }
+    if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+    const heights = readAgentPanelHeights();
+    if (!heights) return;
+    event.preventDefault();
+    setAgentPanelWeights(resizeAgentPanels(
+      heights,
+      keyboardResizeStep * (event.key === "ArrowDown" ? 1 : -1),
+    ));
+  }
+
+  function agentDividerValue(): number {
+    const weights = agentPanelWeights ?? defaultAgentPanelWeights;
+    return Math.round((weights[0] / (weights[0] + weights[1])) * 100);
+  }
+
   function renderPhaseOne() {
     const selectedTool = workspaceTools.find((tool) => tool.id === workspaceView) ?? null;
     const isSelectedMode = workspaceView !== "ai-options";
-    const showToolConversation = localChatReady && selectedTool !== null;
+    const agentStatus = localChatReady
+      ? text("Available", "Διαθέσιμο")
+      : text("Not available", "Μη διαθέσιμο");
+    const phaseOneWeights = phaseOnePanelWeights ?? defaultPhaseOnePanelWeights;
+    const phaseOneGridStyle = {
+      gridTemplateColumns: [
+        `minmax(0, ${phaseOneWeights[0]}fr)`,
+        "10px",
+        `minmax(0, ${phaseOneWeights[1]}fr)`,
+        "10px",
+        `minmax(0, ${phaseOneWeights[2]}fr)`,
+      ].join(" "),
+    } satisfies CSSProperties;
+    const agentWeights = agentPanelWeights ?? defaultAgentPanelWeights;
+    const agentSplitStyle = {
+      gridTemplateRows: agentPanelExpanded
+        ? `minmax(0, ${agentWeights[0]}fr) 10px minmax(${agentMinimumPanelHeights[1]}px, ${agentWeights[1]}fr)`
+        : "minmax(0, 1fr) 10px auto",
+    } satisfies CSSProperties;
 
     return (
       <div
-        className={`workspace-beta-shell workspace-beta-functional-shell workspace-beta-phase-one${toolsHidden ? " is-tools-hidden" : ""}`}
+        className={`workspace-beta-shell workspace-beta-functional-shell workspace-beta-phase-one${agentPanelExpanded ? "" : " is-agent-collapsed"}${activePhaseOneDivider !== null ? " is-resizing" : ""}${agentDividerActive ? " is-resizing-agent" : ""}`}
         ref={shellRef}
       >
         <a
@@ -682,7 +964,7 @@ export function WorkspaceBetaPage() {
           </div>
         </header>
         <main className="workspace-beta-main" id="workspace-beta-main" ref={mainRef} tabIndex={-1}>
-          <div aria-label={text("Workspace panels", "Πάνελ χώρου εργασίας")} className="workspace-beta-phase-one-grid">
+          <div aria-label={text("Workspace panels", "Πάνελ χώρου εργασίας")} className="workspace-beta-phase-one-grid" ref={phaseOneGridRef} style={phaseOneGridStyle}>
             <section className="workspace-beta-panel workspace-beta-phase-sources" aria-labelledby="workspace-sources-title">
               <div className="workspace-beta-panel-header workspace-beta-functional-panel-header">
                 <div><p className="workspace-beta-panel-kicker">01</p><h2 id="workspace-sources-title">{text("Sources & Materials", "Πηγές & Υλικό")}</h2></div>
@@ -690,6 +972,7 @@ export function WorkspaceBetaPage() {
               </div>
               <div className="workspace-beta-frame-wrap"><iframe key={`sources-${frameVersions.sources}`} className="workspace-beta-frame" name="studyapp-workspace-sources" onLoad={(event) => wirePanelInfoLinks(event.currentTarget)} src={panelRoutes.sources} title={text("Functional Sources & Materials panel", "Λειτουργικό πάνελ Πηγών & Υλικού")} /></div>
             </section>
+            {renderPhaseOneDivider(0, "Resize Sources and Workspace", "Αλλαγή πλάτους Πηγών και Χώρου εργασίας")}
             <section className={`workspace-beta-panel workspace-beta-phase-workspace workspace-beta-view-${workspaceView}`} aria-labelledby="workspace-studio-title">
               <div className="workspace-beta-panel-header workspace-beta-functional-panel-header">
                 <div><p className="workspace-beta-panel-kicker">02</p><h2 id="workspace-studio-title">{text("AI Studio - Workspace", "AI Studio - Χώρος εργασίας")}</h2></div>
@@ -698,7 +981,9 @@ export function WorkspaceBetaPage() {
                   {isSelectedMode ? <button className="workspace-beta-back-action" onClick={() => setWorkspaceView("ai-options")} type="button">{text("Back to AI options", "Πίσω στις επιλογές AI")}</button> : null}
                 </div>
               </div>
-              {workspaceView === "ai-options" ? (
+              <div className="workspace-beta-agent-split" ref={agentSplitRef} style={agentSplitStyle}>
+                <div className="workspace-beta-central-content">
+                  {workspaceView === "ai-options" ? (
                 <div className="workspace-beta-ai-options" aria-label={text("AI connection options", "Επιλογές σύνδεσης AI")}>
                   <button className="workspace-beta-ai-option" onClick={() => setWorkspaceView("assistant")} type="button"><strong>StudyApp AI Assistant</strong><span>{text("Available", "Διαθέσιμο")}</span></button>
                   <button className="workspace-beta-ai-option" disabled={!localEdition} onClick={() => setWorkspaceView("local")} type="button"><strong>{text("Sign in with ChatGPT", "Σύνδεση με ChatGPT")}</strong><span>{localEdition ? text("Available", "Διαθέσιμο") : text("Windows Local only", "Μόνο Windows Local")}</span></button>
@@ -716,28 +1001,59 @@ export function WorkspaceBetaPage() {
                   {!localChatReady ? <p className="workspace-beta-agent-unavailable">{text("Connect in StudyApp Local to use this conversation area.", "Συνδέσου στο StudyApp Local για να χρησιμοποιήσεις αυτή την περιοχή συνομιλίας.")}</p> : null}
                 </div>
               ) : (
-                <div className={`workspace-beta-workspace-layout${showToolConversation ? " has-agent" : ""}`}>
+                <div className="workspace-beta-workspace-layout">
                   <div className="workspace-beta-workspace-upper"><div className="workspace-beta-frame-wrap"><iframe key={`workspace-${workspaceView}-${frameVersions.ai}`} className="workspace-beta-frame" name="studyapp-workspace-workspace" onLoad={(event) => wirePanelInfoLinks(event.currentTarget)} src={workspaceView === "assistant" ? "/#/ai-assistant-guide" : selectedTool?.route ?? "/#/ai-assistant-guide"} title={selectedTool ? text(`${selectedTool.english} workspace`, `${selectedTool.greek} χώρος εργασίας`) : text("StudyApp AI Assistant", "Βοηθός AI του StudyApp")} /></div></div>
                 </div>
-              )}
-              {localChatReady ? <div className="workspace-beta-persistent-agent"><WorkspaceLocalChat key={chatGptPlanConnection.connectionId ?? "existing-connection"} /></div> : null}
+                  )}
+                </div>
+                <div
+                  aria-disabled={!agentPanelExpanded}
+                  aria-label={text("Resize Workspace and AI Agent", "Αλλαγή ύψους Χώρου εργασίας και Agent AI")}
+                  aria-orientation="horizontal"
+                  aria-valuenow={agentDividerValue()}
+                  className={`workspace-beta-resizer workspace-beta-agent-resizer${agentDividerActive ? " is-active" : ""}${agentPanelExpanded ? "" : " is-locked"}`}
+                  onDoubleClick={() => { if (agentPanelExpanded) resetAgentPanelHeights(); }}
+                  onKeyDown={resizeAgentWithKeyboard}
+                  onPointerCancel={finishAgentResize}
+                  onPointerDown={beginAgentResize}
+                  onPointerMove={continueAgentResize}
+                  onPointerUp={finishAgentResize}
+                  role="separator"
+                  tabIndex={agentPanelExpanded ? 0 : -1}
+                  title={text(
+                    "Drag to resize. Use Up/Down arrow keys. Double-click to reset to 75/25.",
+                    "Σύρε για αλλαγή ύψους. Χρησιμοποίησε τα βέλη Πάνω/Κάτω. Διπλό κλικ για επαναφορά σε 75/25.",
+                  )}
+                />
+                <div className={`workspace-beta-persistent-agent${localChatReady ? " has-chat" : ""}`}>
+                  <div className="workspace-beta-agent-bar">
+                    <strong>{text("AI Agent", "Agent AI")}</strong>
+                    <span role="status">{agentStatus}</span>
+                    <button
+                      aria-expanded={agentPanelExpanded}
+                      aria-label={text(agentPanelExpanded ? "Hide AI Agent panel" : "Show AI Agent panel", agentPanelExpanded ? "Απόκρυψη πάνελ Agent AI" : "Εμφάνιση πάνελ Agent AI")}
+                      className="workspace-beta-column-toggle workspace-beta-agent-toggle"
+                      onClick={() => setAgentPanelExpanded((expanded) => !expanded)}
+                      title={text(agentPanelExpanded ? "Hide AI Agent panel" : "Show AI Agent panel", agentPanelExpanded ? "Απόκρυψη πάνελ Agent AI" : "Εμφάνιση πάνελ Agent AI")}
+                      type="button"
+                    >
+                      <span aria-hidden="true" className="workspace-beta-agent-toggle-symbol" />
+                    </button>
+                  </div>
+                  {localChatReady ? <WorkspaceLocalChat key={chatGptPlanConnection.connectionId ?? "existing-connection"} /> : null}
+                </div>
+              </div>
             </section>
+            {renderPhaseOneDivider(1, "Resize Workspace and Tools", "Αλλαγή πλάτους Χώρου εργασίας και Εργαλείων")}
             <section className="workspace-beta-panel workspace-beta-phase-tools" aria-labelledby="workspace-tools-title">
               <div className="workspace-beta-panel-header workspace-beta-functional-panel-header">
                 <div><p className="workspace-beta-panel-kicker">03</p><h2 id="workspace-tools-title">{text("AI-Assisted Tools", "Εργαλεία με υποστήριξη AI")}</h2></div>
-                <button
-                  aria-expanded={!toolsHidden}
-                  aria-label={text(toolsHidden ? "Show tools" : "Hide tools", toolsHidden ? "Εμφάνιση εργαλείων" : "Απόκρυψη εργαλείων")}
-                  className="workspace-beta-column-toggle"
-                  onClick={() => setToolsHidden((hidden) => !hidden)}
-                  title={text(toolsHidden ? "Show tools" : "Hide tools", toolsHidden ? "Εμφάνιση εργαλείων" : "Απόκρυψη εργαλείων")}
-                  type="button"
-                >
-                  <span aria-hidden="true" className="workspace-beta-column-symbol" />
-                </button>
               </div>
-              <div className="workspace-beta-tools-grid">
-                {workspaceTools.map((tool) => <button className={workspaceView === tool.id ? "is-selected" : undefined} key={tool.id} onClick={() => setWorkspaceView(tool.id)} type="button"><span>{text(tool.english, tool.greek)}</span>{tool.id === "progress" ? <small>{text("Backup, Restore & Archive", "Αντίγραφο, επαναφορά & αρχείο")}</small> : null}</button>)}
+              <div className="workspace-beta-tools-body">
+                <div aria-hidden="true" className="workspace-beta-tools-avatar"><img alt="" src="/study-assistant-avatar.svg" /></div>
+                <div className="workspace-beta-tools-grid">
+                  {workspaceTools.map((tool) => <button className={workspaceView === tool.id ? "is-selected" : undefined} key={tool.id} onClick={() => setWorkspaceView(tool.id)} type="button"><span>{text(tool.english, tool.greek)}</span>{tool.id === "progress" ? <small>{text("Backup, Restore & Archive", "Αντίγραφο, επαναφορά & αρχείο")}</small> : null}</button>)}
+                </div>
               </div>
             </section>
           </div>

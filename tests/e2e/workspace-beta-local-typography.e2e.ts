@@ -26,6 +26,7 @@ test("Windows Local chat inherits font, text size, density and dark theme settin
   await selectLocalMode(page);
 
   const chat = page.locator(".workspace-local-chat");
+  await expect(page.locator(".workspace-beta-agent-bar")).toContainText("Available");
   const textarea = chat.getByRole("textbox", { name: "Message ChatGPT" });
   const controls = chat.locator("button, select, textarea");
 
