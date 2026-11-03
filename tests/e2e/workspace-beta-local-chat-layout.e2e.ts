@@ -10,6 +10,9 @@ test("RAG approval controls stay keyboard reachable at 100% zoom with six passag
       scope: "current-windows-user",
     } });
   });
+  await page.route("**/api/chatgpt-plan/models", async (route) => {
+    await route.fulfill({ json: { models: [{ slug: "model-a", displayName: "Model A" }] } });
+  });
   await page.route("**/api/chatgpt-plan/ask-with-sources", async (route) => {
     sourceRequests += 1;
     await route.fulfill({ json: { answer: "Approved passages received." } });

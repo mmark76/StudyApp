@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
-import { askChatGptPlan, askChatGptPlanWithPdfPassages } from "../../infrastructure/local-companion/localCompanionClient";
+import { askChatGptPlan, askChatGptPlanWithPdfPassages, getChatGptPlanModels, LocalCompanionError, type ChatGptPlanModel } from "../../infrastructure/local-companion/localCompanionClient";
 import { validateLocalStudyFile } from "../study-materials/localFilePolicy";
 import { MAX_LOCAL_FILE_SIZE } from "../study-materials/localStudyFiles";
 import {
@@ -46,6 +46,29 @@ export function WorkspaceLocalChat() {
   const [consent, setConsent] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState("");
+  const [models, setModels] = useState<ChatGptPlanModel[]>([]);
+  const [selectedModel, setSelectedModel] = useState("");
+  const [modelsLoading, setModelsLoading] = useState(true);
+  const [modelError, setModelError] = useState("");
+  const [modelRefresh, setModelRefresh] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    setModelsLoading(true);
+    setModelError("");
+    void getChatGptPlanModels().then((available) => {
+      if (!active) return;
+      setModels(available);
+      setSelectedModel((current) => available.some((item) => item.slug === current) ? current : (available[0]?.slug ?? ""));
+      if (!available.length) setModelError(text("No models are available for this ChatGPT account.", "Δεν υπάρχουν διαθέσιμα μοντέλα για αυτόν τον λογαριασμό ChatGPT."));
+    }).catch(() => {
+      if (!active) return;
+      setModels([]);
+      setSelectedModel("");
+      setModelError(text("Could not load models. Try refreshing the list.", "Δεν φορτώθηκαν τα μοντέλα. Δοκίμασε ανανέωση της λίστας."));
+    }).finally(() => { if (active) setModelsLoading(false); });
+    return () => { active = false; };
+  }, [modelRefresh, text]);
 
   useEffect(() => {
     if (pendingContext) reviewRef.current?.focus();
@@ -130,7 +153,7 @@ export function WorkspaceLocalChat() {
   async function submitQuestion(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const submitted = question.trim();
-    if (!submitted || isSending) return;
+    if (!submitted || isSending || !selectedModel || modelsLoading) return;
     if (pendingContext) {
       if (consent) await sendApprovedPassages();
       return;
@@ -154,14 +177,18 @@ export function WorkspaceLocalChat() {
       return;
     }
     const id = Date.now();
-    setMessages((current) => [...current, { id, role: "user", content: submitted }]);
-    setQuestion("");
     setIsSending(true);
     try {
-      const response = await askChatGptPlan(submitted);
-      setMessages((current) => [...current, { id: id + 1, role: "assistant", content: response.answer }]);
+      const response = await askChatGptPlan(submitted, selectedModel);
+      setMessages((current) => [...current, { id, role: "user", content: submitted }, { id: id + 1, role: "assistant", content: response.answer }]);
+      setQuestion("");
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : text("ChatGPT could not complete the question.", "Το ChatGPT δεν μπόρεσε να ολοκληρώσει την ερώτηση."));
+      if (cause instanceof LocalCompanionError && cause.code === "model_unavailable") {
+        setModelRefresh((current) => current + 1);
+        setError(text("Selected model is no longer available. Choose a model and try again.", "Το επιλεγμένο μοντέλο δεν είναι πλέον διαθέσιμο. Επίλεξε μοντέλο και δοκίμασε ξανά."));
+      } else {
+        setError(cause instanceof Error ? cause.message : text("ChatGPT could not complete the question.", "Το ChatGPT δεν μπόρεσε να ολοκληρώσει την ερώτηση."));
+      }
     } finally {
       setIsSending(false);
     }
@@ -171,22 +198,27 @@ export function WorkspaceLocalChat() {
     if (!pendingContext || !consent || isSending) return;
     const { question: approvedQuestion, passages } = pendingContext;
     const id = Date.now();
-    setMessages((current) => [...current, { id, role: "user", content: approvedQuestion }]);
-    setPendingContext(null);
-    setConsent(false);
-    setQuestion("");
     setError("");
     setIsSending(true);
     try {
-      const response = await askChatGptPlanWithPdfPassages(approvedQuestion, passages);
-      setMessages((current) => [...current, {
+      const response = await askChatGptPlanWithPdfPassages(approvedQuestion, passages, selectedModel);
+      setMessages((current) => [...current, { id, role: "user", content: approvedQuestion }, {
         id: id + 1,
         role: "assistant",
         content: response.answer,
         sources: passages.map(({ documentTitle, page }) => ({ title: documentTitle, page })),
       }]);
+      setPendingContext(null);
+      setConsent(false);
+      setQuestion("");
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : text("ChatGPT could not answer from the selected excerpts.", "Το ChatGPT δεν μπόρεσε να απαντήσει από τα επιλεγμένα αποσπάσματα."));
+      setConsent(false);
+      if (cause instanceof LocalCompanionError && cause.code === "model_unavailable") {
+        setModelRefresh((current) => current + 1);
+        setError(text("Selected model is no longer available. Choose a model and approve the excerpts again.", "Το επιλεγμένο μοντέλο δεν είναι πλέον διαθέσιμο. Επίλεξε μοντέλο και ενέκρινε ξανά τα αποσπάσματα."));
+      } else {
+        setError(cause instanceof Error ? cause.message : text("ChatGPT could not answer from the selected excerpts.", "Το ChatGPT δεν μπόρεσε να απαντήσει από τα επιλεγμένα αποσπάσματα."));
+      }
     } finally {
       setIsSending(false);
     }
@@ -201,6 +233,15 @@ export function WorkspaceLocalChat() {
           <span>{text("Only your question and expressly approved excerpts are sent.", "Αποστέλλονται μόνο η ερώτησή σου και τα αποσπάσματα που εγκρίνεις ρητά.")}</span>
         </div>
       </header>
+      <div className="workspace-local-chat-models">
+        <label htmlFor={`${inputId}-model`}>{text("Model", "Μοντέλο")}</label>
+        <select disabled={isSending || modelsLoading || !models.length} id={`${inputId}-model`} onChange={(event) => setSelectedModel(event.target.value)} value={selectedModel}>
+          {modelsLoading || !models.length ? <option value="">{modelsLoading ? text("Loading models…", "Φόρτωση μοντέλων…") : text("No models available", "Δεν υπάρχουν μοντέλα")}</option> : null}
+          {models.map((model) => <option key={model.slug} value={model.slug}>{model.displayName}</option>)}
+        </select>
+        <button disabled={isSending || modelsLoading} onClick={() => setModelRefresh((current) => current + 1)} type="button">{text("Refresh models", "Ανανέωση μοντέλων")}</button>
+        {modelError ? <p role="alert">{modelError}</p> : null}
+      </div>
       <div className="workspace-local-chat-history" aria-live="polite">
         {messages.length === 0 ? (
           <p className="workspace-local-chat-empty">{text("Ask ChatGPT or add study files with +.", "Ρώτησε το ChatGPT ή πρόσθεσε αρχεία με το +.")}</p>
@@ -226,7 +267,7 @@ export function WorkspaceLocalChat() {
           </div>
           <label className="workspace-local-chat-input-label" htmlFor={inputId}>{text("Message ChatGPT", "Μήνυμα στο ChatGPT")}</label>
           <textarea disabled={isSending} id={inputId} maxLength={12000} onChange={(event) => { setQuestion(event.target.value); invalidatePreview(); }} placeholder={text("Ask ChatGPT", "Ρώτησε το ChatGPT")} rows={1} value={question} />
-          <button className="workspace-local-chat-send" disabled={isSending || !question.trim() || Boolean(pendingContext && !consent)} type="submit">{text("Send", "Αποστολή")}</button>
+          <button className="workspace-local-chat-send" disabled={isSending || modelsLoading || !selectedModel || !question.trim() || Boolean(pendingContext && !consent)} type="submit">{text("Send", "Αποστολή")}</button>
         </div>
         {attachments.length ? (
           <div aria-label={text("Attached study files", "Συνημμένα αρχεία μελέτης")} className="workspace-local-chat-attachments">

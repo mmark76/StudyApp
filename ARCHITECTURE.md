@@ -159,6 +159,12 @@ keeps the conversation only in React state for the active page, sends each
 explicitly submitted question through the local companion with `store: false`,
 and does not read or include Library/IndexedDB data. The browser/PWA edition
 does not mount this conversation surface.
+The Windows companion loads displayable models from the selected account's
+`/v1/models` catalog using the protected OAuth token. The models endpoint sends
+only names and slugs to the Local UI; the connection status carries a random,
+non-secret connection identifier so account changes remount the picker. The
+companion rechecks the selected slug against the live catalog before a Responses
+request.
 The Local ChatGPT page also provides a separate retrieval flow for user-selected
 Library PDFs. In Workspace BETA, the Local chat `+` accepts PDF, DOCX, PPTX, TXT,
 Markdown and CSV files directly. PDF and Office text extraction and passage

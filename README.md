@@ -110,6 +110,10 @@ or StudyApp credits. The encrypted connection is scoped to the current Windows
 user. StudyApp Local sends only a question the user explicitly submits; it does
 not automatically inspect, read, include or upload Library/IndexedDB material.
 Responses use `store: false` and remain only in the open Local page session.
+The connected Workspace chat loads the current account's available models and
+lets the user choose one for the session. The companion verifies that choice
+again before each request; a changed connection reloads the list. See
+`docs/LOCAL_MODEL_SELECTOR.md` for the pending public-distribution review.
 In the connected Windows Local AI Studio conversation, `+` can attach up to eight
 PDF, DOCX, PPTX, TXT, Markdown, or CSV files for local text extraction. Office
 documents contribute extractable text (including PowerPoint speaker notes), not
