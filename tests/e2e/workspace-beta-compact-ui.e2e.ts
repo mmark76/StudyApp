@@ -76,6 +76,52 @@ test("unavailable AI structuring action wraps inside its Sources card in English
   await assertContained("Δόμηση με υποστήριξη AI — Υπό κατασκευή — Δεν είναι διαθέσιμη ακόμη");
 });
 
+test("resized Workspace BETA buttons and cards wrap labels in English and Greek", async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.goto("/#/workspace-beta");
+
+  const divider = page.locator('[role="separator"][aria-orientation="vertical"]').first();
+  const dividerBounds = await divider.boundingBox();
+  if (!dividerBounds) throw new Error("Sources divider was not measurable");
+  const dividerX = dividerBounds.x + dividerBounds.width / 2;
+  const dividerY = dividerBounds.y + 80;
+  await page.mouse.move(dividerX, dividerY);
+  await page.mouse.down();
+  await page.mouse.move(dividerX - 60, dividerY, { steps: 5 });
+  await page.mouse.up();
+
+  const sources = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
+  const verifyWrapping = async (manualLabel: string) => {
+    const manual = sources.getByRole("link", { name: manualLabel, exact: true });
+    await expect(manual).toHaveCSS("white-space", "normal");
+    const evidence = await manual.evaluate((element) => {
+      const bounds = element.getBoundingClientRect();
+      const card = element.closest<HTMLElement>(".dashboard-action-card");
+      const cardBounds = card?.getBoundingClientRect();
+      const lineHeight = Number.parseFloat(getComputedStyle(element).lineHeight);
+      return {
+        buttonRight: bounds.right,
+        cardRight: cardBounds?.right ?? 0,
+        buttonHeight: bounds.height,
+        lineHeight,
+        cardOverflow: (card?.scrollWidth ?? 0) - (card?.clientWidth ?? 0),
+      };
+    });
+    expect(evidence.buttonRight).toBeLessThanOrEqual(evidence.cardRight + 1);
+    expect(evidence.cardOverflow).toBeLessThanOrEqual(1);
+    expect(evidence.buttonHeight).toBeGreaterThan(evidence.lineHeight * 1.5);
+  };
+
+  await verifyWrapping("Manual Structuring - import structured files");
+  const toolCards = page.locator(".workspace-beta-tools-grid > button");
+  await expect(toolCards).toHaveCount(8);
+  await expect(toolCards.first()).toHaveCSS("white-space", "normal");
+  await expect(toolCards.first().locator("span")).toHaveCSS("white-space", "normal");
+  await page.getByRole("button", { name: "GR", exact: true }).click();
+  await verifyWrapping("Χειροκίνητη δόμηση - εισαγωγή δομημένων αρχείων");
+  await expect(toolCards.first().locator("span")).toHaveCSS("white-space", "normal");
+});
+
 test("Workspace tool empty states use the same quiet result presentation", async ({ page }) => {
   await page.goto("/#/workspace-beta");
   await page.getByRole("button", { name: "Flashcards", exact: true }).click();

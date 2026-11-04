@@ -64,7 +64,8 @@
   font-size: 0.76rem;
   font-weight: 750;
   line-height: 1.2;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .workspace-beta-ai-launch-row > a,

@@ -58,6 +58,15 @@ Phase 1 of the approved Workspace BETA refactor presents three persistent deskto
 Sources & Materials | AI Studio - Workspace | AI-Assisted Tools
 ```
 
+Their initial desktop width ratio is **20% / 60% / 20%**. Users can resize the
+columns independently of the internal Workspace/AI Agent height split; buttons
+and card text reflow within the available column width.
+The central height split defaults to 90% Workspace / 10% AI Agent while
+disconnected (including Web/PWA). Once an approved Local ChatGPT connection is
+active, it defaults to 50% / 50%; connecting or disconnecting resets the split
+to its corresponding default. Users can still drag or keyboard-resize it and
+double-click the divider to reset it for the current connection state.
+
 Sources retains Library and Structured Study. Structured Study exposes Manual
 Import (including the existing local Split PDF Tool) and an explicitly inactive
 AI-Assisted Structuring path. The central Workspace starts with four connection
