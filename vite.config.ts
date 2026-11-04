@@ -28,6 +28,10 @@ function getBuildIdentifier(): string {
 
 export default defineConfig({
   base: "/",
+  server: {
+    port: 5174,
+    strictPort: true,
+  },
   define: {
     __APP_BUILD_ID__: JSON.stringify(getBuildIdentifier()),
   },
