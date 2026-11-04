@@ -436,6 +436,14 @@ operational.
 Do not activate until the MCP server, permissions, authentication, privacy and
 security review are complete. Introduce read-only tools before write actions.
 
+### Local ChatGPT RAG
+
+Local ChatGPT RAG is temporarily under construction and unavailable. Keep the
+active Workspace Local conversation limited to direct user-submitted questions,
+with no attachment, passage-selection or source-review controls. Do not
+reactivate RAG or its former `ask-with-sources` path without a separate approved
+product, privacy, security and consent contract.
+
 ### StudyApp AI
 
 Do not activate until the Cloud Core task contract, server-side API key,

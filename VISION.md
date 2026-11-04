@@ -104,6 +104,8 @@ answer is transient unless the user chooses to keep it elsewhere. When that
 connection is ready, the AI Studio panel becomes a focused in-app conversation
 surface for the current session; it remains a study-help workflow rather than a
 general-purpose chat product.
+RAG is under construction and unavailable in the current Local conversation;
+only the direct question the user submits is sent.
 
 ### ChatGPT App / MCP
 

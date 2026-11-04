@@ -38,21 +38,22 @@ backup format, AI transport, consent, credits, payments or deployment.
   Learning Goals, Key Points and Important Terms launchers are covered with
   stored-content assertions that verify the other two content types remain
   filtered out.
-- Windows Local connection controls, model selection, messages, composer,
-  attachments, source review, consent, PDF RAG guidance, loading, error and
-  status text use the shared Workspace typography tokens. Font choice, text
-  size, UI density, colour scheme and light/dark theme continue to come from
-  Appearance Settings.
+- Windows Local connection controls, model selection, messages, direct-question
+  composer, RAG-unavailable guidance, loading, error and status text use the
+  shared Workspace typography tokens. Font choice, text size, UI density,
+  colour scheme and light/dark theme continue to come from Appearance Settings.
 - The repository boundary test at the 100,000-flashcard compatibility maximum
   keeps the production limit unchanged and has a focused 15-second test budget
   for slower shared CI runners.
 - E2E coverage follows the three-column model and verifies Local connected and
-  disconnected states, model refresh, attachments, consent, mobile containment,
-  English/Greek labels and active-work preservation when switching views.
+  disconnected states, model refresh, direct-question controls, mobile
+  containment, English/Greek labels and active-work preservation when switching
+  views.
 
 The automated Local checks use the loopback E2E companion contract. Before a
 Windows package release, manually start `Start StudyApp Local.bat`, connect and
-disconnect a real ChatGPT account, change models, attach text and PDF sources,
-review and cancel/approve excerpts, switch Appearance settings in both
-languages and confirm the draft/conversation remains after changing Workspace
-views. This Phase 1 PR does not perform or approve that packaged release test.
+disconnect a real ChatGPT account, change models, submit a direct question,
+switch Appearance settings in both languages and confirm the
+draft/conversation remains after changing Workspace views. RAG remains visibly
+unavailable until its separate redesign is approved. This Phase 1 PR does not
+perform or approve that packaged release test.

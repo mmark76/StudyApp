@@ -39,18 +39,12 @@ The model picker receives only the signed-in account's displayable model names
 and slugs from the companion. OAuth credentials remain in protected Windows
 storage. The companion rejects a selected model missing from the account's
 current catalog before sending the question or approved passages to OpenAI.
-The separate question flows use PDFs explicitly selected from Library and
-attachments explicitly chosen with `+` in the Local Workspace. PDF, DOCX, PPTX,
-TXT, Markdown and CSV text is extracted and searched on-device. Office parsing
-reads document text and PowerPoint speaker notes, not embedded images or charts.
-The exact passages and source locations are displayed for review. The companion
-requires an explicit confirmation flag and sends only the question and approved
-passages with `store: false`; it does not receive document IDs or other Library
-state. The answer remains in the active page state.
-The Local composer exposes one Send button for both ordinary questions and
-attached-file questions. When files are selected, its first activation only
-prepares the local review; a second activation is disabled until the user
-explicitly approves the displayed passages. The files never leave the device.
+RAG retrieval is temporarily unavailable while it is being redesigned. The
+active Local composer accepts only an explicitly submitted direct question; it
+does not expose file attachment or passage-selection controls. The companion
+rejects the former `ask-with-sources` route, so it cannot send excerpts from a
+legacy client while RAG is unavailable. Direct requests continue to use
+`store: false` and the answer remains in the active page state.
 
 The bilingual AI options comparison page is static local presentation. It
 compares the current and planned modes but does not activate a remote mode,
@@ -82,8 +76,8 @@ Document text and intermediate summaries are untrusted data. Model output is
 validated as bounded plain text with known source markers, shown as an editable
 draft, and saved only by explicit action. A generated summary is a local TXT
 blob, excluded from the JSON backup. Citations aid review; they do not prove
-the model's claims are correct. Targeted AI Studio questions still use separate
-excerpt retrieval.
+the model's claims are correct. RAG-based targeted AI Studio questions are
+under construction and unavailable.
 
 - Keep core study data local by default.
 - Do not upload study material without explicit selection and confirmation.

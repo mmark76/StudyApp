@@ -11,7 +11,7 @@ test("Workspace BETA opens the bilingual StudyApp Local installation guide", asy
   await expect(guide.getByRole("heading", { name: "First-time installation" })).toBeVisible();
   await expect(guide.getByRole("heading", { name: "Update StudyApp Local" })).toBeVisible();
   await expect(guide.getByText("Keep this Terminal running. You can minimize it, but do not close it.")).toBeVisible();
-  await expect(guide.getByText("Only your question and the excerpts you approve are sent to ChatGPT; the original files stay on your device.")).toBeVisible();
+  await expect(guide.getByText("RAG is still under construction and not available.")).toBeVisible();
 
   await dialog.getByRole("button", { name: "Close" }).click();
   await page.getByRole("button", { name: "GR", exact: true }).click();

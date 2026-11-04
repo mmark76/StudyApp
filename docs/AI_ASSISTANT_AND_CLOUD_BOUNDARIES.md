@@ -69,9 +69,9 @@ through multiple bounded `store: false`, `stream: true` requests. Every chunk is
 processed, then intermediate summaries are combined hierarchically. The
 browser/PWA has manual creation and local storage only. Results are never
 automatically added to Library or practice chapters; an explicit Save creates a
-local TXT summary with source references. Targeted questions keep their separate
-excerpt-based retrieval. No new provider mode, hosted tool, or cloud storage is
-added.
+local TXT summary with source references. RAG-based targeted questions are under
+construction and unavailable. No new provider mode, hosted tool, or cloud
+storage is added.
 The shared AI Capabilities & Limits disclosure appears in AI Studio and the
 Summary tool. It separates StudyApp file and job limits from OpenAI account,
 model and usage limits. Remaining account usage is not available to StudyApp,
@@ -102,25 +102,13 @@ It is a Local-only presentation of this same explicit-question flow; the
 browser/PWA keeps its external-link and informational presentation. Disconnect
 deletes the protected local connection record.
 
-The Local ChatGPT page separately supports questions about user-selected
-Library PDFs. In Workspace BETA, the Local chat `+` also accepts explicitly
-selected PDF, DOCX, PPTX, TXT, Markdown and CSV files. File validation, Office
-text extraction and passage search run on-device. DOCX text and PowerPoint
-slide text and speaker notes can be extracted; embedded images and charts are
-not analyzed. The exact selected excerpts, document titles and source locations
-are shown for review. Nothing from this workflow is sent until the user
-explicitly approves and submits. The confirmed request includes only the
-question and reviewed passages; it uses `store: false`, and the answer stays in
-the active page session. The answer is instructed to cite source IDs and
-locations and to state when the selected passages are insufficient. No API key,
-web search, external vector store, persistent index, or automatic Library scan
-is used.
-The Local Workspace composer places `+` and the question field in one rectangular
-bar with a single Send button; attachments appear below. With attachments,
-pressing Send first creates the on-device excerpt review. Only after checking
-the approval box can the user press that same Send button to submit the
-reviewed passages. For questions without files, Send submits the typed question
-directly.
+RAG retrieval is currently under construction and unavailable. Workspace BETA
+does not show attachment, passage-selection, or source-review controls, and the
+Local companion rejects the former `ask-with-sources` route. The direct Local
+conversation sends only the question the user explicitly submits, uses
+`store: false`, and keeps the answer in the active page session. No API key, web
+search, external vector store, persistent index, or automatic Library scan is
+used.
 
 The separately installed, per-user Windows launcher can register
 `studyapp-local://open`. The browser/PWA can offer this as an opening action,

@@ -139,6 +139,15 @@
 .local-pdf-rag h5,
 .local-pdf-rag p { margin: 0; }
 
+.local-pdf-rag-unavailable {
+  margin: 1rem 0 0;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color, #d1d5db);
+  border-radius: 0.65rem;
+  color: var(--muted-text, #4b5563);
+  font: inherit;
+}
+
 .local-pdf-rag-files,
 .local-pdf-rag-review {
   display: grid;

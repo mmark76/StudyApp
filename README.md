@@ -114,23 +114,15 @@ The connected Workspace chat loads the current account's available models and
 lets the user choose one for the session. The companion verifies that choice
 again before each request; a changed connection reloads the list. See
 `docs/LOCAL_MODEL_SELECTOR.md` for the pending public-distribution review.
-In the connected Windows Local AI Studio conversation, `+` can attach up to eight
-PDF, DOCX, PPTX, TXT, Markdown, or CSV files for local text extraction. Office
-documents contribute extractable text (including PowerPoint speaker notes), not
-embedded images or charts. Only passages reviewed and explicitly approved by
-the user are sent to ChatGPT; files themselves stay on the device.
-The conversation uses one rectangular input bar with `+` on the left, the
-question field and a single **Send** button. Attachments appear below the bar.
-With files selected, the first Send prepares a local passage preview; the user
-then approves the excerpts and presses the same Send button to submit them.
+RAG is under construction and currently unavailable in the Local AI Studio
+conversation. The Local composer accepts direct questions only and clearly says
+that no RAG attachments or passage retrieval are available. The companion also
+rejects the former passage endpoint while this work is paused.
 When connected, its Workspace AI Studio panel becomes a transient conversation
 surface with a bottom composer; the browser/PWA package does not include that
 in-app conversation. Disconnect removes the protected local connection record.
-The Local ChatGPT page also lets you select Library PDFs and search their text
-on-device. It displays the exact matching passages with document/page
-references; sending requires a separate approval checkbox and submit. The
-confirmed request sends only the question and displayed passages with
-`store: false`; no other Library data is included.
+Direct Local ChatGPT requests send only the submitted question with `store:
+false`; they do not include Library material.
 
 Each compatible release provides two separate downloads:
 
@@ -203,9 +195,9 @@ the number of extracted chunks. Missing readable text or extraction errors block
 generation and are reported. After the user explicitly approves sending the
 complete selected text over multiple requests, every chunk is processed and
 the results are combined hierarchically. The result stays editable until saved;
-AI citations still need checking against the source. Targeted questions in AI
-Studio continue to use separately approved, relevance-ranked excerpts. Generated
-TXT blobs are excluded from the JSON backup.
+AI citations still need checking against the source. RAG-based targeted questions
+in AI Studio are under construction and unavailable. Generated TXT blobs are
+excluded from the JSON backup.
 
 The build-time public settings `VITE_SUMMARY_MAX_FILE_MB` and
 `VITE_SUMMARY_MAX_JOB_MB` can set whole-number limits from 1 to 500 MB; both
