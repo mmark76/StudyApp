@@ -65,6 +65,7 @@ test("Phase 1 cards and Agent status retain readable contrast in dark mode", asy
   expect(lightSourceBackgrounds).not.toContain("rgba(0, 0, 0, 0)");
   await expect(manualStructuring).toHaveCSS("background-color", "rgb(234, 215, 203)");
   await expect(splitPdf).toHaveCSS("background-color", "rgb(217, 231, 241)");
+  // The E2E loopback server models StudyApp Local, whose warning surface stays pink.
   await expect(unavailableStructuring).toHaveCSS("background-color", "rgb(245, 231, 232)");
   await expect(unavailableStructuring).toHaveCSS("color", "rgb(180, 35, 46)");
   const lightActionColors = await Promise.all([manualStructuring, splitPdf].map((action) => action.evaluate((element) => ({

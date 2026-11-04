@@ -3,6 +3,7 @@ import { createElement } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LocalChatGptPlanPage } from "../src/features/assistant/LocalChatGptPlanPage";
+import { SourcesPage } from "../src/features/sources/SourcesPage";
 import { WorkspaceLocalChat } from "../src/features/workspace-beta/WorkspaceLocalChat";
 import { askChatGptPlan, getChatGptPlanModels, isStudyAppLocalEdition, STUDYAPP_LOCAL_PROTOCOL_URL } from "../src/infrastructure/local-companion/localCompanionClient";
 
@@ -16,6 +17,30 @@ describe("StudyApp Local companion boundary", () => {
     expect(isStudyAppLocalEdition({ protocol: "http:", hostname: "127.0.0.1", port: "5173" })).toBe(false);
     expect(isStudyAppLocalEdition({ protocol: "https:", hostname: "studyapp.markellosecosystem.com", port: "" })).toBe(false);
     expect(isStudyAppLocalEdition({ protocol: "http:", hostname: "192.168.1.5", port: "8766" })).toBe(false);
+  });
+
+  it("uses the soft yellow structuring warning only in the web edition", () => {
+    vi.stubGlobal("window", {
+      name: "studyapp-workspace-sources",
+      location: { protocol: "https:", hostname: "studyapp.markellosecosystem.com", port: "" },
+    });
+    const webMarkup = renderToStaticMarkup(
+      createElement(MemoryRouter, null, createElement(SourcesPage)),
+    );
+
+    expect(webMarkup).toContain("workspace-beta-ai-structuring-unavailable--web");
+    expect(webMarkup).not.toContain("workspace-beta-ai-structuring-unavailable--local");
+
+    vi.stubGlobal("window", {
+      name: "studyapp-workspace-sources",
+      location: { protocol: "http:", hostname: "127.0.0.1", port: "8767" },
+    });
+    const localMarkup = renderToStaticMarkup(
+      createElement(MemoryRouter, null, createElement(SourcesPage)),
+    );
+
+    expect(localMarkup).toContain("workspace-beta-ai-structuring-unavailable--local");
+    expect(localMarkup).not.toContain("workspace-beta-ai-structuring-unavailable--web");
   });
 
   it("reads account-specific models and sends the selected model", async () => {
