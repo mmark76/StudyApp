@@ -26,6 +26,9 @@ export function SummaryPage() {
   const [searchParams] = useSearchParams();
   const workspaceBeta = searchParams.get("workspace") === "beta";
   const [summaryWorkspaceOpen, setSummaryWorkspaceOpen] = useState(() => !workspaceBeta);
+  useEffect(() => {
+    setSummaryWorkspaceOpen(!workspaceBeta);
+  }, [workspaceBeta]);
   const { importedUnits, hasStoredContentError } = useStudyContent();
   const files = useLiveQuery(() => studyDatabase.studyFiles.orderBy("createdAt").toArray(), []);
   const sourceFiles = (files ?? []).filter((file) => file.generatedSummary !== true);

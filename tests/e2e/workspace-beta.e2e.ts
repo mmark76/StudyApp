@@ -34,6 +34,7 @@ test("Workspace BETA keeps the release download label compact", async ({ page })
 });
 
 test("Workspace BETA shows refreshed official ZIP releases in a web-only modal", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.route("https://api.github.com/repos/mmark76/StudyApp/releases?per_page=100", async (route) => {
     await route.fulfill({
       contentType: "application/json",
