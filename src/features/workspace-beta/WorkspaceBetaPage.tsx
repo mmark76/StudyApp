@@ -1095,7 +1095,7 @@ export function WorkspaceBetaPage() {
               <div className="workspace-beta-tools-body" id="workspace-beta-tools-content">
                 <div className="workspace-beta-tools-avatar"><img alt="" src="/study-assistant-avatar.svg" /><span>AI StudyApp Assistant</span></div>
                 <div className="workspace-beta-tools-grid">
-                  {workspaceTools.map((tool) => <button className={workspaceView === tool.id ? "is-selected" : undefined} key={tool.id} onClick={() => setWorkspaceView(tool.id)} type="button"><span>{text(tool.english, tool.greek)}</span><small>{text(tool.descriptionEnglish, tool.descriptionGreek)}</small></button>)}
+                  {workspaceTools.map((tool) => <button aria-label={text(tool.english, tool.greek)} className={workspaceView === tool.id ? "is-selected" : undefined} key={tool.id} onClick={() => setWorkspaceView(tool.id)} type="button"><span>{text(tool.english, tool.greek)}</span><small>{text(tool.descriptionEnglish, tool.descriptionGreek)}</small></button>)}
                 </div>
               </div>
             </section>

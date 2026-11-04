@@ -18,7 +18,7 @@ test("Workspace BETA sends the available Assistant card directly to the Custom G
   await expect(options.getByRole("button", { name: /ChatGPT App \/ MCP/u })).toContainText("Not available yet.");
   await expect(options.getByRole("button", { name: /StudyApp AI \/ API/u })).toContainText("It is not active and there are no charges yet.");
   const tools = page.locator(".workspace-beta-tools-grid");
-  await expect(tools.getByRole("button", { name: /Learning Goals/u })).toContainText("Set clear goals for this chapter.");
+  await expect(tools.getByRole("button", { name: "Learning Goals", exact: true })).toContainText("Set clear goals for this chapter.");
   await expect(tools.getByRole("button", { name: /Progress/u })).toContainText("View results, backup, restore and archive.");
 
   await assistantCard.evaluate((element) => {
@@ -35,7 +35,7 @@ test("Workspace BETA sends the available Assistant card directly to the Custom G
   await page.getByRole("button", { name: "GR", exact: true }).click();
   await expect(options.getByRole("link", { name: /StudyApp AI Assistant/u })).toContainText("Η εργασία γίνεται εκεί· το StudyApp δεν στέλνει υλικό.");
   await expect(options.getByRole("button", { name: /Σύνδεση με ChatGPT/u })).toContainText("σύνδεσε το πλάνο ChatGPT για ερωτήσεις και PDF RAG.");
-  await expect(tools.getByRole("button", { name: /Στόχοι μάθησης/u })).toContainText("Όρισε καθαρούς στόχους για αυτό το κεφάλαιο.");
+  await expect(tools.getByRole("button", { name: "Στόχοι μάθησης", exact: true })).toContainText("Όρισε καθαρούς στόχους για αυτό το κεφάλαιο.");
   await expect(tools.getByRole("button", { name: /Πρόοδος/u })).toContainText("Δες αποτελέσματα, αντίγραφα, επαναφορά και αρχείο.");
 });
 
