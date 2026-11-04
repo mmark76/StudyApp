@@ -1035,6 +1035,14 @@
 }
 
 .workspace-panel-embed-main .workspace-beta-sources-page .button.workspace-beta-ai-structuring-unavailable:disabled {
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  flex: 1 1 100%;
+  justify-content: flex-start;
+  text-align: start;
+  white-space: normal;
+  overflow-wrap: anywhere;
   border-color: #dfb5b8;
   background: #f5e7e8;
   color: #b4232e;
@@ -1070,4 +1078,49 @@
   border-color: #7d4a4f;
   background: #3a282a;
   color: #ff9da3;
+}
+
+/* Workspace result views use one quiet presentation: visible results and
+ * concise empty states, without reproducing the full tool surfaces here. */
+.workspace-panel-embed-main .empty-state {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  text-align: start;
+}
+
+.workspace-panel-embed-main .summary-page--workspace-results,
+.workspace-panel-embed-main .progress-page--workspace-results {
+  padding: 0;
+}
+
+.workspace-panel-embed-main .progress-page--workspace-results .stats-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.32rem 0.75rem;
+}
+
+.workspace-panel-embed-main .progress-page--workspace-results .stat-card,
+.workspace-panel-embed-main .progress-page--workspace-results .content-panel {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main .progress-page--workspace-results .stat-card {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 0.22rem;
+}
+
+.workspace-panel-embed-main .progress-page--workspace-results .content-panel > h3 {
+  margin: 0 0 0.24rem;
 }
