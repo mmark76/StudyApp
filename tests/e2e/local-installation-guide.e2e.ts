@@ -22,7 +22,7 @@ test("Workspace BETA opens the bilingual StudyApp Local installation guide", asy
   await expect(greekGuide.getByRole("heading", { name: "Πρώτη εγκατάσταση" })).toBeVisible();
   await expect(greekGuide.getByRole("heading", { name: "Ενημέρωση StudyApp Local" })).toBeVisible();
   await expect(greekGuide.getByText("Διατήρησε το παράθυρο ανοιχτό. Μπορείς να το ελαχιστοποιήσεις, αλλά όχι να το κλείσεις.")).toBeVisible();
-  await expect(greekGuide.getByText("Στο ChatGPT αποστέλλονται μόνο η ερώτησή σου και τα αποσπάσματα που εγκρίνεις· τα αρχικά αρχεία παραμένουν στη συσκευή σου.")).toBeVisible();
+  await expect(greekGuide.getByText("Το RAG βρίσκεται ακόμη υπό κατασκευή και δεν είναι διαθέσιμο.")).toBeVisible();
 });
 
 test("mobile Workspace menu includes the Local installation guide", async ({ page }) => {

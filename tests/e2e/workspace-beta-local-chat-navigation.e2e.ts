@@ -29,11 +29,6 @@ test("connected Local conversation survives switching Workspace views", async ({
   await chat.getByRole("button", { name: "Send", exact: true }).click();
   await expect(chat.getByText("This answer stays in the conversation.")).toBeVisible();
 
-  await chat.locator('input[type="file"]').setInputFiles({
-    name: "preserved-notes.txt",
-    mimeType: "text/plain",
-    buffer: Buffer.from("These local notes remain attached while visiting Workspace tools."),
-  });
   await chat.getByRole("textbox", { name: "Message ChatGPT" }).fill("Draft kept across navigation");
 
   await page.getByRole("button", { name: "Learning Goals", exact: true }).click();
@@ -44,7 +39,8 @@ test("connected Local conversation survives switching Workspace views", async ({
 
   await expect(chat).toBeVisible();
   await expect(chat.getByText("This answer stays in the conversation.")).toBeVisible();
-  await expect(chat.getByText("preserved-notes.txt")).toBeVisible();
+  await expect(chat.getByText("RAG is still under construction and not available.")).toBeVisible();
+  await expect(chat.locator('input[type="file"]')).toHaveCount(0);
   await expect(chat.getByRole("textbox", { name: "Message ChatGPT" })).toHaveValue("Draft kept across navigation");
   expect(chatRequests).toBe(1);
   expect(connectionChanges).toBe(0);
