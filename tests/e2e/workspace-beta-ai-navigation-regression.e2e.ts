@@ -37,7 +37,7 @@ test("Workspace BETA sends the available Assistant card directly to the Custom G
   await expect(options.getByRole("link", { name: /StudyApp AI Assistant/u })).toContainText("Η εργασία γίνεται εκεί· το StudyApp δεν στέλνει υλικό.");
   await expect(options.getByRole("button", { name: /Σύνδεση με ChatGPT/u })).toContainText("σύνδεσε το πλάνο ChatGPT για άμεσες ερωτήσεις. Το RAG είναι υπό κατασκευή.");
   await expect(tools.getByRole("button", { name: "Στόχοι μάθησης", exact: true })).toContainText("Δες στόχους σε εισαγμένα κεφάλαια εξάσκησης.");
-  await expect(tools.getByRole("button", { name: /Πρόοδος/u })).toContainText("Δες αποτελέσματα εξάσκησης, αντίγραφα, επαναφορά και αρχείο.");
+  await expect(tools.getByRole("button", { name: /Πρόοδος/u })).toContainText("Δες αποτελέσματα εξάσκησης. Αντίγραφα, επαναφορά και αρχείο ανοίγουν ξεχωριστά.");
 });
 
 test("AI option controls use the compact shared typography hierarchy", async ({ page }) => {

@@ -440,6 +440,17 @@ export function WorkspaceBetaPage() {
     });
   }
 
+  useEffect(() => {
+    const openWorkspaceSetup = (event: MessageEvent<unknown>) => {
+      if (event.origin !== window.location.origin || !event.data || typeof event.data !== "object") return;
+      const { type, route } = event.data as { type?: unknown; route?: unknown };
+      if (type !== "studyapp-workspace-open-modal" || (route !== "/summary" && route !== "/progress")) return;
+      openInfoModal(route);
+    };
+    window.addEventListener("message", openWorkspaceSetup);
+    return () => window.removeEventListener("message", openWorkspaceSetup);
+  }, []);
+
   function focusModalFrameEdge(edge: "first" | "last") {
     const frame = modalFrameRef.current;
     if (!frame) return;

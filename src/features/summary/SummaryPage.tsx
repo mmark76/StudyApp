@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { type MouseEvent, useEffect, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Link, useSearchParams } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
@@ -21,10 +21,20 @@ function downloadText(content: string, fileName: string): void {
   window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
 }
 
+function isWorkspaceSetupFrame(): boolean {
+  return typeof window !== "undefined" && window.name === "studyapp-workspace-info-modal";
+}
+
+function openWorkspaceSetup(event: MouseEvent<HTMLAnchorElement>): void {
+  if (window.parent === window) return;
+  event.preventDefault();
+  window.parent.postMessage({ type: "studyapp-workspace-open-modal", route: "/summary" }, window.location.origin);
+}
+
 export function SummaryPage() {
   const { language, text } = useLanguage();
   const [searchParams] = useSearchParams();
-  const workspaceBeta = searchParams.get("workspace") === "beta";
+  const workspaceBeta = searchParams.get("workspace") === "beta" && !isWorkspaceSetupFrame();
   const { importedUnits, hasStoredContentError } = useStudyContent();
   const files = useLiveQuery(() => studyDatabase.studyFiles.orderBy("createdAt").toArray(), []);
   const sourceFiles = (files ?? []).filter((file) => file.generatedSummary !== true);
@@ -242,7 +252,7 @@ export function SummaryPage() {
   if (workspaceBeta) return <main className="summary-page summary-page--workspace-results">
     <header className="summary-workspace-results-heading"><h2>{text("Summary of Uploaded Material", "Περίληψη ανεβασμένου υλικού")}</h2></header>
     {!saved.length ? <p className="summary-workspace-empty">{text("No summary created yet.", "Δεν έχει δημιουργηθεί ακόμη περίληψη.")}</p> : savedSummaries}
-    <Link className="summary-workspace-modal-action" to="/summary">{text("Open summary setup", "Άνοιγμα ρύθμισης περίληψης")}</Link>
+    <Link className="summary-workspace-modal-action" onClick={openWorkspaceSetup} to="/summary">{text("Open summary setup", "Άνοιγμα ρύθμισης περίληψης")}</Link>
   </main>;
 
   return <main className="summary-page stack-lg">

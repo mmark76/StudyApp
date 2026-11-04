@@ -1,4 +1,4 @@
-import { type ChangeEvent, useRef, useState } from "react";
+import { type ChangeEvent, type MouseEvent, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ArchivePanel } from "../archive/ArchivePanel";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -28,10 +28,20 @@ interface PendingRestore {
   preview: BackupPreview;
 }
 
+function isWorkspaceSetupFrame(): boolean {
+  return typeof window !== "undefined" && window.name === "studyapp-workspace-info-modal";
+}
+
+function openWorkspaceSetup(event: MouseEvent<HTMLAnchorElement>): void {
+  if (window.parent === window) return;
+  event.preventDefault();
+  window.parent.postMessage({ type: "studyapp-workspace-open-modal", route: "/progress" }, window.location.origin);
+}
+
 export function ProgressPage() {
   const { language, locale, text } = useLanguage();
   const [searchParams] = useSearchParams();
-  const workspaceBeta = searchParams.get("workspace") === "beta";
+  const workspaceBeta = searchParams.get("workspace") === "beta" && !isWorkspaceSetupFrame();
   const progress = useLiveQuery(() => studyDatabase.cardProgress.toArray(), []) ?? [];
   const sessions = useLiveQuery(() => studyDatabase.studySessions.orderBy("startedAt").reverse().toArray(), []) ?? [];
   const [message, setMessage] = useState("");
@@ -189,7 +199,7 @@ export function ProgressPage() {
       <header className="progress-workspace-results-heading"><h2>{text("Progress", "Πρόοδος")}</h2></header>
       {progressResults}
       {recentSessions}
-      <Link className="progress-workspace-modal-action" to="/progress">{text("Open backups and archive", "Άνοιγμα αντιγράφων και αρχείου")}</Link>
+      <Link className="progress-workspace-modal-action" onClick={openWorkspaceSetup} to="/progress">{text("Open backups and archive", "Άνοιγμα αντιγράφων και αρχείου")}</Link>
     </div>
   );
 
