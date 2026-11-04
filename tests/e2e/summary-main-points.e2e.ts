@@ -7,7 +7,9 @@ test("BETA summary wording does not change the hidden Standard summary route", a
 
   await page.goto("/#/summary?workspace=beta");
   await expect(page.getByRole("heading", { name: "Summary of Uploaded Material" })).toBeVisible();
-  await expect(page.getByText("Select material uploaded from the left panel and create its summary.")).toBeVisible();
+  await expect(page.getByText("Choose Library files or practice chapters yourself. Nothing is selected automatically.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Choose material and create a summary" })).toBeVisible();
+  await expect(page.locator(".summary-page textarea")).toHaveCount(0);
 });
 
 test("Practice Summary and Main Points uses local sources and a confirmed mocked AI draft", async ({ page }) => {
@@ -57,7 +59,9 @@ test("Practice Summary and Main Points uses local sources and a confirmed mocked
   await expect(page.locator('iframe[name="studyapp-workspace-workspace"]')).toHaveAttribute("src", "/#/summary?workspace=beta");
   const practice = page.frameLocator('iframe[name="studyapp-workspace-workspace"]');
   await expect(practice.getByRole("heading", { name: "Summary of Uploaded Material" })).toBeVisible();
-  await expect(practice.getByText("Select material uploaded from the left panel and create its summary.")).toBeVisible();
+  await expect(practice.getByRole("button", { name: "Choose material and create a summary" })).toBeVisible();
+  await expect(practice.locator(".summary-page textarea")).toHaveCount(0);
+  await practice.getByRole("button", { name: "Choose material and create a summary" }).click();
   await expect(practice.locator(".summary-page textarea")).toHaveCount(2);
   await practice.getByLabel("Source material").selectOption("file:summary-e2e-source");
   await practice.getByRole("button", { name: "Check full-document coverage" }).click();
@@ -125,6 +129,7 @@ test("full-document consent sends every chunk from two long sources before a fin
 
   await page.getByRole("button", { name: "Summary of Uploaded Material", exact: true }).click();
   const practice = page.frameLocator('iframe[name="studyapp-workspace-workspace"]');
+  await practice.getByRole("button", { name: "Choose material and create a summary" }).click();
   await practice.getByLabel("Source material").selectOption(["file:long-0", "file:long-1"]);
   await practice.getByRole("button", { name: "Check full-document coverage" }).click();
   await expect(practice.getByText(/2 sources, 2 pages or sections, \d+ extracted chunks/)).toBeVisible();

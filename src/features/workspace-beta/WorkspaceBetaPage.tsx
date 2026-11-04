@@ -74,14 +74,14 @@ const workspaceTools: ReadonlyArray<{
   descriptionGreek: string;
   route: string;
 }> = [
-  { id: "learning-goals", english: "Learning Goals", greek: "Στόχοι μάθησης", descriptionEnglish: "Set clear goals for this chapter.", descriptionGreek: "Όρισε καθαρούς στόχους για αυτό το κεφάλαιο.", route: "/#/core-knowledge?view=goals" },
-  { id: "key-points", english: "Key Points", greek: "Βασικά σημεία", descriptionEnglish: "Review the main ideas at a glance.", descriptionGreek: "Δες γρήγορα τις βασικές ιδέες.", route: "/#/core-knowledge?view=key-points" },
-  { id: "important-terms", english: "Important Terms", greek: "Σημαντικοί όροι", descriptionEnglish: "Keep key words and definitions together.", descriptionGreek: "Κράτησε μαζί βασικούς όρους και ορισμούς.", route: "/#/core-knowledge?view=terms" },
-  { id: "summary", english: "Summary of Uploaded Material", greek: "Περίληψη ανεβασμένου υλικού", descriptionEnglish: "Create a short overview of uploaded material.", descriptionGreek: "Δημιούργησε σύντομη εικόνα του ανεβασμένου υλικού.", route: "/#/summary?workspace=beta" },
-  { id: "flashcards", english: "Flashcards", greek: "Κάρτες", descriptionEnglish: "Practice with question and answer cards.", descriptionGreek: "Εξασκήσου με κάρτες ερώτησης και απάντησης.", route: "/#/flashcards" },
-  { id: "review", english: "Review", greek: "Επανάληψη", descriptionEnglish: "Revisit cards scheduled for practice.", descriptionGreek: "Επανάλαβε κάρτες που είναι για εξάσκηση.", route: "/#/review" },
-  { id: "quiz", english: "Quiz", greek: "Κουίζ", descriptionEnglish: "Test what you remember with questions.", descriptionGreek: "Δοκίμασε τι θυμάσαι με ερωτήσεις.", route: "/#/quiz" },
-  { id: "progress", english: "Progress", greek: "Πρόοδος", descriptionEnglish: "View results, backup, restore and archive.", descriptionGreek: "Δες αποτελέσματα, αντίγραφα, επαναφορά και αρχείο.", route: "/#/progress" },
+  { id: "learning-goals", english: "Learning Goals", greek: "Στόχοι μάθησης", descriptionEnglish: "View goals in imported practice chapters.", descriptionGreek: "Δες στόχους σε εισαγμένα κεφάλαια εξάσκησης.", route: "/#/core-knowledge?view=goals" },
+  { id: "key-points", english: "Key Points", greek: "Βασικά σημεία", descriptionEnglish: "View key points in imported practice chapters.", descriptionGreek: "Δες βασικά σημεία σε εισαγμένα κεφάλαια εξάσκησης.", route: "/#/core-knowledge?view=key-points" },
+  { id: "important-terms", english: "Important Terms", greek: "Σημαντικοί όροι", descriptionEnglish: "View terms in imported practice chapters.", descriptionGreek: "Δες όρους σε εισαγμένα κεφάλαια εξάσκησης.", route: "/#/core-knowledge?view=terms" },
+  { id: "summary", english: "Summary of Uploaded Material", greek: "Περίληψη ανεβασμένου υλικού", descriptionEnglish: "Choose Library files or chapters to summarize.", descriptionGreek: "Επίλεξε αρχεία Βιβλιοθήκης ή κεφάλαια για περίληψη.", route: "/#/summary?workspace=beta" },
+  { id: "flashcards", english: "Flashcards", greek: "Κάρτες", descriptionEnglish: "Use cards you create or import.", descriptionGreek: "Χρησιμοποίησε κάρτες που δημιούργησες ή εισήγαγες.", route: "/#/flashcards" },
+  { id: "review", english: "Review", greek: "Επανάληψη", descriptionEnglish: "Practice due cards you create or import.", descriptionGreek: "Εξασκήσου σε κάρτες για επανάληψη που δημιούργησες ή εισήγαγες.", route: "/#/review" },
+  { id: "quiz", english: "Quiz", greek: "Κουίζ", descriptionEnglish: "Test yourself with cards you create or import.", descriptionGreek: "Δοκίμασε τον εαυτό σου με κάρτες που δημιούργησες ή εισήγαγες.", route: "/#/quiz" },
+  { id: "progress", english: "Progress", greek: "Πρόοδος", descriptionEnglish: "Track practice results, backup, restore and archive.", descriptionGreek: "Δες αποτελέσματα εξάσκησης, αντίγραφα, επαναφορά και αρχείο.", route: "/#/progress" },
 ];
 
 
@@ -1005,8 +1005,8 @@ export function WorkspaceBetaPage() {
                 <div className="workspace-beta-central-content">
                   {workspaceView === "ai-options" ? (
                 <div className="workspace-beta-ai-options" aria-label={text("AI connection options", "Επιλογές σύνδεσης AI")}>
-                  <a className="workspace-beta-ai-option" href={getStudyAppAssistantUrl()} rel="noopener noreferrer" target="_blank"><strong>StudyApp AI Assistant</strong><p>{text("Open the dedicated assistant in ChatGPT. Work there directly; StudyApp does not send your material.", "Άνοιξε τον ειδικό βοηθό StudyApp στο ChatGPT. Η εργασία γίνεται εκεί· το StudyApp δεν στέλνει υλικό.")}</p><span>{text("Available", "Διαθέσιμο")}</span></a>
-                  <button className="workspace-beta-ai-option" onClick={() => setWorkspaceView("local")} type="button"><strong>{text("Sign in with ChatGPT", "Σύνδεση με ChatGPT")}</strong><p>{text("Windows Local: connect your ChatGPT plan for questions and PDF RAG.", "Windows Local: σύνδεσε το πλάνο ChatGPT για ερωτήσεις και PDF RAG.")}</p><span>{localEdition ? text("Available", "Διαθέσιμο") : text("Available in Windows Local only", "Διαθέσιμο μόνο στο Windows Local")}</span></button>
+                  <a className="workspace-beta-ai-option" href={getStudyAppAssistantUrl()} rel="noopener noreferrer" target="_blank"><strong>StudyApp AI Assistant</strong><p>{text("Open the dedicated assistant in ChatGPT. Work there directly; StudyApp does not send your material.", "Άνοιξε τον ειδικό βοηθό StudyApp στο ChatGPT. Η εργασία γίνεται εκεί· το StudyApp δεν στέλνει υλικό.")}</p><span className="workspace-beta-availability is-available">{text("Available", "Διαθέσιμο")}</span></a>
+                  <button className="workspace-beta-ai-option" onClick={() => setWorkspaceView("local")} type="button"><strong>{text("Sign in with ChatGPT", "Σύνδεση με ChatGPT")}</strong><p>{text("Windows Local: connect your ChatGPT plan for questions and PDF RAG.", "Windows Local: σύνδεσε το πλάνο ChatGPT για ερωτήσεις και PDF RAG.")}</p><span className="workspace-beta-availability is-available">{localEdition ? text("Available", "Διαθέσιμο") : text("Available in Windows Local only", "Διαθέσιμο μόνο στο Windows Local")}</span></button>
                   <button className="workspace-beta-ai-option" disabled type="button"><strong>ChatGPT App / MCP</strong><p>{text("Planned option to use approved StudyApp tools inside ChatGPT. Not available yet.", "Μελλοντική χρήση εγκεκριμένων εργαλείων StudyApp μέσα στο ChatGPT. Δεν είναι διαθέσιμο ακόμη.")}</p><span>{text("Coming soon", "Σύντομα")}</span></button>
                   <button className="workspace-beta-ai-option" disabled type="button"><strong>StudyApp AI / API</strong><p>{text("Planned automatic help with selected material. It is not active and there are no charges yet.", "Μελλοντική αυτόματη βοήθεια με επιλεγμένο υλικό. Δεν είναι ενεργό και δεν γίνεται χρέωση ακόμη.")}</p><span>{text("Coming soon", "Σύντομα")}</span></button>
                 </div>
@@ -1058,7 +1058,7 @@ export function WorkspaceBetaPage() {
                 <div className={`workspace-beta-persistent-agent${localChatReady ? " has-chat" : ""}`}>
                   <div className="workspace-beta-agent-bar">
                     <strong>{text("AI Agent bar — Available only in Local version", "Μπάρα AI Agent — Διαθέσιμη μόνο στην έκδοση Local")}</strong>
-                    <span role="status">{agentStatus}</span>
+                    <span className={`workspace-beta-availability ${localChatReady ? "is-available" : "is-unavailable"}`} role="status">{agentStatus}</span>
                     <button
                       aria-expanded={agentPanelExpanded}
                       aria-label={text(agentPanelExpanded ? "Hide AI Agent panel" : "Show AI Agent panel", agentPanelExpanded ? "Απόκρυψη πάνελ Agent AI" : "Εμφάνιση πάνελ Agent AI")}

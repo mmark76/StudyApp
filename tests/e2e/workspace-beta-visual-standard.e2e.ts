@@ -10,6 +10,23 @@ test("Sources, AI options and tools use the approved compact card treatment", as
   await expect(sourceRows).toHaveCount(2);
   await expect(aiRows).toHaveCount(4);
   await expect(toolRows).toHaveCount(8);
+  const titleHierarchy = await Promise.all([
+    sourceRows.first().evaluate((element) => ({
+      title: parseFloat(getComputedStyle(element.querySelector("h3")!).fontSize),
+      description: parseFloat(getComputedStyle(element.querySelector("p:not(.eyebrow)")!).fontSize),
+    })),
+    aiRows.first().evaluate((element) => ({
+      title: parseFloat(getComputedStyle(element.querySelector("strong")!).fontSize),
+      description: parseFloat(getComputedStyle(element.querySelector("p")!).fontSize),
+    })),
+    toolRows.first().evaluate((element) => ({
+      title: parseFloat(getComputedStyle(element.querySelector("span")!).fontSize),
+      description: parseFloat(getComputedStyle(element.querySelector("small")!).fontSize),
+    })),
+  ]);
+  for (const hierarchy of titleHierarchy) {
+    expect(hierarchy.title).toBeGreaterThan(hierarchy.description);
+  }
   for (const row of [aiRows.first(), aiRows.last(), toolRows.first(), toolRows.last()]) {
     const shape = await row.evaluate((element) => ({
       border: getComputedStyle(element).borderBottomStyle,

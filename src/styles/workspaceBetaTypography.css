@@ -109,8 +109,8 @@
   font-size: var(--workspace-type-micro);
 }
 
-.workspace-panel-embed-main .dashboard-action-card h3 {
-  font-size: var(--workspace-type-body);
+.workspace-panel-embed-main .workspace-beta-sources-page .dashboard-action-card h3 {
+  font-size: var(--workspace-type-heading);
 }
 
 .workspace-panel-embed-main .dashboard-action-card > p:not(.eyebrow) {

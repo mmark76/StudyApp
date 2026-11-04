@@ -9,7 +9,7 @@ test("Workspace BETA keeps three functional columns and existing routes", async 
   await expect(page.locator('iframe[name="studyapp-workspace-sources"]')).toBeVisible();
 
   const progressTool = page.getByRole("button", { name: "Progress", exact: true });
-  await expect(progressTool).toContainText("View results, backup, restore and archive.");
+  await expect(progressTool).toContainText("Track practice results, backup, restore and archive.");
   await progressTool.click();
   await expect(page.locator('iframe[name="studyapp-workspace-workspace"]')).toHaveAttribute("src", "/#/progress");
   const progressWorkspace = page.frameLocator('iframe[name="studyapp-workspace-workspace"]');
@@ -21,7 +21,8 @@ test("Workspace BETA keeps three functional columns and existing routes", async 
 test("Workspace BETA keeps the release download label compact", async ({ page }) => {
   await page.goto("/#/workspace-beta");
   const downloads = page.locator(".workspace-beta-header .workspace-beta-local-download");
-  await expect(downloads).toHaveCount(2);
+  await expect(downloads).toHaveCount(1);
+  await expect(page.getByRole("button", { name: /Download Stable/u })).toHaveCount(0);
   for (const download of await downloads.all()) {
     const style = await download.evaluate((element) => ({
       fontSize: parseFloat(getComputedStyle(element).fontSize),
