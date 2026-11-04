@@ -87,9 +87,24 @@
 }
 
 :root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-option {
-  border-color: #52524c;
-  background: #252523;
+  border-color: #43604d;
+  background: #223229;
   color: #f2f2ef;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-option:nth-child(2) {
+  border-color: #3f5870;
+  background: #202e3b;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-option:nth-child(3) {
+  border-color: #67563e;
+  background: #352d22;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-option:nth-child(4) {
+  border-color: #5c4b70;
+  background: #30283a;
 }
 
 :root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-option span,
@@ -97,15 +112,22 @@
   color: #c8c8c1;
 }
 
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-option .workspace-beta-availability.is-available,
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-agent-bar > .workspace-beta-availability.is-available {
+  color: #8ed3a8;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-agent-bar > .workspace-beta-availability.is-unavailable {
+  color: #ffaaa3;
+}
+
 :root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-option:hover:not(:disabled) {
   border-color: #77776f;
-  background: #30302d;
   color: #ffffff;
+  filter: brightness(1.06);
 }
 
 :root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-option:disabled {
-  border-color: #484843;
-  background: #222220;
   color: #d2d2cc;
   opacity: 1;
 }
@@ -259,6 +281,16 @@
 :root[data-workspace-theme="dark"] .workspace-panel-embed-main .dashboard-action-card {
   border-color: #41413d;
   background: #20201f;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .workspace-beta-sources-page .dashboard-action-card:nth-child(1) {
+  border-color: #43604d;
+  background: #223229;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .workspace-beta-sources-page .dashboard-action-card:nth-child(2) {
+  border-color: #3f5870;
+  background: #202e3b;
 }
 
 :root[data-workspace-theme="dark"] .workspace-panel-embed-main .learning-stage-grid.learn-tools-grid {

@@ -145,6 +145,12 @@ Plugin listing in ChatGPT and Windows-only Sign in with ChatGPT, but does not
 read the library, inspect IndexedDB, contact ChatGPT, call the OpenAI API or
 perform any StudyApp action.
 
+The Web/PWA-only ZIP versions modal requests public GitHub release metadata only
+after the user opens it. It accepts a release only when its tag and official ZIP
+asset name and URL match the expected StudyApp release pattern. It does not send
+study material, local settings, identifiers or authentication data, and it is
+not present in StudyApp Local.
+
 ## ChatGPT App / MCP security gate
 
 Before activation, define and test:

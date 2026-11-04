@@ -60,6 +60,7 @@ test("Workspace BETA desktop preserves the selected font in sources, tools and S
   await expectShellControlsUseActiveFont(page);
   await page.getByRole("button", { name: "Summary of Uploaded Material", exact: true }).click();
   const workspace = page.frameLocator('iframe[name="studyapp-workspace-workspace"]');
+  await workspace.getByRole("button", { name: "Choose material and create a summary" }).click();
   await expectFrameControlsUseActiveFont(workspace, "serif");
   await expect(workspace.locator(".summary-page textarea")).toHaveCount(2);
   await expectFrameControlsUseActiveFont(workspace, "serif");

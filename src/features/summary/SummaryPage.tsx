@@ -25,6 +25,10 @@ export function SummaryPage() {
   const { language, text } = useLanguage();
   const [searchParams] = useSearchParams();
   const workspaceBeta = searchParams.get("workspace") === "beta";
+  const [summaryWorkspaceOpen, setSummaryWorkspaceOpen] = useState(() => !workspaceBeta);
+  useEffect(() => {
+    setSummaryWorkspaceOpen(!workspaceBeta);
+  }, [workspaceBeta]);
   const { importedUnits, hasStoredContentError } = useStudyContent();
   const files = useLiveQuery(() => studyDatabase.studyFiles.orderBy("createdAt").toArray(), []);
   const sourceFiles = (files ?? []).filter((file) => file.generatedSummary !== true);
@@ -232,9 +236,15 @@ export function SummaryPage() {
   return <main className="summary-page stack-lg">
     <header className="page-heading"><p className="eyebrow">{workspaceBeta ? text("SOURCES & MATERIALS", "ΠΗΓΕΣ & ΥΛΙΚΟ") : text("PRACTICE & MASTERY", "ΕΞΑΣΚΗΣΗ & ΕΜΠΕΔΩΣΗ")}</p>
       <h2>{workspaceBeta ? text("Summary of Uploaded Material", "Περίληψη ανεβασμένου υλικού") : text("Summary and Main Points", "Περίληψη και βασικά σημεία")}</h2>
-      <p>{workspaceBeta ? text("Select material uploaded from the left panel and create its summary.", "Επίλεξε υλικό που ανέβηκε από το αριστερό πάνελ και δημιούργησε την περίληψή του.") : text("Create a study summary from your local materials. Review AI drafts before saving.", "Δημιούργησε περίληψη από το τοπικό υλικό σου. Έλεγξε τα πρόχειρα AI πριν τα αποθηκεύσεις.")}</p>
+      <p>{workspaceBeta ? text("Choose Library files or practice chapters yourself. Nothing is selected automatically.", "Επίλεξε εσύ αρχεία Βιβλιοθήκης ή κεφάλαια εξάσκησης. Δεν επιλέγεται υλικό αυτόματα.") : text("Create a study summary from your local materials. Review AI drafts before saving.", "Δημιούργησε περίληψη από το τοπικό υλικό σου. Έλεγξε τα πρόχειρα AI πριν τα αποθηκεύσεις.")}</p>
     </header>
-    <section className="content-panel stack-md" aria-label={text("Create summary", "Δημιουργία περίληψης")}>
+    {workspaceBeta && !summaryWorkspaceOpen ? (
+      <section className="content-panel stack-md summary-workspace-intro" aria-label={text("Summary workspace", "Χώρος εργασίας περίληψης")}>
+        <h3>{text("Summary workspace", "Χώρος εργασίας περίληψης")}</h3>
+        <p>{text("Choose the material yourself, then open the summary workspace when you are ready.", "Επίλεξε εσύ το υλικό και άνοιξε τον χώρο εργασίας περίληψης όταν είσαι έτοιμος.")}</p>
+        <button className="button primary" onClick={() => setSummaryWorkspaceOpen(true)} type="button">{text("Choose material and create a summary", "Επίλεξε υλικό και δημιούργησε περίληψη")}</button>
+      </section>
+    ) : <section className="content-panel stack-md" aria-label={text("Create summary", "Δημιουργία περίληψης")}>
       <label>{text("Find a source", "Εύρεση πηγής")}<input value={sourceSearch} onChange={(event) => setSourceSearch(event.target.value)} /></label>
       <label>{text("Source material (select one or more)", "Πηγές υλικού (επίλεξε μία ή περισσότερες)")}
         <select multiple size={6} value={sourceKeys} onChange={(event) => changeSource(Array.from(event.target.selectedOptions, (option) => option.value))} disabled={busy}>
@@ -285,7 +295,7 @@ export function SummaryPage() {
         <button className="button secondary" type="button" disabled={busy} onClick={downloadDraft}>{text("Download draft (.txt)", "Λήψη προχείρου (.txt)")}</button></div>
       {progress ? <p role="status">{progress.phase === "extract" ? text("Reading", "Ανάγνωση") : progress.phase === "summarize" ? text("Summarizing", "Σύνοψη") : text("Combining", "Σύνθεση")}: {progress.completed} / {progress.total}</p> : null}
       {status ? <p role="status">{status}</p> : null}{error ? <p role="alert">{error}</p> : null}
-    </section>
+    </section>}
     <section className="content-panel stack-md" aria-label={text("Saved summaries", "Αποθηκευμένες περιλήψεις")}><h3>{text("Saved summaries", "Αποθηκευμένες περιλήψεις")}</h3>
       {!saved.length ? <p>{text("No saved summaries yet.", "Δεν υπάρχουν αποθηκευμένες περιλήψεις.")}</p> : saved.slice((currentSavedPage - 1) * 25, currentSavedPage * 25).map((file) =>
         <div className="summary-saved" key={file.id}><span>{file.title}</span><button className="button secondary" aria-label={text(`Download ${file.title}`, `Λήψη ${file.title}`)} type="button" onClick={() => void downloadSaved(file)}>{text("Download", "Λήψη")}</button></div>)}

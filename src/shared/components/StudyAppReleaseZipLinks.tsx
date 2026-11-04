@@ -135,7 +135,6 @@ export function StudyAppLocalWindowsZipLink({
   const { text } = useLanguage();
   return (
     <>
-    <StudyAppStableLocalWindowsZipLink className={className} />
     <VersionedReleaseZipLink
       findAsset={findStudyAppLocalWindowsZip}
       onClick={onClick}
