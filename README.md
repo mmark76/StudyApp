@@ -291,6 +291,12 @@ npm test
 npm run build
 ```
 
+`npm run dev` serves the development app at `http://localhost:5174/`. If that
+port is already occupied, startup fails instead of silently selecting another
+port. The separate Windows StudyApp Local edition remains on `127.0.0.1:8767`.
+Browser storage is scoped to each origin: data previously saved under
+`localhost:5173` is not automatically available under `localhost:5174`.
+
 The production build reads the public `VITE_STUDYAPP_AI_ASSISTANT_URL` setting
 from `.env.production` for the dedicated StudyApp Custom GPT link. Runtime
 validation falls back to the exact approved HTTPS destination if the setting is
