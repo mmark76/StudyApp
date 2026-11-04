@@ -1158,35 +1158,6 @@
   justify-self: end;
   align-self: center;
 }
-.workspace-panel-embed-main .workspace-beta-sources-page .workspace-beta-manual-structuring-action,
-.workspace-panel-embed-main .workspace-beta-sources-page .workspace-beta-split-pdf-action {
-  border-width: 1px;
-  border-style: solid;
-  border-radius: 0.42rem;
-  box-shadow: none;
-}
-.workspace-panel-embed-main .workspace-beta-sources-page .workspace-beta-manual-structuring-action {
-  border-color: #d6b5a4;
-  background: #ead7cb;
-  color: #563d30;
-}
-.workspace-panel-embed-main .workspace-beta-sources-page .workspace-beta-split-pdf-action {
-  border-color: #aac3d7;
-  background: #d9e7f1;
-  color: #254b68;
-}
-.workspace-panel-embed-main .workspace-beta-sources-page .workspace-beta-manual-structuring-action:hover {
-  border-color: #c99e8b;
-  background: #e3c9bb;
-  color: #463025;
-  text-decoration: none;
-}
-.workspace-panel-embed-main .workspace-beta-sources-page .workspace-beta-split-pdf-action:hover {
-  border-color: #8fb1ca;
-  background: #cde0ec;
-  color: #1d405c;
-  text-decoration: none;
-}
 .workspace-panel-embed-main .ai-studio-option-heading {
   display: flex;
   align-items: center;

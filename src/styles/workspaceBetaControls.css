@@ -1003,3 +1003,57 @@
   padding-top: 0.19rem;
   padding-bottom: 0.19rem;
 }
+
+/* Sources: distinguish the two active Structured Study actions with soft
+ * colours. This control stylesheet is loaded after generic button styles. */
+.workspace-panel-embed-main .workspace-beta-sources-page .button.workspace-beta-manual-structuring-action {
+  border-color: #d6b5a4;
+  background: #ead7cb;
+  color: #563d30;
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main .workspace-beta-sources-page .button.workspace-beta-split-pdf-action {
+  border-color: #aac3d7;
+  background: #d9e7f1;
+  color: #254b68;
+  box-shadow: none;
+}
+
+.workspace-panel-embed-main .workspace-beta-sources-page .button.workspace-beta-manual-structuring-action:hover {
+  border-color: #c99e8b;
+  background: #e3c9bb;
+  color: #463025;
+  text-decoration: none;
+}
+
+.workspace-panel-embed-main .workspace-beta-sources-page .button.workspace-beta-split-pdf-action:hover {
+  border-color: #8fb1ca;
+  background: #cde0ec;
+  color: #1d405c;
+  text-decoration: none;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .workspace-beta-sources-page .button.workspace-beta-manual-structuring-action {
+  border-color: #916c5b;
+  background: #5c4135;
+  color: #ffede2;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .workspace-beta-sources-page .button.workspace-beta-split-pdf-action {
+  border-color: #557c99;
+  background: #274457;
+  color: #e2f1ff;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .workspace-beta-sources-page .button.workspace-beta-manual-structuring-action:hover {
+  border-color: #b0806b;
+  background: #68493b;
+  color: #ffffff;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .workspace-beta-sources-page .button.workspace-beta-split-pdf-action:hover {
+  border-color: #78a3c2;
+  background: #31546a;
+  color: #ffffff;
+}

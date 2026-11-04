@@ -48,6 +48,9 @@ test("Workspace BETA shows the standard StudyApp update notification", async ({ 
 test("Phase 1 cards and Agent status retain readable contrast in dark mode", async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/#/workspace-beta");
+  const lightMode = page.getByRole("button", { name: "Switch to light mode" });
+  if (await lightMode.count()) await lightMode.click();
+  await expect(page.locator("html")).toHaveAttribute("data-workspace-theme", "light");
   const sources = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
   const sourceCards = sources.locator(".dashboard-action-card");
   const manualStructuring = sources.getByRole("link", { name: "Manual Structuring - import structured files" });

@@ -297,30 +297,6 @@
   background: #202e3b;
 }
 
-:root[data-workspace-theme="dark"] .workspace-panel-embed-main .workspace-beta-sources-page .workspace-beta-manual-structuring-action {
-  border-color: #916c5b;
-  background: #5c4135;
-  color: #ffede2;
-}
-
-:root[data-workspace-theme="dark"] .workspace-panel-embed-main .workspace-beta-sources-page .workspace-beta-split-pdf-action {
-  border-color: #557c99;
-  background: #274457;
-  color: #e2f1ff;
-}
-
-:root[data-workspace-theme="dark"] .workspace-panel-embed-main .workspace-beta-sources-page .workspace-beta-manual-structuring-action:hover {
-  border-color: #b0806b;
-  background: #68493b;
-  color: #ffffff;
-}
-
-:root[data-workspace-theme="dark"] .workspace-panel-embed-main .workspace-beta-sources-page .workspace-beta-split-pdf-action:hover {
-  border-color: #78a3c2;
-  background: #31546a;
-  color: #ffffff;
-}
-
 :root[data-workspace-theme="dark"] .workspace-panel-embed-main .learning-stage-grid.learn-tools-grid {
   border-top-color: #3f3f3b;
 }
