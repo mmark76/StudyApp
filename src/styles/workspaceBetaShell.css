@@ -2103,6 +2103,7 @@ body:has(.workspace-panel-embed-shell),
 .workspace-beta-workspace-layout, .workspace-beta-local-mode { display: flex; min-height: 0; flex: 1; flex-direction: column; }
 .workspace-beta-local-only-notice { align-items: center; justify-content: center; gap: 0.8rem; padding: 1.25rem; text-align: center; }
 .workspace-beta-local-only-notice h3, .workspace-beta-local-only-notice p { max-width: 34rem; margin: 0; }
+.workspace-beta-local-only-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.5rem; max-width: 34rem; }
 .workspace-beta-workspace-upper { display: flex; min-height: 0; flex: 1 1 100%; }
 .workspace-beta-persistent-agent { display: flex; min-height: 0; flex-direction: column; overflow: hidden; }
 .workspace-beta-persistent-agent .workspace-local-chat { display: none; min-height: 0; }

@@ -25,6 +25,7 @@ import {
   prepareChatGptPlanConnection,
   removeChatGptPlanConnection,
   startChatGptPlanConnection,
+  STUDYAPP_LOCAL_PROTOCOL_URL,
   type ChatGptPlanConnectionStatus,
 } from "../../infrastructure/local-companion/localCompanionClient";
 
@@ -69,16 +70,18 @@ const workspaceTools: ReadonlyArray<{
   id: Exclude<WorkspaceView, "ai-options" | "local">;
   english: string;
   greek: string;
+  descriptionEnglish: string;
+  descriptionGreek: string;
   route: string;
 }> = [
-  { id: "learning-goals", english: "Learning Goals", greek: "Στόχοι μάθησης", route: "/#/core-knowledge?view=goals" },
-  { id: "key-points", english: "Key Points", greek: "Βασικά σημεία", route: "/#/core-knowledge?view=key-points" },
-  { id: "important-terms", english: "Important Terms", greek: "Σημαντικοί όροι", route: "/#/core-knowledge?view=terms" },
-  { id: "summary", english: "Summary of Uploaded Material", greek: "Περίληψη ανεβασμένου υλικού", route: "/#/summary?workspace=beta" },
-  { id: "flashcards", english: "Flashcards", greek: "Κάρτες", route: "/#/flashcards" },
-  { id: "review", english: "Review", greek: "Επανάληψη", route: "/#/review" },
-  { id: "quiz", english: "Quiz", greek: "Κουίζ", route: "/#/quiz" },
-  { id: "progress", english: "Progress", greek: "Πρόοδος", route: "/#/progress" },
+  { id: "learning-goals", english: "Learning Goals", greek: "Στόχοι μάθησης", descriptionEnglish: "Set clear goals for this chapter.", descriptionGreek: "Όρισε καθαρούς στόχους για αυτό το κεφάλαιο.", route: "/#/core-knowledge?view=goals" },
+  { id: "key-points", english: "Key Points", greek: "Βασικά σημεία", descriptionEnglish: "Review the main ideas at a glance.", descriptionGreek: "Δες γρήγορα τις βασικές ιδέες.", route: "/#/core-knowledge?view=key-points" },
+  { id: "important-terms", english: "Important Terms", greek: "Σημαντικοί όροι", descriptionEnglish: "Keep key words and definitions together.", descriptionGreek: "Κράτησε μαζί βασικούς όρους και ορισμούς.", route: "/#/core-knowledge?view=terms" },
+  { id: "summary", english: "Summary of Uploaded Material", greek: "Περίληψη ανεβασμένου υλικού", descriptionEnglish: "Create a short overview of uploaded material.", descriptionGreek: "Δημιούργησε σύντομη εικόνα του ανεβασμένου υλικού.", route: "/#/summary?workspace=beta" },
+  { id: "flashcards", english: "Flashcards", greek: "Κάρτες", descriptionEnglish: "Practice with question and answer cards.", descriptionGreek: "Εξασκήσου με κάρτες ερώτησης και απάντησης.", route: "/#/flashcards" },
+  { id: "review", english: "Review", greek: "Επανάληψη", descriptionEnglish: "Revisit cards scheduled for practice.", descriptionGreek: "Επανάλαβε κάρτες που είναι για εξάσκηση.", route: "/#/review" },
+  { id: "quiz", english: "Quiz", greek: "Κουίζ", descriptionEnglish: "Test what you remember with questions.", descriptionGreek: "Δοκίμασε τι θυμάσαι με ερωτήσεις.", route: "/#/quiz" },
+  { id: "progress", english: "Progress", greek: "Πρόοδος", descriptionEnglish: "View results, backup, restore and archive.", descriptionGreek: "Δες αποτελέσματα, αντίγραφα, επαναφορά και αρχείο.", route: "/#/progress" },
 ];
 
 
@@ -1003,16 +1006,20 @@ export function WorkspaceBetaPage() {
                 <div className="workspace-beta-central-content">
                   {workspaceView === "ai-options" ? (
                 <div className="workspace-beta-ai-options" aria-label={text("AI connection options", "Επιλογές σύνδεσης AI")}>
-                  <a className="workspace-beta-ai-option" href={getStudyAppAssistantUrl()} rel="noopener noreferrer" target="_blank"><strong>StudyApp AI Assistant</strong><p>{text("Open the dedicated assistant in ChatGPT.", "Άνοιξε τον ειδικό βοηθό στο ChatGPT.")}</p><span>{text("Available", "Διαθέσιμο")}</span></a>
-                  <button className="workspace-beta-ai-option" onClick={() => setWorkspaceView("local")} type="button"><strong>{text("Sign in with ChatGPT", "Σύνδεση με ChatGPT")}</strong><p>{text("Connect your ChatGPT plan in StudyApp Local for Windows.", "Σύνδεσε το πλάνο ChatGPT στο StudyApp Local για Windows.")}</p><span>{localEdition ? text("Available", "Διαθέσιμο") : text("Available in Windows Local only", "Διαθέσιμο μόνο στο Windows Local")}</span></button>
-                  <button className="workspace-beta-ai-option" disabled type="button"><strong>ChatGPT App / MCP</strong><p>{text("Use StudyApp inside ChatGPT.", "Χρησιμοποίησε το StudyApp μέσα στο ChatGPT.")}</p><span>{text("Coming soon", "Σύντομα")}</span></button>
-                  <button className="workspace-beta-ai-option" disabled type="button"><strong>StudyApp AI / API</strong><p>{text("Automatic AI is not active. No charges yet.", "Το αυτόματο AI δεν είναι ενεργό. Δεν γίνεται χρέωση ακόμη.")}</p><span>{text("Coming soon", "Σύντομα")}</span></button>
+                  <a className="workspace-beta-ai-option" href={getStudyAppAssistantUrl()} rel="noopener noreferrer" target="_blank"><strong>StudyApp AI Assistant</strong><p>{text("Open the dedicated assistant in ChatGPT. Work there directly; StudyApp does not send your material.", "Άνοιξε τον ειδικό βοηθό StudyApp στο ChatGPT. Η εργασία γίνεται εκεί· το StudyApp δεν στέλνει υλικό.")}</p><span>{text("Available", "Διαθέσιμο")}</span></a>
+                  <button className="workspace-beta-ai-option" onClick={() => setWorkspaceView("local")} type="button"><strong>{text("Sign in with ChatGPT", "Σύνδεση με ChatGPT")}</strong><p>{text("Windows Local: connect your ChatGPT plan for questions and PDF RAG.", "Windows Local: σύνδεσε το πλάνο ChatGPT για ερωτήσεις και PDF RAG.")}</p><span>{localEdition ? text("Available", "Διαθέσιμο") : text("Available in Windows Local only", "Διαθέσιμο μόνο στο Windows Local")}</span></button>
+                  <button className="workspace-beta-ai-option" disabled type="button"><strong>ChatGPT App / MCP</strong><p>{text("Planned option to use approved StudyApp tools inside ChatGPT. Not available yet.", "Μελλοντική χρήση εγκεκριμένων εργαλείων StudyApp μέσα στο ChatGPT. Δεν είναι διαθέσιμο ακόμη.")}</p><span>{text("Coming soon", "Σύντομα")}</span></button>
+                  <button className="workspace-beta-ai-option" disabled type="button"><strong>StudyApp AI / API</strong><p>{text("Planned automatic help with selected material. It is not active and there are no charges yet.", "Μελλοντική αυτόματη βοήθεια με επιλεγμένο υλικό. Δεν είναι ενεργό και δεν γίνεται χρέωση ακόμη.")}</p><span>{text("Coming soon", "Σύντομα")}</span></button>
                 </div>
               ) : workspaceView === "local" && !localEdition ? (
                 <div className="workspace-beta-local-mode workspace-beta-local-only-notice">
                   <h3>{text("Available only in StudyApp Local for Windows", "Διαθέσιμο μόνο στο StudyApp Local για Windows")}</h3>
                   <p>{text("Install or open the Windows Local edition to connect your ChatGPT plan. The Web/PWA edition does not create an in-app chat.", "Εγκατάστησε ή άνοιξε την έκδοση Windows Local για να συνδέσεις το πλάνο ChatGPT. Η έκδοση Web/PWA δεν δημιουργεί συνομιλία μέσα στην εφαρμογή.")}</p>
-                  <button className="workspace-beta-back-action" onClick={(event) => openInfoModal("/local-installation-guide", event.currentTarget)} type="button">{text("Installation Guide", "Οδηγός εγκατάστασης")}</button>
+                  <div className="workspace-beta-local-only-actions">
+                    <a className="workspace-beta-back-action" href={STUDYAPP_LOCAL_PROTOCOL_URL} title={text("Open the installed Local app. It safely restarts only its verified local server.", "Άνοιξε την εγκατεστημένη Local εφαρμογή. Επανεκκινεί με ασφάλεια μόνο τον επιβεβαιωμένο τοπικό server της.")}>{text("Open StudyApp Local", "Άνοιγμα StudyApp Local")}</a>
+                    <StudyAppLocalWindowsZipLink className="workspace-beta-back-action" />
+                    <button className="workspace-beta-back-action" onClick={(event) => openInfoModal("/local-installation-guide", event.currentTarget)} type="button">{text("Installation Guide", "Οδηγός εγκατάστασης")}</button>
+                  </div>
                 </div>
               ) : workspaceView === "local" ? (
                 <div className="workspace-beta-local-mode">
@@ -1089,7 +1096,7 @@ export function WorkspaceBetaPage() {
               <div className="workspace-beta-tools-body" id="workspace-beta-tools-content">
                 <div className="workspace-beta-tools-avatar"><img alt="" src="/study-assistant-avatar.svg" /><span>AI StudyApp Assistant</span></div>
                 <div className="workspace-beta-tools-grid">
-                  {workspaceTools.map((tool) => <button className={workspaceView === tool.id ? "is-selected" : undefined} key={tool.id} onClick={() => setWorkspaceView(tool.id)} type="button"><span>{text(tool.english, tool.greek)}</span>{tool.id === "progress" ? <small>{text("Backup, Restore & Archive", "Αντίγραφο, επαναφορά & αρχείο")}</small> : null}</button>)}
+                  {workspaceTools.map((tool) => <button className={workspaceView === tool.id ? "is-selected" : undefined} key={tool.id} onClick={() => setWorkspaceView(tool.id)} type="button"><span>{text(tool.english, tool.greek)}</span><small>{text(tool.descriptionEnglish, tool.descriptionGreek)}</small></button>)}
                 </div>
               </div>
             </section>
