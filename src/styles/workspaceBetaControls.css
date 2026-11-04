@@ -1048,8 +1048,8 @@
 }
 
 .workspace-panel-embed-main .workspace-beta-sources-page .button.workspace-beta-ai-structuring-unavailable--web:disabled {
-  border-color: #e5c870;
-  background: #fff1c7;
+  border-color: #a9cdb6;
+  background: #e0f2e6;
   color: #b4232e;
 }
 
@@ -1084,8 +1084,8 @@
 }
 
 :root[data-workspace-theme="dark"] .workspace-panel-embed-main .workspace-beta-sources-page .button.workspace-beta-ai-structuring-unavailable--web:disabled {
-  border-color: #8a7438;
-  background: #4a3d1d;
+  border-color: #47765d;
+  background: #223b2c;
   color: #ff9da3;
 }
 
