@@ -62,7 +62,7 @@ test("Phase 1 cards and Agent status retain readable contrast in dark mode", asy
   );
   expect(new Set(lightAiBackgrounds).size).toBe(4);
   await expect(aiCards.first().locator(".workspace-beta-availability.is-available")).toHaveCSS("color", "rgb(38, 115, 77)");
-  await expect(page.locator(".workspace-beta-agent-bar .workspace-beta-availability.is-unavailable")).toHaveCSS("color", "rgb(165, 49, 49)");
+  await expect(page.locator(".workspace-beta-agent-bar .workspace-beta-availability.is-unavailable")).toHaveCSS("color", "rgb(198, 40, 40)");
   const lightBackgrounds = await toolCards.evaluateAll((elements) =>
     elements.map((element) => getComputedStyle(element).backgroundColor),
   );
@@ -83,7 +83,7 @@ test("Phase 1 cards and Agent status retain readable contrast in dark mode", asy
     expect(contrastRatio(colors.foreground, colors.background)).toBeGreaterThanOrEqual(4.5);
   }
   await expect(aiCards.first().locator(".workspace-beta-availability.is-available")).toHaveCSS("color", "rgb(142, 211, 168)");
-  await expect(page.locator(".workspace-beta-agent-bar .workspace-beta-availability.is-unavailable")).toHaveCSS("color", "rgb(255, 170, 163)");
+  await expect(page.locator(".workspace-beta-agent-bar .workspace-beta-availability.is-unavailable")).toHaveCSS("color", "rgb(255, 143, 137)");
 
   const darkSourceColors = await sourceCards.evaluateAll((elements) => elements.map((element) => ({
     background: getComputedStyle(element).backgroundColor,

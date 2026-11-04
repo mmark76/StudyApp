@@ -1076,7 +1076,10 @@ export function WorkspaceBetaPage() {
                 />
                 <div className={`workspace-beta-persistent-agent${localChatReady ? " has-chat" : ""}`}>
                   <div className="workspace-beta-agent-bar">
-                    <strong>{text("AI Agent bar — Available only in Local version", "Μπάρα AI Agent — Διαθέσιμη μόνο στην έκδοση Local")}</strong>
+                    <div className="workspace-beta-agent-bar-title">
+                      <strong>{text("AI Agent bar — Available only in Local version", "Μπάρα AI Agent — Διαθέσιμη μόνο στην έκδοση Local")}</strong>
+                      {!localEdition ? <small className="workspace-beta-agent-web-unavailable">{text("Not available in web app", "Δεν είναι διαθέσιμο στην web εφαρμογή")}</small> : null}
+                    </div>
                     <span className={`workspace-beta-availability ${localChatReady ? "is-available" : "is-unavailable"}`} role="status">{agentStatus}</span>
                     <button
                       aria-expanded={agentPanelExpanded}
