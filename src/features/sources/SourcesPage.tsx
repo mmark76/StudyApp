@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { isStudyAppLocalEdition } from "../../infrastructure/local-companion/localCompanionClient";
 
 function isWorkspaceSourcesFrame(): boolean {
   return typeof window !== "undefined" && window.name === "studyapp-workspace-sources";
@@ -8,6 +9,7 @@ function isWorkspaceSourcesFrame(): boolean {
 export function SourcesPage() {
   const { text } = useLanguage();
   const workspaceSourcesFrame = isWorkspaceSourcesFrame();
+  const localEdition = isStudyAppLocalEdition();
 
   return (
     <div className="stack-lg workspace-beta-sources-page">
@@ -52,7 +54,7 @@ export function SourcesPage() {
           <div className="button-row">
             <Link className="button study workspace-beta-manual-structuring-action" to="/study/theory">{text("Manual Structuring - import structured files", "Χειροκίνητη δόμηση - εισαγωγή δομημένων αρχείων")}</Link>
             <Link className="button secondary workspace-beta-split-pdf-action" to="/tools">{text("Split PDF Tool", "Εργαλείο χωρισμού PDF")}</Link>
-            <button className="button secondary workspace-beta-ai-structuring-unavailable" disabled type="button">{text("AI-Assisted Structuring — Under construction — Not available yet", "Δόμηση με υποστήριξη AI — Υπό κατασκευή — Δεν είναι διαθέσιμη ακόμη")}</button>
+            <button className={`button secondary workspace-beta-ai-structuring-unavailable workspace-beta-ai-structuring-unavailable--${localEdition ? "local" : "web"}`} disabled type="button">{text("AI-Assisted Structuring — Under construction — Not available yet", "Δόμηση με υποστήριξη AI — Υπό κατασκευή — Δεν είναι διαθέσιμη ακόμη")}</button>
           </div>
         </article>
       </section>
