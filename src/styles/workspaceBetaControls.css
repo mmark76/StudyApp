@@ -1139,3 +1139,59 @@
 .workspace-panel-embed-main .progress-page--workspace-results .content-panel > h3 {
   margin: 0 0 0.24rem;
 }
+
+/* Resizing a Workspace BETA column must reflow button and card labels instead
+ * of letting intrinsic text width push controls outside their panel. */
+.workspace-beta-functional-shell :is(
+  button:not(.workspace-beta-resizer),
+  .workspace-beta-ai-option,
+  .workspace-beta-header-actions a,
+  .workspace-beta-info-menu > summary
+),
+.workspace-panel-embed-main :is(button, a.button, [role="button"]) {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+}
+
+.workspace-panel-embed-main :is(
+  .dashboard-action-card,
+  .ai-studio-option,
+  .learning-stage-card,
+  .library-card,
+  .content-panel,
+  .study-panel,
+  .quiz-card
+),
+.workspace-beta-functional-shell :is(.workspace-beta-ai-option, .workspace-beta-tools-grid > button) {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+}
+
+.workspace-panel-embed-main :is(
+  .dashboard-action-card,
+  .ai-studio-option,
+  .learning-stage-card,
+  .library-card
+) :is(h2, h3, h4, h5, p, span, strong, small),
+.workspace-beta-functional-shell :is(.workspace-beta-ai-option, .workspace-beta-tools-grid > button) :is(strong, span, small, p) {
+  min-inline-size: 0;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+}
+
+.workspace-panel-embed-main .dashboard-action-card > .button-row {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.workspace-panel-embed-main .dashboard-action-card .button-row > :is(.button, button) {
+  flex-shrink: 1;
+  max-inline-size: 100%;
+}
+
+.workspace-beta-functional-shell .workspace-beta-ai-option {
+  block-size: auto;
+}

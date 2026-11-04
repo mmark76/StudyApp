@@ -103,9 +103,10 @@ const workspaceSourcePopupRoutes = new Set<WorkspaceSourcePopupRoute>([
 const defaultPanelWeights: PanelWidths = [25, 28, 25, 22];
 const minimumPanelWidths: PanelWidths = [260, 240, 340, 280];
 const phaseOneMinimumPanelWidths: PhaseOnePanelWidths = [180, 260, 180];
-const defaultPhaseOnePanelWeights: PhaseOnePanelWidths = [1, 2, 1];
+const defaultPhaseOnePanelWeights: PhaseOnePanelWidths = [1, 3, 1];
 const agentMinimumPanelHeights: [number, number] = [160, 44];
-const defaultAgentPanelWeights: [number, number] = [90, 10];
+const disconnectedAgentPanelWeights: [number, number] = [90, 10];
+const connectedAgentPanelWeights: [number, number] = [50, 50];
 const keyboardResizeStep = 32;
 const disconnectedChatGptPlan: ChatGptPlanConnectionStatus = {
   connected: false,
@@ -277,6 +278,15 @@ export function WorkspaceBetaPage() {
   const localChatReady = localEdition
     && chatGptPlanConnection.connected
     && chatGptPlanConnection.planUsageAuthorized;
+  const defaultAgentPanelWeights = localChatReady
+    ? connectedAgentPanelWeights
+    : disconnectedAgentPanelWeights;
+
+  useEffect(() => {
+    // Connection transitions get a fresh default; drag adjustments remain intact
+    // during the periodic connection-status refreshes.
+    setAgentPanelWeights(null);
+  }, [localChatReady]);
 
   async function changeLocalConnection() {
     if (localConnectionBusy) return;
@@ -1091,8 +1101,8 @@ export function WorkspaceBetaPage() {
                   role="separator"
                   tabIndex={agentPanelExpanded ? 0 : -1}
                   title={text(
-                    "Drag to resize. Use Up/Down arrow keys. Double-click to reset to 90/10.",
-                    "Σύρε για αλλαγή ύψους. Χρησιμοποίησε τα βέλη Πάνω/Κάτω. Διπλό κλικ για επαναφορά σε 90/10.",
+                    `Drag to resize. Use Up/Down arrow keys. Double-click to reset to ${localChatReady ? "50/50" : "90/10"}.`,
+                    `Σύρε για αλλαγή ύψους. Χρησιμοποίησε τα βέλη Πάνω/Κάτω. Διπλό κλικ για επαναφορά σε ${localChatReady ? "50/50" : "90/10"}.`,
                   )}
                 />
                 <div className={`workspace-beta-persistent-agent${localChatReady ? " has-chat" : ""}`}>
