@@ -1,0 +1,18 @@
+.progress-page--workspace-results {
+  align-content: start;
+  gap: .72rem;
+  padding: .72rem;
+}
+
+.progress-page--workspace-results .progress-workspace-results-heading h2 {
+  margin: 0;
+  font-size: var(--workspace-type-heading, .83rem);
+  font-weight: var(--workspace-weight-heading, 750);
+}
+
+.progress-page--workspace-results .progress-workspace-modal-action {
+  justify-self: start;
+  color: inherit;
+  font-size: var(--workspace-type-small, .7rem);
+  font-weight: var(--workspace-weight-control, 700);
+}

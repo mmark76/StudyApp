@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { type MouseEvent, useEffect, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { studyDatabase } from "../../infrastructure/database/studyDatabase";
 import { getChatGptPlanModels, isStudyAppLocalEdition, summarizeCompleteDocumentParts, type ChatGptPlanModel } from "../../infrastructure/local-companion/localCompanionClient";
@@ -21,14 +21,20 @@ function downloadText(content: string, fileName: string): void {
   window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
 }
 
+function isWorkspaceSetupFrame(): boolean {
+  return typeof window !== "undefined" && window.name === "studyapp-workspace-info-modal";
+}
+
+function openWorkspaceSetup(event: MouseEvent<HTMLAnchorElement>): void {
+  if (window.parent === window) return;
+  event.preventDefault();
+  window.parent.postMessage({ type: "studyapp-workspace-open-modal", route: "/summary" }, window.location.origin);
+}
+
 export function SummaryPage() {
   const { language, text } = useLanguage();
   const [searchParams] = useSearchParams();
-  const workspaceBeta = searchParams.get("workspace") === "beta";
-  const [summaryWorkspaceOpen, setSummaryWorkspaceOpen] = useState(() => !workspaceBeta);
-  useEffect(() => {
-    setSummaryWorkspaceOpen(!workspaceBeta);
-  }, [workspaceBeta]);
+  const workspaceBeta = searchParams.get("workspace") === "beta" && !isWorkspaceSetupFrame();
   const { importedUnits, hasStoredContentError } = useStudyContent();
   const files = useLiveQuery(() => studyDatabase.studyFiles.orderBy("createdAt").toArray(), []);
   const sourceFiles = (files ?? []).filter((file) => file.generatedSummary !== true);
@@ -233,18 +239,28 @@ export function SummaryPage() {
     }
   }
 
+  const savedSummaries = <section className="content-panel stack-md" aria-label={text("Saved summaries", "Αποθηκευμένες περιλήψεις")}><h3>{text("Saved summaries", "Αποθηκευμένες περιλήψεις")}</h3>
+    {!saved.length ? <p>{text("No saved summaries yet.", "Δεν υπάρχουν αποθηκευμένες περιλήψεις.")}</p> : saved.slice((currentSavedPage - 1) * 25, currentSavedPage * 25).map((file) =>
+      <div className="summary-saved" key={file.id}><span>{file.title}</span><button className="button secondary" aria-label={text(`Download ${file.title}`, `Λήψη ${file.title}`)} type="button" onClick={() => void downloadSaved(file)}>{text("Download", "Λήψη")}</button></div>)}
+    {totalSavedPages > 1 ? <nav className="summary-actions" aria-label={text("Saved summary pages", "Σελίδες αποθηκευμένων περιλήψεων")}>
+      <button className="button secondary" type="button" disabled={currentSavedPage === 1} onClick={() => setSavedPage(currentSavedPage - 1)}>{text("Previous", "Προηγούμενη")}</button>
+      <span aria-current="page">{currentSavedPage} / {totalSavedPages}</span>
+      <button className="button secondary" type="button" disabled={currentSavedPage === totalSavedPages} onClick={() => setSavedPage(currentSavedPage + 1)}>{text("Next", "Επόμενη")}</button>
+    </nav> : null}
+  </section>;
+
+  if (workspaceBeta) return <main className="summary-page summary-page--workspace-results">
+    <header className="summary-workspace-results-heading"><h2>{text("Summary of Uploaded Material", "Περίληψη ανεβασμένου υλικού")}</h2></header>
+    {!saved.length ? <p className="summary-workspace-empty">{text("No summary created yet.", "Δεν έχει δημιουργηθεί ακόμη περίληψη.")}</p> : savedSummaries}
+    <Link className="summary-workspace-modal-action" onClick={openWorkspaceSetup} to="/summary">{text("Open summary setup", "Άνοιγμα ρύθμισης περίληψης")}</Link>
+  </main>;
+
   return <main className="summary-page stack-lg">
     <header className="page-heading"><p className="eyebrow">{workspaceBeta ? text("SOURCES & MATERIALS", "ΠΗΓΕΣ & ΥΛΙΚΟ") : text("PRACTICE & MASTERY", "ΕΞΑΣΚΗΣΗ & ΕΜΠΕΔΩΣΗ")}</p>
       <h2>{workspaceBeta ? text("Summary of Uploaded Material", "Περίληψη ανεβασμένου υλικού") : text("Summary and Main Points", "Περίληψη και βασικά σημεία")}</h2>
       <p>{workspaceBeta ? text("Choose Library files or practice chapters yourself. Nothing is selected automatically.", "Επίλεξε εσύ αρχεία Βιβλιοθήκης ή κεφάλαια εξάσκησης. Δεν επιλέγεται υλικό αυτόματα.") : text("Create a study summary from your local materials. Review AI drafts before saving.", "Δημιούργησε περίληψη από το τοπικό υλικό σου. Έλεγξε τα πρόχειρα AI πριν τα αποθηκεύσεις.")}</p>
     </header>
-    {workspaceBeta && !summaryWorkspaceOpen ? (
-      <section className="content-panel stack-md summary-workspace-intro" aria-label={text("Summary workspace", "Χώρος εργασίας περίληψης")}>
-        <h3>{text("Summary workspace", "Χώρος εργασίας περίληψης")}</h3>
-        <p>{text("Choose the material yourself, then open the summary workspace when you are ready.", "Επίλεξε εσύ το υλικό και άνοιξε τον χώρο εργασίας περίληψης όταν είσαι έτοιμος.")}</p>
-        <button className="button primary" onClick={() => setSummaryWorkspaceOpen(true)} type="button">{text("Choose material and create a summary", "Επίλεξε υλικό και δημιούργησε περίληψη")}</button>
-      </section>
-    ) : <section className="content-panel stack-md" aria-label={text("Create summary", "Δημιουργία περίληψης")}>
+    <section className="content-panel stack-md" aria-label={text("Create summary", "Δημιουργία περίληψης")}>
       <label>{text("Find a source", "Εύρεση πηγής")}<input value={sourceSearch} onChange={(event) => setSourceSearch(event.target.value)} /></label>
       <label>{text("Source material (select one or more)", "Πηγές υλικού (επίλεξε μία ή περισσότερες)")}
         <select multiple size={6} value={sourceKeys} onChange={(event) => changeSource(Array.from(event.target.selectedOptions, (option) => option.value))} disabled={busy}>
@@ -295,15 +311,7 @@ export function SummaryPage() {
         <button className="button secondary" type="button" disabled={busy} onClick={downloadDraft}>{text("Download draft (.txt)", "Λήψη προχείρου (.txt)")}</button></div>
       {progress ? <p role="status">{progress.phase === "extract" ? text("Reading", "Ανάγνωση") : progress.phase === "summarize" ? text("Summarizing", "Σύνοψη") : text("Combining", "Σύνθεση")}: {progress.completed} / {progress.total}</p> : null}
       {status ? <p role="status">{status}</p> : null}{error ? <p role="alert">{error}</p> : null}
-    </section>}
-    <section className="content-panel stack-md" aria-label={text("Saved summaries", "Αποθηκευμένες περιλήψεις")}><h3>{text("Saved summaries", "Αποθηκευμένες περιλήψεις")}</h3>
-      {!saved.length ? <p>{text("No saved summaries yet.", "Δεν υπάρχουν αποθηκευμένες περιλήψεις.")}</p> : saved.slice((currentSavedPage - 1) * 25, currentSavedPage * 25).map((file) =>
-        <div className="summary-saved" key={file.id}><span>{file.title}</span><button className="button secondary" aria-label={text(`Download ${file.title}`, `Λήψη ${file.title}`)} type="button" onClick={() => void downloadSaved(file)}>{text("Download", "Λήψη")}</button></div>)}
-      {totalSavedPages > 1 ? <nav className="summary-actions" aria-label={text("Saved summary pages", "Σελίδες αποθηκευμένων περιλήψεων")}>
-        <button className="button secondary" type="button" disabled={currentSavedPage === 1} onClick={() => setSavedPage(currentSavedPage - 1)}>{text("Previous", "Προηγούμενη")}</button>
-        <span aria-current="page">{currentSavedPage} / {totalSavedPages}</span>
-        <button className="button secondary" type="button" disabled={currentSavedPage === totalSavedPages} onClick={() => setSavedPage(currentSavedPage + 1)}>{text("Next", "Επόμενη")}</button>
-      </nav> : null}
     </section>
+    {savedSummaries}
   </main>;
 }

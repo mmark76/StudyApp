@@ -51,7 +51,7 @@ async function expectShellControlsUseActiveFont(page: Page) {
   expect(mismatch).toBeUndefined();
 }
 
-test("Workspace BETA desktop preserves the selected font in sources, tools and Summary form", async ({ page }) => {
+test("Workspace BETA desktop preserves the selected font in sources, tools and Summary modal", async ({ page }) => {
   await setFontChoice(page, "serif");
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/#/workspace-beta");
@@ -60,10 +60,10 @@ test("Workspace BETA desktop preserves the selected font in sources, tools and S
   await expectShellControlsUseActiveFont(page);
   await page.getByRole("button", { name: "Summary of Uploaded Material", exact: true }).click();
   const workspace = page.frameLocator('iframe[name="studyapp-workspace-workspace"]');
-  await workspace.getByRole("button", { name: "Choose material and create a summary" }).click();
-  await expectFrameControlsUseActiveFont(workspace, "serif");
-  await expect(workspace.locator(".summary-page textarea")).toHaveCount(2);
-  await expectFrameControlsUseActiveFont(workspace, "serif");
+  await workspace.getByRole("link", { name: "Open summary setup" }).click();
+  const summaryModal = page.frameLocator('iframe[name="studyapp-workspace-info-modal"]');
+  await expect(summaryModal.locator(".summary-page textarea")).toHaveCount(2);
+  await expectFrameControlsUseActiveFont(summaryModal, "serif");
 });
 
 test("Workspace BETA mobile Greek preserves the selected font across all three panels", async ({ page }) => {

@@ -17,13 +17,18 @@ Sources & Materials | AI Studio - Workspace | AI-Assisted Tools
   and Back to AI options returns to it without writing, clearing or migrating
   study data.
 - AI-Assisted Tools is a compact two-column launcher for the approved eight
-  existing study/practice views. Progress remains the route for Backup,
-  Restore and Archive. The column is visible by default and can be hidden
-  without unmounting or clearing the selected workspace view.
-- The central upper workspace uses the existing routes and data model. In
-  Windows Local only, an active study/practice tool exposes the existing
-  transient Local ChatGPT conversation beneath it. Browser/PWA builds do not
-  render a substitute in-app chat.
+  existing study/practice views. The card title is the only bold card text;
+  supporting copy uses the shared regular type weight. The column is visible by
+  default and can be hidden without unmounting or clearing the selected
+  workspace view.
+- The central upper workspace presents user results rather than setup
+  machinery. Summary shows saved output or an empty result state, and Progress
+  shows study results; their existing creation, Backup, Restore and Archive
+  workflows open in a focused modal from a discreet action. This does not alter
+  their data model, validation or storage behavior. In Windows Local only, an
+  active study/practice tool exposes the existing transient Local ChatGPT
+  conversation beneath it. Browser/PWA builds do not render a substitute
+  in-app chat.
 
 ## Explicitly deferred
 

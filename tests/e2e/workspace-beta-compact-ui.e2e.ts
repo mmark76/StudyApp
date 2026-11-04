@@ -18,7 +18,9 @@ test("Sources keeps manual import and planned structuring clearly separated", as
   await expect(sources.getByRole("link", { name: "Create / Open your Library" })).toBeVisible();
   await expect(sources.getByRole("link", { name: "Manual Structuring - import structured files" })).toBeVisible();
   await expect(sources.getByRole("link", { name: "Split PDF Tool" })).toHaveClass(/workspace-beta-split-pdf-action/);
-  await expect(sources.getByRole("button", { name: "AI-Assisted Structuring — Not available" })).toBeDisabled();
+  const unavailableStructuring = sources.getByRole("button", { name: "AI-Assisted Structuring — Under construction — Not available yet" });
+  await expect(unavailableStructuring).toBeDisabled();
+  await expect(unavailableStructuring).toHaveClass(/workspace-beta-ai-structuring-unavailable/u);
 });
 
 test("Sources side-panel copy remains readable beside long structuring actions", async ({ page }) => {
@@ -45,6 +47,7 @@ test("AI Studio and tool controls remain contained at desktop width", async ({ p
   await page.goto("/#/workspace-beta");
   await expect(page.locator(".workspace-beta-ai-option")).toHaveCount(4);
   await expect(page.locator(".workspace-beta-tools-grid > button")).toHaveCount(8);
+  await expect(page.locator(".workspace-beta-tools-grid > button").first().locator("small")).toHaveCSS("font-weight", "400");
   const overflow = await page.locator(".workspace-beta-phase-one-grid").evaluate((element) =>
     element.scrollWidth - element.clientWidth,
   );

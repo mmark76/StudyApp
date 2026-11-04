@@ -20,7 +20,7 @@ test("Workspace BETA sends the available Assistant card directly to the Custom G
   const tools = page.locator(".workspace-beta-tools-grid");
   await expect(tools.getByRole("button", { name: "Learning Goals", exact: true })).toContainText("View goals in imported practice chapters.");
   await expect(tools.getByRole("button", { name: "Summary of Uploaded Material", exact: true })).toContainText("Choose Library files or chapters to summarize.");
-  await expect(tools.getByRole("button", { name: /Progress/u })).toContainText("Track practice results, backup, restore and archive.");
+  await expect(tools.getByRole("button", { name: /Progress/u })).toContainText("View practice results. Backup, restore and archive open separately.");
 
   await assistantCard.evaluate((element) => {
     element.addEventListener("click", (event) => event.preventDefault(), { once: true });
@@ -37,7 +37,7 @@ test("Workspace BETA sends the available Assistant card directly to the Custom G
   await expect(options.getByRole("link", { name: /StudyApp AI Assistant/u })).toContainText("Η εργασία γίνεται εκεί· το StudyApp δεν στέλνει υλικό.");
   await expect(options.getByRole("button", { name: /Σύνδεση με ChatGPT/u })).toContainText("σύνδεσε το πλάνο ChatGPT για άμεσες ερωτήσεις. Το RAG είναι υπό κατασκευή.");
   await expect(tools.getByRole("button", { name: "Στόχοι μάθησης", exact: true })).toContainText("Δες στόχους σε εισαγμένα κεφάλαια εξάσκησης.");
-  await expect(tools.getByRole("button", { name: /Πρόοδος/u })).toContainText("Δες αποτελέσματα εξάσκησης, αντίγραφα, επαναφορά και αρχείο.");
+  await expect(tools.getByRole("button", { name: /Πρόοδος/u })).toContainText("Δες αποτελέσματα εξάσκησης. Αντίγραφα, επαναφορά και αρχείο ανοίγουν ξεχωριστά.");
 });
 
 test("AI option controls use the compact shared typography hierarchy", async ({ page }) => {

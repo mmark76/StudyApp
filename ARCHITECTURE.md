@@ -65,7 +65,10 @@ cards and replaces those cards with the selected existing mode or study tool;
 it does not clear stored data or Local ChatGPT session state when views change.
 The right-side tools grid selects Learning Goals, Key Points, Important Terms,
 Summary & Main Points, Flashcards, Review, Quiz or Progress for the central
-upper Workspace. Progress retains access to backup, restore and archive.
+upper Workspace. That region presents results and empty states rather than
+setup machinery. Summary creation and Progress backup, restore and archive
+remain available through focused Workspace modals and retain their existing
+data and validation behavior.
 When the Windows Local connection is available, a selected study/practice tool
 uses a visually separate lower conversation region; browser/PWA builds do not
 mount an in-app conversation surface. On narrow/mobile viewports below 760px,

@@ -1034,6 +1034,14 @@
   text-decoration: none;
 }
 
+.workspace-panel-embed-main .workspace-beta-sources-page .button.workspace-beta-ai-structuring-unavailable:disabled {
+  border-color: #dfb5b8;
+  background: #f5e7e8;
+  color: #b4232e;
+  font-weight: var(--workspace-weight-control, 700);
+  opacity: 1;
+}
+
 :root[data-workspace-theme="dark"] .workspace-panel-embed-main .workspace-beta-sources-page .button.workspace-beta-manual-structuring-action {
   border-color: #916c5b;
   background: #5c4135;
@@ -1056,4 +1064,10 @@
   border-color: #78a3c2;
   background: #31546a;
   color: #ffffff;
+}
+
+:root[data-workspace-theme="dark"] .workspace-panel-embed-main .workspace-beta-sources-page .button.workspace-beta-ai-structuring-unavailable:disabled {
+  border-color: #7d4a4f;
+  background: #3a282a;
+  color: #ff9da3;
 }

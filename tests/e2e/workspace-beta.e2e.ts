@@ -9,13 +9,17 @@ test("Workspace BETA keeps three functional columns and existing routes", async 
   await expect(page.locator('iframe[name="studyapp-workspace-sources"]')).toBeVisible();
 
   const progressTool = page.getByRole("button", { name: "Progress", exact: true });
-  await expect(progressTool).toContainText("Track practice results, backup, restore and archive.");
+  await expect(progressTool).toContainText("View practice results. Backup, restore and archive open separately.");
   await progressTool.click();
-  await expect(page.locator('iframe[name="studyapp-workspace-workspace"]')).toHaveAttribute("src", "/#/progress");
+  await expect(page.locator('iframe[name="studyapp-workspace-workspace"]')).toHaveAttribute("src", "/#/progress?workspace=beta");
   const progressWorkspace = page.frameLocator('iframe[name="studyapp-workspace-workspace"]');
-  await expect(progressWorkspace.getByRole("heading", { name: "Your progress", exact: true })).toBeVisible();
-  await expect(progressWorkspace.getByRole("heading", { name: "Backup", exact: true })).toBeVisible();
-  await expect(progressWorkspace.getByRole("button", { name: "Restore backup", exact: true })).toBeVisible();
+  await expect(progressWorkspace.getByRole("heading", { name: "Progress", exact: true })).toBeVisible();
+  await expect(progressWorkspace.getByText("No completed sessions yet.")).toBeVisible();
+  await expect(progressWorkspace.getByRole("heading", { name: "Backup", exact: true })).toHaveCount(0);
+  await progressWorkspace.getByRole("link", { name: "Open backups and archive" }).click();
+  const progressModal = page.frameLocator('iframe[name="studyapp-workspace-info-modal"]');
+  await expect(progressModal.getByRole("heading", { name: "Backup", exact: true })).toBeVisible();
+  await expect(progressModal.getByRole("button", { name: "Restore backup", exact: true })).toBeVisible();
 });
 
 test("Workspace BETA keeps the release download label compact", async ({ page }) => {
