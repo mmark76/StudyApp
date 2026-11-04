@@ -76,6 +76,20 @@ test("unavailable AI structuring action wraps inside its Sources card in English
   await assertContained("Δόμηση με υποστήριξη AI — Υπό κατασκευή — Δεν είναι διαθέσιμη ακόμη");
 });
 
+test("Workspace tool empty states use the same quiet result presentation", async ({ page }) => {
+  await page.goto("/#/workspace-beta");
+  await page.getByRole("button", { name: "Flashcards", exact: true }).click();
+  const workspace = page.frameLocator('iframe[name="studyapp-workspace-workspace"]');
+  const emptyState = workspace.locator(".empty-state");
+  await expect(emptyState).toContainText("There are no flashcards");
+  await expect(emptyState).toHaveCSS("border-top-style", "none");
+  await expect(emptyState).toHaveCSS("text-align", "start");
+
+  await page.getByRole("button", { name: "Progress", exact: true }).click();
+  await expect(workspace.locator(".progress-page--workspace-results .stat-card").first()).toHaveCSS("border-top-style", "none");
+  await expect(workspace.locator(".progress-page--workspace-results .content-panel")).toHaveCSS("border-top-style", "none");
+});
+
 test("AI Studio and tool controls remain contained at desktop width", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto("/#/workspace-beta");
