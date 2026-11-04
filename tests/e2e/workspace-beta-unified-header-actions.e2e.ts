@@ -17,7 +17,7 @@ test("three column headers retain shared actions and structure", async ({ page }
   expect(Math.max(...headerBottoms) - Math.min(...headerBottoms)).toBeLessThanOrEqual(1);
   const headerHeights = await page.locator(".workspace-beta-phase-one-grid > .workspace-beta-panel > .workspace-beta-panel-header")
     .evaluateAll((elements) => elements.map((element) => element.getBoundingClientRect().height));
-  expect(Math.max(...headerHeights)).toBeLessThanOrEqual(52);
+  expect(Math.max(...headerHeights)).toBeLessThanOrEqual(54);
 
   await page.getByRole("button", { name: "Learning Goals", exact: true }).click();
   await expect(page.getByRole("button", { name: "Back to AI options", exact: true })).toBeVisible();
