@@ -8,9 +8,14 @@ test("Workspace BETA keeps three functional columns and existing routes", async 
   await expect(page.locator(".workspace-beta-phase-one-grid > .workspace-beta-panel")).toHaveCount(3);
   await expect(page.locator('iframe[name="studyapp-workspace-sources"]')).toBeVisible();
 
-  await page.getByRole("button", { name: /Progress Backup, Restore & Archive/u }).click();
+  const progressTool = page.getByRole("button", { name: "Progress", exact: true });
+  await expect(progressTool).toContainText("View results, backup, restore and archive.");
+  await progressTool.click();
   await expect(page.locator('iframe[name="studyapp-workspace-workspace"]')).toHaveAttribute("src", "/#/progress");
-  await expect(page.getByText("Backup, Restore & Archive", { exact: true })).toBeVisible();
+  const progressWorkspace = page.frameLocator('iframe[name="studyapp-workspace-workspace"]');
+  await expect(progressWorkspace.getByRole("heading", { name: "Your progress", exact: true })).toBeVisible();
+  await expect(progressWorkspace.getByRole("heading", { name: "Backup", exact: true })).toBeVisible();
+  await expect(progressWorkspace.getByRole("button", { name: "Restore backup", exact: true })).toBeVisible();
 });
 
 test("Workspace BETA keeps the release download label compact", async ({ page }) => {

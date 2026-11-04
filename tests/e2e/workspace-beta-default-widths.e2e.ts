@@ -38,7 +38,7 @@ test("Workspace BETA desktop defaults to 25-50-25 resizable columns", async ({ p
   expect(Math.abs(keyboardResetWidths[1] - (keyboardResetWidths[0] * 2))).toBeLessThanOrEqual(3);
 });
 
-test("AI Agent panel starts at 25 percent and has a movable horizontal divider", async ({ page }) => {
+test("AI Agent panel starts at 10 percent, remains unavailable in Web/PWA, and has a movable horizontal divider", async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/#/workspace-beta");
 
@@ -49,8 +49,9 @@ test("AI Agent panel starts at 25 percent and has a movable horizontal divider",
 
   const initial = await Promise.all([upper, agent].map((locator) => locator.evaluate((element) => element.getBoundingClientRect().height)));
   const initialAgentRatio = initial[1] / (initial[0] + initial[1]);
-  expect(initialAgentRatio).toBeGreaterThan(0.23);
-  expect(initialAgentRatio).toBeLessThan(0.27);
+  expect(initialAgentRatio).toBeGreaterThan(0.08);
+  expect(initialAgentRatio).toBeLessThan(0.12);
+  await expect(agent.locator(".workspace-beta-agent-bar")).toContainText("Not available");
 
   const dividerBox = await divider.boundingBox();
   if (!dividerBox) throw new Error("AI Agent divider was not measurable");
@@ -64,6 +65,6 @@ test("AI Agent panel starts at 25 percent and has a movable horizontal divider",
   await divider.dblclick();
   const reset = await Promise.all([upper, agent].map((locator) => locator.evaluate((element) => element.getBoundingClientRect().height)));
   const resetAgentRatio = reset[1] / (reset[0] + reset[1]);
-  expect(resetAgentRatio).toBeGreaterThan(0.23);
-  expect(resetAgentRatio).toBeLessThan(0.27);
+  expect(resetAgentRatio).toBeGreaterThan(0.08);
+  expect(resetAgentRatio).toBeLessThan(0.12);
 });

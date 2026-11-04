@@ -15,9 +15,10 @@ test("approved knowledge views stay compact and readable in both themes", async 
 test("Sources keeps manual import and planned structuring clearly separated", async ({ page }) => {
   await page.goto("/#/workspace-beta");
   const sources = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
-  await expect(sources.getByRole("link", { name: "Manual Import" })).toBeVisible();
-  await expect(sources.getByRole("link", { name: "Split PDF Tool" })).toBeVisible();
-  await expect(sources.getByText("AI-Assisted Structuring — planned and unavailable.")).toBeVisible();
+  await expect(sources.getByRole("link", { name: "Create / Open your Library" })).toBeVisible();
+  await expect(sources.getByRole("link", { name: "Manual Structuring - import structured files" })).toBeVisible();
+  await expect(sources.getByRole("link", { name: "Split PDF Tool" })).toHaveClass(/workspace-beta-split-pdf-action/);
+  await expect(sources.getByRole("button", { name: "AI-Assisted Structuring — Not available" })).toBeDisabled();
 });
 
 test("AI Studio and tool controls remain contained at desktop width", async ({ page }) => {

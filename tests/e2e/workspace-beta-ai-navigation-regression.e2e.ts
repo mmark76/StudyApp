@@ -13,10 +13,13 @@ test("Workspace BETA sends the available Assistant card directly to the Custom G
   await expect(assistantCard).toHaveAttribute("href", assistantUrl);
   await expect(assistantCard).toHaveAttribute("target", "_blank");
   await expect(assistantCard).toHaveAttribute("rel", "noopener noreferrer");
-  await expect(assistantCard).toContainText("Open the dedicated assistant in ChatGPT.");
-  await expect(options.getByRole("button", { name: /Sign in with ChatGPT/u })).toContainText("Connect your ChatGPT plan in StudyApp Local for Windows.");
-  await expect(options.getByRole("button", { name: /ChatGPT App \/ MCP/u })).toContainText("Use StudyApp inside ChatGPT.");
-  await expect(options.getByRole("button", { name: /StudyApp AI \/ API/u })).toContainText("Automatic AI is not active. No charges yet.");
+  await expect(assistantCard).toContainText("Work there directly; StudyApp does not send your material.");
+  await expect(options.getByRole("button", { name: /Sign in with ChatGPT/u })).toContainText("connect your ChatGPT plan for questions and PDF RAG.");
+  await expect(options.getByRole("button", { name: /ChatGPT App \/ MCP/u })).toContainText("Not available yet.");
+  await expect(options.getByRole("button", { name: /StudyApp AI \/ API/u })).toContainText("It is not active and there are no charges yet.");
+  const tools = page.locator(".workspace-beta-tools-grid");
+  await expect(tools.getByRole("button", { name: "Learning Goals", exact: true })).toContainText("Set clear goals for this chapter.");
+  await expect(tools.getByRole("button", { name: /Progress/u })).toContainText("View results, backup, restore and archive.");
 
   await assistantCard.evaluate((element) => {
     element.addEventListener("click", (event) => event.preventDefault(), { once: true });
@@ -30,8 +33,10 @@ test("Workspace BETA sends the available Assistant card directly to the Custom G
 
   await page.getByRole("button", { name: "Close", exact: true }).click();
   await page.getByRole("button", { name: "GR", exact: true }).click();
-  await expect(options.getByRole("link", { name: /StudyApp AI Assistant/u })).toContainText("Άνοιξε τον ειδικό βοηθό στο ChatGPT.");
-  await expect(options.getByRole("button", { name: /Σύνδεση με ChatGPT/u })).toContainText("Σύνδεσε το πλάνο ChatGPT στο StudyApp Local για Windows.");
+  await expect(options.getByRole("link", { name: /StudyApp AI Assistant/u })).toContainText("Η εργασία γίνεται εκεί· το StudyApp δεν στέλνει υλικό.");
+  await expect(options.getByRole("button", { name: /Σύνδεση με ChatGPT/u })).toContainText("σύνδεσε το πλάνο ChatGPT για ερωτήσεις και PDF RAG.");
+  await expect(tools.getByRole("button", { name: "Στόχοι μάθησης", exact: true })).toContainText("Όρισε καθαρούς στόχους για αυτό το κεφάλαιο.");
+  await expect(tools.getByRole("button", { name: /Πρόοδος/u })).toContainText("Δες αποτελέσματα, αντίγραφα, επαναφορά και αρχείο.");
 });
 
 test("AI option controls use the compact shared typography hierarchy", async ({ page }) => {

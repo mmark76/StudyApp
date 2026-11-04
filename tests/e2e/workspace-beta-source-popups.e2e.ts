@@ -7,8 +7,8 @@ test("Sources actions open their existing workflows in the centered modal", asyn
   const sourcesFrame = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
   const sourceHost = page.locator('iframe[name="studyapp-workspace-sources"]');
   const cases = [
-    { action: "Open Library", route: "/#/library", title: "Library" },
-    { action: "Manual Import", route: "/#/study/theory", title: "Manual Import" },
+    { action: "Create / Open your Library", route: "/#/library", title: "Library" },
+    { action: "Manual Structuring - import structured files", route: "/#/study/theory", title: "Manual Import" },
     { action: "Split PDF Tool", route: "/#/tools", title: "Split PDF Tool" },
   ];
 
