@@ -7,8 +7,8 @@ test("BETA summary wording does not change the hidden Standard summary route", a
 
   await page.goto("/#/summary?workspace=beta");
   await expect(page.getByRole("heading", { name: "Summary of Uploaded Material" })).toBeVisible();
-  await expect(page.getByText("Choose Library files or practice chapters yourself. Nothing is selected automatically.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Choose material and create a summary" })).toBeVisible();
+  await expect(page.getByText("No summary created yet.", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open summary setup" })).toBeVisible();
   await expect(page.locator(".summary-page textarea")).toHaveCount(0);
 });
 
@@ -59,27 +59,28 @@ test("Practice Summary and Main Points uses local sources and a confirmed mocked
   await expect(page.locator('iframe[name="studyapp-workspace-workspace"]')).toHaveAttribute("src", "/#/summary?workspace=beta");
   const practice = page.frameLocator('iframe[name="studyapp-workspace-workspace"]');
   await expect(practice.getByRole("heading", { name: "Summary of Uploaded Material" })).toBeVisible();
-  await expect(practice.getByRole("button", { name: "Choose material and create a summary" })).toBeVisible();
+  await expect(practice.getByText("No summary created yet.", { exact: true })).toBeVisible();
   await expect(practice.locator(".summary-page textarea")).toHaveCount(0);
-  await practice.getByRole("button", { name: "Choose material and create a summary" }).click();
-  await expect(practice.locator(".summary-page textarea")).toHaveCount(2);
-  await practice.getByLabel("Source material").selectOption("file:summary-e2e-source");
-  await practice.getByRole("button", { name: "Check full-document coverage" }).click();
-  await expect(practice.getByText("Complete readable coverage.", { exact: false })).toBeVisible();
+  await practice.getByRole("link", { name: "Open summary setup" }).click();
+  const setup = page.frameLocator('iframe[name="studyapp-workspace-info-modal"]');
+  await expect(setup.locator(".summary-page textarea")).toHaveCount(2);
+  await setup.getByLabel("Source material").selectOption("file:summary-e2e-source");
+  await setup.getByRole("button", { name: "Check full-document coverage" }).click();
+  await expect(setup.getByText("Complete readable coverage.", { exact: false })).toBeVisible();
   expect(requests).toBe(0);
-  await practice.getByLabel("I approve sending all selected document text to ChatGPT across multiple requests to create this draft.").check();
-  await practice.getByRole("button", { name: "Generate AI draft" }).click();
-  await expect(practice.locator(".summary-page textarea").first()).toHaveValue("Attention filters information [S1]");
+  await setup.getByLabel("I approve sending all selected document text to ChatGPT across multiple requests to create this draft.").check();
+  await setup.getByRole("button", { name: "Generate AI draft" }).click();
+  await expect(setup.locator(".summary-page textarea").first()).toHaveValue("Attention filters information [S1]");
   expect(requests).toBe(1);
   page.once("dialog", (dialog) => void dialog.dismiss());
-  await practice.getByLabel("Source material").selectOption("file:summary-e2e-second");
-  await expect(practice.getByLabel("Source material")).toHaveValue("file:summary-e2e-source");
-  await expect(practice.locator(".summary-page textarea").first()).toHaveValue("Attention filters information [S1]");
-  await practice.getByRole("button", { name: "Save locally" }).click();
-  await expect(practice.getByText("Saved locally in Library → Summaries.")).toBeVisible();
-  await expect(practice.getByRole("button", { name: "Download Psychology notes" })).toBeVisible();
+  await setup.getByLabel("Source material").selectOption("file:summary-e2e-second");
+  await expect(setup.getByLabel("Source material")).toHaveValue("file:summary-e2e-source");
+  await expect(setup.locator(".summary-page textarea").first()).toHaveValue("Attention filters information [S1]");
+  await setup.getByRole("button", { name: "Save locally" }).click();
+  await expect(setup.getByText("Saved locally in Library → Summaries.")).toBeVisible();
+  await expect(setup.getByRole("button", { name: "Download Psychology notes" })).toBeVisible();
   const download = page.waitForEvent("download");
-  await practice.getByRole("button", { name: "Download Psychology notes" }).click();
+  await setup.getByRole("button", { name: "Download Psychology notes" }).click();
   expect((await download).suggestedFilename()).toMatch(/\.txt$/u);
 });
 
@@ -129,14 +130,15 @@ test("full-document consent sends every chunk from two long sources before a fin
 
   await page.getByRole("button", { name: "Summary of Uploaded Material", exact: true }).click();
   const practice = page.frameLocator('iframe[name="studyapp-workspace-workspace"]');
-  await practice.getByRole("button", { name: "Choose material and create a summary" }).click();
-  await practice.getByLabel("Source material").selectOption(["file:long-0", "file:long-1"]);
-  await practice.getByRole("button", { name: "Check full-document coverage" }).click();
-  await expect(practice.getByText(/2 sources, 2 pages or sections, \d+ extracted chunks/)).toBeVisible();
+  await practice.getByRole("link", { name: "Open summary setup" }).click();
+  const setup = page.frameLocator('iframe[name="studyapp-workspace-info-modal"]');
+  await setup.getByLabel("Source material").selectOption(["file:long-0", "file:long-1"]);
+  await setup.getByRole("button", { name: "Check full-document coverage" }).click();
+  await expect(setup.getByText(/2 sources, 2 pages or sections, \d+ extracted chunks/)).toBeVisible();
   expect(sent.size).toBe(0);
-  await practice.getByLabel("I approve sending all selected document text to ChatGPT across multiple requests to create this draft.").check();
-  await practice.getByRole("button", { name: "Generate AI draft" }).click();
-  await expect(practice.locator(".summary-page textarea").first()).toHaveValue(/BEGIN MIDDLE END/u);
+  await setup.getByLabel("I approve sending all selected document text to ChatGPT across multiple requests to create this draft.").check();
+  await setup.getByRole("button", { name: "Generate AI draft" }).click();
+  await expect(setup.locator(".summary-page textarea").first()).toHaveValue(/BEGIN MIDDLE END/u);
   expect((sent.get("S1") ?? []).join("")).toBe(first);
   expect((sent.get("S2") ?? []).join("")).toBe(second);
   expect((sent.get("S1")?.length ?? 0) + (sent.get("S2")?.length ?? 0)).toBeGreaterThan(6);

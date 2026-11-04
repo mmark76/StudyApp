@@ -2098,7 +2098,7 @@ body:has(.workspace-panel-embed-shell),
 .workspace-beta-ai-option:nth-child(4) { border-color: #d9cde4; background: #f4eff8; }
 .workspace-beta-ai-option strong, .workspace-beta-tools-grid > button > span { overflow-wrap: anywhere; font-size: var(--workspace-type-heading, 0.83rem); font-weight: var(--workspace-weight-heading, 750); }
 .workspace-beta-ai-option p { margin: 0; color: inherit; font-size: var(--workspace-type-small, 0.7rem); line-height: 1.3; }
-.workspace-beta-ai-option span, .workspace-beta-tools-grid small { color: #686861; font-size: var(--workspace-type-small, 0.7rem); line-height: 1.3; }
+.workspace-beta-ai-option span, .workspace-beta-tools-grid small { color: #686861; font-size: var(--workspace-type-small, 0.7rem); font-weight: var(--workspace-weight-regular, 400); line-height: 1.3; }
 .workspace-beta-ai-option .workspace-beta-availability,
 .workspace-beta-agent-bar > .workspace-beta-availability { font-weight: var(--workspace-weight-control, 700); }
 .workspace-beta-ai-option .workspace-beta-availability.is-available,
@@ -2139,7 +2139,7 @@ body:has(.workspace-panel-embed-shell),
 .workspace-beta-agent-unavailable { margin: auto; padding: 1rem; color: #686861; font-size: var(--workspace-type-body, 0.82rem); text-align: center; }
 .workspace-beta-tools-body { min-height: 0; overflow-y: auto; }
 .workspace-beta-tools-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; padding: 0.7rem; }
-.workspace-beta-tools-grid > button { min-height: 4.5rem; padding: 0.55rem; color: #242421; cursor: pointer; }
+.workspace-beta-tools-grid > button { min-height: 4.5rem; padding: 0.55rem; color: #242421; font-weight: var(--workspace-weight-regular, 400); cursor: pointer; }
 .workspace-beta-tools-grid > button:nth-child(1) { border-color: #c9ddcf; background: #eef6f0; }
 .workspace-beta-tools-grid > button:nth-child(2) { border-color: #c8d9e7; background: #eef4f8; }
 .workspace-beta-tools-grid > button:nth-child(3) { border-color: #e3d4bd; background: #f8f2e9; }

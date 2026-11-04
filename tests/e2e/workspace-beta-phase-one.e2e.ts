@@ -44,7 +44,7 @@ test("Workspace BETA Phase 1 keeps three columns, existing modes and routed tool
   await expect(sources.getByRole("link", { name: "Create / Open your Library" })).toBeVisible();
   await expect(sources.getByRole("link", { name: "Manual Structuring - import structured files" })).toBeVisible();
   await expect(sources.getByRole("link", { name: "Split PDF Tool" })).toBeVisible();
-  await expect(sources.getByRole("button", { name: "AI-Assisted Structuring — Not available" })).toBeDisabled();
+  await expect(sources.getByRole("button", { name: "AI-Assisted Structuring — Under construction — Not available yet" })).toBeDisabled();
 
   await page.getByRole("button", { name: "Learning Goals" }).click();
   await expect(page.getByRole("button", { name: "Back to AI options" })).toBeVisible();

@@ -11,4 +11,8 @@
 .summary-page .summary-actions { display: flex; flex-wrap: wrap; gap: .6rem; }
 .summary-page .summary-saved { display: flex; align-items: center; justify-content: space-between; gap: .75rem; overflow-wrap: anywhere; }
 .summary-page .summary-saved span { min-width: 0; }
+.summary-page--workspace-results { display: grid; align-content: start; gap: .72rem; padding: .72rem; }
+.summary-page--workspace-results .summary-workspace-results-heading h2 { margin: 0; font-size: var(--workspace-type-heading, .83rem); font-weight: var(--workspace-weight-heading, 750); }
+.summary-page--workspace-results .summary-workspace-empty { margin: 0; color: var(--text-muted, #64645e); font-size: var(--workspace-type-body, .72rem); line-height: 1.4; }
+.summary-page--workspace-results .summary-workspace-modal-action { justify-self: start; color: inherit; font-size: var(--workspace-type-small, .7rem); font-weight: var(--workspace-weight-control, 700); }
 @media (max-width: 760px) { .summary-page .summary-saved { align-items: flex-start; flex-direction: column; } }

@@ -36,7 +36,7 @@ type PanelWidths = [number, number, number, number];
 type PhaseOneDivider = 0 | 1;
 type PhaseOnePanelWidths = [number, number, number];
 type WorkspaceInfoRoute = "/appearance" | "/ai-assistant-comparison" | "/instructions" | "/important-info" | "/local-installation-guide";
-type WorkspaceSourcePopupRoute = "/library" | "/study/theory" | "/tools";
+type WorkspaceSourcePopupRoute = "/library" | "/study/theory" | "/tools" | "/summary" | "/progress";
 type WorkspaceModalRoute = WorkspaceInfoRoute | WorkspaceSourcePopupRoute;
 type WorkspaceView = "ai-options" | "local" | "learning-goals" | "key-points" | "important-terms" | "summary" | "flashcards" | "review" | "quiz" | "progress";
 
@@ -82,7 +82,7 @@ const workspaceTools: ReadonlyArray<{
   { id: "flashcards", english: "Flashcards", greek: "Κάρτες", descriptionEnglish: "Use cards you create or import.", descriptionGreek: "Χρησιμοποίησε κάρτες που δημιούργησες ή εισήγαγες.", route: "/#/flashcards" },
   { id: "review", english: "Review", greek: "Επανάληψη", descriptionEnglish: "Practice due cards you create or import.", descriptionGreek: "Εξασκήσου σε κάρτες για επανάληψη που δημιούργησες ή εισήγαγες.", route: "/#/review" },
   { id: "quiz", english: "Quiz", greek: "Κουίζ", descriptionEnglish: "Test yourself with cards you create or import.", descriptionGreek: "Δοκίμασε τον εαυτό σου με κάρτες που δημιούργησες ή εισήγαγες.", route: "/#/quiz" },
-  { id: "progress", english: "Progress", greek: "Πρόοδος", descriptionEnglish: "Track practice results, backup, restore and archive.", descriptionGreek: "Δες αποτελέσματα εξάσκησης, αντίγραφα, επαναφορά και αρχείο.", route: "/#/progress" },
+  { id: "progress", english: "Progress", greek: "Πρόοδος", descriptionEnglish: "View practice results. Backup, restore and archive open separately.", descriptionGreek: "Δες αποτελέσματα εξάσκησης. Αντίγραφα, επαναφορά και αρχείο ανοίγουν ξεχωριστά.", route: "/#/progress?workspace=beta" },
 ];
 
 
@@ -97,6 +97,8 @@ const workspaceSourcePopupRoutes = new Set<WorkspaceSourcePopupRoute>([
   "/library",
   "/study/theory",
   "/tools",
+  "/summary",
+  "/progress",
 ]);
 const defaultPanelWeights: PanelWidths = [25, 28, 25, 22];
 const minimumPanelWidths: PanelWidths = [260, 240, 340, 280];
@@ -501,6 +503,8 @@ export function WorkspaceBetaPage() {
           : null;
         const route = infoRoute ?? (
           sourceRoute && workspaceSourcePopupRoutes.has(sourceRoute as WorkspaceSourcePopupRoute)
+          && (frame.name === "studyapp-workspace-sources"
+            || (frame.name === "studyapp-workspace-workspace" && (sourceRoute === "/summary" || sourceRoute === "/progress")))
             ? sourceRoute as WorkspaceSourcePopupRoute
             : null
         );
@@ -697,9 +701,15 @@ export function WorkspaceBetaPage() {
               ? text("Manual Import", "Χειροκίνητη εισαγωγή")
               : infoModalRoute === "/tools"
                 ? text("Split PDF Tool", "Εργαλείο χωρισμού PDF")
+                : infoModalRoute === "/summary"
+                  ? text("Create summary", "Δημιουργία περίληψης")
+                  : infoModalRoute === "/progress"
+                    ? text("Progress management", "Διαχείριση προόδου")
           : "";
   const infoModalKicker = infoModalRoute === "/appearance"
     ? text("Workspace", "Χώρος εργασίας")
+    : infoModalRoute === "/summary" || infoModalRoute === "/progress"
+      ? text("AI-Assisted Tools", "Εργαλεία με υποστήριξη AI")
     : infoModalRoute && workspaceSourcePopupRoutes.has(infoModalRoute as WorkspaceSourcePopupRoute)
       ? text("Sources & Materials", "Πηγές & Υλικό")
       : text("Information", "Πληροφορίες");

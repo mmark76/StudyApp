@@ -1,4 +1,5 @@
 import { type ChangeEvent, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { ArchivePanel } from "../archive/ArchivePanel";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getStudyModeLabel } from "../../i18n/domainLabels";
@@ -19,6 +20,7 @@ import {
   storageNoticePlacements,
 } from "../../shared/components/StorageNotice";
 import type { StudyBackup } from "../../shared/types/models";
+import "./ProgressPage.css";
 
 interface PendingRestore {
   fileName: string;
@@ -28,6 +30,8 @@ interface PendingRestore {
 
 export function ProgressPage() {
   const { language, locale, text } = useLanguage();
+  const [searchParams] = useSearchParams();
+  const workspaceBeta = searchParams.get("workspace") === "beta";
   const progress = useLiveQuery(() => studyDatabase.cardProgress.toArray(), []) ?? [];
   const sessions = useLiveQuery(() => studyDatabase.studySessions.orderBy("startedAt").reverse().toArray(), []) ?? [];
   const [message, setMessage] = useState("");
@@ -155,6 +159,40 @@ export function ProgressPage() {
     }
   }
 
+  const progressResults = <section className="stats-grid">
+    <article className="stat-card"><strong>{progress.length}</strong><span>{text("Cards studied", "Κάρτες που μελετήθηκαν")}</span></article>
+    <article className="stat-card"><strong>{sessions.length}</strong><span>{text("Study sessions", "Συνεδρίες μελέτης")}</span></article>
+    <article className="stat-card"><strong>{progress.reduce((sum, item) => sum + item.lapses, 0)}</strong><span>{text("Marked Again", "Επιλογές Ξανά")}</span></article>
+  </section>;
+
+  const recentSessions = <section className="content-panel">
+    <h3>{text("Recent study sessions", "Πρόσφατες συνεδρίες")}</h3>
+    {sessions.length === 0 ? <p>{text("No completed sessions yet.", "Δεν υπάρχουν ολοκληρωμένες συνεδρίες.")}</p> : (
+      <div className="table-scroll">
+        <table>
+          <thead><tr><th>{text("Activity", "Δραστηριότητα")}</th><th>{text("Date", "Ημερομηνία")}</th><th>{text("Cards", "Κάρτες")}</th><th>{text("Correct", "Σωστές")}</th></tr></thead>
+          <tbody>{sessions.slice(0, 20).map((session) => (
+            <tr key={session.id}>
+              <td>{getStudyModeLabel(session.mode, language)}</td>
+              <td>{new Date(session.startedAt).toLocaleString(locale)}</td>
+              <td>{session.reviewedCards}</td>
+              <td>{session.correctAnswers}</td>
+            </tr>
+          ))}</tbody>
+        </table>
+      </div>
+    )}
+  </section>;
+
+  if (workspaceBeta) return (
+    <div className="stack-lg progress-page--workspace-results">
+      <header className="progress-workspace-results-heading"><h2>{text("Progress", "Πρόοδος")}</h2></header>
+      {progressResults}
+      {recentSessions}
+      <Link className="progress-workspace-modal-action" to="/progress">{text("Open backups and archive", "Άνοιγμα αντιγράφων και αρχείου")}</Link>
+    </div>
+  );
+
   return (
     <div className="stack-lg">
       <header className="page-heading">
@@ -162,11 +200,7 @@ export function ProgressPage() {
         <h2>{text("Your progress", "Η πρόοδός σου")}</h2>
         <p>{text("View your activity and save a backup.", "Δες τη δραστηριότητά σου και αποθήκευσε backup.")}</p>
       </header>
-      <section className="stats-grid">
-        <article className="stat-card"><strong>{progress.length}</strong><span>{text("Cards studied", "Κάρτες που μελετήθηκαν")}</span></article>
-        <article className="stat-card"><strong>{sessions.length}</strong><span>{text("Study sessions", "Συνεδρίες μελέτης")}</span></article>
-        <article className="stat-card"><strong>{progress.reduce((sum, item) => sum + item.lapses, 0)}</strong><span>{text("Marked Again", "Επιλογές Ξανά")}</span></article>
-      </section>
+      {progressResults}
 
       <section className="content-panel">
         <h3>{text("Backup", "Αντίγραφο ασφαλείας")}</h3>
@@ -224,24 +258,7 @@ export function ProgressPage() {
       </section>
 
       <ArchivePanel />
-      <section className="content-panel">
-        <h3>{text("Recent study sessions", "Πρόσφατες συνεδρίες")}</h3>
-        {sessions.length === 0 ? <p>{text("No completed sessions yet.", "Δεν υπάρχουν ολοκληρωμένες συνεδρίες.")}</p> : (
-          <div className="table-scroll">
-            <table>
-              <thead><tr><th>{text("Activity", "Δραστηριότητα")}</th><th>{text("Date", "Ημερομηνία")}</th><th>{text("Cards", "Κάρτες")}</th><th>{text("Correct", "Σωστές")}</th></tr></thead>
-              <tbody>{sessions.slice(0, 20).map((session) => (
-                <tr key={session.id}>
-                  <td>{getStudyModeLabel(session.mode, language)}</td>
-                  <td>{new Date(session.startedAt).toLocaleString(locale)}</td>
-                  <td>{session.reviewedCards}</td>
-                  <td>{session.correctAnswers}</td>
-                </tr>
-              ))}</tbody>
-            </table>
-          </div>
-        )}
-      </section>
+      {recentSessions}
     </div>
   );
 }

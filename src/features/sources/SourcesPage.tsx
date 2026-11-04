@@ -52,7 +52,7 @@ export function SourcesPage() {
           <div className="button-row">
             <Link className="button study workspace-beta-manual-structuring-action" to="/study/theory">{text("Manual Structuring - import structured files", "Χειροκίνητη δόμηση - εισαγωγή δομημένων αρχείων")}</Link>
             <Link className="button secondary workspace-beta-split-pdf-action" to="/tools">{text("Split PDF Tool", "Εργαλείο χωρισμού PDF")}</Link>
-            <button className="button secondary" disabled type="button">{text("AI-Assisted Structuring — Not available", "Δόμηση με υποστήριξη AI — Μη διαθέσιμο")}</button>
+            <button className="button secondary workspace-beta-ai-structuring-unavailable" disabled type="button">{text("AI-Assisted Structuring — Under construction — Not available yet", "Δόμηση με υποστήριξη AI — Υπό κατασκευή — Δεν είναι διαθέσιμη ακόμη")}</button>
           </div>
         </article>
       </section>

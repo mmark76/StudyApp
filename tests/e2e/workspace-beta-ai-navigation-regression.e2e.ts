@@ -20,7 +20,7 @@ test("Workspace BETA sends the available Assistant card directly to the Custom G
   const tools = page.locator(".workspace-beta-tools-grid");
   await expect(tools.getByRole("button", { name: "Learning Goals", exact: true })).toContainText("View goals in imported practice chapters.");
   await expect(tools.getByRole("button", { name: "Summary of Uploaded Material", exact: true })).toContainText("Choose Library files or chapters to summarize.");
-  await expect(tools.getByRole("button", { name: /Progress/u })).toContainText("Track practice results, backup, restore and archive.");
+  await expect(tools.getByRole("button", { name: /Progress/u })).toContainText("View practice results. Backup, restore and archive open separately.");
 
   await assistantCard.evaluate((element) => {
     element.addEventListener("click", (event) => event.preventDefault(), { once: true });
