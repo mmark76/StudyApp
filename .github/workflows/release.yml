@@ -60,10 +60,10 @@ jobs:
           node scripts/prepare-studyapp-local-package.mjs "$RUNNER_TEMP/studyapp-artifact/StudyApp-Local-Windows"
           printf '%s\n' "source_sha=$SOURCE_SHA" >> "$RUNNER_TEMP/studyapp-artifact/StudyApp-Local-Windows/RELEASE.txt"
           cd "$RUNNER_TEMP/studyapp-artifact"
-          zip -qr "StudyApp-v$RELEASE_VERSION.zip" studyapp
-          sha256sum "StudyApp-v$RELEASE_VERSION.zip" > "StudyApp-v$RELEASE_VERSION.zip.sha256"
-          zip -qr "StudyApp-Local-Windows-v$RELEASE_VERSION.zip" StudyApp-Local-Windows
-          sha256sum "StudyApp-Local-Windows-v$RELEASE_VERSION.zip" > "StudyApp-Local-Windows-v$RELEASE_VERSION.zip.sha256"
+          zip -qr "StudyApp-Stable-v$RELEASE_VERSION.zip" studyapp
+          sha256sum "StudyApp-Stable-v$RELEASE_VERSION.zip" > "StudyApp-Stable-v$RELEASE_VERSION.zip.sha256"
+          zip -qr "StudyApp-Local-Windows-Stable-v$RELEASE_VERSION.zip" StudyApp-Local-Windows
+          sha256sum "StudyApp-Local-Windows-Stable-v$RELEASE_VERSION.zip" > "StudyApp-Local-Windows-Stable-v$RELEASE_VERSION.zip.sha256"
       - name: Revalidate main before publishing
         run: |
           test "$SOURCE_SHA" = "$(git ls-remote origin refs/heads/main | cut -f1)"
@@ -75,9 +75,9 @@ jobs:
           git tag "v$RELEASE_VERSION" "$SOURCE_SHA"
           git push origin "refs/tags/v$RELEASE_VERSION"
           gh release create "v$RELEASE_VERSION" \
-            "$RUNNER_TEMP/studyapp-artifact/StudyApp-v$RELEASE_VERSION.zip" \
-            "$RUNNER_TEMP/studyapp-artifact/StudyApp-v$RELEASE_VERSION.zip.sha256" \
-            "$RUNNER_TEMP/studyapp-artifact/StudyApp-Local-Windows-v$RELEASE_VERSION.zip" \
-            "$RUNNER_TEMP/studyapp-artifact/StudyApp-Local-Windows-v$RELEASE_VERSION.zip.sha256" \
+            "$RUNNER_TEMP/studyapp-artifact/StudyApp-Stable-v$RELEASE_VERSION.zip" \
+            "$RUNNER_TEMP/studyapp-artifact/StudyApp-Stable-v$RELEASE_VERSION.zip.sha256" \
+            "$RUNNER_TEMP/studyapp-artifact/StudyApp-Local-Windows-Stable-v$RELEASE_VERSION.zip" \
+            "$RUNNER_TEMP/studyapp-artifact/StudyApp-Local-Windows-Stable-v$RELEASE_VERSION.zip.sha256" \
             --repo "$GITHUB_REPOSITORY" --target "$SOURCE_SHA" \
-            --title "StudyApp v$RELEASE_VERSION" --generate-notes
+            --title "StudyApp Stable v$RELEASE_VERSION" --generate-notes

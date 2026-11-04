@@ -16,6 +16,6 @@ describe("StudyApp Local release package", () => {
     expect(packageScript).toContain('name !== "Start-StudyApp-Local.bat"');
     expect(ciWorkflow).toContain("Verify StudyApp Local package");
     expect(ciWorkflow).toContain("Enable Launch Button.bat");
-    expect(releaseWorkflow).toContain("StudyApp-Local-Windows-v$RELEASE_VERSION.zip");
+    expect(releaseWorkflow).toContain("StudyApp-Local-Windows-Stable-v$RELEASE_VERSION.zip");
   });
 });
