@@ -1035,6 +1035,14 @@
 }
 
 .workspace-panel-embed-main .workspace-beta-sources-page .button.workspace-beta-ai-structuring-unavailable:disabled {
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  flex: 1 1 100%;
+  justify-content: flex-start;
+  text-align: start;
+  white-space: normal;
+  overflow-wrap: anywhere;
   border-color: #dfb5b8;
   background: #f5e7e8;
   color: #b4232e;
