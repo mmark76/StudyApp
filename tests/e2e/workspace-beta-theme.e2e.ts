@@ -50,6 +50,8 @@ test("Phase 1 cards and Agent status retain readable contrast in dark mode", asy
   await page.goto("/#/workspace-beta");
   const sources = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
   const sourceCards = sources.locator(".dashboard-action-card");
+  const manualStructuring = sources.getByRole("link", { name: "Manual Structuring - import structured files" });
+  const splitPdf = sources.getByRole("link", { name: "Split PDF Tool" });
   const aiCards = page.locator(".workspace-beta-ai-option");
   const toolCards = page.locator(".workspace-beta-tools-grid > button");
   const lightSourceBackgrounds = await sourceCards.evaluateAll((elements) =>
@@ -57,6 +59,15 @@ test("Phase 1 cards and Agent status retain readable contrast in dark mode", asy
   );
   expect(new Set(lightSourceBackgrounds).size).toBe(2);
   expect(lightSourceBackgrounds).not.toContain("rgba(0, 0, 0, 0)");
+  await expect(manualStructuring).toHaveCSS("background-color", "rgb(234, 215, 203)");
+  await expect(splitPdf).toHaveCSS("background-color", "rgb(217, 231, 241)");
+  const lightActionColors = await Promise.all([manualStructuring, splitPdf].map((action) => action.evaluate((element) => ({
+    background: getComputedStyle(element).backgroundColor,
+    foreground: getComputedStyle(element).color,
+  }))));
+  for (const colors of lightActionColors) {
+    expect(contrastRatio(colors.foreground, colors.background)).toBeGreaterThanOrEqual(4.5);
+  }
   const lightAiBackgrounds = await aiCards.evaluateAll((elements) =>
     elements.map((element) => getComputedStyle(element).backgroundColor),
   );
@@ -68,6 +79,9 @@ test("Phase 1 cards and Agent status retain readable contrast in dark mode", asy
   );
   expect(new Set(lightBackgrounds).size).toBe(8);
   await page.getByRole("button", { name: "Switch to dark mode" }).click();
+
+  await expect(manualStructuring).toHaveCSS("background-color", "rgb(92, 65, 53)");
+  await expect(splitPdf).toHaveCSS("background-color", "rgb(39, 68, 87)");
 
   const targets = [
     aiCards.first(),
@@ -91,6 +105,13 @@ test("Phase 1 cards and Agent status retain readable contrast in dark mode", asy
   })));
   expect(new Set(darkSourceColors.map(({ background }) => background)).size).toBe(2);
   for (const colors of darkSourceColors) {
+    expect(contrastRatio(colors.foreground, colors.background)).toBeGreaterThanOrEqual(4.5);
+  }
+  const darkActionColors = await Promise.all([manualStructuring, splitPdf].map((action) => action.evaluate((element) => ({
+    background: getComputedStyle(element).backgroundColor,
+    foreground: getComputedStyle(element).color,
+  }))));
+  for (const colors of darkActionColors) {
     expect(contrastRatio(colors.foreground, colors.background)).toBeGreaterThanOrEqual(4.5);
   }
 
