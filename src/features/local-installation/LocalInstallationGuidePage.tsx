@@ -35,8 +35,8 @@ export function LocalInstallationGuidePage() {
     {
       title: text("Download the Windows Local ZIP", "Κατέβασε το Windows Local ZIP"),
       description: text(
-        "Use the official Download Beta control beside this guide to download StudyApp-Local-Windows-vX.Y.Z.zip from the official GitHub Release.",
-        "Χρησιμοποίησε το επίσημο κουμπί Λήψη Beta δίπλα σε αυτές τις οδηγίες για να κατεβάσεις το StudyApp-Local-Windows-vX.Y.Z.zip από την επίσημη έκδοση στο GitHub.",
+        "Use the official Download Beta control beside this guide to download StudyApp-Local-Windows-Stable-vX.Y.Z.zip from the official GitHub Release.",
+        "Χρησιμοποίησε το επίσημο κουμπί Λήψη Beta δίπλα σε αυτές τις οδηγίες για να κατεβάσεις το StudyApp-Local-Windows-Stable-vX.Y.Z.zip από την επίσημη έκδοση στο GitHub.",
       ),
     },
     {
@@ -87,8 +87,8 @@ export function LocalInstallationGuidePage() {
     {
       title: text("Download the latest Windows Local ZIP", "Κατέβασε το πιο πρόσφατο Windows Local ZIP"),
       description: text(
-        "Use the official Download Beta control beside this guide to download the latest StudyApp-Local-Windows-vX.Y.Z.zip release.",
-        "Χρησιμοποίησε το επίσημο κουμπί Λήψη Beta δίπλα σε αυτές τις οδηγίες για να κατεβάσεις την πιο πρόσφατη έκδοση StudyApp-Local-Windows-vX.Y.Z.zip.",
+        "Use the official Download Beta control beside this guide to download the latest StudyApp-Local-Windows-Stable-vX.Y.Z.zip release.",
+        "Χρησιμοποίησε το επίσημο κουμπί Λήψη Beta δίπλα σε αυτές τις οδηγίες για να κατεβάσεις την πιο πρόσφατη έκδοση StudyApp-Local-Windows-Stable-vX.Y.Z.zip.",
       ),
     },
     {
