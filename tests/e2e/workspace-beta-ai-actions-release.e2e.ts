@@ -20,6 +20,7 @@ test("AI connection cards expose only the approved available modes", async ({ pa
   await expect(agentBar).toBeVisible();
   await expect(agentBar).toContainText("AI Agent bar — Available only in Local version");
   await expect(agentBar).toContainText("Not available");
+  await expect(agentBar.getByText("Not available in web app", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("textbox", { name: "Message ChatGPT" })).toHaveCount(0);
   const assistantCard = options.getByRole("link", { name: /StudyApp AI Assistant/u });
   await expect(assistantCard).toHaveAttribute("href", "https://chatgpt.com/g/g-6a6b687029608191af7b26717f0a2072-studyapp-ai-assistant");

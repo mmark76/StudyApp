@@ -118,7 +118,11 @@
 }
 
 :root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-agent-bar > .workspace-beta-availability.is-unavailable {
-  color: #ffaaa3;
+  color: #ff8f89;
+}
+
+:root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-agent-web-unavailable {
+  color: #ff8f89;
 }
 
 :root[data-workspace-theme="dark"] .workspace-beta-functional-shell .workspace-beta-ai-option:hover:not(:disabled) {
