@@ -1204,3 +1204,23 @@
     justify-self: start;
   }
 }
+
+/* Sources cards can contain long localized action labels. Keep their text
+ * column usable throughout the iframe widths used by the side panel. */
+@media (max-width: 560px) {
+  .workspace-panel-embed-main
+    .workspace-beta-sources-page
+    .dashboard-action-grid
+    > .dashboard-action-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .workspace-panel-embed-main
+    .workspace-beta-sources-page
+    .dashboard-action-card
+    :is(.button, a.button) {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+  }
+}
