@@ -27,12 +27,14 @@ function findOfficialReleaseAsset(value: unknown, filenameForTag: (tag: string) 
 
 /** Never display source-branch ZIPs or untrusted URLs as a release download. */
 export function findVersionedZip(value: unknown): ReleaseZip | null {
-  return findOfficialReleaseAsset(value, (tag) => `StudyApp-${tag}.zip`);
+  return findOfficialReleaseAsset(value, (tag) => `StudyApp-Stable-${tag}.zip`)
+    ?? findOfficialReleaseAsset(value, (tag) => `StudyApp-${tag}.zip`);
 }
 
 /** The Windows Local package is a separate, explicitly named release asset. */
 export function findStudyAppLocalWindowsZip(value: unknown): ReleaseZip | null {
-  return findOfficialReleaseAsset(value, (tag) => `StudyApp-Local-Windows-${tag}.zip`);
+  return findOfficialReleaseAsset(value, (tag) => `StudyApp-Local-Windows-Stable-${tag}.zip`)
+    ?? findOfficialReleaseAsset(value, (tag) => `StudyApp-Local-Windows-${tag}.zip`);
 }
 
 function VersionedReleaseZipLink({

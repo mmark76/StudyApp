@@ -63,6 +63,11 @@
   white-space: nowrap;
 }
 
+.workspace-beta-header .workspace-beta-local-download {
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
 .workspace-beta-functional-shell .workspace-beta-local-download:hover {
   border-color: #c78b1d;
   background: #f4c65f;
