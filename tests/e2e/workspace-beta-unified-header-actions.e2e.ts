@@ -5,7 +5,7 @@ test("three column headers retain shared actions and structure", async ({ page }
   await page.goto("/#/workspace-beta");
   const panels = page.locator(".workspace-beta-phase-one-grid > .workspace-beta-panel");
   await expect(panels).toHaveCount(3);
-  await expect(page.getByRole("button", { name: "Back to Sources & Materials home" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Back to Sources & Materials home" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Compare AI options" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Hide sources panel" })).toBeVisible();
   await expect(page.locator(".workspace-beta-phase-workspace > .workspace-beta-panel-header .workspace-beta-column-toggle")).toHaveCount(0);
@@ -15,6 +15,9 @@ test("three column headers retain shared actions and structure", async ({ page }
   const headerBottoms = await page.locator(".workspace-beta-phase-one-grid > .workspace-beta-panel > .workspace-beta-panel-header")
     .evaluateAll((elements) => elements.map((element) => element.getBoundingClientRect().bottom));
   expect(Math.max(...headerBottoms) - Math.min(...headerBottoms)).toBeLessThanOrEqual(1);
+  const headerHeights = await page.locator(".workspace-beta-phase-one-grid > .workspace-beta-panel > .workspace-beta-panel-header")
+    .evaluateAll((elements) => elements.map((element) => element.getBoundingClientRect().height));
+  expect(Math.max(...headerHeights)).toBeLessThanOrEqual(52);
 
   await page.getByRole("button", { name: "Learning Goals", exact: true }).click();
   await expect(page.getByRole("button", { name: "Back to AI options", exact: true })).toBeVisible();

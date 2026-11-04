@@ -38,7 +38,7 @@ export function SourcesPage() {
             "Βιβλία · Άρθρα · Εργασίες · Εξωτερικές σημειώσεις · Οι σημειώσεις μου · Περιλήψεις",
           )}</p>
           <Link className="button primary" to="/library">
-            {text("Open Library", "Άνοιγμα Βιβλιοθήκης")}
+            {text("Create / Open your Library", "Δημιούργησε / άνοιξε τη Βιβλιοθήκη σου")}
           </Link>
         </article>
 
@@ -50,10 +50,10 @@ export function SourcesPage() {
             "Οργάνωσε υλικό με περιεχόμενα, κεφάλαια, ενότητες, έννοιες, αναφορές και διαγράμματα.",
           )}</p>
           <div className="button-row">
-            <Link className="button study" to="/study/theory">{text("Manual Import", "Χειροκίνητη εισαγωγή")}</Link>
-            <Link className="button secondary" to="/tools">{text("Split PDF Tool", "Εργαλείο χωρισμού PDF")}</Link>
+            <Link className="button study" to="/study/theory">{text("Manual Structuring - import structured files", "Χειροκίνητη δόμηση - εισαγωγή δομημένων αρχείων")}</Link>
+            <Link className="button secondary workspace-beta-split-pdf-action" to="/tools">{text("Split PDF Tool", "Εργαλείο χωρισμού PDF")}</Link>
+            <button className="button secondary" disabled type="button">{text("AI-Assisted Structuring — Not available", "Δόμηση με υποστήριξη AI — Μη διαθέσιμο")}</button>
           </div>
-          <p className="field-help">{text("AI-Assisted Structuring — planned and unavailable.", "Δόμηση με υποστήριξη AI — προγραμματισμένη και μη διαθέσιμη.")}</p>
         </article>
       </section>
     </div>

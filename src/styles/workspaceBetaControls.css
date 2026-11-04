@@ -21,6 +21,10 @@
   --ws-btn-red-bg: #674141;
   --ws-btn-red-border: #815656;
   --ws-btn-red-hover: #744a4a;
+  --ws-btn-soft-gold-bg: #f5ead4;
+  --ws-btn-soft-gold-border: #c8a86e;
+  --ws-btn-soft-gold-hover: #edddb9;
+  --ws-btn-soft-gold-text: #5c4212;
 }
 
 :root[data-workspace-theme="dark"] .workspace-beta-shell,
@@ -40,6 +44,10 @@
   --ws-btn-red-bg: #5f3b3b;
   --ws-btn-red-border: #7c4f4f;
   --ws-btn-red-hover: #6b4444;
+  --ws-btn-soft-gold-bg: #493f2c;
+  --ws-btn-soft-gold-border: #7b6740;
+  --ws-btn-soft-gold-hover: #584c34;
+  --ws-btn-soft-gold-text: #f3e5c4;
 }
 
 
@@ -56,6 +64,18 @@
   border-color: var(--ws-btn-slate-border);
   background: var(--ws-btn-slate-hover);
   color: var(--ws-btn-text);
+}
+
+.workspace-panel-embed-main .button.workspace-beta-split-pdf-action {
+  border-color: var(--ws-btn-soft-gold-border);
+  background: var(--ws-btn-soft-gold-bg);
+  color: var(--ws-btn-soft-gold-text);
+}
+
+.workspace-panel-embed-main .button.workspace-beta-split-pdf-action:hover {
+  border-color: var(--ws-btn-soft-gold-border);
+  background: var(--ws-btn-soft-gold-hover);
+  color: var(--ws-btn-soft-gold-text);
 }
 
 

@@ -102,7 +102,7 @@ const minimumPanelWidths: PanelWidths = [260, 240, 340, 280];
 const phaseOneMinimumPanelWidths: PhaseOnePanelWidths = [180, 260, 180];
 const defaultPhaseOnePanelWeights: PhaseOnePanelWidths = [1, 2, 1];
 const agentMinimumPanelHeights: [number, number] = [160, 44];
-const defaultAgentPanelWeights: [number, number] = [75, 25];
+const defaultAgentPanelWeights: [number, number] = [90, 10];
 const keyboardResizeStep = 32;
 const disconnectedChatGptPlan: ChatGptPlanConnectionStatus = {
   connected: false,
@@ -977,7 +977,6 @@ export function WorkspaceBetaPage() {
               <div className="workspace-beta-panel-header workspace-beta-functional-panel-header">
                 <div><p className="workspace-beta-panel-kicker">01</p><h2 id="workspace-sources-title">{text("Sources & Materials", "Πηγές & Υλικό")}</h2></div>
                 <div className="workspace-beta-side-header-actions">
-                  <button className="workspace-beta-back-action" onClick={() => resetPanel("sources")} type="button">{text("Back to Sources & Materials home", "Πίσω στην αρχική Πηγών & Υλικού")}</button>
                   <button
                     aria-controls="workspace-beta-sources-content"
                     aria-expanded={sourcesPanelExpanded}
@@ -1052,8 +1051,8 @@ export function WorkspaceBetaPage() {
                   role="separator"
                   tabIndex={agentPanelExpanded ? 0 : -1}
                   title={text(
-                    "Drag to resize. Use Up/Down arrow keys. Double-click to reset to 75/25.",
-                    "Σύρε για αλλαγή ύψους. Χρησιμοποίησε τα βέλη Πάνω/Κάτω. Διπλό κλικ για επαναφορά σε 75/25.",
+                    "Drag to resize. Use Up/Down arrow keys. Double-click to reset to 90/10.",
+                    "Σύρε για αλλαγή ύψους. Χρησιμοποίησε τα βέλη Πάνω/Κάτω. Διπλό κλικ για επαναφορά σε 90/10.",
                   )}
                 />
                 <div className={`workspace-beta-persistent-agent${localChatReady ? " has-chat" : ""}`}>

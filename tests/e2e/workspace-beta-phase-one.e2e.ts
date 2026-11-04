@@ -41,10 +41,10 @@ test("Workspace BETA Phase 1 keeps three columns, existing modes and routed tool
   await expect(page.locator(".workspace-beta-tools-grid > button")).toHaveCount(8);
 
   const sources = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
-  await expect(sources.getByRole("link", { name: "Open Library" })).toBeVisible();
-  await expect(sources.getByRole("link", { name: "Manual Import" })).toBeVisible();
+  await expect(sources.getByRole("link", { name: "Create / Open your Library" })).toBeVisible();
+  await expect(sources.getByRole("link", { name: "Manual Structuring - import structured files" })).toBeVisible();
   await expect(sources.getByRole("link", { name: "Split PDF Tool" })).toBeVisible();
-  await expect(sources.getByText("AI-Assisted Structuring — planned and unavailable.")).toBeVisible();
+  await expect(sources.getByRole("button", { name: "AI-Assisted Structuring — Not available" })).toBeDisabled();
 
   await page.getByRole("button", { name: "Learning Goals" }).click();
   await expect(page.getByRole("button", { name: "Back to AI options" })).toBeVisible();

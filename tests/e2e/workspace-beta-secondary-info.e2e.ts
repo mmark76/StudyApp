@@ -29,7 +29,7 @@ test("Sources and the three approved knowledge views retain separate responsibil
   await page.goto("/#/workspace-beta");
   const sources = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
   await expect(sources.getByRole("heading", { name: "Sources & Materials" })).toBeVisible();
-  await expect(sources.getByRole("link", { name: "Open Library" })).toBeVisible();
+  await expect(sources.getByRole("link", { name: "Create / Open your Library" })).toBeVisible();
   for (const name of ["Learning Goals", "Key Points", "Important Terms"]) {
     await expect(page.getByRole("button", { name, exact: true })).toBeVisible();
   }

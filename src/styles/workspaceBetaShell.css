@@ -2084,7 +2084,7 @@ body:has(.workspace-panel-embed-shell),
 .workspace-beta-phase-divider-1 { grid-column: 4; grid-row: 1 / 3; }
 .workspace-beta-phase-tools { grid-column: 5; }
 .workspace-beta-phase-one .workspace-beta-panel + .workspace-beta-panel { border-left: 1px solid #ddddda; }
-.workspace-beta-phase-one .workspace-beta-functional-panel-header { flex-direction: row; align-items: center; }
+.workspace-beta-phase-one .workspace-beta-functional-panel-header { min-height: 50px; padding: 0.45rem 0.75rem; flex-direction: row; align-items: center; }
 .workspace-beta-phase-one .workspace-beta-side-header-actions { display: flex; min-width: 0; align-items: center; justify-content: flex-end; gap: 0.35rem; }
 .workspace-beta-phase-one .workspace-beta-side-toggle { position: static; flex: 0 0 auto; width: 1.65rem; height: 1.65rem; min-width: 1.65rem; min-height: 1.65rem; }
 .workspace-beta-phase-one .workspace-beta-frame-wrap { flex: 1; min-height: 0; }
