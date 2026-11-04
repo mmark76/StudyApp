@@ -160,6 +160,11 @@ Each compatible release provides two separate downloads:
   `Disable Launch Button.bat`; after moving it, run the installer
   again from the new location.
 
+In the Web/PWA header, **ZIP versions** opens a compact list of published
+GitHub ZIP releases. The list is requested only when the user opens it, accepts
+only the known official asset names and GitHub download URLs, and does not send
+study material, settings or account data. It is not shown in StudyApp Local.
+
 ### ChatGPT App / MCP — coming soon
 
 The planned ChatGPT App will connect ChatGPT with approved StudyApp tools through

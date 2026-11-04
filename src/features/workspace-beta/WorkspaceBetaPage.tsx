@@ -18,6 +18,7 @@ import { getStudyAppAssistantUrl } from "../assistant/assistantDestination";
 import { WorkspaceMaterialManager } from "./WorkspaceMaterialManager";
 import type { MaterialPanel } from "./workspaceMaterialService";
 import { WorkspaceLocalChat } from "./WorkspaceLocalChat";
+import { WorkspaceReleaseArchive } from "./WorkspaceReleaseArchive";
 import {
   getChatGptPlanConnection,
   isStudyAppLocalEdition,
@@ -231,6 +232,7 @@ export function WorkspaceBetaPage() {
   const [agentDividerActive, setAgentDividerActive] = useState(false);
   const [activeDivider, setActiveDivider] = useState<WorkspaceDivider | null>(null);
   const [infoModalRoute, setInfoModalRoute] = useState<WorkspaceModalRoute | null>(null);
+  const [releaseArchiveOpen, setReleaseArchiveOpen] = useState(false);
   const [materialPanel, setMaterialPanel] = useState<MaterialPanel | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const resizeDragRef = useRef<ResizeDragState | null>(null);
@@ -317,7 +319,7 @@ export function WorkspaceBetaPage() {
   }
 
   useEffect(() => {
-    if (infoModalRoute === null) return undefined;
+    if (infoModalRoute === null && !releaseArchiveOpen) return undefined;
 
     const inertStates = new Map<HTMLElement, boolean>();
     const makeInert = (element: HTMLElement | null) => {
@@ -348,7 +350,7 @@ export function WorkspaceBetaPage() {
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       event.preventDefault();
-      closeInfoModal();
+      closeActiveModal();
     };
     const keepFocusInModal = (event: FocusEvent) => {
       const target = event.target;
@@ -366,7 +368,7 @@ export function WorkspaceBetaPage() {
         element.inert = wasInert;
       });
     };
-  }, [infoModalRoute]);
+  }, [infoModalRoute, releaseArchiveOpen]);
 
   const ids: WorkspacePanelId[] = ["sources", "knowledge", "practice", "ai"];
   const collapsedGridTemplate = collapsedPanels.length
@@ -399,6 +401,22 @@ export function WorkspaceBetaPage() {
     modalReturnFocusRef.current = returnFocusTarget
       ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
     setInfoModalRoute(route);
+  }
+
+  function openReleaseArchive(returnFocusTarget?: HTMLElement) {
+    modalReturnFocusRef.current = returnFocusTarget
+      ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+    setReleaseArchiveOpen(true);
+  }
+
+  function closeActiveModal() {
+    setInfoModalRoute(null);
+    setReleaseArchiveOpen(false);
+    window.requestAnimationFrame(() => {
+      const returnFocusTarget = modalReturnFocusRef.current;
+      if (returnFocusTarget?.isConnected) returnFocusTarget.focus();
+      modalReturnFocusRef.current = null;
+    });
   }
 
   function closeInfoModal(focusPanel?: WorkspacePanelId) {
@@ -951,6 +969,7 @@ export function WorkspaceBetaPage() {
           </div>
           <div className="workspace-beta-header-actions">
             <LanguageSwitcher />
+            {!localEdition ? <button className="workspace-beta-release-archive-trigger" onClick={(event) => openReleaseArchive(event.currentTarget)} type="button">{text("ZIP versions", "Εκδόσεις ZIP")}</button> : null}
             <a className="workspace-beta-ecosystem-link" href="https://markellosecosystem.com/" rel="noopener noreferrer" target="_blank">{text("Back to markellosecosystem", "Πίσω στο markellosecosystem")}</a>
             <Link onClick={(event) => { event.preventDefault(); openInfoModal("/instructions", event.currentTarget); }} to="/instructions">{text("Help / Instructions", "Βοήθεια / Οδηγίες")}</Link>
             <WorkspaceThemeToggle />
@@ -1103,6 +1122,7 @@ export function WorkspaceBetaPage() {
         </main>
         <footer className="workspace-beta-global-footer" aria-label={text("Workspace footer", "Υποσέλιδο χώρου εργασίας")}><span>© 2026 Markellos Markides. {text("All rights reserved.", "Με επιφύλαξη παντός δικαιώματος.")}</span><span>{text("Your data stays under your control.", "Τα δεδομένα σου παραμένουν υπό τον έλεγχό σου.")}</span><span className="workspace-beta-footer-version">StudyApp BETA · {__APP_BUILD_ID__}</span></footer>
         {infoModalRoute ? <div className="workspace-beta-info-modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeInfoModal(); }}><section aria-labelledby="workspace-beta-info-modal-title" aria-modal="true" className="workspace-beta-info-modal" onKeyDown={trapParentModalFocus} ref={modalRef} role="dialog"><header className="workspace-beta-info-modal-header"><div><p>{infoModalKicker}</p><h2 id="workspace-beta-info-modal-title">{infoModalTitle}</h2></div><button aria-label={text("Close", "Κλείσιμο")} onClick={() => closeInfoModal()} ref={modalCloseButtonRef} type="button">{text("Close", "Κλείσιμο")}</button></header><iframe className="workspace-beta-info-modal-frame" name="studyapp-workspace-info-modal" onLoad={(event) => wireModalFrame(event.currentTarget)} ref={modalFrameRef} src={`/#${infoModalRoute}`} title={infoModalTitle} /></section></div> : null}
+        {releaseArchiveOpen ? <div className="workspace-beta-info-modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeActiveModal(); }}><section aria-labelledby="workspace-beta-release-archive-title" aria-modal="true" className="workspace-beta-release-archive-modal" onKeyDown={trapParentModalFocus} ref={modalRef} role="dialog"><header><h2 id="workspace-beta-release-archive-title">{text("Releases · GitHub", "Εκδόσεις · GitHub")}</h2><button aria-label={text("Close", "Κλείσιμο")} onClick={closeActiveModal} ref={modalCloseButtonRef} type="button">×</button></header><WorkspaceReleaseArchive /></section></div> : null}
       </div>
     );
   }

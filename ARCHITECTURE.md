@@ -416,6 +416,11 @@ This preserves separation between verification and publishing while ensuring
 that Pages rebuilds and deploys the exact commit that passed the full
 main-branch CI gate.
 
+The Web/PWA-only Workspace BETA release archive is an on-demand public metadata
+view. Opening it fetches the public GitHub releases endpoint, validates each
+release tag and expected official ZIP asset URL in the browser, and renders no
+study content or local state. It is absent from the Windows Local interface.
+
 Repository settings should additionally require the CI gate for merges to
 `main` where supported. Workflow-level gating does not replace branch/ruleset
 protection against bypassing review or required checks.
