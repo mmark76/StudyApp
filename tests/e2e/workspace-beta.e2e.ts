@@ -8,7 +8,9 @@ test("Workspace BETA keeps three functional columns and existing routes", async 
   await expect(page.locator(".workspace-beta-phase-one-grid > .workspace-beta-panel")).toHaveCount(3);
   await expect(page.locator('iframe[name="studyapp-workspace-sources"]')).toBeVisible();
 
-  await page.getByRole("button", { name: /Progress Backup, Restore & Archive/u }).click();
+  const progressTool = page.getByRole("button", { name: "Progress", exact: true });
+  await expect(progressTool).toContainText("Backup, Restore & Archive");
+  await progressTool.click();
   await expect(page.locator('iframe[name="studyapp-workspace-workspace"]')).toHaveAttribute("src", "/#/progress");
   await expect(page.getByText("Backup, Restore & Archive", { exact: true })).toBeVisible();
 });
