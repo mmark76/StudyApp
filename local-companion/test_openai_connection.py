@@ -143,6 +143,23 @@ class LocalConnectionTests(unittest.TestCase):
                 connection.ask("Question", "model-b")
             opener.assert_not_called()
 
+    def test_direct_chat_keeps_the_legacy_streaming_request_contract(self) -> None:
+        captured: dict = {}
+        connection = ChatGptPlanConnection(MemoryVault({"planUsageAuthorized": True}), Path(tempfile.mkdtemp()))
+        with patch.object(connection, "_record", return_value={"planUsageAuthorized": True}), \
+             patch.object(connection, "_models", return_value=[{"slug": "available-model", "displayName": "Available Model"}]), \
+             patch.object(connection, "_access_token", return_value="test-token"), \
+             patch("openai_connection.build_opener", return_value=FakeOpener(captured)):
+            answer = connection.ask("Hello", "available-model")
+
+        self.assertEqual(answer["answer"], "Answer [S1, p. 4]")
+        self.assertEqual(captured["model"], "available-model")
+        self.assertEqual(captured["input"], [{"role": "user", "content": "Hello"}])
+        self.assertIs(captured["store"], False)
+        self.assertIs(captured["stream"], True)
+        self.assertNotIn("truncation", captured)
+        self.assertNotIn("max_output_tokens", captured)
+
     def test_study_sources_send_only_approved_passages_without_storage(self) -> None:
         captured: dict = {}
         connection = ChatGptPlanConnection(MemoryVault({"planUsageAuthorized": True}), Path(tempfile.mkdtemp()))
@@ -156,6 +173,7 @@ class LocalConnectionTests(unittest.TestCase):
         self.assertEqual(answer["answer"], "Answer [S1, p. 4]")
         self.assertIs(captured["store"], False)
         self.assertIs(captured["stream"], True)
+        self.assertNotIn("truncation", captured)
         self.assertEqual(captured["model"], "available-model")
         self.assertEqual([item["role"] for item in captured["input"]], ["developer", "user"])
         developer_instruction = captured["input"][0]["content"]

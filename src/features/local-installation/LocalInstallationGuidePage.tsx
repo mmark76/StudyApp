@@ -68,10 +68,10 @@ export function LocalInstallationGuidePage() {
       ),
     },
     {
-      title: text("Attach study files", "Επισύναψε αρχεία μελέτης"),
+      title: text("RAG is under construction", "Το RAG είναι υπό κατασκευή"),
       description: text(
-        "In the Local AI Studio conversation, + accepts PDF, DOCX, PPTX, TXT, MD and CSV. Files are extracted and searched on your device. Review the exact excerpts and approve them before submitting. Only your question and the excerpts you approve are sent to ChatGPT; the original files stay on your device. Requests use store: false. Embedded Office images and charts are not analyzed.",
-        "Στη συνομιλία του Τοπικού AI Studio, το + δέχεται PDF, DOCX, PPTX, TXT, MD και CSV. Τα αρχεία εξάγονται και αναζητούνται στη συσκευή σου. Έλεγξε τα ακριβή αποσπάσματα και ενέκρινέ τα πριν από την υποβολή. Στο ChatGPT αποστέλλονται μόνο η ερώτησή σου και τα αποσπάσματα που εγκρίνεις· τα αρχικά αρχεία παραμένουν στη συσκευή σου. Τα αιτήματα χρησιμοποιούν store: false. Οι ενσωματωμένες εικόνες και τα γραφήματα Office δεν αναλύονται.",
+        "RAG is still under construction and not available. The Local conversation accepts only the direct question you submit, with store: false.",
+        "Το RAG βρίσκεται ακόμη υπό κατασκευή και δεν είναι διαθέσιμο. Η Τοπική συνομιλία δέχεται μόνο την άμεση ερώτηση που υποβάλλεις, με store: false.",
       ),
     },
   ];

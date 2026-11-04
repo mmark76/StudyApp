@@ -162,6 +162,15 @@
 .workspace-local-chat-models :is(select, button):disabled { cursor: not-allowed; opacity: 0.64; }
 .workspace-local-chat-models p { flex-basis: 100%; margin: 0; color: #a12626; }
 
+.workspace-local-chat-rag-unavailable {
+  margin: 0;
+  padding: 0 var(--workspace-local-padding-inline);
+  color: #a12626;
+  font-size: var(--workspace-type-small);
+  font-weight: var(--workspace-weight-control);
+  line-height: 1.4;
+}
+
 .workspace-local-chat-history {
   display: flex;
   min-height: 0;
@@ -366,6 +375,7 @@
   color: #f0f0ec;
 }
 :root[data-workspace-theme="dark"] .workspace-local-chat-models p { color: #f1a4a4; }
+:root[data-workspace-theme="dark"] .workspace-local-chat-rag-unavailable { color: #f1a4a4; }
 
 :root[data-workspace-theme="dark"] .workspace-local-chat-message {
   border-color: #464641;

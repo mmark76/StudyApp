@@ -14,7 +14,7 @@ test("Workspace BETA sends the available Assistant card directly to the Custom G
   await expect(assistantCard).toHaveAttribute("target", "_blank");
   await expect(assistantCard).toHaveAttribute("rel", "noopener noreferrer");
   await expect(assistantCard).toContainText("Work there directly; StudyApp does not send your material.");
-  await expect(options.getByRole("button", { name: /Sign in with ChatGPT/u })).toContainText("connect your ChatGPT plan for questions and PDF RAG.");
+  await expect(options.getByRole("button", { name: /Sign in with ChatGPT/u })).toContainText("connect your ChatGPT plan for direct questions. RAG is under construction.");
   await expect(options.getByRole("button", { name: /ChatGPT App \/ MCP/u })).toContainText("Not available yet.");
   await expect(options.getByRole("button", { name: /StudyApp AI \/ API/u })).toContainText("It is not active and there are no charges yet.");
   const tools = page.locator(".workspace-beta-tools-grid");
@@ -35,7 +35,7 @@ test("Workspace BETA sends the available Assistant card directly to the Custom G
   await page.getByRole("button", { name: "Close", exact: true }).click();
   await page.getByRole("button", { name: "GR", exact: true }).click();
   await expect(options.getByRole("link", { name: /StudyApp AI Assistant/u })).toContainText("Η εργασία γίνεται εκεί· το StudyApp δεν στέλνει υλικό.");
-  await expect(options.getByRole("button", { name: /Σύνδεση με ChatGPT/u })).toContainText("σύνδεσε το πλάνο ChatGPT για ερωτήσεις και PDF RAG.");
+  await expect(options.getByRole("button", { name: /Σύνδεση με ChatGPT/u })).toContainText("σύνδεσε το πλάνο ChatGPT για άμεσες ερωτήσεις. Το RAG είναι υπό κατασκευή.");
   await expect(tools.getByRole("button", { name: "Στόχοι μάθησης", exact: true })).toContainText("Δες στόχους σε εισαγμένα κεφάλαια εξάσκησης.");
   await expect(tools.getByRole("button", { name: /Πρόοδος/u })).toContainText("Δες αποτελέσματα εξάσκησης, αντίγραφα, επαναφορά και αρχείο.");
 });

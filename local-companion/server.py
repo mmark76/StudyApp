@@ -125,8 +125,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         path = urlparse(self.path).path
         try:
-            body = self._read_json(80_000 if path == "/api/chatgpt-plan/ask-with-sources" else
-                                   40_000 if path == "/api/chatgpt-plan/summarize-parts" else 20_000)
+            body = self._read_json(40_000 if path == "/api/chatgpt-plan/summarize-parts" else 20_000)
             if path == "/api/chatgpt-plan/connection":
                 if body.get("confirmConnection") is not True:
                     raise ChatGptConnectionError("Confirm the ChatGPT connection request.")
@@ -149,10 +148,7 @@ class Handler(BaseHTTPRequestHandler):
                 self._json(CONNECTION.ask(body.get("question"), body.get("model")))
                 return
             if path == "/api/chatgpt-plan/ask-with-sources":
-                if body.get("confirmExternalRequest") is not True:
-                    raise ChatGptConnectionError("Confirm sending the selected passages to ChatGPT.")
-                self._json(CONNECTION.ask_with_sources(body.get("question"), body.get("passages"), body.get("model")))
-                return
+                raise ChatGptConnectionError("RAG is still under construction and is not available.")
             if path == "/api/chatgpt-plan/summarize-parts":
                 if body.get("confirmExternalRequest") is not True:
                     raise ChatGptConnectionError("Confirm sending all selected document chunks to ChatGPT.")

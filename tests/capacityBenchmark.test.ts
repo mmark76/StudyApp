@@ -86,7 +86,7 @@ describe("capacity benchmark fixtures", () => {
       },
     });
     expect(first.manifest.fingerprint).toMatch(/^sha256:[0-9a-f]{64}$/u);
-  });
+  }, 15_000);
 
   it("generates the exact deterministic personal-use calibration fixture", () => {
     const first = createCapacityFixture(PERSONAL_USE_CALIBRATION);

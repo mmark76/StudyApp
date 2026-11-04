@@ -103,9 +103,9 @@ StudyApp Local extracts and tracks all readable pages or sections and partitions
 them into bounded chunks. Any extraction gap is shown and blocks AI generation.
 After explicit consent for multi-request transfer, the separate loopback
 `summarize-parts` path processes every chunk and combines the intermediate
-summaries hierarchically. The targeted-question `ask-with-sources` path retains
-its bounded relevance retrieval and never represents full-document coverage.
-Neither path saves an AI draft automatically; downloads remain client-side.
+summaries hierarchically. RAG-based targeted questions, including the former
+`ask-with-sources` path, are under construction and unavailable. Summary does
+not save an AI draft automatically; downloads remain client-side.
 
 ### Browser application
 
@@ -175,19 +175,12 @@ only names and slugs to the Local UI; the connection status carries a random,
 non-secret connection identifier so account changes remount the picker. The
 companion rechecks the selected slug against the live catalog before a Responses
 request.
-The Local ChatGPT page also provides a separate retrieval flow for user-selected
-Library PDFs. In Workspace BETA, the Local chat `+` accepts PDF, DOCX, PPTX, TXT,
-Markdown and CSV files directly. PDF and Office text extraction and passage
-ranking run on-device; PowerPoint slide text and speaker notes are included,
-while embedded images and charts are not analyzed. The interface displays the
-exact selected excerpts before sending. The user approves those passages and
-submits the question; the companion enforces confirmation and sends only the
-question and approved excerpts with `store: false`. Answers stay in page state.
-No persistent index or automatic Library scan is used.
-The Local composer keeps `+`, the question field and a single Send action in one
-rectangular input bar, with attachment chips and the passage review beneath it.
-With attachments, the first Send prepares the on-device excerpt preview; the
-same button submits only after the separate approval checkbox is checked.
+RAG retrieval is temporarily unavailable while it is being redesigned. The
+active Workspace Local composer provides direct ChatGPT questions only, shows
+that RAG is under construction, and does not expose file attachment, passage
+selection, or source-review controls. The companion rejects its former
+`ask-with-sources` route, so a legacy client cannot send passages while RAG is
+unavailable. No persistent index or automatic Library scan is used.
 
 Workspace presentation styles remain separate from the stable shell at the CSS
 module/file level even though they are currently imported from the application

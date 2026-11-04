@@ -48,7 +48,7 @@ test("Local AI Studio connects and disconnects without leaving the workspace", a
   await expect(studio.locator(".workspace-beta-ai-options")).toBeVisible();
 });
 
-test("Connected chat attaches a text study file and sends excerpts only after approval", async ({ page }) => {
+test("Connected chat keeps RAG unavailable and never sends passages", async ({ page }) => {
   let sentSources = 0;
   await page.route("**/api/chatgpt-plan/connection", async (route) => {
     await route.fulfill({
@@ -58,33 +58,15 @@ test("Connected chat attaches a text study file and sends excerpts only after ap
   });
   await page.route("**/api/chatgpt-plan/ask-with-sources", async (route) => {
     sentSources += 1;
-    const payload = route.request().postDataJSON() as { question: string; passages: Array<{ documentTitle: string; text: string }> };
-    expect(payload.question).toBe("Explain selective attention");
-    expect(payload.passages[0].documentTitle).toBe("notes.txt");
-    expect(payload.passages[0].text).toContain("Selective attention");
-    await route.fulfill({ contentType: "application/json", body: JSON.stringify({ answer: "Selective attention focuses on relevant information." }) });
+    await route.fulfill({ status: 503, json: { error: "RAG unavailable" } });
   });
 
   await page.goto("/#/workspace-beta");
   const studio = await openLocalMode(page);
-  const attach = studio.getByRole("button", { name: "Attach study files" });
-  await expect(attach).toBeVisible();
-  await studio.locator('.workspace-local-chat-upload input[type="file"]').setInputFiles({
-    name: "notes.txt",
-    mimeType: "text/plain",
-    buffer: Buffer.from("Selective attention helps learners focus on relevant information rather than distractions."),
-  });
-  await expect(studio.getByText("notes.txt")).toBeVisible();
-  await studio.getByRole("textbox", { name: "Message ChatGPT" }).fill("Explain selective attention");
-  const send = studio.getByRole("button", { name: "Send", exact: true });
-  await send.click();
-  await expect(studio.getByText("Review excerpts before sending")).toBeVisible();
+  await expect(studio.getByText("RAG is still under construction and not available.")).toBeVisible();
+  await expect(studio.getByRole("button", { name: "Attach study files" })).toHaveCount(0);
   expect(sentSources).toBe(0);
-  await expect(send).toBeDisabled();
-  await studio.getByRole("checkbox", { name: /I approve sending my question/ }).check();
-  await send.click();
-  await expect(studio.getByText("Selective attention focuses on relevant information.")).toBeVisible();
-  expect(sentSources).toBe(1);
+  await expect(studio.locator(".workspace-local-chat-review")).toHaveCount(0);
 });
 
 test("Connected chat sends a text-only question with the same Send button", async ({ page }) => {

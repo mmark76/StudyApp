@@ -275,11 +275,16 @@ class ChatGptPlanConnection:
             "on every claim. Return only JSON with a string 'summary' and an array of 3-8 strings 'mainPoints'. "
             "Do not invent facts or citations."
         )
-        return self._send_response(json.dumps({"phase": phase, "parts": validated}, ensure_ascii=False),
-                                   model=model, developer_instruction=instruction, max_output_tokens=1200)
+        return self._send_response(
+            json.dumps({"phase": phase, "parts": validated}, ensure_ascii=False),
+            model=model,
+            developer_instruction=instruction,
+            max_output_tokens=1200,
+            disable_truncation=True,
+        )
 
     def _send_response(self, prompt: str, model: str | None = None, developer_instruction: str | None = None,
-                       max_output_tokens: int | None = None) -> dict[str, str]:
+                       max_output_tokens: int | None = None, disable_truncation: bool = False) -> dict[str, str]:
         record = self._record()
         if not record.get("planUsageAuthorized"):
             raise ChatGptConnectionError("ChatGPT plan use was not approved. Disconnect and connect again.")
@@ -294,8 +299,9 @@ class ChatGptPlanConnection:
         if developer_instruction:
             messages.append({"role": "developer", "content": developer_instruction})
         messages.append({"role": "user", "content": prompt})
-        payload: dict[str, Any] = {"model": selected_model, "input": messages, "store": False, "stream": True,
-                                   "truncation": "disabled"}
+        payload: dict[str, Any] = {"model": selected_model, "input": messages, "store": False, "stream": True}
+        if disable_truncation:
+            payload["truncation"] = "disabled"
         if max_output_tokens is not None:
             payload["max_output_tokens"] = max_output_tokens
         request = Request("https://api.openai.com/v1/responses", data=json.dumps(payload).encode("utf-8"), method="POST", headers={"Authorization": f"Bearer {self._access_token(record)}", "Content-Type": "application/json"})

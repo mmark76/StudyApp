@@ -31,6 +31,8 @@ const disconnected: ChatGptPlanConnectionStatus = {
   scope: "current-windows-user",
 };
 
+const RAG_AVAILABLE = false;
+
 export function LocalChatGptPlanPage() {
   const { text } = useLanguage();
   const localEdition = isStudyAppLocalEdition();
@@ -333,7 +335,7 @@ export function LocalChatGptPlanPage() {
               <textarea id="local-chatgpt-plan-question" maxLength={12000} onChange={(event) => setQuestion(event.target.value)} placeholder={text("Ask for study help…", "Ζήτησε βοήθεια για τη μελέτη…")} value={question} />
               <button className="button primary" disabled={state === "working"} onClick={() => void ask()} type="button">{text("Ask ChatGPT", "Ρώτησε το ChatGPT")}</button>
               {answer ? <article className="local-chatgpt-plan-answer"><h4>{text("ChatGPT answer", "Απάντηση ChatGPT")}</h4><p>{answer}</p></article> : null}
-              <section className="local-pdf-rag" aria-labelledby="local-pdf-rag-title" id="pdf-rag">
+              {RAG_AVAILABLE ? <section className="local-pdf-rag" aria-labelledby="local-pdf-rag-title" id="pdf-rag">
                 <h4 id="local-pdf-rag-title">{text("PDF RAG — Available · BETA", "PDF RAG — Διαθέσιμο · BETA")}</h4>
                 <p>{text("Choose up to eight PDFs to use. They are read on this device. Nothing is sent until you review and approve the passages.", "Επίλεξε έως οκτώ PDF. Διαβάζονται σε αυτή τη συσκευή. Δεν αποστέλλεται τίποτα πριν ελέγξεις και εγκρίνεις τα αποσπάσματα.")}</p>
                 <div className="local-pdf-rag-attach">
@@ -392,7 +394,7 @@ export function LocalChatGptPlanPage() {
                   </div>
                 ) : null}
                 {pdfAnswer ? <article className="local-chatgpt-plan-answer"><h5>{text("Answer from the selected PDFs", "Απάντηση από τα επιλεγμένα PDF")}</h5><p>{pdfAnswer}</p></article> : null}
-              </section>
+              </section> : <p className="local-pdf-rag-unavailable" role="note">{text("RAG is still under construction and not available.", "Το RAG βρίσκεται ακόμη υπό κατασκευή και δεν είναι διαθέσιμο.")}</p>}
             </div>
           ) : null}
         </section>
