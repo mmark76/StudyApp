@@ -2094,7 +2094,7 @@ body:has(.workspace-panel-embed-shell),
 .workspace-beta-phase-one .workspace-beta-side-toggle { position: static; flex: 0 0 auto; width: 1.65rem; height: 1.65rem; min-width: 1.65rem; min-height: 1.65rem; }
 .workspace-beta-phase-one .workspace-beta-frame-wrap { flex: 1; min-height: 0; }
 .workspace-beta-phase-one .workspace-beta-back-action { min-height: 1.55rem; padding: 0.2rem 0.45rem; border: 1px solid #577967; border-radius: 0.34rem; background: #3c614d; color: #fff; font: inherit; font-size: var(--workspace-type-small, 0.72rem); font-weight: 700; cursor: pointer; }
-.workspace-beta-ai-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; padding: 1rem; }
+.workspace-beta-ai-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 0.7rem; padding: 1rem; }
 .workspace-beta-ai-option, .workspace-beta-tools-grid > button { display: grid; gap: 0.28rem; min-width: 0; border: 1px solid #c9ddcf; border-radius: 0.5rem; background: #eef6f0; color: inherit; font: inherit; text-align: left; }
 .workspace-beta-ai-option { text-decoration: none; }
 .workspace-beta-ai-option { height: 7.25rem; min-height: 7.25rem; align-content: center; padding: 0.8rem; cursor: pointer; }
