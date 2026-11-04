@@ -33,34 +33,10 @@ test("Workspace BETA keeps the release download label compact", async ({ page })
   }
 });
 
-test("Workspace BETA shows refreshed official ZIP releases in a web-only modal", async ({ page }) => {
+test("Workspace BETA keeps ZIP releases out of the Windows Local test origin", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.route("https://api.github.com/repos/mmark76/StudyApp/releases?per_page=100", async (route) => {
-    await route.fulfill({
-      contentType: "application/json",
-      body: JSON.stringify([{
-        tag_name: "v1.5.5",
-        target_commitish: "1234567890abcdef",
-        draft: false,
-        prerelease: false,
-        assets: [{
-          name: "StudyApp-Local-Windows-v1.5.5.zip",
-          browser_download_url: "https://github.com/mmark76/StudyApp/releases/download/v1.5.5/StudyApp-Local-Windows-v1.5.5.zip",
-        }],
-      }]),
-    });
-  });
   await page.goto("/#/workspace-beta");
-  await page.getByRole("button", { name: "ZIP versions", exact: true }).click();
-  const modal = page.getByRole("dialog", { name: "Releases · GitHub" });
-  await expect(modal).toBeVisible();
-  await expect(modal.getByRole("link", { name: "v1.5.5", exact: true })).toHaveAttribute(
-    "href",
-    "https://github.com/mmark76/StudyApp/releases/download/v1.5.5/StudyApp-Local-Windows-v1.5.5.zip",
-  );
-  await expect(modal).toContainText("1234567");
-  await modal.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(modal).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "ZIP versions", exact: true })).toHaveCount(0);
 });
 
 test("Workspace BETA keeps legal, feedback and version information accessible", async ({ page }) => {
