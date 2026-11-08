@@ -82,6 +82,32 @@ class FakeCatalogResponse:
 
 
 class LocalConnectionTests(unittest.TestCase):
+    def test_server_session_requires_prepare_and_fresh_approval(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            vault = MemoryVault({"subject": "old", "refreshToken": "synthetic"})
+            opened = []
+            connection = ChatGptPlanConnection(vault, Path(temporary), browser_open=lambda url: opened.append(url) or True)
+            connection.reset_on_server_start()
+            self.assertFalse(connection.status()["connected"])
+            self.assertIsNone(vault.record)
+            with patch.object(connection, "_require_crypto"):
+                with self.assertRaisesRegex(ChatGptConnectionError, "Prepare"):
+                    connection.start("http://127.0.0.1:8767/auth/callback")
+                self.assertEqual(opened, [])
+                connection.prepare_session()
+                connection.start("http://127.0.0.1:8767/auth/callback")
+            self.assertEqual(len(opened), 1)
+
+    def test_failed_reset_blocks_server_session(self) -> None:
+        class RefusingVault(MemoryVault):
+            def remove(self):
+                raise CredentialVaultError("denied")
+        connection = ChatGptPlanConnection(RefusingVault({"subject": "old"}), Path("."))
+        with self.assertRaisesRegex(ChatGptConnectionError, "could not be cleared"):
+            connection.reset_on_server_start()
+        with self.assertRaisesRegex(ChatGptConnectionError, "Prepare"):
+            connection.start("http://127.0.0.1:8767/auth/callback")
+
     def test_missing_record_is_explicitly_disconnected(self) -> None:
         connection = ChatGptPlanConnection(MissingVault(), Path(tempfile.mkdtemp()))
         self.assertEqual(connection.status()["connectionState"], "disconnected")
@@ -91,6 +117,7 @@ class LocalConnectionTests(unittest.TestCase):
         opened: list[str] = []
         with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as temporary, patch.object(ChatGptPlanConnection, "_require_crypto"):
             connection = ChatGptPlanConnection(MissingVault(), Path(temporary), browser_open=lambda url: opened.append(url) or True)
+            connection.prepare_session()
             connection.start("http://127.0.0.1:8767/auth/callback")
         query = parse_qs(urlparse(opened[0]).query)
         self.assertEqual(query["redirect_uri"], ["http://127.0.0.1:8767/auth/callback"])
@@ -102,6 +129,7 @@ class LocalConnectionTests(unittest.TestCase):
         connection = ChatGptPlanConnection(MissingVault(), Path(tempfile.mkdtemp()))
         with patch.object(ChatGptPlanConnection, "_require_crypto"):
             with self.assertRaises(ChatGptConnectionError):
+                connection.prepare_session()
                 connection.start("http://127.0.0.1:8766/auth/callback")
 
     def test_question_limit_rejects_before_any_provider_request(self) -> None:
@@ -248,6 +276,7 @@ class LocalConnectionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as temporary, patch.object(ChatGptPlanConnection, "_require_crypto"), patch.object(ChatGptPlanConnection, "_exchange_tokens", return_value={"id_token": "new-id-token", "refresh_token": "new-refresh", "access_token": "access", "scope": "openid chatgpt.tokens.use.direct"}), patch.object(ChatGptPlanConnection, "_validate_identity", return_value={"sub": "person", "email": "person@example.com"}):
             connection = ChatGptPlanConnection(vault, Path(temporary), browser_open=lambda url: opened.append(url) or True)
             connection._save_client_id(issued_client_id)
+            connection.prepare_session()
             connection.start("http://127.0.0.1:8767/auth/callback")
             query = parse_qs(urlparse(opened[0]).query)
             self.assertEqual(query["client_id"], [issued_client_id])

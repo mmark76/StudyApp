@@ -2,6 +2,7 @@ export interface ChatGptPlanConnectionStatus {
   connected: boolean;
   connectionState: "connected" | "disconnected" | "unreadable";
   planUsageAuthorized: boolean;
+  preparationRequired?: boolean;
   scope: "current-windows-user";
   connectionId?: string | null;
   message?: string;
@@ -109,7 +110,7 @@ export function startChatGptPlanConnection(): Promise<ChatGptPlanConnectionStatu
   });
 }
 
-export function prepareChatGptPlanConnection(): Promise<{ state: "SETUP_STARTED" }> {
+export function prepareChatGptPlanConnection(): Promise<{ state: "SETUP_STARTED" | "READY" }> {
   return request("/api/chatgpt-plan/setup", {
     method: "POST",
     body: JSON.stringify({ confirmSetup: true }),

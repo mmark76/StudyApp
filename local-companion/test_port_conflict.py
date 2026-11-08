@@ -3,7 +3,7 @@ import errno
 import io
 import socket
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import server
 
@@ -36,6 +36,25 @@ class PortConflictTests(unittest.TestCase):
         self.assertIn("Stop StudyApp Local Server.bat", message)
         self.assertIn("Η θύρα χρησιμοποιείται ή δεν είναι διαθέσιμη", message)
         browser.assert_not_called()
+
+    def test_reset_happens_only_after_bind_and_before_serving(self):
+        fake_server = MagicMock()
+        fake_server.__enter__.return_value = fake_server
+        events = []
+        fake_server.serve_forever.side_effect = lambda: events.append("serve")
+        with patch.object(server, "StudyAppLocalServer", return_value=fake_server), \
+             patch.object(server.CONNECTION, "reset_on_server_start", side_effect=lambda: events.append("reset")), \
+             patch.dict(server.os.environ, {"STUDYAPP_LOCAL_SUPPRESS_BROWSER": "1"}), \
+             contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(server.main(), 0)
+        self.assertEqual(events, ["reset", "serve"])
+
+    def test_bind_failure_does_not_clear_connection(self):
+        with patch.object(server, "StudyAppLocalServer", side_effect=OSError(errno.EADDRINUSE, "in use")), \
+             patch.object(server.CONNECTION, "reset_on_server_start") as reset, \
+             contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(server.main(), 1)
+        reset.assert_not_called()
 
     def test_unrelated_socket_error_is_not_reported_as_a_port_conflict(self):
         with patch.object(server, "StudyAppLocalServer", side_effect=OSError(errno.EACCES, "denied")):

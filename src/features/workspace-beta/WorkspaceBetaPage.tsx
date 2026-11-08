@@ -257,6 +257,7 @@ export function WorkspaceBetaPage() {
     try {
       const status = await getChatGptPlanConnection();
       setChatGptPlanConnection(status);
+      if (typeof status.preparationRequired === "boolean") setLocalSetupRequired(status.preparationRequired);
       if (status.connected || status.connectionState === "unreadable") setLocalAwaitingApproval(false);
     } catch {
       setChatGptPlanConnection(disconnectedChatGptPlan);
@@ -319,8 +320,9 @@ export function WorkspaceBetaPage() {
     setLocalConnectionBusy(true);
     setLocalConnectionError("");
     try {
-      await prepareChatGptPlanConnection();
+      const result = await prepareChatGptPlanConnection();
       setLocalSetupRequired(false);
+      setLocalConnectionError(result.state === "READY" ? text("Connection prepared. Select Connect.", "Η σύνδεση προετοιμάστηκε. Πάτησε Σύνδεση.") : text("Complete the setup window, then restart StudyApp Local.", "Ολοκλήρωσε τη ρύθμιση και επανεκκίνησε το StudyApp Local."));
     } catch (error) {
       setLocalConnectionError(error instanceof Error ? error.message : text(
         "The local connection setup could not start.",

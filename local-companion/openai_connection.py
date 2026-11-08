@@ -58,6 +58,7 @@ class ChatGptPlanConnection:
         self._browser_open = browser_open
         self._lock = Lock()
         self._attempt: dict[str, Any] | None = None
+        self._session_prepared = False
 
     @property
     def _registration_path(self) -> Path:
@@ -88,6 +89,8 @@ class ChatGptPlanConnection:
         return {"connected": True, "connectionState": "connected", "scope": "current-windows-user", "planUsageAuthorized": bool(record.get("planUsageAuthorized")), "connectionId": connection_id if isinstance(connection_id, str) else None}
 
     def start(self, callback_url: str) -> dict[str, Any]:
+        if not self._session_prepared:
+            raise ChatGptConnectionSetupRequired("Prepare the secure connection for this session before connecting.")
         self._require_crypto()
         if callback_url != "http://127.0.0.1:8767/auth/callback":
             raise ChatGptConnectionError("The local callback address is invalid.")
@@ -166,6 +169,22 @@ class ChatGptPlanConnection:
                 pass
             raise ChatGptConnectionError("The ChatGPT connection could not be protected for this Windows user.") from error
         return self.status()
+
+    def reset_on_server_start(self) -> None:
+        """Discard only the saved ChatGPT authorization for a fresh server session."""
+        self._session_prepared = False
+        try:
+            self._vault.remove()
+        except CredentialVaultError as error:
+            raise ChatGptConnectionError("The previous ChatGPT connection could not be cleared. StudyApp Local did not start.") from error
+
+    @property
+    def session_prepared(self) -> bool:
+        return self._session_prepared
+
+    def prepare_session(self) -> None:
+        self._require_crypto()
+        self._session_prepared = True
 
     def remove(self) -> dict[str, Any]:
         with self._lock:
