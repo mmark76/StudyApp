@@ -30,11 +30,49 @@ function Test-StudyAppLocalListener {
 
 try {
     $uri = [Uri]$ProtocolUrl
-    if ($uri.Scheme -ne "studyapp-local" -or $uri.Host -ne "open" -or $uri.UserInfo -or $uri.Port -ne -1 -or $uri.AbsolutePath -notin @("", "/") -or $uri.Query -or $uri.Fragment) {
+    if ($uri.Scheme -ne "studyapp-local" -or $uri.Host -notin @("open", "stop") -or $uri.UserInfo -or $uri.Port -ne -1 -or $uri.AbsolutePath -notin @("", "/") -or $uri.Query -or $uri.Fragment) {
         throw "StudyApp Local rejected an unrecognised launcher request."
     }
 
     $root = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..")).Path
+    if ($uri.Host -eq "stop") {
+        $safeStop = Join-Path $PSScriptRoot "stop-verified-studyapp-local.ps1"
+        if (-not (Test-Path -LiteralPath $safeStop -PathType Leaf)) { throw "The StudyApp Local package is incomplete. Extract the complete package and install the launcher again." }
+        Add-Type -AssemblyName PresentationFramework
+        $choice = [System.Windows.MessageBox]::Show(
+            "Stop StudyApp Local? Any active work may be interrupted.`r`n`r`nΝα σταματήσει το StudyApp Local; Μια ενεργή εργασία μπορεί να διακοπεί.",
+            "StudyApp Local", [System.Windows.MessageBoxButton]::YesNo,
+            [System.Windows.MessageBoxImage]::Warning, [System.Windows.MessageBoxResult]::No
+        )
+        if ($choice -ne [System.Windows.MessageBoxResult]::Yes) { exit 0 }
+        $result = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $safeStop -LabRoot $root
+        $other = @($result | Where-Object { $_ -match '^OTHER:[\w. -]{1,100}:\d{1,10}:\d{1,19}$' } | Select-Object -First 1)
+        if ($LASTEXITCODE -eq 3 -and $other.Count -eq 1) {
+            $parts = $other[0].Split(':')
+            $name = $parts[1]; $otherPid = [int]$parts[2]; $otherTicks = [long]$parts[3]
+            $confirmOther = [System.Windows.MessageBox]::Show(
+                "Port 8767 is used by $name (PID $otherPid), which may be running in the background. Close this application? The whole process will close, including any other tasks it runs. Unsaved work may be lost.`r`n`r`nΗ θύρα 8767 χρησιμοποιείται από το $name (PID $otherPid), που μπορεί να εκτελείται στο παρασκήνιο. Να κλείσει αυτή η εφαρμογή; Θα κλείσει ολόκληρη η διεργασία, μαζί με άλλες εργασίες της. Μη αποθηκευμένη εργασία μπορεί να χαθεί.",
+                "StudyApp Local", [System.Windows.MessageBoxButton]::YesNo,
+                [System.Windows.MessageBoxImage]::Warning, [System.Windows.MessageBoxResult]::No
+            )
+            if ($confirmOther -ne [System.Windows.MessageBoxResult]::Yes) { exit 0 }
+            $result = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $safeStop -LabRoot $root -OtherPid $otherPid -OtherCreationTicks $otherTicks
+        }
+        if ($LASTEXITCODE -ne 0 -and $result -contains 'STOPPED_PORT_BUSY') {
+            throw "The selected application was stopped, but port 8767 is still in use or could not be verified. StudyApp Local cannot start until it is available.`r`n`r`nΗ επιλεγμένη εφαρμογή σταμάτησε, αλλά η θύρα 8767 εξακολουθεί να χρησιμοποιείται ή δεν ήταν δυνατός ο έλεγχός της. Το StudyApp Local δεν μπορεί να ξεκινήσει μέχρι να είναι διαθέσιμη."
+        }
+        if ($LASTEXITCODE -eq 0 -and $result -contains 'STOPPED') {
+            [System.Windows.MessageBox]::Show("The selected application stopped and port 8767 is available.`r`n`r`nΗ επιλεγμένη εφαρμογή σταμάτησε και η θύρα 8767 είναι διαθέσιμη.", "StudyApp Local", "OK", "Information") | Out-Null
+            exit 0
+        }
+        if ($LASTEXITCODE -eq 0 -and $result -contains 'AVAILABLE') {
+            [System.Windows.MessageBox]::Show("Port 8767 is available. You can start StudyApp Local.`r`n`r`nΗ θύρα 8767 είναι διαθέσιμη. Μπορείτε να ξεκινήσετε το StudyApp Local.", "StudyApp Local", "OK", "Information") | Out-Null
+            exit 0
+        }
+        $ownerName = @($result | Where-Object { $_ -match '^UNVERIFIED:[\w. -]{1,100}$' } | Select-Object -First 1)
+        $detail = if ($ownerName.Count -gt 0) { "`r`nProcess / Διεργασία: $($ownerName[0].Substring(11))" } else { "" }
+        throw "Port 8767 is in use or could not be checked safely. StudyApp Local cannot start until it is available. No unverified application was stopped.$detail`r`n`r`nEven if all windows are closed, an application may still be running in the background. Find the process in Windows Task Manager and close it only if you recognize it, then try again. An older StudyApp Local server may need to be closed from its own window.`r`n`r`nΗ θύρα 8767 χρησιμοποιείται ή δεν ήταν δυνατός ο ασφαλής έλεγχός της. Το StudyApp Local δεν μπορεί να ξεκινήσει μέχρι να είναι διαθέσιμη. Καμία μη επιβεβαιωμένη εφαρμογή δεν σταμάτησε.`r`n`r`nΑκόμη κι αν όλα τα παράθυρα είναι κλειστά, μια εφαρμογή μπορεί να παραμένει ενεργή στο παρασκήνιο. Βρείτε τη διεργασία στη Διαχείριση Εργασιών των Windows και κλείστε τη μόνο αν την αναγνωρίζετε. Ένα παλαιότερο StudyApp Local ίσως χρειάζεται να κλείσει από το δικό του παράθυρο."
+    }
     $startScript = Join-Path $root "Start StudyApp Local.bat"
     $stopScript = Join-Path $PSScriptRoot "stop-studyapp-local.ps1"
     if (-not (Test-Path -LiteralPath $startScript -PathType Leaf) -or -not (Test-Path -LiteralPath $stopScript -PathType Leaf)) {

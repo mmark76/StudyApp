@@ -26,14 +26,12 @@ shortly after the server stops.
 ## Optional browser launcher
 
 After extracting the complete Windows package, run `Enable Launch Button.bat`
-once. It registers `studyapp-local://open` for the current
+once. It registers `studyapp-local://open` and `studyapp-local://stop` for the current
 Windows user only and does not require administrator rights. Setup displays
 its result for seven seconds, then offers to open StudyApp Local and reminds
 you to close any online StudyApp tab. The **Open
 StudyApp Local** action in the browser/PWA can then invoke the native handler.
-The handler accepts only that exact protocol request, uses the safe stop script
-for port 8767, starts this package's Local server, waits for its loopback
-listener, and opens Workspace BETA.
+The handler accepts only these fixed requests. Open starts this package’s Local server and opens Workspace BETA. Stop checks port 8767 and asks for confirmation before stopping the verified server. If another eligible same-user application owns the port, it offers a separate confirmation identifying the process and warning about unsaved work. Protected or unverifiable processes are not stopped. Re-run Enable Launch Button.bat from the new package to use Stop.
 
 Before moving or deleting the extracted package, run `Disable Launch Button.bat`.
 If you move the package, run the installer again from the new

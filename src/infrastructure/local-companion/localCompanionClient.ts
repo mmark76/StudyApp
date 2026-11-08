@@ -46,6 +46,7 @@ const STUDYAPP_LOCAL_PORTS = import.meta.env.MODE === "e2e"
   : new Set(["8767"]);
 
 export const STUDYAPP_LOCAL_PROTOCOL_URL = "studyapp-local://open";
+export const STUDYAPP_LOCAL_STOP_PROTOCOL_URL = "studyapp-local://stop";
 
 export function isStudyAppLocalEdition(
   locationValue?: Pick<Location, "hostname" | "port" | "protocol">,
