@@ -105,6 +105,7 @@ export function LocalChatGptPlanPage() {
 
   async function prepare() {
     setState("working");
+    setMessage(text("Preparing…", "Προετοιμασία…"));
     try {
       const result = await prepareChatGptPlanConnection();
       setSetupRequired(false);

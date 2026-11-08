@@ -214,6 +214,7 @@ export function WorkspaceBetaPage() {
     disconnectedChatGptPlan,
   );
   const [localConnectionBusy, setLocalConnectionBusy] = useState(false);
+  const [localPreparing, setLocalPreparing] = useState(false);
   const [localConnectionError, setLocalConnectionError] = useState("");
   const [localAwaitingApproval, setLocalAwaitingApproval] = useState(false);
   const [localSetupRequired, setLocalSetupRequired] = useState(false);
@@ -317,6 +318,7 @@ export function WorkspaceBetaPage() {
   }
 
   async function prepareLocalConnection() {
+    setLocalPreparing(true);
     setLocalConnectionBusy(true);
     setLocalConnectionError("");
     try {
@@ -329,6 +331,7 @@ export function WorkspaceBetaPage() {
         "Δεν ήταν δυνατή η έναρξη της ρύθμισης της τοπικής σύνδεσης.",
       ));
     } finally {
+      setLocalPreparing(false);
       setLocalConnectionBusy(false);
     }
   }
@@ -1078,7 +1081,7 @@ export function WorkspaceBetaPage() {
                 <div className="workspace-beta-local-mode">
                   <div className="workspace-local-connection-controls">
                     <span role="status">{localChatReady ? text("ChatGPT connected", "Το ChatGPT συνδέθηκε") : chatGptPlanConnection.connected ? text("Plan approval needed", "Χρειάζεται έγκριση πλάνου") : localAwaitingApproval ? text("Finish approval in your browser", "Ολοκλήρωσε την έγκριση στον browser") : text("ChatGPT disconnected", "Το ChatGPT αποσυνδέθηκε")}</span>
-                    {localSetupRequired ? <button disabled={localConnectionBusy} onClick={() => void prepareLocalConnection()} type="button">{text("Prepare connection", "Προετοιμασία σύνδεσης")}</button> : null}
+                    {localSetupRequired ? <button disabled={localConnectionBusy} onClick={() => void prepareLocalConnection()} type="button">{localPreparing ? text("Preparing…", "Προετοιμασία…") : text("Prepare connection", "Προετοιμασία σύνδεσης")}</button> : null}
                     <button disabled={localConnectionBusy} onClick={() => void changeLocalConnection()} type="button">{chatGptPlanConnection.connected ? text("Disconnect", "Αποσύνδεση") : text("Connect", "Σύνδεση")}</button>
                     {localConnectionError ? <p role="alert">{localConnectionError}</p> : null}
                   </div>
@@ -1454,7 +1457,7 @@ export function WorkspaceBetaPage() {
                     : text("ChatGPT disconnected", "Το ChatGPT αποσυνδέθηκε")}</span>
                 {localSetupRequired ? (
                   <button disabled={localConnectionBusy} onClick={() => void prepareLocalConnection()} type="button">
-                    {text("Prepare connection", "Προετοιμασία σύνδεσης")}
+                    {localPreparing ? text("Preparing…", "Προετοιμασία…") : text("Prepare connection", "Προετοιμασία σύνδεσης")}
                   </button>
                 ) : null}
                 <button disabled={localConnectionBusy} onClick={() => void changeLocalConnection()} type="button">
