@@ -10,6 +10,7 @@ const requiredCompanionFiles = [
   "install-studyapp-local-launcher.ps1",
   "setup-chatgpt-connection.ps1",
   "stop-studyapp-local.ps1",
+  "stop-verified-studyapp-local.ps1",
   "studyapp-local-protocol.ps1",
   "uninstall-studyapp-local-launcher.ps1",
 ];

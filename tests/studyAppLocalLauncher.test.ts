@@ -20,7 +20,7 @@ describe("StudyApp Local Windows launcher", () => {
     expect(installer).toContain("StudyAppInstallRoot");
     expect(uninstaller).toContain("registered StudyApp Local Launcher belongs to a different extracted package");
     expect(handler).toContain('$uri.Scheme -ne "studyapp-local"');
-    expect(handler).toContain('$uri.Host -ne "open"');
+    expect(handler).toContain('$uri.Host -notin @("open", "stop")');
     expect(handler).toContain('$uri.UserInfo');
     expect(handler).toContain('$uri.Fragment');
     expect(handler).toContain('"stop-studyapp-local.ps1"');
@@ -31,6 +31,13 @@ describe("StudyApp Local Windows launcher", () => {
     expect(handler).toContain('"http://127.0.0.1:8767/#/workspace-beta"');
     expect(handler).toContain('BeginConnect("127.0.0.1", 8767');
     expect(handler).toContain("$stopScript -Port 8767 -QuietIfNotRunning");
+    expect(handler).toContain('"stop-verified-studyapp-local.ps1"');
+    expect(handler).toContain('MessageBoxResult]::No');
+    expect(handler).toContain("StudyApp Local cannot start until it is available.");
+    const safeStop = readFileSync("local-companion/stop-verified-studyapp-local.ps1", "utf8");
+    expect(safeStop).toContain("Test-VerifiedStudyAppProcess");
+    expect(safeStop).toContain("$same.CreationDate -ne $owner.CreationDate");
+    expect(safeStop).not.toMatch(/Stop-Process\s+-Name|taskkill/i);
     const stopper = readFileSync("local-companion/stop-studyapp-local.ps1", "utf8");
     expect(stopper).toContain("[switch]$QuietIfNotRunning");
     expect(stopper).toContain("if (-not $QuietIfNotRunning)");
