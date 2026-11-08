@@ -4,7 +4,15 @@ test("port note explains both safe options and closes with Escape", async ({ pag
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/#/workspace-beta");
   const trigger = page.getByRole("button", { name: "IMPORTANT NOTE", exact: true });
-  await expect(page.getByRole("link", { name: "Stop StudyApp Local", exact: true })).toHaveAttribute("href", "studyapp-local://stop");
+  const stop = page.getByRole("link", { name: "Stop StudyApp Local", exact: true });
+  await expect(stop).toHaveAttribute("href", "studyapp-local://stop");
+  await expect(stop).toHaveCSS("text-decoration-line", "none");
+  await expect(stop).toHaveCSS("border-top-style", "solid");
+  const noteBox = await trigger.boundingBox();
+  const stopBox = await stop.boundingBox();
+  expect(noteBox).not.toBeNull();
+  expect(stopBox).not.toBeNull();
+  expect(stopBox!.x).toBeGreaterThan(noteBox!.x + noteBox!.width);
   await trigger.click();
   const dialog = page.getByRole("dialog", { name: "Starting StudyApp Local" });
   await expect(dialog).toBeVisible();
@@ -21,7 +29,9 @@ test("port note is available in the mobile menu in Greek", async ({ page }) => {
   await page.goto("/#/workspace-beta");
   await page.getByRole("button", { name: "GR", exact: true }).click();
   await page.getByLabel("Άνοιγμα μενού χώρου εργασίας").click();
-  await expect(page.getByRole("link", { name: "Διακοπή StudyApp Local", exact: true })).toHaveAttribute("href", "studyapp-local://stop");
+  const stop = page.getByRole("link", { name: "Διακοπή StudyApp Local", exact: true });
+  await expect(stop).toBeVisible();
+  await expect(stop).toHaveAttribute("href", "studyapp-local://stop");
   await page.getByRole("button", { name: "ΣΗΜΑΝΤΙΚΗ ΣΗΜΕΙΩΣΗ", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Εκκίνηση του StudyApp Local" });
   await expect(dialog).toBeVisible();
