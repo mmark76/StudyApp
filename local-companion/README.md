@@ -45,7 +45,10 @@ extracted package.
 - it does not scan, read, upload or automatically include Library/IndexedDB
   content;
 - responses use `store: false` and are held only in the current page session;
-- selecting **Disconnect** deletes the protected local connection record.
+- selecting **Disconnect** deletes the protected local connection record;
+- each successful Local server startup clears that record and requires a fresh
+  preparation and a fresh ChatGPT browser approval. Study material is not deleted.
+  Closing and reopening a browser tab does not restart the server.
 
 The connected Workspace chat lists models for the selected ChatGPT account.
 The companion retains the token, returns only display names and slugs to the
@@ -53,7 +56,4 @@ Local UI, and verifies the selected slug against a fresh catalog before each
 inference request. Public distribution of this personal Local integration still
 requires review of the applicable OpenAI terms.
 
-The first connect action may offer **Prepare secure connection**. This opens a
-visible Windows PowerShell setup window and installs the single optional
-identity-validation dependency in `local-companion/.chatgpt-plan-venv/`. No
-setup runs without that user action.
+**Prepare secure connection** is required once per server session. If the optional identity-validation dependency is already installed, preparation verifies it without reinstalling. Otherwise a visible Windows setup window installs it in `local-companion/.chatgpt-plan-venv/`; restart the server afterward and prepare again.

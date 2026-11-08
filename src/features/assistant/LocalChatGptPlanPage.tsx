@@ -65,6 +65,7 @@ export function LocalChatGptPlanPage() {
       const status = await getChatGptPlanConnection();
       setConnection(status);
       setSetupRequired(false);
+      if (typeof status.preparationRequired === "boolean") setSetupRequired(status.preparationRequired);
       if (status.connected || status.connectionState === "unreadable") setAwaitingApproval(false);
       setState("ready");
     } catch (error: unknown) {
@@ -104,10 +105,11 @@ export function LocalChatGptPlanPage() {
 
   async function prepare() {
     setState("working");
+    setMessage(text("Preparing…", "Προετοιμασία…"));
     try {
-      await prepareChatGptPlanConnection();
+      const result = await prepareChatGptPlanConnection();
       setSetupRequired(false);
-      setMessage(text("A Windows setup window was opened. Complete it, then connect with ChatGPT.", "Άνοιξε παράθυρο ρύθμισης Windows. Ολοκλήρωσέ το και έπειτα συνδέσου με το ChatGPT."));
+      setMessage(result.state === "READY" ? text("Connection prepared. Select Connect.", "Η σύνδεση προετοιμάστηκε. Πάτησε Σύνδεση.") : text("A Windows setup window was opened. Complete it, then restart StudyApp Local before connecting.", "Άνοιξε παράθυρο ρύθμισης Windows. Ολοκλήρωσέ το και επανεκκίνησε το StudyApp Local πριν συνδεθείς."));
       setState("ready");
     } catch (error) {
       setState("error");

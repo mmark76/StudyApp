@@ -104,7 +104,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         parsed = urlparse(self.path)
         if parsed.path == "/api/chatgpt-plan/connection":
-            self._json(CONNECTION.status())
+            self._json({**CONNECTION.status(), "preparationRequired": not CONNECTION.session_prepared})
             return
         if parsed.path == "/api/chatgpt-plan/models":
             try:
@@ -142,6 +142,13 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/chatgpt-plan/setup":
                 if body.get("confirmSetup") is not True:
                     raise ChatGptConnectionError("Confirm the optional connection setup request.")
+                try:
+                    CONNECTION.prepare_session()
+                except ChatGptConnectionSetupRequired:
+                    pass  # First-time setup still requires the existing installer.
+                else:
+                    self._json({"state": "READY"})
+                    return
                 script = ROOT / "local-companion" / "setup-chatgpt-connection.ps1"
                 if not script.is_file():
                     raise ChatGptConnectionError("The optional connection setup script is unavailable.")
@@ -203,6 +210,7 @@ class Handler(BaseHTTPRequestHandler):
 def main() -> int:
     try:
         with StudyAppLocalServer((HOST, PORT), Handler) as server:
+            CONNECTION.reset_on_server_start()
             print("STUDYAPP LOCAL SERVER", flush=True)
             print("SERVER RUNNING", flush=True)
             print(f"Local address: http://{HOST}:{PORT}", flush=True)
