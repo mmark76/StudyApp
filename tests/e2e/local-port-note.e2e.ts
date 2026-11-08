@@ -4,13 +4,13 @@ test("port note explains both safe options and closes with Escape", async ({ pag
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/#/workspace-beta");
   const trigger = page.getByRole("button", { name: "IMPORTANT NOTE", exact: true });
+  await expect(page.getByRole("link", { name: "Stop StudyApp Local", exact: true })).toHaveAttribute("href", "studyapp-local://stop");
   await trigger.click();
   const dialog = page.getByRole("dialog", { name: "Starting StudyApp Local" });
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText("port 8767");
   await expect(dialog).toContainText("only after your confirmation");
   await expect(dialog).toContainText("cannot start until port 8767 is available");
-  await expect(page.getByRole("link", { name: "Stop StudyApp Local", exact: true })).toHaveAttribute("href", "studyapp-local://stop");
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();
   await expect(trigger).toBeFocused();
