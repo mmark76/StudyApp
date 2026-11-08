@@ -461,3 +461,39 @@
   }
 }
 
+.workspace-local-port-note-trigger {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.workspace-local-port-note-dialog {
+  width: min(36rem, calc(100% - 2rem));
+  max-height: 80dvh;
+  overflow: auto;
+  padding: 1rem;
+  border: 1px solid #ffffff;
+  border-radius: 0.45rem;
+  background: #000000;
+  color: #ffffff;
+  font: inherit;
+}
+
+.workspace-local-port-note-dialog::backdrop {
+  background: rgb(0 0 0 / 0.6);
+}
+
+.workspace-local-port-note-dialog h2 {
+  font-size: var(--workspace-type-heading);
+}
+
+.workspace-local-port-note-dialog button {
+  font: inherit;
+}
+
+.workspace-local-port-note-trigger:focus-visible,
+.workspace-local-port-note-dialog button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+

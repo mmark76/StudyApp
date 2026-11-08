@@ -19,6 +19,7 @@ import { WorkspaceMaterialManager } from "./WorkspaceMaterialManager";
 import type { MaterialPanel } from "./workspaceMaterialService";
 import { WorkspaceLocalChat } from "./WorkspaceLocalChat";
 import { WorkspaceReleaseArchive } from "./WorkspaceReleaseArchive";
+import { LocalPortNote } from "../local-installation/LocalPortNote";
 import {
   getChatGptPlanConnection,
   isStudyAppLocalEdition,
@@ -992,6 +993,7 @@ export function WorkspaceBetaPage() {
               <span className="workspace-beta-badge">BETA</span>
               <span className="workspace-beta-title">{text("Workspace", "Χώρος εργασίας")}</span>
               <StudyAppLocalWindowsZipLink className="workspace-beta-local-download" compact />
+              <LocalPortNote />
               <Link className="workspace-beta-installation-guide-link" onClick={(event) => {
                 event.preventDefault();
                 openInfoModal("/local-installation-guide", event.currentTarget);
@@ -1186,6 +1188,7 @@ export function WorkspaceBetaPage() {
             <span className="workspace-beta-badge">BETA</span>
             <span className="workspace-beta-title">{text("Workspace", "Χώρος εργασίας")}</span>
             <StudyAppLocalWindowsZipLink className="workspace-beta-local-download" compact />
+            <LocalPortNote />
             <Link
               className="workspace-beta-installation-guide-link"
               onClick={(event) => {

@@ -5,6 +5,7 @@ import errno
 import json
 import mimetypes
 import os
+import socket
 import subprocess
 import webbrowser
 from http import HTTPStatus
@@ -26,7 +27,12 @@ CONNECTION = ChatGptPlanConnection(CredentialVault(), DATA_ROOT)
 
 
 class StudyAppLocalServer(ThreadingHTTPServer):
-    allow_reuse_address = True
+    allow_reuse_address = os.name != "nt"
+
+    def server_bind(self) -> None:
+        if os.name == "nt":
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        super().server_bind()
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -209,10 +215,16 @@ def main() -> int:
                 webbrowser.open(f"http://{HOST}:{PORT}")
             server.serve_forever()
     except OSError as error:
-        if error.errno not in {errno.EADDRINUSE, 10048}:
+        if error.errno not in {errno.EADDRINUSE, 10048} and getattr(error, "winerror", None) != 10013:
             raise
-        print(f"StudyApp Local could not start because port {PORT} is already in use.")
-        print("Close the earlier StudyApp Local window or run Stop StudyApp Local Server.bat, then try again.")
+        print(f"StudyApp Local could not start because port {PORT} is in use or unavailable.")
+        print("If another application is using this port, close it and try again.")
+        print("If an earlier StudyApp Local is running, close its window or run Stop StudyApp Local Server.bat, then try again.")
+        try:
+            print("Η θύρα χρησιμοποιείται ή δεν είναι διαθέσιμη. Κλείστε την εφαρμογή που τη χρησιμοποιεί και δοκιμάστε ξανά.")
+            print("Αν είναι παλαιότερο StudyApp Local, κλείστε το παράθυρό του ή εκτελέστε το Stop StudyApp Local Server.bat.")
+        except UnicodeEncodeError:
+            pass  # The English instructions above remain visible on legacy consoles.
         return 1
     return 0
 
