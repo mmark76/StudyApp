@@ -6,6 +6,7 @@ import { PwaUpdateToast } from "../../shared/components/PwaUpdateToast";
 import { WorkspaceBetaPage } from "./WorkspaceBetaPage";
 import { StudyAppLocalWindowsZipLink } from "../../shared/components/StudyAppReleaseZipLinks";
 import { isStudyAppLocalEdition } from "../../infrastructure/local-companion/localCompanionClient";
+import { LocalPortNote } from "../local-installation/LocalPortNote";
 
 type MobilePanel = "sources" | "workspace" | "tools";
 
@@ -62,6 +63,7 @@ export function WorkspaceBetaResponsivePage() {
                   {text("Back to markellosecosystem", "Πίσω στο markellosecosystem")}
                 </a>
                 <StudyAppLocalWindowsZipLink compact onClick={closeMenu} />
+                <LocalPortNote />
                 {!localEdition ? <button onClick={() => activateWorkspaceControl(
                   ".workspace-beta-functional-shell .workspace-beta-release-archive-trigger",
                 )} type="button">{text("ZIP versions", "Εκδόσεις ZIP")}</button> : null}

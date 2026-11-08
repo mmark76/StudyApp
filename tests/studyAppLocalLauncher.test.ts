@@ -25,6 +25,9 @@ describe("StudyApp Local Windows launcher", () => {
     expect(handler).toContain('$uri.Fragment');
     expect(handler).toContain('"stop-studyapp-local.ps1"');
     expect(handler).toContain("$LASTEXITCODE -ne 0");
+    expect(handler).toContain("If another application is using this port, close it and try again.");
+    expect(handler).toContain("Καμία άλλη εφαρμογή δεν σταμάτησε.");
+    expect(handler).not.toContain("choose a different port");
     expect(handler).toContain('"http://127.0.0.1:8767/#/workspace-beta"');
     expect(handler).toContain('BeginConnect("127.0.0.1", 8767');
     expect(handler).toContain("$stopScript -Port 8767 -QuietIfNotRunning");

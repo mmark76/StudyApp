@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [Parameter(Mandatory)]
     [ValidateNotNullOrEmpty()]
@@ -43,7 +43,7 @@ try {
 
     & $stopScript -Port 8767 -QuietIfNotRunning
     if ($LASTEXITCODE -ne 0) {
-        throw "Port 8767 is owned by another application and was not changed. Close that application or choose a different port before opening StudyApp Local."
+        throw "StudyApp Local cannot start because port 8767 is in use or could not be checked safely. No other application was stopped.`r`n`r`nIf another application is using this port, close it and try again. If an earlier StudyApp Local is running, close its window or run Stop StudyApp Local Server.bat.`r`n`r`nΤο StudyApp Local δεν μπορεί να ξεκινήσει επειδή η θύρα 8767 χρησιμοποιείται ή δεν ήταν δυνατός ο ασφαλής έλεγχός της. Καμία άλλη εφαρμογή δεν σταμάτησε.`r`n`r`nΑν η θύρα χρησιμοποιείται από άλλη εφαρμογή, κλείστε την και δοκιμάστε ξανά. Αν είναι παλαιότερο StudyApp Local, κλείστε το παράθυρό του ή εκτελέστε το Stop StudyApp Local Server.bat."
     }
 
     $previousSuppressBrowser = $env:STUDYAPP_LOCAL_SUPPRESS_BROWSER

@@ -18,6 +18,8 @@ If starting directly and a previous StudyApp Local window still owns port 8767,
 run the adjacent `Stop StudyApp Local Server.bat` first. It stops only a process whose
 command line is the bundled StudyApp Local server; it refuses to stop an
 unrelated process. The installed launcher handles this check automatically.
+If another application is using port 8767, close that application before
+starting StudyApp Local. The StudyApp stop file does not stop unrelated apps.
 If you started directly, keep that terminal open while using the app; it closes
 shortly after the server stops.
 
