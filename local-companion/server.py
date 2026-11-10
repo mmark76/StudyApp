@@ -14,6 +14,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
 from credential_vault import CredentialVault
+from browser_session import BrowserSession
 from openai_connection import ChatGptConnectionError, ChatGptConnectionSetupRequired, ChatGptModelUnavailable, ChatGptPlanConnection
 
 HOST = "127.0.0.1"
@@ -132,6 +133,16 @@ class Handler(BaseHTTPRequestHandler):
         path = urlparse(self.path).path
         try:
             body = self._read_json(40_000 if path == "/api/chatgpt-plan/summarize-parts" else 20_000)
+            if path == "/api/local-session":
+                if body.get("state") == "active":
+                    if not self.server.browser_session.heartbeat():
+                        raise ChatGptConnectionError("The local session has ended.")
+                elif body.get("state") == "leave":
+                    self.server.browser_session.leave()
+                else:
+                    raise ChatGptConnectionError("The local session request is invalid.")
+                self._json({"ok": True})
+                return
             if path == "/api/chatgpt-plan/connection":
                 if body.get("confirmConnection") is not True:
                     raise ChatGptConnectionError("Confirm the ChatGPT connection request.")
@@ -211,6 +222,15 @@ def main() -> int:
     try:
         with StudyAppLocalServer((HOST, PORT), Handler) as server:
             CONNECTION.reset_on_server_start()
+            def expire_session() -> None:
+                try:
+                    CONNECTION.close_session()
+                except ChatGptConnectionError:
+                    print("The local ChatGPT connection could not be cleared; it will be checked on the next start.", flush=True)
+                finally:
+                    server.shutdown()
+            server.browser_session = BrowserSession(expire_session)
+            server.browser_session.start()
             print("STUDYAPP LOCAL SERVER", flush=True)
             print("SERVER RUNNING", flush=True)
             print(f"Local address: http://{HOST}:{PORT}", flush=True)
@@ -221,7 +241,10 @@ def main() -> int:
             print("Keep this Terminal running. You can minimize it, but do not close it.", flush=True)
             if os.environ.get("STUDYAPP_LOCAL_SUPPRESS_BROWSER") != "1":
                 webbrowser.open(f"http://{HOST}:{PORT}")
-            server.serve_forever()
+            try:
+                server.serve_forever()
+            finally:
+                server.browser_session.stop()
     except OSError as error:
         if error.errno not in {errno.EADDRINUSE, 10048} and getattr(error, "winerror", None) != 10013:
             raise

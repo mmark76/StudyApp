@@ -59,6 +59,7 @@ jobs:
         run: |
           python3 -m unittest local-companion/test_openai_connection.py
           python3 -m unittest discover -s local-companion -p 'test_port_conflict.py'
+          python3 -m unittest discover -s local-companion -p 'test_browser_session.py'
 
       - name: End-to-end test
         run: npm run test:e2e
@@ -72,6 +73,7 @@ jobs:
           node scripts/prepare-studyapp-local-package.mjs "$RUNNER_TEMP/StudyApp-Local-Windows"
           test -f "$RUNNER_TEMP/StudyApp-Local-Windows/dist/index.html"
           test -f "$RUNNER_TEMP/StudyApp-Local-Windows/local-companion/server.py"
+          test -f "$RUNNER_TEMP/StudyApp-Local-Windows/local-companion/browser_session.py"
           test -f "$RUNNER_TEMP/StudyApp-Local-Windows/Start StudyApp Local.bat"
           test -f "$RUNNER_TEMP/StudyApp-Local-Windows/Enable Launch Button.bat"
           test -f "$RUNNER_TEMP/StudyApp-Local-Windows/Disable Launch Button.bat"

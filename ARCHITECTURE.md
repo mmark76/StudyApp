@@ -35,6 +35,13 @@ loopback-only Windows companion keeps DPAPI-protected credentials outside the
 browser and sends only a user-submitted question with `store: false`. It never
 reads or includes Library/IndexedDB material automatically.
 
+The single top-level Local tab maintains a loopback session heartbeat. A close
+signal has a five-second refresh grace period; a missing heartbeat times out
+after 90 seconds. The companion clears Local authorization and stops its own
+listener, after attempting provider-side renewable-session revocation. A
+non-secret warning persists if revocation is unconfirmed. Browser suspension may
+also trigger the timeout. This lifecycle does not control the ChatGPT website.
+
 Its optional per-user Windows launcher registers fixed `studyapp-local://open` and `studyapp-local://stop` requests. The native handler validates them. Open starts the packaged server; Stop checks the listener and requests confirmation before stopping a verified server or, separately, an eligible identified same-user process. The protocol is not a browser API,
 does not expose Local connection state, credentials, or data, and does not
 change the loopback Host/Origin checks.

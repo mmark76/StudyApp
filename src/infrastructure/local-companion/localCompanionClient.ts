@@ -5,6 +5,7 @@ export interface ChatGptPlanConnectionStatus {
   preparationRequired?: boolean;
   scope: "current-windows-user";
   connectionId?: string | null;
+  revocationUnconfirmed?: boolean;
   message?: string;
 }
 

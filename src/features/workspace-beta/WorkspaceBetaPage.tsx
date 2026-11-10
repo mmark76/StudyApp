@@ -297,8 +297,9 @@ export function WorkspaceBetaPage() {
     setLocalConnectionError("");
     try {
       if (chatGptPlanConnection.connected) {
-        setChatGptPlanConnection(await removeChatGptPlanConnection());
-        setWorkspaceView("ai-options");
+        const status = await removeChatGptPlanConnection();
+        setChatGptPlanConnection(status);
+        if (!status.revocationUnconfirmed) setWorkspaceView("ai-options");
         setLocalAwaitingApproval(false);
       } else {
         setChatGptPlanConnection(await startChatGptPlanConnection());
@@ -1083,6 +1084,7 @@ export function WorkspaceBetaPage() {
                     <span role="status">{localChatReady ? text("ChatGPT connected", "Το ChatGPT συνδέθηκε") : chatGptPlanConnection.connected ? text("Plan approval needed", "Χρειάζεται έγκριση πλάνου") : localAwaitingApproval ? text("Finish approval in your browser", "Ολοκλήρωσε την έγκριση στον browser") : text("ChatGPT disconnected", "Το ChatGPT αποσυνδέθηκε")}</span>
                     {localSetupRequired ? <button disabled={localConnectionBusy} onClick={() => void prepareLocalConnection()} type="button">{localPreparing ? text("Preparing…", "Προετοιμασία…") : text("Prepare connection", "Προετοιμασία σύνδεσης")}</button> : null}
                     <button disabled={localConnectionBusy} onClick={() => void changeLocalConnection()} type="button">{chatGptPlanConnection.connected ? text("Disconnect", "Αποσύνδεση") : text("Connect", "Σύνδεση")}</button>
+                    {chatGptPlanConnection.revocationUnconfirmed ? <p role="alert">{text("A previous ChatGPT session could not be revoked. Check Sign in with ChatGPT in ChatGPT security settings.", "Δεν επιβεβαιώθηκε η ανάκληση προηγούμενης συνεδρίας ChatGPT. Έλεγξε το Sign in with ChatGPT στις ρυθμίσεις ασφαλείας του ChatGPT.")}</p> : null}
                     {localConnectionError ? <p role="alert">{localConnectionError}</p> : null}
                   </div>
                   {!localChatReady ? <p className="workspace-beta-agent-unavailable">{text("Connect in StudyApp Local to use this conversation area.", "Συνδέσου στο StudyApp Local για να χρησιμοποιήσεις αυτή την περιοχή συνομιλίας.")}</p> : null}
@@ -1465,6 +1467,7 @@ export function WorkspaceBetaPage() {
                     ? text("Disconnect", "Αποσύνδεση")
                     : text("Connect", "Σύνδεση")}
                 </button>
+                {chatGptPlanConnection.revocationUnconfirmed ? <p role="alert">{text("A previous ChatGPT session could not be revoked. Check Sign in with ChatGPT in ChatGPT security settings.", "Δεν επιβεβαιώθηκε η ανάκληση προηγούμενης συνεδρίας ChatGPT. Έλεγξε το Sign in with ChatGPT στις ρυθμίσεις ασφαλείας του ChatGPT.")}</p> : null}
                 {localConnectionError ? <p role="alert">{localConnectionError}</p> : null}
               </div>
             ) : null}

@@ -11,11 +11,11 @@ import time
 import uuid
 import webbrowser
 from pathlib import Path
-from threading import Lock
+from threading import RLock
 from typing import Any, Callable
 from urllib.error import HTTPError
-from urllib.parse import urlencode
-from urllib.request import ProxyHandler, Request, build_opener
+from urllib.parse import urlencode, urlsplit
+from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 
 from credential_vault import CredentialVault, CredentialVaultError
 
@@ -23,6 +23,7 @@ AUTHORIZATION_ENDPOINT = "https://auth.openai.com/api/accounts/authorize"
 TOKEN_ENDPOINT = "https://auth.openai.com/api/accounts/oauth/token"
 JWKS_URI = "https://auth.openai.com/.well-known/jwks.json"
 ISSUER = "https://auth.openai.com"
+OIDC_CONFIGURATION = f"{ISSUER}/.well-known/openid-configuration"
 RESOURCE = "https://api.openai.com/v1"
 SCOPES = ("openid", "profile", "email", "offline_access", "resource.invoke", "chatgpt.tokens.use.direct")
 DYNAMIC_CLIENT_ID = "dynamic_agent_client"
@@ -41,6 +42,11 @@ class ChatGptModelUnavailable(ChatGptConnectionError):
     """The selected model is no longer in this account's current catalog."""
 
 
+class _NoRedirect(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
 def _random(size: int = 32) -> str:
     return base64.urlsafe_b64encode(os.urandom(size)).rstrip(b"=").decode("ascii")
 
@@ -56,8 +62,10 @@ class ChatGptPlanConnection:
         self._vault = vault
         self._data_root = Path(data_root)
         self._browser_open = browser_open
-        self._lock = Lock()
+        self._lock = RLock()
         self._attempt: dict[str, Any] | None = None
+        self._closed = False
+        self._revocation_unconfirmed = False
         self._session_prepared = False
 
     @property
@@ -68,9 +76,12 @@ class ChatGptPlanConnection:
     def _host_path(self) -> Path:
         return self._data_root / "openai-chatgpt-host.json"
 
-    @staticmethod
-    def _disconnected() -> dict[str, Any]:
-        return {"connected": False, "connectionState": "disconnected", "scope": "current-windows-user", "planUsageAuthorized": False}
+    @property
+    def _revocation_warning_path(self) -> Path:
+        return self._data_root / "revocation-unconfirmed"
+
+    def _disconnected(self) -> dict[str, Any]:
+        return {"connected": False, "connectionState": "disconnected", "scope": "current-windows-user", "planUsageAuthorized": False, "revocationUnconfirmed": self._revocation_unconfirmed or self._revocation_warning_path.is_file()}
 
     def status(self) -> dict[str, Any]:
         try:
@@ -86,7 +97,7 @@ class ChatGptPlanConnection:
         except (ValueError, TypeError, json.JSONDecodeError):
             return {**self._disconnected(), "connectionState": "unreadable", "message": "The saved ChatGPT connection is invalid. Disconnect it and connect again."}
         connection_id = record.get("connectionId")
-        return {"connected": True, "connectionState": "connected", "scope": "current-windows-user", "planUsageAuthorized": bool(record.get("planUsageAuthorized")), "connectionId": connection_id if isinstance(connection_id, str) else None}
+        return {"connected": True, "connectionState": "connected", "scope": "current-windows-user", "planUsageAuthorized": bool(record.get("planUsageAuthorized")), "connectionId": connection_id if isinstance(connection_id, str) else None, "revocationUnconfirmed": self._revocation_unconfirmed or self._revocation_warning_path.is_file()}
 
     def start(self, callback_url: str) -> dict[str, Any]:
         if not self._session_prepared:
@@ -95,6 +106,8 @@ class ChatGptPlanConnection:
         if callback_url != "http://127.0.0.1:8767/auth/callback":
             raise ChatGptConnectionError("The local callback address is invalid.")
         with self._lock:
+            if self._closed:
+                raise ChatGptConnectionError("The local session has ended.")
             if self._attempt and self._attempt["expiresAt"] > time.time():
                 raise ChatGptConnectionError("A ChatGPT connection approval is already open in your browser.")
             client_id = self._client_id()
@@ -125,6 +138,12 @@ class ChatGptPlanConnection:
         return {**self.status(), "message": "Finish approval in your browser, then return to StudyApp Local."}
 
     def complete(self, query: dict[str, str]) -> dict[str, Any]:
+        # Serialize approval completion with shutdown, so a late token exchange
+        # is revoked rather than being issued after the local session ends.
+        with self._lock:
+            return self._complete(query)
+
+    def _complete(self, query: dict[str, str]) -> dict[str, Any]:
         with self._lock:
             attempt, self._attempt = self._attempt, None
         if not attempt or attempt["expiresAt"] <= time.time():
@@ -148,8 +167,13 @@ class ChatGptPlanConnection:
                 raise ChatGptConnectionError("The ChatGPT approval response used an unexpected application identifier.")
         tokens = self._exchange_tokens({"grant_type": "authorization_code", "code": code, "client_id": issued_client_id, "redirect_uri": attempt["redirectUri"], "code_verifier": attempt["verifier"], "resource": RESOURCE})
         if not isinstance(tokens.get("id_token"), str) or not isinstance(tokens.get("refresh_token"), str):
+            self._revoke_unstored_token(tokens, issued_client_id)
             raise ChatGptConnectionError("ChatGPT did not return a complete connection response.")
-        identity = self._validate_identity(tokens["id_token"], issued_client_id, attempt["nonce"])
+        try:
+            identity = self._validate_identity(tokens["id_token"], issued_client_id, attempt["nonce"])
+        except Exception:
+            self._revoke_unstored_token(tokens, issued_client_id)
+            raise
         scopes = set(tokens.get("scope", "").split()) if isinstance(tokens.get("scope"), str) else set()
         record = {
             "subject": identity["sub"], "clientId": issued_client_id, "refreshToken": tokens["refresh_token"],
@@ -159,21 +183,26 @@ class ChatGptPlanConnection:
             "planUsageAuthorized": "chatgpt.tokens.use.direct" in scopes,
             "connectionId": uuid.uuid4().hex,
         }
-        try:
-            self._vault.store(json.dumps(record, separators=(",", ":")))
-            self._save_client_id(issued_client_id)
-        except (CredentialVaultError, OSError) as error:
+        with self._lock:
+            if self._closed:
+                raise ChatGptConnectionError("The local session has ended.")
             try:
-                self._vault.remove()
-            except CredentialVaultError:
-                pass
-            raise ChatGptConnectionError("The ChatGPT connection could not be protected for this Windows user.") from error
+                self._vault.store(json.dumps(record, separators=(",", ":")))
+                self._save_client_id(issued_client_id)
+            except (CredentialVaultError, OSError) as error:
+                self._revoke_unstored_token(tokens, issued_client_id)
+                try:
+                    self._vault.remove()
+                except CredentialVaultError:
+                    pass
+                raise ChatGptConnectionError("The ChatGPT connection could not be protected for this Windows user.") from error
         return self.status()
 
     def reset_on_server_start(self) -> None:
         """Discard only the saved ChatGPT authorization for a fresh server session."""
         self._session_prepared = False
         try:
+            self._revoke_saved_session()
             self._vault.remove()
         except CredentialVaultError as error:
             raise ChatGptConnectionError("The previous ChatGPT connection could not be cleared. StudyApp Local did not start.") from error
@@ -189,13 +218,88 @@ class ChatGptPlanConnection:
     def remove(self) -> dict[str, Any]:
         with self._lock:
             self._attempt = None
+            self._remove_records()
+        return self._disconnected()
+
+    def close_session(self) -> None:
+        with self._lock:
+            self._closed = True
+            self._session_prepared = False
+            self._attempt = None
+            self._remove_records()
+
+    def _remove_records(self) -> None:
         try:
+            self._revoke_saved_session()
             self._vault.remove()
             self._registration_path.unlink(missing_ok=True)
             self._host_path.unlink(missing_ok=True)
         except (CredentialVaultError, OSError) as error:
             raise ChatGptConnectionError("The protected ChatGPT connection could not be removed.") from error
-        return self._disconnected()
+
+    def _revoke_saved_session(self) -> None:
+        if not self._vault.exists():
+            return
+        try:
+            record = json.loads(self._vault.load())
+            token, client = record.get("refreshToken"), record.get("clientId")
+            if not isinstance(token, str) or not token or not isinstance(client, str) or not client.startswith("oaiapp_"):
+                raise ValueError("invalid connection")
+            confirmed = self._revoke_tokens(token, client)
+        except Exception:
+            confirmed = False
+        if not confirmed:
+            self._note_unconfirmed_revocation()
+
+    def _revoke_unstored_token(self, tokens: dict[str, Any], client_id: str) -> None:
+        token = tokens.get("refresh_token")
+        if isinstance(token, str) and token:
+            try:
+                confirmed = self._revoke_tokens(token, client_id)
+            except Exception:
+                confirmed = False
+            if not confirmed:
+                self._note_unconfirmed_revocation()
+
+    def _note_unconfirmed_revocation(self) -> None:
+        self._revocation_unconfirmed = True
+        try:
+            self._data_root.mkdir(parents=True, exist_ok=True)
+            self._revocation_warning_path.write_text("unconfirmed", encoding="ascii")
+        except OSError:
+            print("ChatGPT remote session revocation was not confirmed.", flush=True)
+
+    @staticmethod
+    def _revoke_tokens(token: str, client_id: str) -> bool:
+        opener = build_opener(ProxyHandler({}), _NoRedirect())
+        for attempt in range(2):
+            try:
+                with opener.open(Request(OIDC_CONFIGURATION), timeout=5) as response:
+                    raw = response.read(16_385)
+                if len(raw) > 16_384:
+                    return False
+                metadata = json.loads(raw.decode("utf-8"))
+                if not isinstance(metadata, dict) or metadata.get("issuer") != ISSUER:
+                    return False
+                endpoint = metadata.get("revocation_endpoint")
+                if not isinstance(endpoint, str):
+                    return False
+                parsed = urlsplit(endpoint)
+                if parsed.scheme != "https" or parsed.netloc != "auth.openai.com" or parsed.fragment:
+                    return False
+                data = urlencode({"token": token, "token_type_hint": "refresh_token", "client_id": client_id}).encode("utf-8")
+                request = Request(endpoint, data=data, method="POST", headers={"Content-Type": "application/x-www-form-urlencoded"})
+                with opener.open(request, timeout=5) as response:
+                    return response.status == 200
+            except HTTPError as error:
+                if error.code < 500:
+                    return False
+                if attempt == 0:
+                    time.sleep(0.5)
+            except Exception:
+                if attempt == 0:
+                    time.sleep(0.5)
+        return False
 
     def list_models(self) -> dict[str, list[dict[str, str]]]:
         record = self._record()
@@ -393,6 +497,8 @@ class ChatGptPlanConnection:
         if not isinstance(client_id, str) or not client_id.startswith("oaiapp_") or not isinstance(refresh_token, str) or not refresh_token:
             raise ChatGptConnectionError("ChatGPT authorization expired. Disconnect and connect again.")
         with self._lock:
+            if self._closed:
+                raise ChatGptConnectionError("The local session has ended.")
             refreshed = self._exchange_tokens({"grant_type": "refresh_token", "client_id": client_id, "refresh_token": refresh_token, "resource": RESOURCE})
             token = refreshed.get("access_token")
             if not isinstance(token, str) or not token:

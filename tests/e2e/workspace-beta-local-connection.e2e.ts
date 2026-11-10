@@ -38,7 +38,13 @@ test("Local AI Studio connects and disconnects without leaving the workspace", a
   await expect(studio.getByRole("button", { name: "Connect", exact: true })).toBeVisible();
 
   await studio.getByRole("button", { name: "Connect", exact: true }).click();
-  await expect(studio.getByRole("button", { name: "Disconnect", exact: true })).toBeVisible();
+  const disconnect = studio.getByRole("button", { name: "Disconnect", exact: true });
+  await expect(disconnect).toBeVisible();
+  const statusBox = await studio.getByText("ChatGPT connected", { exact: true }).boundingBox();
+  const buttonBox = await disconnect.boundingBox();
+  expect(statusBox).not.toBeNull();
+  expect(buttonBox).not.toBeNull();
+  expect(buttonBox!.x - (statusBox!.x + statusBox!.width)).toBeLessThan(16);
   await expect(studio.getByRole("textbox", { name: "Message ChatGPT" })).toBeVisible();
   await expect(studio.locator("iframe[name=studyapp-workspace-workspace]")).toHaveCount(0);
 
@@ -46,6 +52,21 @@ test("Local AI Studio connects and disconnects without leaving the workspace", a
   await expect(studio.getByRole("button", { name: /Sign in with ChatGPT/u })).toBeVisible();
   await expect(studio.getByRole("textbox", { name: "Message ChatGPT" })).toHaveCount(0);
   await expect(studio.locator(".workspace-beta-ai-options")).toBeVisible();
+});
+
+test("Disconnect reports an unconfirmed remote revocation", async ({ page }) => {
+  let connected = true;
+  await page.route("**/api/chatgpt-plan/connection", async (route) => {
+    if (route.request().method() === "DELETE") connected = false;
+    await route.fulfill({ json: {
+      connected, connectionState: connected ? "connected" : "disconnected",
+      planUsageAuthorized: connected, scope: "current-windows-user", revocationUnconfirmed: !connected,
+    } });
+  });
+  await page.goto("/#/workspace-beta");
+  const studio = await openLocalMode(page);
+  await studio.getByRole("button", { name: "Disconnect", exact: true }).click();
+  await expect(studio.getByRole("alert")).toContainText("could not be revoked");
 });
 
 test("Connected chat keeps RAG unavailable and never sends passages", async ({ page }) => {

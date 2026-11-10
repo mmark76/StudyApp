@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import sys
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -82,6 +83,99 @@ class FakeCatalogResponse:
 
 
 class LocalConnectionTests(unittest.TestCase):
+    def test_failed_identity_validation_revokes_unstored_refresh_token(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            connection = ChatGptPlanConnection(MemoryVault(), Path(temporary), browser_open=lambda _url: True)
+            with patch.object(connection, "_require_crypto"), \
+                 patch.object(connection, "_exchange_tokens", return_value={"id_token": "synthetic", "refresh_token": "synthetic"}), \
+                 patch.object(connection, "_validate_identity", side_effect=ChatGptConnectionError("invalid")), \
+                 patch.object(connection, "_revoke_tokens", return_value=True) as revoke:
+                connection.prepare_session()
+                connection.start("http://127.0.0.1:8767/auth/callback")
+                state = connection._attempt["state"]
+                with self.assertRaisesRegex(ChatGptConnectionError, "invalid"):
+                    connection.complete({"state": state, "code": "synthetic", "client_id": "oaiapp_synthetic"})
+                revoke.assert_called_once_with("synthetic", "oaiapp_synthetic")
+
+    def test_signout_posts_refresh_token_only_to_valid_discovery_endpoint(self) -> None:
+        requests = []
+        class Response:
+            status = 200
+            def __init__(self, data): self.data = data
+            def __enter__(self): return self
+            def __exit__(self, *_args): return False
+            def read(self, _limit): return self.data
+        class Opener:
+            def open(self, request, timeout):
+                requests.append(request)
+                if len(requests) == 1:
+                    return Response(json.dumps({"issuer": "https://auth.openai.com", "revocation_endpoint": "https://auth.openai.com/api/accounts/oauth/revoke"}).encode())
+                return Response(b"")
+        with patch("openai_connection.build_opener", return_value=Opener()):
+            self.assertTrue(ChatGptPlanConnection._revoke_tokens("synthetic-refresh", "oaiapp_synthetic"))
+        self.assertEqual(requests[1].full_url, "https://auth.openai.com/api/accounts/oauth/revoke")
+        self.assertEqual(parse_qs(requests[1].data.decode()), {"token": ["synthetic-refresh"], "token_type_hint": ["refresh_token"], "client_id": ["oaiapp_synthetic"]})
+
+    def test_untrusted_revocation_endpoint_never_receives_token(self) -> None:
+        requests = []
+        class Response:
+            def __enter__(self): return self
+            def __exit__(self, *_args): return False
+            def read(self, _limit): return b'{"issuer":"https://auth.openai.com","revocation_endpoint":"https://example.org/revoke"}'
+        class Opener:
+            def open(self, request, timeout):
+                requests.append(request)
+                return Response()
+        with patch("openai_connection.build_opener", return_value=Opener()):
+            self.assertFalse(ChatGptPlanConnection._revoke_tokens("synthetic-refresh", "oaiapp_synthetic"))
+        self.assertEqual(len(requests), 1)
+
+    def test_failed_revocation_clears_local_token_and_warns_on_next_start(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            vault = MemoryVault({"subject": "synthetic", "clientId": "oaiapp_synthetic", "refreshToken": "synthetic"})
+            connection = ChatGptPlanConnection(vault, Path(temporary))
+            with patch.object(connection, "_revoke_tokens", return_value=False):
+                result = connection.remove()
+            self.assertIsNone(vault.record)
+            self.assertTrue(result["revocationUnconfirmed"])
+            self.assertTrue(ChatGptPlanConnection(vault, Path(temporary)).status()["revocationUnconfirmed"])
+
+    def test_late_oauth_callback_cannot_restore_closed_session(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            vault = MemoryVault()
+            connection = ChatGptPlanConnection(vault, Path(temporary), browser_open=lambda _url: True)
+            entered, release = threading.Event(), threading.Event()
+            errors = []
+            def exchange(_body):
+                entered.set()
+                release.wait(2)
+                return {"id_token": "synthetic", "refresh_token": "synthetic"}
+            with patch.object(connection, "_require_crypto"), \
+                 patch.object(connection, "_exchange_tokens", side_effect=exchange), \
+                 patch.object(connection, "_validate_identity", return_value={"sub": "synthetic"}), \
+                 patch.object(connection, "_revoke_tokens", return_value=True) as revoke:
+                connection.prepare_session()
+                connection.start("http://127.0.0.1:8767/auth/callback")
+                state = connection._attempt["state"]
+                def complete():
+                    try:
+                        connection.complete({"state": state, "code": "synthetic", "client_id": "oaiapp_synthetic"})
+                    except ChatGptConnectionError as error:
+                        errors.append(str(error))
+                worker = threading.Thread(target=complete)
+                worker.start()
+                self.assertTrue(entered.wait(2))
+                closer = threading.Thread(target=connection.close_session)
+                closer.start()
+                release.set()
+                worker.join(2)
+                closer.join(2)
+            self.assertFalse(worker.is_alive())
+            self.assertFalse(closer.is_alive())
+            self.assertIsNone(vault.record)
+            self.assertEqual(errors, [])
+            revoke.assert_called_once_with("synthetic", "oaiapp_synthetic")
+
     def test_server_session_requires_prepare_and_fresh_approval(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             vault = MemoryVault({"subject": "old", "refreshToken": "synthetic"})
@@ -102,11 +196,12 @@ class LocalConnectionTests(unittest.TestCase):
         class RefusingVault(MemoryVault):
             def remove(self):
                 raise CredentialVaultError("denied")
-        connection = ChatGptPlanConnection(RefusingVault({"subject": "old"}), Path("."))
-        with self.assertRaisesRegex(ChatGptConnectionError, "could not be cleared"):
-            connection.reset_on_server_start()
-        with self.assertRaisesRegex(ChatGptConnectionError, "Prepare"):
-            connection.start("http://127.0.0.1:8767/auth/callback")
+        with tempfile.TemporaryDirectory() as temporary:
+            connection = ChatGptPlanConnection(RefusingVault({"subject": "old"}), Path(temporary))
+            with self.assertRaisesRegex(ChatGptConnectionError, "could not be cleared"):
+                connection.reset_on_server_start()
+            with self.assertRaisesRegex(ChatGptConnectionError, "Prepare"):
+                connection.start("http://127.0.0.1:8767/auth/callback")
 
     def test_missing_record_is_explicitly_disconnected(self) -> None:
         connection = ChatGptPlanConnection(MissingVault(), Path(tempfile.mkdtemp()))

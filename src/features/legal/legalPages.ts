@@ -39,7 +39,7 @@ export const legalPages = {
   privacy: {
     title: copy("Privacy", "Απόρρητο"),
     summary: copy("StudyApp is local-first and sends no study content automatically.", "Το StudyApp είναι local-first και δεν αποστέλλει αυτόματα υλικό μελέτης."),
-    lastUpdated: copy("3 November 2026", "3 Νοεμβρίου 2026"),
+    lastUpdated: copy("8 November 2026", "8 Νοεμβρίου 2026"),
     sections: [
       {
         heading: copy("Local data", "Τοπικά δεδομένα"),
@@ -55,6 +55,7 @@ export const legalPages = {
           copy("Files created in ChatGPT must be downloaded to your device and added or imported into StudyApp manually. StudyApp does not receive or discover those files automatically.", "Τα αρχεία που δημιουργούνται στο ChatGPT πρέπει να κατεβαίνουν στη συσκευή σου και να προστίθενται ή να εισάγονται χειροκίνητα στο StudyApp. Το StudyApp δεν λαμβάνει ούτε εντοπίζει αυτά τα αρχεία αυτόματα."),
           copy("The AI options comparison page is informational only. Opening it does not read study data, contact ChatGPT or activate a remote AI service.", "Η σελίδα σύγκρισης επιλογών AI είναι μόνο ενημερωτική. Το άνοιγμά της δεν διαβάζει δεδομένα μελέτης, δεν επικοινωνεί με το ChatGPT και δεν ενεργοποιεί απομακρυσμένη υπηρεσία AI."),
           copy("Summary and Main Points saves summaries locally as files. In StudyApp Local only, you may review coverage and explicitly approve sending all readable text from selected documents to ChatGPT through multiple requests for an editable draft. Saved summaries are excluded from the JSON backup.", "Η Περίληψη και βασικά σημεία αποθηκεύει περιλήψεις τοπικά ως αρχεία. Μόνο στο StudyApp Local μπορείς να ελέγξεις την κάλυψη και να εγκρίνεις ρητά την αποστολή όλου του αναγνώσιμου κειμένου των επιλεγμένων εγγράφων στο ChatGPT με πολλαπλά αιτήματα για επεξεργάσιμο πρόχειρο. Οι αποθηκευμένες περιλήψεις δεν περιλαμβάνονται στο αντίγραφο JSON."),
+          copy("In StudyApp Local, closing its tab removes the locally stored ChatGPT connection and stops the local server after a short delay. A timeout also handles a lost close signal. StudyApp attempts to revoke the ChatGPT session and warns you if revocation is not confirmed. This does not sign you out of your ChatGPT account.", "Στο StudyApp Local, το κλείσιμο του tab αφαιρεί την τοπικά αποθηκευμένη σύνδεση ChatGPT και σταματά τον τοπικό server μετά από σύντομη καθυστέρηση. Αν το σήμα κλεισίματος χαθεί, η συνεδρία λήγει μετά από χρονικό όριο. Το StudyApp προσπαθεί να ανακαλέσει τη συνεδρία ChatGPT και σε προειδοποιεί αν η ανάκληση δεν επιβεβαιωθεί. Αυτό δεν αποσυνδέει τον λογαριασμό σου από το ChatGPT."),
           copy("StudyApp AI and ChatGPT App are not active yet.", "Το StudyApp AI και το ChatGPT App δεν είναι ακόμη ενεργά."),
           copy("No paid AI request or charge is currently available.", "Δεν είναι ακόμη διαθέσιμη επί πληρωμή κλήση AI ή χρέωση."),
         ],

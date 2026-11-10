@@ -4,6 +4,7 @@ import { registerSW } from "virtual:pwa-register";
 import { App } from "./app/App";
 import { initializeAnalytics } from "./features/analytics/analyticsConsent";
 import { enforceSecureTransport } from "./app/secureTransport";
+import { startLocalBrowserSession } from "./infrastructure/local-companion/browserSession";
 import {
   announcePwaUpdate,
   setPwaUpdateHandler,
@@ -34,6 +35,7 @@ import "./styles/workspaceBetaInfo.css";
 import "./styles/workspaceBetaControls.css";
 
 if (!enforceSecureTransport()) {
+  startLocalBrowserSession();
   initializeAnalytics();
 
   const updateServiceWorker = registerSW({
