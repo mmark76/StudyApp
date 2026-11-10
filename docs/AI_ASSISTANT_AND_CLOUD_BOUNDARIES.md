@@ -101,6 +101,12 @@ panel as a conversation surface with a bottom composer and transient history.
 It is a Local-only presentation of this same explicit-question flow; the
 browser/PWA keeps its external-link and informational presentation. Disconnect
 deletes the protected local connection record.
+Closing the single StudyApp Local tab also ends the local server session after a
+short grace period and removes its local authorization. A heartbeat timeout is
+used if the close signal is lost. The companion attempts to revoke the renewable
+session at OpenAI; if it cannot confirm revocation, a warning remains for the
+next Local connection screen. This does not sign the user out of ChatGPT, and
+requests already submitted cannot be unsent. Study data remains in browser storage.
 
 RAG retrieval is currently under construction and unavailable. Workspace BETA
 does not show attachment, passage-selection, or source-review controls, and the

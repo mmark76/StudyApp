@@ -31,10 +31,6 @@
   line-height: 1.4;
 }
 
-.workspace-local-connection-controls > span {
-  flex: 1;
-}
-
 .workspace-local-connection-controls button {
   min-height: 1.72rem;
   padding: 0.22rem 0.56rem;

@@ -20,6 +20,14 @@ with DPAPI and sends only an explicitly submitted question. It neither receives
 nor automatically reads Library/IndexedDB material. No PWA real AI request,
 credit purchase or charge is enabled.
 
+The single Local tab sends a same-origin heartbeat to its companion. On closure
+or heartbeat expiry, the companion clears its protected connection and stops
+its listener; a short grace period allows refresh. The loopback Host/Origin
+checks apply to lifecycle requests. The companion attempts provider-side refresh
+token revocation, clears local credentials even if revocation fails, and records
+a non-secret warning when it cannot confirm revocation. Already-submitted
+requests cannot be unsent.
+
 The optional Windows launcher is registered per user only after an explicit installer action. Its native handler accepts only fixed `studyapp-local://open` and `studyapp-local://stop` requests, rejecting parameters and alternate paths. Stop requires confirmation, verifies the port owner and process identity again before acting, and requires separate confirmation before closing an eligible identified same-user application. Protected or unverifiable processes are not stopped.
 The browser/PWA cannot use this protocol to inspect Local connection status,
 credentials, study data, or arbitrary local files. The loopback Host/Origin

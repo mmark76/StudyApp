@@ -3,6 +3,7 @@ import { basename, join, relative, resolve } from "node:path";
 
 const requiredCompanionFiles = [
   "README.md",
+  "browser_session.py",
   "credential_vault.py",
   "openai_connection.py",
   "requirements-chatgpt-plan.txt",

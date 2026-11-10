@@ -121,6 +121,11 @@ rejects the former passage endpoint while this work is paused.
 When connected, its Workspace AI Studio panel becomes a transient conversation
 surface with a bottom composer; the browser/PWA package does not include that
 in-app conversation. Disconnect removes the protected local connection record.
+The single Local tab also maintains the local server session. On tab closure,
+the companion clears its local connection and stops after a short refresh grace
+period; a missing heartbeat also ends the session. StudyApp attempts to revoke
+the renewable ChatGPT session and reports an unconfirmed revocation on the next
+Local connection screen. It does not sign out the user's ChatGPT account.
 Direct Local ChatGPT requests send only the submitted question with `store:
 false`; they do not include Library material.
 

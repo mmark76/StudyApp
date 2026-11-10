@@ -47,8 +47,15 @@ extracted package.
 - responses use `store: false` and are held only in the current page session;
 - selecting **Disconnect** deletes the protected local connection record;
 - each successful Local server startup clears that record and requires a fresh
-  preparation and a fresh ChatGPT browser approval. Study material is not deleted.
-  Closing and reopening a browser tab does not restart the server.
+  preparation and a fresh ChatGPT browser approval. Study material is not deleted;
+- the single Local tab keeps the server session alive. Closing it clears the
+  local connection and stops the server after a short grace period; a refresh
+  during that period keeps it open. If the close signal is lost, the server
+  stops after 90 seconds without a heartbeat. Browser suspension can also delay
+  heartbeats and end the session. A server that never receives a tab heartbeat
+  stops after 120 seconds. The companion attempts to revoke the renewable
+  session at OpenAI; if unconfirmed, a non-secret warning appears on the next
+  Local connection screen. The local credentials are removed regardless.
 
 The connected Workspace chat lists models for the selected ChatGPT account.
 The companion retains the token, returns only display names and slugs to the
