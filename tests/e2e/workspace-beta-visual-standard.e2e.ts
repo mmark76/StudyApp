@@ -9,7 +9,7 @@ test("Sources, AI options and tools use the approved compact card treatment", as
   const toolRows = page.locator(".workspace-beta-tools-grid > button");
   await expect(sourceRows).toHaveCount(2);
   await expect(aiRows).toHaveCount(4);
-  await expect(toolRows).toHaveCount(8);
+  await expect(toolRows).toHaveCount(9);
   const titleHierarchy = await Promise.all([
     sourceRows.first().evaluate((element) => ({
       title: parseFloat(getComputedStyle(element.querySelector("h3")!).fontSize),

@@ -38,7 +38,7 @@ test("Workspace BETA Phase 1 keeps three columns, existing modes and routed tool
   await expect(page.getByRole("heading", { name: "AI-Assisted Tools", exact: true })).toBeVisible();
   await expect(page.locator(".workspace-beta-ai-option")).toHaveCount(4);
   await expect(page.getByRole("button", { name: /ChatGPT App \/ MCP/u })).toBeDisabled();
-  await expect(page.locator(".workspace-beta-tools-grid > button")).toHaveCount(8);
+  await expect(page.locator(".workspace-beta-tools-grid > button")).toHaveCount(9);
 
   const sources = page.frameLocator('iframe[name="studyapp-workspace-sources"]');
   await expect(sources.getByRole("link", { name: "Create / Open your Library" })).toBeVisible();
