@@ -7,6 +7,7 @@ import mimetypes
 import os
 import socket
 import subprocess
+import shutil
 import webbrowser
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -133,6 +134,31 @@ class Handler(BaseHTTPRequestHandler):
         path = urlparse(self.path).path
         try:
             body = self._read_json(40_000 if path == "/api/chatgpt-plan/summarize-parts" else 20_000)
+            if path == "/api/writer/open":
+                if body.get("confirmed") is not True:
+                    raise ChatGptConnectionError("Confirm the Writer launch.")
+                folder_text = body.get("folder")
+                if not isinstance(folder_text, str) or not folder_text.strip() or len(folder_text) > 4096 or "\x00" in folder_text:
+                    raise ChatGptConnectionError("Set a valid Writer folder in Settings.")
+                try:
+                    folder = Path(folder_text).expanduser()
+                    if not folder.is_absolute():
+                        raise ChatGptConnectionError("The Writer folder must be an absolute path.")
+                    folder = folder.resolve()
+                    script = (folder / "app" / "server.py").resolve()
+                    if not script.is_relative_to(folder) or not script.is_file() or not (folder / "Start Local Writer.bat").is_file() or not (folder / "app" / "nlg_writer.py").is_file():
+                        raise ChatGptConnectionError("The selected folder does not contain the Writer application.")
+                except (OSError, RuntimeError, ValueError) as error:
+                    raise ChatGptConnectionError("The selected Writer folder is invalid.") from error
+                python = shutil.which("python")
+                if not python:
+                    raise ChatGptConnectionError("Python was not found for the Writer.")
+                try:
+                    subprocess.Popen([python, str(script), "--open"], cwd=folder, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+                except OSError as error:
+                    raise ChatGptConnectionError("The Writer could not be started.") from error
+                self._json({"state": "START_REQUESTED"})
+                return
             if path == "/api/local-session":
                 if body.get("state") == "active":
                     if not self.server.browser_session.heartbeat():

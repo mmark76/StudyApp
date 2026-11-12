@@ -307,3 +307,7 @@ from `.env.production` for the dedicated StudyApp Custom GPT link. Runtime
 validation falls back to the exact approved HTTPS destination if the setting is
 missing or changed. Vite environment variables are public configuration and
 must never contain secrets.
+
+## Writer & Translator in StudyApp Local
+
+The Tools panel includes an optional link to a separate local Writer & Translator application. In Settings, enter and save the absolute path of the trusted Writer folder containing `Start Local Writer.bat` and `app/server.py`. The Tools button asks for confirmation and asks the local companion to start that application; it reports a start request rather than guaranteeing that a browser opened. The Writer and its Python environment must already be available. This control is disabled in the web edition. No study material is automatically sent or copied to the Writer; the user chooses any text to transfer.

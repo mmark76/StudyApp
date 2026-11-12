@@ -114,7 +114,7 @@ test("resized Workspace BETA buttons and cards wrap labels in English and Greek"
 
   await verifyWrapping("Manual Structuring - import structured files");
   const toolCards = page.locator(".workspace-beta-tools-grid > button");
-  await expect(toolCards).toHaveCount(8);
+  await expect(toolCards).toHaveCount(9);
   await expect(toolCards.first()).toHaveCSS("white-space", "normal");
   await expect(toolCards.first().locator("span")).toHaveCSS("white-space", "normal");
   await page.getByRole("button", { name: "GR", exact: true }).click();
@@ -140,7 +140,7 @@ test("AI Studio and tool controls remain contained at desktop width", async ({ p
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto("/#/workspace-beta");
   await expect(page.locator(".workspace-beta-ai-option")).toHaveCount(4);
-  await expect(page.locator(".workspace-beta-tools-grid > button")).toHaveCount(8);
+  await expect(page.locator(".workspace-beta-tools-grid > button")).toHaveCount(9);
   await expect(page.locator(".workspace-beta-tools-grid > button").first().locator("small")).toHaveCSS("font-weight", "400");
   const overflow = await page.locator(".workspace-beta-phase-one-grid").evaluate((element) =>
     element.scrollWidth - element.clientWidth,

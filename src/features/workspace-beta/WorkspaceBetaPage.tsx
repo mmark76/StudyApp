@@ -23,6 +23,8 @@ import { LocalPortNote } from "../local-installation/LocalPortNote";
 import {
   getChatGptPlanConnection,
   isStudyAppLocalEdition,
+  openWriterFromFolder,
+  WRITER_FOLDER_KEY,
   LocalCompanionError,
   prepareChatGptPlanConnection,
   removeChatGptPlanConnection,
@@ -213,6 +215,21 @@ export function WorkspaceBetaPage() {
   const [chatGptPlanConnection, setChatGptPlanConnection] = useState<ChatGptPlanConnectionStatus>(
     disconnectedChatGptPlan,
   );
+  const [writerLaunchMessage, setWriterLaunchMessage] = useState("");
+  const [writerLaunching, setWriterLaunching] = useState(false);
+  async function launchWriter() {
+    let folder = "";
+    try { folder = localStorage.getItem(WRITER_FOLDER_KEY) ?? ""; } catch { /* report below */ }
+    if (!folder.trim()) { setWriterLaunchMessage(text("Set the Writer folder in Settings first.", "Όρισε πρώτα τον φάκελο Writer στις Ρυθμίσεις.")); return; }
+    if (!window.confirm(text(`Open the Writer from this trusted folder?\n${folder}`, `Να ανοίξει ο Writer από αυτόν τον έμπιστο φάκελο;\n${folder}`))) return;
+    setWriterLaunching(true); setWriterLaunchMessage("");
+    try {
+      await openWriterFromFolder(folder);
+      setWriterLaunchMessage(text("Writer start requested. Check your browser.", "Ζητήθηκε η εκκίνηση του Writer. Έλεγξε τον browser."));
+    } catch {
+      setWriterLaunchMessage(text("Could not start Writer. Check its folder and Python installation.", "Δεν ήταν δυνατή η εκκίνηση. Έλεγξε τον φάκελο Writer και το Python."));
+    } finally { setWriterLaunching(false); }
+  }
   const [localConnectionBusy, setLocalConnectionBusy] = useState(false);
   const [localPreparing, setLocalPreparing] = useState(false);
   const [localConnectionError, setLocalConnectionError] = useState("");
@@ -1158,7 +1175,9 @@ export function WorkspaceBetaPage() {
                 <div className="workspace-beta-tools-avatar"><img alt="" src="/study-assistant-avatar.svg" /><span>AI StudyApp Assistant</span></div>
                 <div className="workspace-beta-tools-grid">
                   {workspaceTools.map((tool) => <button aria-label={text(tool.english, tool.greek)} className={workspaceView === tool.id ? "is-selected" : undefined} key={tool.id} onClick={() => setWorkspaceView(tool.id)} type="button"><span>{text(tool.english, tool.greek)}</span><small>{text(tool.descriptionEnglish, tool.descriptionGreek)}</small></button>)}
+                  <button disabled={!localEdition || writerLaunching} onClick={() => void launchWriter()} type="button"><span>Writer &amp; Translator</span><small>{localEdition ? text("Open the separate local Writer.", "Άνοιξε τον ξεχωριστό τοπικό Writer.") : text("Available in StudyApp Local only.", "Διαθέσιμο μόνο στο StudyApp Local.")}</small></button>
                 </div>
+                {writerLaunchMessage ? <p role="status">{writerLaunchMessage}</p> : null}
               </div>
             </section>
           </div>

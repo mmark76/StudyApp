@@ -147,7 +147,7 @@ test("Phase 1 cards and Agent status retain readable contrast in dark mode", asy
     background: getComputedStyle(element).backgroundColor,
     foreground: getComputedStyle(element).color,
   })));
-  expect(new Set(darkCardColors.map(({ background }) => background)).size).toBe(8);
+  expect(new Set(darkCardColors.map(({ background }) => background)).size).toBe(9);
   for (const colors of darkCardColors) {
     expect(contrastRatio(colors.foreground, colors.background)).toBeGreaterThanOrEqual(4.5);
   }

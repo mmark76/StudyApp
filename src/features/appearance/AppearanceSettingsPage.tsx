@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { isStudyAppLocalEdition, WRITER_FOLDER_KEY } from "../../infrastructure/local-companion/localCompanionClient";
 import { useLanguage } from "../../i18n/LanguageContext";
 import type { LocalWriteFailureInjector } from "../../infrastructure/database/localWriteFailureInjector";
 import {
@@ -42,6 +44,15 @@ export function AppearanceSettingsPage({
   failureInjector,
 }: AppearanceSettingsPageProps = {}) {
   const { language, text } = useLanguage();
+  const localEdition = isStudyAppLocalEdition();
+  const [writerFolder, setWriterFolder] = useState(() => {
+    try { return localStorage.getItem(WRITER_FOLDER_KEY) ?? ""; } catch { return ""; }
+  });
+  const [writerFolderSaveStatus, setWriterFolderSaveStatus] = useState<"" | "saved" | "error">("");
+  function saveWriterFolder() {
+    try { localStorage.setItem(WRITER_FOLDER_KEY, writerFolder.trim()); setWriterFolderSaveStatus("saved"); }
+    catch { setWriterFolderSaveStatus("error"); }
+  }
   const {
     isLoading,
     isSaving,
@@ -74,6 +85,13 @@ export function AppearanceSettingsPage({
         <p>{text("Adjust colours, font, text size and spacing.", "Ρύθμισε χρώματα, γραμματοσειρά, μέγεθος και αποστάσεις.")}</p>
       </header>
 
+      {localEdition ? <section className="content-panel">
+        <h3>{text("Writer & Translator folder", "Φάκελος Writer & Translator")}</h3>
+        <p>{text("Enter the absolute path to the separate Writer folder containing Start Local Writer.bat. Only choose software you trust.", "Πληκτρολόγησε την πλήρη διαδρομή του ξεχωριστού φακέλου Writer που περιέχει το Start Local Writer.bat. Επίλεξε μόνο λογισμικό που εμπιστεύεσαι.")}</p>
+        <label className="field-label">{text("Application folder", "Φάκελος εφαρμογής")}<input value={writerFolder} onChange={(event) => { setWriterFolder(event.target.value); setWriterFolderSaveStatus(""); }} /></label>
+        <button className="button secondary" type="button" onClick={saveWriterFolder}>{text("Save folder", "Αποθήκευση φακέλου")}</button>
+        {writerFolderSaveStatus ? <p role="status">{writerFolderSaveStatus === "saved" ? text("Folder saved on this device.", "Ο φάκελος αποθηκεύτηκε σε αυτή τη συσκευή.") : text("The folder could not be saved. Try again.", "Ο φάκελος δεν αποθηκεύτηκε. Δοκίμασε ξανά.")}</p> : null}
+      </section> : null}
       <section className="content-panel">
         <div className="settings-grid appearance-settings-grid">
           <label className="field-label">

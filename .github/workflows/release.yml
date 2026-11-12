@@ -49,6 +49,7 @@ jobs:
         run: |
           python3 -m unittest local-companion/test_openai_connection.py
           python3 -m unittest discover -s local-companion -p 'test_port_conflict.py'
+          python3 -m unittest discover -s local-companion -p 'test_writer_launch.py'
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
       - run: npm run test:e2e

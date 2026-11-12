@@ -507,3 +507,5 @@ Workspace BETA browser coverage includes:
 
 Firefox, WebKit and manual screen-reader verification remain follow-up gaps.
 Future MCP and paid API work requires separate integration and browser tests.
+
+The optional Writer & Translator Tools button is available only in StudyApp Local. Its folder is selected explicitly in local settings; the local companion checks the folder structure and starts the separate application's `app/server.py --open` using Python without a shell. The UI confirms the trusted folder before each launch. The endpoint returns a start request, not a readiness guarantee. The apps remain separate and no library content is transferred automatically.
