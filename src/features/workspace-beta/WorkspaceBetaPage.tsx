@@ -1180,7 +1180,7 @@ export function WorkspaceBetaPage() {
                 </div>
                 <p className="workspace-beta-tools-availability">
                   {text("To use Writer & Translator, download and extract it separately, and use StudyApp Local. In StudyApp Local, open Settings and save the Writer application folder.", "Για να χρησιμοποιήσεις τον Writer & Translator, κατέβασέ τον και αποσυμπίεσέ τον ξεχωριστά και χρησιμοποίησε το StudyApp Local. Στο StudyApp Local, άνοιξε τις Ρυθμίσεις και αποθήκευσε τον φάκελο της εφαρμογής Writer.")}{" "}
-                  <a href="https://github.com/mmark76/StudyApp/releases/download/v1.5.18/Writer-Translator-v0.1.0-alpha.4.zip">{text("Download Writer & Translator", "Λήψη Writer & Translator")}</a>
+                  <a href="https://github.com/mmark76/StudyApp/releases/download/v1.5.19/Writer-Translator-v0.1.0-alpha.5.zip">{text("Download Writer & Translator", "Λήψη Writer & Translator")}</a>
                 </p>
                 {writerLaunchMessage ? <p role="status">{writerLaunchMessage}</p> : null}
               </div>
