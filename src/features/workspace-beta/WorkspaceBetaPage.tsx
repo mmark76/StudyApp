@@ -1172,11 +1172,16 @@ export function WorkspaceBetaPage() {
                 </div>
               </div>
               <div className="workspace-beta-tools-body" id="workspace-beta-tools-content">
+                <p className="workspace-beta-tools-availability">{text("Most tools work in Web and Local. Writer & Translator opens only from StudyApp Local.", "Τα περισσότερα εργαλεία λειτουργούν σε Web και Local. Ο Writer & Translator ανοίγει μόνο από το StudyApp Local.")}</p>
                 <div className="workspace-beta-tools-avatar"><img alt="" src="/study-assistant-avatar.svg" /><span>AI StudyApp Assistant</span></div>
                 <div className="workspace-beta-tools-grid">
                   {workspaceTools.map((tool) => <button aria-label={text(tool.english, tool.greek)} className={workspaceView === tool.id ? "is-selected" : undefined} key={tool.id} onClick={() => setWorkspaceView(tool.id)} type="button"><span>{text(tool.english, tool.greek)}</span><small>{text(tool.descriptionEnglish, tool.descriptionGreek)}</small></button>)}
                   <button disabled={!localEdition || writerLaunching} onClick={() => void launchWriter()} type="button"><span>Writer &amp; Translator</span><small>{localEdition ? text("Open the separate local Writer.", "Άνοιξε τον ξεχωριστό τοπικό Writer.") : text("Available in StudyApp Local only.", "Διαθέσιμο μόνο στο StudyApp Local.")}</small></button>
                 </div>
+                <p className="workspace-beta-tools-availability">
+                  {text("To use Writer & Translator, download and extract it separately, and use StudyApp Local. In StudyApp Local, open Settings and save the Writer application folder.", "Για να χρησιμοποιήσεις τον Writer & Translator, κατέβασέ τον και αποσυμπίεσέ τον ξεχωριστά και χρησιμοποίησε το StudyApp Local. Στο StudyApp Local, άνοιξε τις Ρυθμίσεις και αποθήκευσε τον φάκελο της εφαρμογής Writer.")}{" "}
+                  <a href="https://github.com/mmark76/Local-Personal-Writer-and-Translator/releases" target="_blank" rel="noopener noreferrer">{text("Download Writer & Translator", "Λήψη Writer & Translator")}</a>
+                </p>
                 {writerLaunchMessage ? <p role="status">{writerLaunchMessage}</p> : null}
               </div>
             </section>

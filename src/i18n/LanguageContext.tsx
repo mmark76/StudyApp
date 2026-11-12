@@ -32,7 +32,7 @@ function readInitialLanguage(): AppLanguage {
   const storedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
   if (storedLanguage === "en" || storedLanguage === "el") return storedLanguage;
 
-  return window.navigator.language.toLowerCase().startsWith("el") ? "el" : "en";
+  return "en";
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
