@@ -62,3 +62,5 @@ switch Appearance settings in both languages and confirm the
 draft/conversation remains after changing Workspace views. RAG remains visibly
 unavailable until its separate redesign is approved. This Phase 1 PR does not
 perform or approve that packaged release test.
+
+StudyApp Local can request launch of a separately installed Writer & Translator from a user-configured folder. The Tools control requires confirmation and does not copy or send study material to the Writer. The web edition does not launch local programs.

@@ -298,3 +298,5 @@ focused security and maintenance review.
 Report security or privacy concerns privately to the repository owner. Do not
 open public issues containing credentials, private data, payment information or
 exploitable details.
+
+The optional Writer launcher accepts a user-configured absolute folder only through the StudyApp Local host/origin boundary and after explicit UI confirmation. It verifies the expected Writer files and that the resolved entry script is inside the selected directory, then starts Python with an argument list and no shell. Selecting a Writer folder authorizes execution of code from that folder; select only trusted application files. The folder path is stored in the local browser settings. This endpoint does not send library text or model inputs. These focused checks are not a complete security assessment.

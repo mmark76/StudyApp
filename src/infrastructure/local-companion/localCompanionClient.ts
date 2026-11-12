@@ -160,3 +160,12 @@ export function summarizeCompleteDocumentParts(
     body: JSON.stringify({ confirmExternalRequest: true, phase, parts, model }),
   });
 }
+
+export const WRITER_FOLDER_KEY = "studyapp-writer-folder";
+
+export function openWriterFromFolder(folder: string): Promise<{ state: "START_REQUESTED" }> {
+  return request("/api/writer/open", {
+    method: "POST",
+    body: JSON.stringify({ folder, confirmed: true }),
+  });
+}
