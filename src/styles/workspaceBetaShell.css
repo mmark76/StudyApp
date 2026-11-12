@@ -2143,6 +2143,7 @@ body:has(.workspace-panel-embed-shell),
 :root[data-workspace-theme="dark"] .workspace-beta-agent-bar > span { color: #c6c6bf; }
 .workspace-beta-agent-unavailable { margin: auto; padding: 1rem; color: #686861; font-size: var(--workspace-type-body, 0.82rem); text-align: center; }
 .workspace-beta-tools-body { min-height: 0; overflow-y: auto; }
+.workspace-beta-tools-availability { margin: 0.7rem 0.7rem 0; font-size: var(--workspace-type-small, 0.72rem); line-height: 1.4; }
 .workspace-beta-tools-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; padding: 0.7rem; }
 .workspace-beta-tools-grid > button { min-height: 4.5rem; padding: 0.55rem; color: #242421; font-weight: var(--workspace-weight-regular, 400); cursor: pointer; }
 .workspace-beta-tools-grid > button:nth-child(1) { border-color: #c9ddcf; background: #eef6f0; }
