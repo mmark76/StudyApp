@@ -1179,8 +1179,8 @@ export function WorkspaceBetaPage() {
                   <button disabled={!localEdition || writerLaunching} onClick={() => void launchWriter()} type="button"><span>Writer &amp; Translator</span><small>{localEdition ? text("Open the separate local Writer.", "Άνοιξε τον ξεχωριστό τοπικό Writer.") : text("Available in StudyApp Local only.", "Διαθέσιμο μόνο στο StudyApp Local.")}</small></button>
                 </div>
                 <p className="workspace-beta-tools-availability">
-                  {text("To use Writer & Translator, download and extract it separately, and use StudyApp Local. In StudyApp Local, open Settings and save the Writer application folder.", "Για να χρησιμοποιήσεις τον Writer & Translator, κατέβασέ τον και αποσυμπίεσέ τον ξεχωριστά και χρησιμοποίησε το StudyApp Local. Στο StudyApp Local, άνοιξε τις Ρυθμίσεις και αποθήκευσε τον φάκελο της εφαρμογής Writer.")}{" "}
-                  <a href="https://github.com/mmark76/StudyApp/releases/download/v1.5.19/Writer-Translator-v0.1.0-alpha.5.zip">{text("Download Writer & Translator", "Λήψη Writer & Translator")}</a>
+                  {text("To use Writer & Translator, download and run its separate Windows setup, then use StudyApp Local. In StudyApp Local, open Settings and save the Writer application folder. The setup is unsigned and Windows may display a warning.", "Για να χρησιμοποιήσεις τον Writer & Translator, κατέβασε και εκτέλεσε το ξεχωριστό πρόγραμμα εγκατάστασης Windows και χρησιμοποίησε το StudyApp Local. Στο StudyApp Local, άνοιξε τις Ρυθμίσεις και αποθήκευσε τον φάκελο της εφαρμογής Writer. Ο εγκαταστάτης δεν είναι υπογεγραμμένος και τα Windows ενδέχεται να εμφανίσουν προειδοποίηση.")}{" "}
+                  <a href="https://github.com/mmark76/StudyApp/releases/download/v1.5.20/Writer-Translator-Setup.exe">{text("Download Writer setup", "Λήψη εγκαταστάτη Writer")}</a>
                 </p>
                 {writerLaunchMessage ? <p role="status">{writerLaunchMessage}</p> : null}
               </div>
