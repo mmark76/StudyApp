@@ -56,6 +56,38 @@ test("Workspace BETA mobile footer follows page scroll instead of staying pinned
   await expectNoDocumentOverflow(page);
 });
 
+test("Workspace BETA mobile Sources iframe fills the full panel height", async ({ page }) => {
+  for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto("/#/workspace-beta");
+
+    const geometry = await page.locator(".workspace-beta-phase-sources").evaluate((panel) => {
+      const wrap = panel.querySelector<HTMLElement>(".workspace-beta-frame-wrap");
+      const frame = panel.querySelector<HTMLIFrameElement>(".workspace-beta-frame");
+      if (!wrap || !frame) throw new Error("Sources iframe was not found");
+      return {
+        panel: panel.getBoundingClientRect().height,
+        wrap: wrap.getBoundingClientRect().height,
+        frame: frame.getBoundingClientRect().height,
+      };
+    });
+
+    expect(geometry.panel).toBeGreaterThan(350);
+    expect(geometry.wrap).toBeGreaterThan(200);
+    expect(Math.abs(geometry.frame - geometry.wrap)).toBeLessThanOrEqual(2);
+
+    const footer = page.locator(".workspace-beta-global-footer");
+    const panelBottom = await page.locator(".workspace-beta-phase-sources").evaluate(
+      (panel) => panel.getBoundingClientRect().bottom + window.scrollY,
+    );
+    const footerTop = await footer.evaluate((element) =>
+      element.getBoundingClientRect().top + window.scrollY,
+    );
+    expect(footerTop).toBeGreaterThanOrEqual(panelBottom - 1);
+    await expectNoDocumentOverflow(page);
+  }
+});
+
 test("Workspace BETA desktop keeps all three columns visible", async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/#/workspace-beta");
