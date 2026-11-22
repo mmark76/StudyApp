@@ -2178,7 +2178,13 @@ body:has(.workspace-panel-embed-shell),
 }
 @media (max-width: 760px) {
   .workspace-beta-phase-one-grid { display: block; height: auto; }
-  .workspace-beta-phase-one .workspace-beta-panel { display: flex; min-height: calc(100dvh - 9rem); }
+  /* A definite panel height lets the embedded iframe resolve height: 100%.
+     A min-height alone leaves it at the browser's 150px default on mobile. */
+  .workspace-beta-phase-one .workspace-beta-panel {
+    display: flex;
+    height: calc(100dvh - 9rem);
+    min-height: 320px;
+  }
   .workspace-beta-phase-one .workspace-beta-panel + .workspace-beta-panel { border-top: 1px solid #ddddda; border-left: 0; }
   .workspace-beta-mobile-shell[data-mobile-panel="sources"] .workspace-beta-phase-workspace, .workspace-beta-mobile-shell[data-mobile-panel="sources"] .workspace-beta-phase-tools, .workspace-beta-mobile-shell[data-mobile-panel="workspace"] .workspace-beta-phase-sources, .workspace-beta-mobile-shell[data-mobile-panel="workspace"] .workspace-beta-phase-tools, .workspace-beta-mobile-shell[data-mobile-panel="tools"] .workspace-beta-phase-sources, .workspace-beta-mobile-shell[data-mobile-panel="tools"] .workspace-beta-phase-workspace { display: none; }
   .workspace-beta-mobile-shell .workspace-beta-side-toggle { display: none; }
