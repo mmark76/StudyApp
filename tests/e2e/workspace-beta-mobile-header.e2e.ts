@@ -35,6 +35,27 @@ test("Workspace BETA mobile language and modal actions remain valid", async ({ p
   await expectNoDocumentOverflow(page);
 });
 
+test("Workspace BETA mobile footer follows page scroll instead of staying pinned", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/#/workspace-beta");
+
+  const footer = page.locator(".workspace-beta-global-footer");
+  await expect(footer).toHaveCSS("position", "static");
+
+  // Simulate a long active panel to confirm the footer remains after the content.
+  await page.locator(".workspace-beta-phase-sources").evaluate((element) => {
+    (element as HTMLElement).style.minHeight = "160dvh";
+  });
+  const documentOverflow = await page.evaluate(() =>
+    document.documentElement.scrollHeight - window.innerHeight,
+  );
+  expect(documentOverflow).toBeGreaterThan(0);
+
+  await footer.scrollIntoViewIfNeeded();
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  await expectNoDocumentOverflow(page);
+});
+
 test("Workspace BETA desktop keeps all three columns visible", async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/#/workspace-beta");
