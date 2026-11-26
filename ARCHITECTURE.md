@@ -401,7 +401,7 @@ No automatic library scan and no automatic result save are allowed.
 
 The full CI workflow runs for pull requests, direct `main` updates and explicit
 manual CI dispatches. It executes in the pinned Playwright container
-`mcr.microsoft.com/playwright:v1.64.1-noble`:
+`mcr.microsoft.com/playwright:v1.65.1-noble`:
 
 ```text
 npm ci → typecheck → unit tests → Playwright E2E → production build

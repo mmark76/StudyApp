@@ -9,6 +9,8 @@ describe("release safety configuration", () => {
   it("runs every required check in CI before allowing the production deployment path", () => {
     const ciWorkflow = readRepositoryFile(".github/workflows/ci.yml");
     const deployWorkflow = readRepositoryFile(".github/workflows/deploy-pages.yml");
+    const lockfile = JSON.parse(readRepositoryFile("package-lock.json"));
+    const playwrightVersion = lockfile.packages["node_modules/@playwright/test"].version;
     const requiredChecks = [
       "npm ci",
       "npm run typecheck",
@@ -20,7 +22,8 @@ describe("release safety configuration", () => {
 
     expect(ciWorkflow).toContain("pull_request:");
     expect(ciWorkflow).toContain("container:");
-    expect(ciWorkflow).toContain("mcr.microsoft.com/playwright:v1.64.1-noble");
+    expect(playwrightVersion).toMatch(/^\d+\.\d+\.\d+$/u);
+    expect(ciWorkflow).toContain(`mcr.microsoft.com/playwright:v${playwrightVersion}-noble`);
     expect(ciWorkflow).not.toContain("playwright install");
     expect(positions.every((position) => position >= 0)).toBe(true);
     expect(positions).toEqual([...positions].sort((first, second) => first - second));
