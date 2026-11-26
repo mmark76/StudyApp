@@ -10,10 +10,22 @@ to reopen the historical v1 release scope.
 ## Audit snapshot — 2026-11-26
 
 Audited against fetched `main` at
-[`cd05c9727492a0c478aaa0d69db6bc858998a47f`](https://github.com/mmark76/StudyApp/commit/cd05c9727492a0c478aaa0d69db6bc858998a47f)
+[`9cf2fa0082ad936973938abda95f7c306d40203d`](https://github.com/mmark76/StudyApp/commit/9cf2fa0082ad936973938abda95f7c306d40203d)
 (application version **1.5.21**). Status reflects that source tree, its tests
 and merged PR history, not unmerged branches or external service assumptions.
-In particular, open security PR #375 is excluded from completed implementation.
+The initial audit at `cd05c9727492a0c478aaa0d69db6bc858998a47f` is preserved in
+[the original audit commit](https://github.com/mmark76/StudyApp/blob/7f77e74c33fde84762a1be7f3f22394fe87ee2ce/V1_1_BACKLOG.md).
+This refresh includes merged [PR #375](https://github.com/mmark76/StudyApp/pull/375):
+compatible, lockfile-only build-dependency security maintenance, verified and
+deployed at the current audited SHA. It reduced the full dependency audit from
+nine findings (three high, five moderate, one low) to four moderate findings in
+the `glob`/`minimatch` → `workbox-build` → `vite-plugin-pwa` build-tool chain.
+Production-only and high-severity audit gates pass; the full audit still exits
+nonzero for those four moderate findings. No forced upgrades, downgrades or
+overrides were applied. This maintenance does not implement a permanent
+advisory-scanning gate or close any other acceptance criterion in P3-01.
+All 32 classifications, original requirements and approved priorities remain
+unchanged by this refresh.
 
 **Historical traceability:** the original 2026-07-31 requirements and P0–P3
 ordering are retained below, including dated wording such as “current” and
@@ -48,7 +60,7 @@ is preserved; this audit neither reprioritises it nor declares its open capacity
 backup or import-throughput work complete.
 
 **Verification boundary:** source/tests and relevant merged PRs were inspected.
-The existing [successful CI run on the audited SHA](https://github.com/mmark76/StudyApp/actions/runs/45816504716)
+The existing [successful CI run on the audited SHA](https://github.com/mmark76/StudyApp/actions/runs/45820450208)
 reports 318 unit tests, 104 Chromium E2E tests, 32 companion tests, Windows stop
 safety, production build and package verification. Those are prior executed CI
 results, not a new full-suite run for this documentation edit. The earlier local
@@ -557,8 +569,10 @@ dependency-advisory scanning.
 #371](https://github.com/mmark76/StudyApp/pull/371).
 [package.json](package.json)/[CI](.github/workflows/ci.yml) have no
 ESLint/format/coverage/advisory-scan gate. Update PRs are not equivalent to vulnerability
-scanning. Remaining: the original lint/format/coverage/scanning baseline; open PR #375 is not
-merged evidence.
+scanning. Remaining: the original lint/format/coverage/scanning baseline. Merged
+[PR #375](https://github.com/mmark76/StudyApp/pull/375) completed compatible security lockfile
+maintenance, but added none of those permanent gates; the four moderate build-tool findings
+remain open.
 
 #### P3-02 — Partially completed
 
