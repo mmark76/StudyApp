@@ -1,0 +1,37 @@
+StudyApp backlog audit synchronization and verification record
+Date: 2026-11-26
+Scope: documentation PR #376 and its owner-approved automatic deployment only.
+
+Verified implementation base:
+9cf2fa0082ad936973938abda95f7c306d40203d (version 1.5.21).
+The original audit is preserved at:
+7f77e74c33fde84762a1be7f3f22394fe87ee2ce:V1_1_BACKLOG.md.
+Synchronization used a normal merge of the verified main, without conflicts,
+rebasing, force pushes or changes to existing unique work/worktrees.
+
+The backlog refresh includes merged PR #375's compatible lockfile maintenance.
+Its verified security result is zero production-dependency findings, zero
+high/critical findings and four moderate build-tool dependency findings.
+The full audit still exits nonzero for the moderate findings. No forced
+dependency upgrades, downgrades or overrides are part of this documentation PR.
+
+All 32 existing classifications are preserved:
+3 Completed; 24 Partially completed; 4 Pending; 1 Requires verification.
+Removed mock-preview capabilities remain Obsolete historical scope.
+All original requirements, P0-P3 priorities and approved follow-up order remain.
+The backlog provides the per-item source, test and merged-history evidence.
+
+Reference validation at synchronization:
+77 original relative evidence links/anchors resolved; all 24 cited merged PRs
+were ancestors of the verified base. The original-audit blob, source commit,
+exact-base successful CI run and historical advisory reference were checked.
+CI on the verified implementation base:
+https://github.com/mmark76/StudyApp/actions/runs/45820450208
+
+Deployment path:
+The existing CI workflow skips Markdown-only main pushes. This plain-text audit
+record keeps this explicitly approved documentation deployment eligible for the
+unchanged main push CI -> successful workflow_run -> Pages deployment path.
+PR and merged-main CI must pass before production verification. No workflow,
+application, repository security setting or release configuration is modified.
+No backlog item is implemented and no new release is published by this PR.

@@ -27,6 +27,9 @@ advisory-scanning gate or close any other acceptance criterion in P3-01.
 All 32 classifications, original requirements and approved priorities remain
 unchanged by this refresh.
 
+The [synchronization and verification record](docs/audits/20261126_backlog-audit-verification.txt)
+records the documentation-only scope and existing CI/deployment path.
+
 **Historical traceability:** the original 2026-07-31 requirements and P0–P3
 ordering are retained below, including dated wording such as “current” and
 “now.” Each added audit block states the current result and any remaining scope;
